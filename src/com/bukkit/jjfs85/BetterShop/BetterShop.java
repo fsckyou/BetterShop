@@ -11,6 +11,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginManager;
+import com.nijikokun.bukkit.iConomy.iConomy;
 
 public class BetterShop extends JavaPlugin{
 
@@ -38,6 +39,11 @@ public class BetterShop extends JavaPlugin{
 		
 	}
 	
+	public void list(Player player, int page) {
+		
+	}
 	
-	
+	public void help(Player player) {
+		
+	}
 }
