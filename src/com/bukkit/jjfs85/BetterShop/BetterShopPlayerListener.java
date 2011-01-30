@@ -20,91 +20,96 @@ public class BetterShopPlayerListener extends PlayerListener {
 		Player player = event.getPlayer();
 		// Accept shop command, parse arguments, check values
 		if (split[0].equalsIgnoreCase("/shop")) {
-			if (split[1].equalsIgnoreCase("list")) {
-				if (split.length == 3) {
-					try {
-						// A 3rd param? Is it a page number?
-						i = this.stringToInt(split[2]);
-					} catch (Exception e) {
-						// Pass page 1
-						i = 1;
+			if (split.length > 1) {
+				if (split[1].equalsIgnoreCase("list")) {
+					if (split.length == 3) {
+						try {
+							// A 3rd param? Is it a page number?
+							i = this.stringToInt(split[2]);
+						} catch (Exception e) {
+							// Pass page 1
+							i = 1;
+						}
+						plugin.list(player, i);
+					} else {
+						plugin.list(player, 1);
 					}
-					plugin.list(player, i);
 				} else {
-					plugin.list(player, 1);
-				}
-			} else {
-				// Now we expect the 3rd param to be an item.
-				if (split.length > 2) {
-					try {
-						// First try the items.db
-						itemDb.get(split[2]);
-					} catch (Exception doh) {
+					// Now we expect the 3rd param to be an item.
+					if (split.length > 2) {
 						try {
-							// That didn't work. Is it a number?
-							i = stringToInt(split[2]);
-						} catch (Exception doh2) {
-							// Nope. It's fucked.
-							player
-									.sendMessage("I don't know what that is. Check \"/shop list\" again.");
+							// First try the items.db
+							itemDb.get(split[2]);
+						} catch (Exception doh) {
+							try {
+								// That didn't work. Is it a number?
+								i = stringToInt(split[2]);
+							} catch (Exception doh2) {
+								// Nope. It's fucked.
+								player
+										.sendMessage("§2[SHOP] I don't know what §f"
+												+ split[2]
+												+ "§2 is. Check \"/shop list\" again.");
+							}
 						}
 					}
-				}
-				if (split[1].equalsIgnoreCase("buy")) {
-					if (split.length == 4) {
-						try {
-							// The 4th param is an amount
-							a = this.stringToInt(split[3]);
-						} catch (Exception e) {
+					if (split[1].equalsIgnoreCase("buy")) {
+						if (split.length == 4) {
+							try {
+								// The 4th param is an amount
+								a = this.stringToInt(split[3]);
+							} catch (Exception e) {
+								plugin.help(player);
+							}
+							plugin.buy(player, i, a);
+						} else
 							plugin.help(player);
-						}
-						plugin.buy(player, i, a);
-					} else
-						plugin.help(player);
-				}
-				if (split[1].equalsIgnoreCase("sell")) {
-					if (split.length == 4) {
-						try {
-							// The 4th param is an amount
-							a = this.stringToInt(split[3]);
-						} catch (Exception e) {
+					}
+					if (split[1].equalsIgnoreCase("sell")) {
+						if (split.length == 4) {
+							try {
+								// The 4th param is an amount
+								a = this.stringToInt(split[3]);
+							} catch (Exception e) {
+								plugin.help(player);
+							}
+							plugin.sell(player, i, a);
+						} else
 							plugin.help(player);
-						}
-						plugin.sell(player, i, a);
-					} else
-						plugin.help(player);
-				}
-				if (split[1].equalsIgnoreCase("add")) {
-					if (split.length == 5) {
-						try {
-							// The 4th param is an amount
-							b = this.stringToInt(split[3]);
-						} catch (Exception e) {
+					}
+					if (split[1].equalsIgnoreCase("add")) {
+						if (split.length == 5) {
+							try {
+								// The 4th param is an amount
+								b = this.stringToInt(split[3]);
+							} catch (Exception e) {
+								plugin.help(player);
+							}
+							try {
+								// The 5th param is an amount
+								s = this.stringToInt(split[4]);
+							} catch (Exception e) {
+								plugin.help(player);
+							}
+							plugin.add(player, i, b, s);
+						} else
 							plugin.help(player);
-						}
-						try {
-							// The 5th param is an amount
-							s = this.stringToInt(split[4]);
-						} catch (Exception e) {
+					}
+					if (split[1].equalsIgnoreCase("remove")) {
+						if (split.length == 4)
+							plugin.remove(player, i);
+						else
 							plugin.help(player);
-						}
-						plugin.add(player, i, b, s);
-					} else
-						plugin.help(player);
-				}
-				if (split[1].equalsIgnoreCase("remove")) {
-					if (split.length == 4)
-						plugin.remove(player, i);
-					else
-						plugin.help(player);
-				}
-				if (split[1].equalsIgnoreCase("update")) {
-					if (split.length == 5)
-						plugin.update(player, i, b, s);
-					else
-						plugin.help(player);
+					}
+					if (split[1].equalsIgnoreCase("update")) {
+						if (split.length == 5)
+							plugin.update(player, i, b, s);
+						else
+							plugin.help(player);
+					}
 				}
 			}
+			plugin.help(player);
 			event.setCancelled(true);
 		}
 	}

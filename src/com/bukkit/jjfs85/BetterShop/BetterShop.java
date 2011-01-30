@@ -7,7 +7,6 @@ import java.util.HashMap;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.event.Event.Priority;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.PluginManager;
@@ -45,8 +44,8 @@ public class BetterShop extends JavaPlugin {
 		// Register our events
 		PluginManager pm = getServer().getPluginManager();
 
-		pm.registerEvent(Event.Type.PLAYER_COMMAND, playerListener,
-				Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_COMMAND, this.playerListener,
+				Event.Priority.Normal, this);
 
 		// EXAMPLE: Custom code, here we just output some info so we can check
 		// all is well
