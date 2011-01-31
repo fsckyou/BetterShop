@@ -42,12 +42,12 @@ public class BetterShopPlayerListener extends PlayerListener {
 							i = itemDb.get(split[2]);
 						} catch (Exception doh2) {
 							// Not an item. It's fucked.
-							player
-									.sendMessage("§c[§7SHOP§c] I don't know what §f"
+							plugin.sendMessage(player,"I don't know what §f"
 											+ split[2]
 											+ "§c is. Maybe try using the ID #.");
 						}
 					} else if (split[1].equalsIgnoreCase("buy")) {
+						// TODO FIX BUY!!!
 						if (split.length == 4) {
 							try {
 								// The 4th param is an amount
