@@ -6,6 +6,7 @@ import org.bukkit.event.player.PlayerListener;
 
 public class BetterShopPlayerListener extends PlayerListener {
 	public static BetterShop plugin;
+	private static final String prefix = "b";
 
 	public BetterShopPlayerListener(BetterShop instance) {
 		plugin = instance;
@@ -19,7 +20,7 @@ public class BetterShopPlayerListener extends PlayerListener {
 		// Get the player that talked.
 		Player player = event.getPlayer();
 		// Accept shop command, parse arguments, check values
-		if (split[0].equalsIgnoreCase("/shop")) {
+		if (split[0].equalsIgnoreCase("/" + prefix + "shop")) {
 			if (split.length > 1) {
 				if (split[1].equalsIgnoreCase("list")) {
 					if (split.length == 3) {
@@ -38,19 +39,14 @@ public class BetterShopPlayerListener extends PlayerListener {
 					// Now we expect the 3rd param to be an item.
 					if (split.length > 2) {
 						try {
-							// First try the items.db
-							itemDb.get(split[2]);
-						} catch (Exception doh) {
-							try {
-								// That didn't work. Is it a number?
-								i = stringToInt(split[2]);
-							} catch (Exception doh2) {
-								// Nope. It's fucked.
-								player
-										.sendMessage("§c[§7SHOP§c] I don't know what §f"
-												+ split[2]
-												+ "§c is. Maybe try using the ID #.");
-							}
+							// Try the items.db
+							i = itemDb.get(split[2]);
+						} catch (Exception doh2) {
+							// Not an item. It's fucked.
+							player
+									.sendMessage("§c[§7SHOP§c] I don't know what §f"
+											+ split[2]
+											+ "§c is. Maybe try using the ID #.");
 						}
 					}
 					if (split[1].equalsIgnoreCase("buy")) {
@@ -63,7 +59,7 @@ public class BetterShopPlayerListener extends PlayerListener {
 							}
 							plugin.buy(player, i, a);
 						} else
-							plugin.help(player);
+							player.sendMessage("help1");
 					}
 					if (split[1].equalsIgnoreCase("sell")) {
 						if (split.length == 4) {
@@ -71,11 +67,11 @@ public class BetterShopPlayerListener extends PlayerListener {
 								// The 4th param is an amount
 								a = this.stringToInt(split[3]);
 							} catch (Exception e) {
-								plugin.help(player);
+								player.sendMessage("help2");
 							}
 							plugin.sell(player, i, a);
 						} else
-							plugin.help(player);
+							player.sendMessage("help3");
 					}
 					if (split[1].equalsIgnoreCase("add")) {
 						if (split.length == 5) {
@@ -83,33 +79,33 @@ public class BetterShopPlayerListener extends PlayerListener {
 								// The 4th param is an amount
 								b = this.stringToInt(split[3]);
 							} catch (Exception e) {
-								plugin.help(player);
+								player.sendMessage("help4");
 							}
 							try {
 								// The 5th param is an amount
 								s = this.stringToInt(split[4]);
 							} catch (Exception e) {
-								plugin.help(player);
+								player.sendMessage("help5");
 							}
 							plugin.add(player, i, b, s);
 						} else
-							plugin.help(player);
+							player.sendMessage("help6");
 					}
 					if (split[1].equalsIgnoreCase("remove")) {
 						if (split.length == 4)
 							plugin.remove(player, i);
 						else
-							plugin.help(player);
+							player.sendMessage("help7");
 					}
 					if (split[1].equalsIgnoreCase("update")) {
 						if (split.length == 5)
 							plugin.update(player, i, b, s);
 						else
-							plugin.help(player);
+							player.sendMessage("help8");
 					}
 				}
-			}
-			plugin.help(player);
+			} else
+				player.sendMessage("help10");
 			event.setCancelled(true);
 		}
 	}

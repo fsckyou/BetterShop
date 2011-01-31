@@ -21,7 +21,7 @@ public class BetterShop extends JavaPlugin {
 	private final BetterShopPlayerListener playerListener = new BetterShopPlayerListener(
 			this);
 	@SuppressWarnings("unused")
-	private final BetterShopBlockListener blockListener = new BetterShopBlockListener(
+	private final BetterShopPlayerListener blockListener = new BetterShopPlayerListener(
 			this);
 	private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
 
@@ -84,30 +84,37 @@ public class BetterShop extends JavaPlugin {
 	}
 
 	public void list(Player player, int page) {
+		player.sendMessage("some sorta shop list");
 		// TODO Implement list method
 	}
 
 	public void buy(Player player, int item, int amt) {
+		player.sendMessage("some sorta shop buying stuff");
 		// TODO Implement buy method
 	}
 
 	public void sell(Player player, int item, int amt) {
+		player.sendMessage("some sorta selling things");
 		// TODO Implement sell method
 	}
 
 	public void add(Player player, int item, int buyamt, int sellamt) {
+		player.sendMessage("you're adding something");
 		// TODO Implement add method
 	}
 
 	public void remove(Player player, int item) {
+		player.sendMessage("removin' gaems");
 		// TODO Implement remove method
 	}
 
 	public void update(Player player, int item, int buyamt, int sellamt) {
+		player.sendMessage("you're updating " + item + " in the shop!");
 		// TODO Implement update method
 	}
 
 	public void help(Player player) {
+		player.sendMessage("Help yourself.");
 		// TODO Implement help method
 	}
 }
