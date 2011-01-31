@@ -85,33 +85,41 @@ public class BetterShop extends JavaPlugin {
 		debugees.put(player, value);
 	}
 
-	public void list(Player player, int page) {
+	public void list(Player player, String[] s) {
 		this.sendMessage(player,"some sorta shop list");
 		// TODO Implement list method
 	}
 
-	public void buy(Player player, int item, int amt) {
+	public void buy(Player player, String[] s) {
 		this.sendMessage(player,"some sorta shop buying stuff");
+		boolean help = false;
 		// TODO Implement buy method
+		if (s.length == 4){
+			int i = Integer.parseInt(s[3]);
+		} else 
+			help = true;
+		if (help){
+			this.help(player);
+		}
 	}
 
-	public void sell(Player player, int item, int amt) {
+	public void sell(Player player, String[] s) {
 		this.sendMessage(player, "some sorta selling things");
 		// TODO Implement sell method
 	}
 
-	public void add(Player player, int item, int buyamt, int sellamt) {
+	public void add(Player player, String[] s) {
 		this.sendMessage(player, "you're adding something");
 		// TODO Implement add method
 	}
 
-	public void remove(Player player, int item) {
+	public void remove(Player player, String[] s) {
 		this.sendMessage(player, "removin' gaems");
 		// TODO Implement remove method
 	}
 
-	public void update(Player player, int item, int buyamt, int sellamt) {
-		this.sendMessage(player, "you're updating " + item + " in the shop!");
+	public void update(Player player, String[] s) {
+		this.sendMessage(player, "you're updating something in the shop!");
 		// TODO Implement update method
 	}
 	
@@ -120,9 +128,9 @@ public class BetterShop extends JavaPlugin {
 		this.sendMessage(player, "*grumble loading crap");
 	}
 
-	void help(Player player) {
+	public void help(Player player) {
 		// TODO Implement help method
-		this.sendMessage(player,"------------------Help------------------");
+		this.sendMessage(player,"-------------------- Better Shop Usage --------------------");
 		this.sendMessage(player,"/" + commandPrefix + "shop list <page>");
 		this.sendMessage(player,"/" + commandPrefix + "shop buy [item] [amount]");
 		this.sendMessage(player,"/" + commandPrefix + "shop sell [item] [amount]");
@@ -132,7 +140,7 @@ public class BetterShop extends JavaPlugin {
 		this.sendMessage(player,"/" + commandPrefix + "shop load");
 	}
 
-	void sendMessage(Player player, String s){
+	public void sendMessage(Player player, String s){
 		player.sendMessage(messagePrefix + s);
 	}
 }

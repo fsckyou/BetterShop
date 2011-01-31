@@ -13,7 +13,6 @@ public class BetterShopPlayerListener extends PlayerListener {
 
 	@Override
 	public void onPlayerCommand(PlayerChatEvent event) {
-		int i = 0, a = 0, b = 0, s = 0;
 		// Make the message a string.
 		String[] split = event.getMessage().split(" ");
 		// Get the player that talked.
@@ -22,99 +21,26 @@ public class BetterShopPlayerListener extends PlayerListener {
 		if (split[0].equalsIgnoreCase("/" + BetterShop.commandPrefix + "shop")) {
 			if (split.length > 1) {
 				if (split[1].equalsIgnoreCase("list")) {
-					if (split.length == 3) {
-						try {
-							// A 3rd param? Is it a page number?
-							i = this.stringToInt(split[2]);
-						} catch (Exception e) {
-							// Pass page 1
-							i = 1;
-						}
-						plugin.list(player, i);
-					} else {
-						plugin.list(player, 1);
-					}
+					plugin.list(player, split);
+				} else if (split[1].equalsIgnoreCase("buy")) {
+					plugin.buy(player, split);
+				} else if (split[1].equalsIgnoreCase("sell")) {
+					plugin.sell(player, split);
+				} else if (split[1].equalsIgnoreCase("add")) {
+					plugin.add(player, split);
+				} else if (split[1].equalsIgnoreCase("remove")) {
+					plugin.remove(player, split);
+				} else if (split[1].equalsIgnoreCase("update")) {
+					plugin.update(player, split);
+				} else if (split[1].equalsIgnoreCase("load")){
+					plugin.load(player);
 				} else {
-					// Now we expect the 3rd param to be an item.
-					if (split.length > 2) {
-						try {
-							// Try the items.db
-							i = itemDb.get(split[2]);
-						} catch (Exception doh2) {
-							// Not an item. It's fucked.
-							plugin.sendMessage(player,"I don't know what §f"
-											+ split[2]
-											+ "§c is. Maybe try using the ID #.");
-						}
-					} else if (split[1].equalsIgnoreCase("buy")) {
-						// TODO FIX BUY!!!
-						if (split.length == 4) {
-							try {
-								// The 4th param is an amount
-								a = this.stringToInt(split[3]);
-							} catch (Exception e) {
-								plugin.help(player);
-							}
-							plugin.help(player);
-						} else
-							plugin.help(player);
-					} else if (split[1].equalsIgnoreCase("sell")) {
-						if (split.length == 4) {
-							try {
-								// The 4th param is an amount
-								a = this.stringToInt(split[3]);
-							} catch (Exception e) {
-								plugin.help(player);
-							}
-							plugin.sell(player, i, a);
-						} else
-							plugin.help(player);
-					} else if (split[1].equalsIgnoreCase("add")) {
-						if (split.length == 5) {
-							try {
-								// The 4th param is an amount
-								b = this.stringToInt(split[3]);
-							} catch (Exception e) {
-								plugin.help(player);
-							}
-							try {
-								// The 5th param is an amount
-								s = this.stringToInt(split[4]);
-							} catch (Exception e) {
-								plugin.help(player);
-							}
-							plugin.add(player, i, b, s);
-						} else
-							plugin.help(player);
-					} else if (split[1].equalsIgnoreCase("remove")) {
-						if (split.length == 4)
-							plugin.remove(player, i);
-						else
-							plugin.help(player);
-					} else if (split[1].equalsIgnoreCase("update")) {
-						if (split.length == 5)
-							plugin.update(player, i, b, s);
-						else
-							plugin.help(player);
-					} else
-						plugin.help(player);
+					plugin.help(player);
 				}
-			} else
+			} else {
 				plugin.help(player);
+			}
 			event.setCancelled(true);
 		}
-	}
-
-	private int stringToInt(String s) throws Exception {
-		int i;
-		try {
-			i = Integer.parseInt(s);
-			if ((i < 1) || (i > 2258))
-				throw new Exception();
-		} catch (NumberFormatException nfe) {
-
-			throw new Exception();
-		}
-		return i;
 	}
 }
