@@ -6,7 +6,6 @@ import org.bukkit.event.player.PlayerListener;
 
 public class BetterShopPlayerListener extends PlayerListener {
 	public static BetterShop plugin;
-	private static final String prefix = "b";
 
 	public BetterShopPlayerListener(BetterShop instance) {
 		plugin = instance;
@@ -20,7 +19,7 @@ public class BetterShopPlayerListener extends PlayerListener {
 		// Get the player that talked.
 		Player player = event.getPlayer();
 		// Accept shop command, parse arguments, check values
-		if (split[0].equalsIgnoreCase("/" + prefix + "shop")) {
+		if (split[0].equalsIgnoreCase("/" + BetterShop.commandPrefix + "shop")) {
 			if (split.length > 1) {
 				if (split[1].equalsIgnoreCase("list")) {
 					if (split.length == 3) {
@@ -48,8 +47,7 @@ public class BetterShopPlayerListener extends PlayerListener {
 											+ split[2]
 											+ "§c is. Maybe try using the ID #.");
 						}
-					}
-					if (split[1].equalsIgnoreCase("buy")) {
+					} else if (split[1].equalsIgnoreCase("buy")) {
 						if (split.length == 4) {
 							try {
 								// The 4th param is an amount
@@ -57,55 +55,52 @@ public class BetterShopPlayerListener extends PlayerListener {
 							} catch (Exception e) {
 								plugin.help(player);
 							}
-							plugin.buy(player, i, a);
+							plugin.help(player);
 						} else
-							player.sendMessage("help1");
-					}
-					if (split[1].equalsIgnoreCase("sell")) {
+							plugin.help(player);
+					} else if (split[1].equalsIgnoreCase("sell")) {
 						if (split.length == 4) {
 							try {
 								// The 4th param is an amount
 								a = this.stringToInt(split[3]);
 							} catch (Exception e) {
-								player.sendMessage("help2");
+								plugin.help(player);
 							}
 							plugin.sell(player, i, a);
 						} else
-							player.sendMessage("help3");
-					}
-					if (split[1].equalsIgnoreCase("add")) {
+							plugin.help(player);
+					} else if (split[1].equalsIgnoreCase("add")) {
 						if (split.length == 5) {
 							try {
 								// The 4th param is an amount
 								b = this.stringToInt(split[3]);
 							} catch (Exception e) {
-								player.sendMessage("help4");
+								plugin.help(player);
 							}
 							try {
 								// The 5th param is an amount
 								s = this.stringToInt(split[4]);
 							} catch (Exception e) {
-								player.sendMessage("help5");
+								plugin.help(player);
 							}
 							plugin.add(player, i, b, s);
 						} else
-							player.sendMessage("help6");
-					}
-					if (split[1].equalsIgnoreCase("remove")) {
+							plugin.help(player);
+					} else if (split[1].equalsIgnoreCase("remove")) {
 						if (split.length == 4)
 							plugin.remove(player, i);
 						else
-							player.sendMessage("help7");
-					}
-					if (split[1].equalsIgnoreCase("update")) {
+							plugin.help(player);
+					} else if (split[1].equalsIgnoreCase("update")) {
 						if (split.length == 5)
 							plugin.update(player, i, b, s);
 						else
-							player.sendMessage("help8");
-					}
+							plugin.help(player);
+					} else
+						plugin.help(player);
 				}
 			} else
-				player.sendMessage("help10");
+				plugin.help(player);
 			event.setCancelled(true);
 		}
 	}

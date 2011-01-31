@@ -18,6 +18,8 @@ import org.bukkit.plugin.java.JavaPlugin;
  * @author jjfs85
  */
 public class BetterShop extends JavaPlugin {
+	public final static String commandPrefix = "b";
+	public final static String messagePrefix = "§c[§7SHOP§c] ";
 	private final BetterShopPlayerListener playerListener = new BetterShopPlayerListener(
 			this);
 	@SuppressWarnings("unused")
@@ -112,9 +114,25 @@ public class BetterShop extends JavaPlugin {
 		player.sendMessage("you're updating " + item + " in the shop!");
 		// TODO Implement update method
 	}
+	
+	public void load(Player player){
+		// TODO Implement shopping list loading
+		player.sendMessage("*grumble loading crap");
+	}
 
 	public void help(Player player) {
-		player.sendMessage("Help yourself.");
 		// TODO Implement help method
+		this.sendMessage(player,"------------------Help------------------");
+		this.sendMessage(player,"/" + commandPrefix + "shop list <page>");
+		this.sendMessage(player,"/" + commandPrefix + "shop buy [item] [amount]");
+		this.sendMessage(player,"/" + commandPrefix + "shop sell [item] [amount]");
+		this.sendMessage(player,"/" + commandPrefix + "shop add [item] [$buy] [$sell]");
+		this.sendMessage(player,"/" + commandPrefix + "shop remove [item]");
+		this.sendMessage(player,"/" + commandPrefix + "shop update [item] [$buy] [$sell]");
+		this.sendMessage(player,"/" + commandPrefix + "shop load");
+	}
+
+	public void sendMessage(Player player, String s){
+		player.sendMessage(messagePrefix + s);
 	}
 }
