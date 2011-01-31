@@ -11,8 +11,8 @@ import java.util.logging.Logger;
 
 @SuppressWarnings("unused")
 public class BetterShopPriceList {
-	private final Map<Integer, Integer, Integer> priceMap = HashMap<Integer
-	private Map<Integer, Integer, Integer> Integer, Integer;>;
+	private final Map <Integer, Integer> BuyMap = new HashMap <Integer, Integer>();
+	private final Map <Integer, Integer> SellMap = new HashMap <Integer, Integer>();
 //Will open, read, and write to an item price list flatfile.
 	public void load(){}
 	
