@@ -47,9 +47,9 @@ public class BetterShopPlayerListener extends PlayerListener {
 							} catch (Exception doh2) {
 								// Nope. It's fucked.
 								player
-										.sendMessage("§2[SHOP] I don't know what §f"
+										.sendMessage("§c[§7SHOP§c] I don't know what §f"
 												+ split[2]
-												+ "§2 is. Check \"/shop list\" again.");
+												+ "§c is. Maybe try using the ID #.");
 							}
 						}
 					}
@@ -118,6 +118,8 @@ public class BetterShopPlayerListener extends PlayerListener {
 		int i;
 		try {
 			i = Integer.parseInt(s);
+			if ((i < 1) || (i > 2258))
+				throw new Exception();
 		} catch (NumberFormatException nfe) {
 
 			throw new Exception();

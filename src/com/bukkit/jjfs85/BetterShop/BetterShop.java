@@ -11,7 +11,6 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import com.bukkit.jjfs85.BetterShop.BetterShopPlayerListener;
 
 /**
  * BetterShop for Bukkit
@@ -37,10 +36,6 @@ public class BetterShop extends JavaPlugin {
 	}
 
 	public void onEnable() {
-		// TODO: Place any custom enable code here including the registration of
-		// any events
-		// TODO: Add items.db parsing
-
 		// Register our events
 		PluginManager pm = getServer().getPluginManager();
 
@@ -52,6 +47,17 @@ public class BetterShop extends JavaPlugin {
 		PluginDescriptionFile pdfFile = this.getDescription();
 		System.out.println(pdfFile.getName() + " version "
 				+ pdfFile.getVersion() + " is enabled!");
+
+		// TODO: Place any custom enable code here including the registration of
+		// any events
+
+		// Load up items.db
+		File folder = new File("plugins", pdfFile.getName());
+		try {
+			itemDb.load(folder, "items.db");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+		}
 	}
 
 	public void onDisable() {
