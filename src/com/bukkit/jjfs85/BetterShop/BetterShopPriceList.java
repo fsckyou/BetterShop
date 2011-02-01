@@ -8,33 +8,35 @@ import java.util.*;
 import org.bukkit.util.config.*;
 
 public class BetterShopPriceList {
-	private static final Map<Integer, Integer> BuyMap = new HashMap<Integer, Integer>();
-	private static final Map<Integer, Integer> SellMap = new HashMap<Integer, Integer>();
-	private final File PLfile = new File("BetterShop", "PriceList.yml");
+	private final Map<Integer, Integer> BuyMap = new HashMap<Integer, Integer>();
+	private final Map<Integer, Integer> SellMap = new HashMap<Integer, Integer>();
+	private final File PLfile = new File("plugins/BetterShop", "PriceList.yml");
 	private final Configuration PriceList = new Configuration(PLfile);
-	private final List<Integer> BuySell = new ArrayList<Integer>();
 
-	// Will open, read, and write to an item price list flatfile.
-	public void load() {
+	public void load() throws IOException {
 		int i = 1;
-		clearBuySell();
-		try {
-			PriceList.load();
-		} catch (Exception e) {
-
-		}
+		if (!PLfile.exists())
+			PLfile.createNewFile();
+		PriceList.load();
 		BuyMap.clear();
 		SellMap.clear();
 		while (i < 2280) {
-
+			int buy = -1;
+			int sell = -1;
 			try {
-				PriceList.getIntList("Prices." + i, BuySell);
+				itemDb.get(String.valueOf(i));
 			} catch (Exception e) {
-
+				i++;
+				continue;
 			}
-			if ((BuySell.get(0) != 0) || (BuySell.get(1) != 0)) {
-				BuyMap.put(i, BuySell.get(0));
-				SellMap.put(i, BuySell.get(1));
+			buy = PriceList.getInt("prices.item" + String.valueOf(i) + ".buy",
+					-1);
+			sell = PriceList.getInt(
+					"prices.item" + String.valueOf(i) + ".sell", -1);
+			//System.out.println("item " + i + " buy: " + buy + " sell: " + sell);
+			if ((buy != -1) && (sell != -1)) {
+				BuyMap.put(i, buy);
+				SellMap.put(i, sell);
 			}
 			i++;
 		}
@@ -55,14 +57,23 @@ public class BetterShopPriceList {
 			throw new Exception();
 	}
 
-	public void setPrice(int i, int b, int s) {
-		//TODO implement setPrice		
+	public void setPrice(String item, String b, String s) throws Exception {
+		int i = itemDb.get(item);
+		if ((Integer.parseInt(b) >= 0) && (Integer.parseInt(s) >= 0)) {
+			if (BuyMap.containsKey(i)) {
+				BuyMap.remove(i);
+				SellMap.remove(i);
+			}
+			BuyMap.put(i, Integer.parseInt(b));
+			SellMap.put(i, Integer.parseInt(s));
+			System.out.println("let's see: " + BuyMap.get(i) + " ... "
+					+ SellMap.get(i));
+		}
 		save();
 	}
 
-	private void clearBuySell() {
-		BuySell.set(0, 0);
-		BuySell.set(0, 0);
+	public void remove(String item) {
+
 	}
 
 	private void save() {
@@ -75,19 +86,15 @@ public class BetterShopPriceList {
 		}
 		try {
 			// FileWriter always assumes default encoding is OK!
-			output.write("Prices:");
+			output.write("prices:");
 			output.newLine();
-			for (int i = 0; i < BuyMap.size(); i++) {
+			for (int i = 0; i < 2280; i++) {
 				if (BuyMap.containsKey(i)) {
-					output.write("	" + i + ":");
+					output.write("  item" + String.valueOf(i) + ":");
 					output.newLine();
-					output.write("		Buy:");
+					output.write("    buy: " + BuyMap.get(i));
 					output.newLine();
-					output.write("			- "+BuyMap.get(i));
-					output.newLine();
-					output.write("		Sell:");
-					output.newLine();
-					output.write("			- " + SellMap.get(i));
+					output.write("    sell: " + SellMap.get(i));
 					output.newLine();
 				}
 			}
