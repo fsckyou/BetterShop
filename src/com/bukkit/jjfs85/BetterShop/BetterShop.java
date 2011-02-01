@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import org.bukkit.Server;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.command.*;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.PluginManager;
@@ -22,16 +24,12 @@ public class BetterShop extends JavaPlugin {
 	public final static String messagePrefix = "§c[§7SHOP§c] ";
 	private final BetterShopPlayerListener playerListener = new BetterShopPlayerListener(
 			this);
-	@SuppressWarnings("unused")
-	private final BetterShopPlayerListener blockListener = new BetterShopPlayerListener(
-			this);
 	private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
 
 	public BetterShop(PluginLoader pluginLoader, Server instance,
 			PluginDescriptionFile desc, File folder, File plugin,
 			ClassLoader cLoader) throws IOException {
 		super(pluginLoader, instance, desc, folder, plugin, cLoader);
-		// TODO: Place any custom initialization code here
 
 		// NOTE: Event registration should be done in onEnable not here as all
 		// events are unregistered when a plugin is disabled
@@ -49,21 +47,17 @@ public class BetterShop extends JavaPlugin {
 		PluginDescriptionFile pdfFile = this.getDescription();
 		System.out.println(pdfFile.getName() + " version "
 				+ pdfFile.getVersion() + " is enabled!");
-
-		// TODO: Place any custom enable code here including the registration of
-		// any events
-
+		
 		// Load up items.db
 		File folder = new File("plugins", pdfFile.getName());
 		try {
 			itemDb.load(folder, "items.db");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.out.println("BetterShop: Items.db error");
 		}
 	}
 
 	public void onDisable() {
-		// TODO: Place any custom disable code here
 
 		// NOTE: All registered events are automatically unregistered when a
 		// plugin is disabled
@@ -81,66 +75,87 @@ public class BetterShop extends JavaPlugin {
 		}
 	}
 
-	public void setDebugging(final Player player, final boolean value) {
-		debugees.put(player, value);
+	public void setDebugging(final CommandSender player, final boolean value) {
+		debugees.put((Player) player, value);
 	}
 
-	public void list(Player player, String[] s) {
-		this.sendMessage(player,"some sorta shop list");
+	public void list(CommandSender player, String[] s) {
+		BetterShop.sendMessage(player, "some sorta shop list");
 		// TODO Implement list method
 	}
 
-	public void buy(Player player, String[] s) {
-		this.sendMessage(player,"some sorta shop buying stuff");
+	public void buy(CommandSender player, String[] s) {
+		BetterShop.sendMessage(player, "some sorta shop buying stuff");
 		boolean help = false;
 		// TODO Implement buy method
-		if (s.length == 4){
+		if (s.length == 4) {
+			@SuppressWarnings("unused")
 			int i = Integer.parseInt(s[3]);
-		} else 
+		} else
 			help = true;
-		if (help){
+		if (help) {
 			this.help(player);
 		}
 	}
 
-	public void sell(Player player, String[] s) {
-		this.sendMessage(player, "some sorta selling things");
+	public void sell(CommandSender player, String[] s) {
+		BetterShop.sendMessage(player, "some sorta selling things");
 		// TODO Implement sell method
 	}
 
-	public void add(Player player, String[] s) {
-		this.sendMessage(player, "you're adding something");
+	public void add(CommandSender player, String[] s) {
+		BetterShop.sendMessage(player, "you're adding something");
 		// TODO Implement add method
 	}
 
-	public void remove(Player player, String[] s) {
-		this.sendMessage(player, "removin' gaems");
+	public void remove(CommandSender player, String[] s) {
+		BetterShop.sendMessage(player, "removin' gaems");
 		// TODO Implement remove method
 	}
 
-	public void update(Player player, String[] s) {
-		this.sendMessage(player, "you're updating something in the shop!");
+	public void update(CommandSender player, String[] s) {
+		BetterShop
+				.sendMessage(player, "you're updating something in the shop!");
 		// TODO Implement update method
 	}
-	
-	public void load(Player player){
+
+	public void load(CommandSender player) {
 		// TODO Implement shopping list loading
-		this.sendMessage(player, "*grumble loading crap");
+		BetterShop.sendMessage(player, "*grumble loading crap");
 	}
 
-	public void help(Player player) {
+	public void help(CommandSender player) {
 		// TODO Implement help method
-		this.sendMessage(player,"-------------------- Better Shop Usage --------------------");
-		this.sendMessage(player,"/" + commandPrefix + "shop list <page>");
-		this.sendMessage(player,"/" + commandPrefix + "shop buy [item] [amount]");
-		this.sendMessage(player,"/" + commandPrefix + "shop sell [item] [amount]");
-		this.sendMessage(player,"/" + commandPrefix + "shop add [item] [$buy] [$sell]");
-		this.sendMessage(player,"/" + commandPrefix + "shop remove [item]");
-		this.sendMessage(player,"/" + commandPrefix + "shop update [item] [$buy] [$sell]");
-		this.sendMessage(player,"/" + commandPrefix + "shop load");
+		BetterShop.sendMessage(player,
+				"--------------- Better Shop Usage ---------------");
+		BetterShop
+				.sendMessage(player, "/" + commandPrefix + "shop list <page>");
+		BetterShop.sendMessage(player, "/" + commandPrefix
+				+ "shop buy [item] [amount]");
+		BetterShop.sendMessage(player, "/" + commandPrefix
+				+ "shop sell [item] [amount]");
+		if (BetterShop.hasPermission(player, "Admin")) {
+			BetterShop.sendMessage(player, "/" + commandPrefix
+					+ "shop add [item] [$buy] [$sell]");
+			BetterShop.sendMessage(player, "/" + commandPrefix
+					+ "shop remove [item]");
+			BetterShop.sendMessage(player, "/" + commandPrefix
+					+ "shop update [item] [$buy] [$sell]");
+			BetterShop.sendMessage(player, "/" + commandPrefix + "shop load");
+		}
 	}
 
-	public void sendMessage(Player player, String s){
+	private static boolean hasPermission(CommandSender player, String string) {
+		// TODO Implement permission checking using the permissions plugin.
+		if (string.equalsIgnoreCase("admin")) {
+			if (((HumanEntity) player).getName().equalsIgnoreCase("jjfs85")) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public final static void sendMessage(CommandSender player, String s) {
 		player.sendMessage(messagePrefix + s);
 	}
 }

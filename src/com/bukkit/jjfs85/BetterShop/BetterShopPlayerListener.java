@@ -1,6 +1,6 @@
 package com.bukkit.jjfs85.BetterShop;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerListener;
 
@@ -16,7 +16,7 @@ public class BetterShopPlayerListener extends PlayerListener {
 		// Make the message a string.
 		String[] split = event.getMessage().split(" ");
 		// Get the player that talked.
-		Player player = event.getPlayer();
+		CommandSender player = event.getPlayer();
 		// Accept shop command, parse arguments, check values
 		if (split[0].equalsIgnoreCase("/" + BetterShop.commandPrefix + "shop")) {
 			if (split.length > 1) {
@@ -32,7 +32,7 @@ public class BetterShopPlayerListener extends PlayerListener {
 					plugin.remove(player, split);
 				} else if (split[1].equalsIgnoreCase("update")) {
 					plugin.update(player, split);
-				} else if (split[1].equalsIgnoreCase("load")){
+				} else if (split[1].equalsIgnoreCase("load")) {
 					plugin.load(player);
 				} else {
 					plugin.help(player);
