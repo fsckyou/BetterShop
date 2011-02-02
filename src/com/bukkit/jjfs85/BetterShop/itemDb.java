@@ -76,4 +76,21 @@ public class itemDb {
 			throw new Exception("Unknown item name: " + id);
 		}
 	}
+
+	// End Zenexer's code//
+	// Begin jjfs85's code//
+	public static String getName(int i) throws Exception {
+		String line;
+		File file = new File("plugins/BetterShop", "items.db");
+		BufferedReader items = new BufferedReader(new FileReader(file));
+		line = items.readLine();
+		while (line != null) {
+			if (Integer.parseInt(line.split(":")[1]) == i) {
+				return line.split(":")[0];
+			}
+			line = items.readLine();
+		}
+		throw new Exception("EOF: no item # "+i);
+
+	}
 }

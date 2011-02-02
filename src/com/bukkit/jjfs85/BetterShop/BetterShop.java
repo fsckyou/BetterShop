@@ -3,7 +3,6 @@ package com.bukkit.jjfs85.BetterShop;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-
 import org.bukkit.Server;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -100,52 +99,63 @@ public class BetterShop extends JavaPlugin {
 	}
 
 	public void buy(CommandSender player, String[] s) {
-		BetterShop.sendMessage(player, "Buying not implemented yet.");
-		boolean help = false;
+		BetterShop.sendMessage(player, "Buying is not implemented yet.");
 		// TODO Implement buy method
-		if (s.length == 4) {
-			@SuppressWarnings("unused")
-			int i = Integer.parseInt(s[3]);
-		} else
-			help = true;
-		if (help) {
-			this.help(player);
-		}
 	}
 
 	public void sell(CommandSender player, String[] s) {
-		BetterShop.sendMessage(player, "some sorta selling things");
+		BetterShop.sendMessage(player, "Selling is not implemented yet.");
 		// TODO Implement sell method
 	}
 
 	public void add(CommandSender player, String[] s) {
-		BetterShop.sendMessage(player, "you're adding something");
-		// TODO Implement add method
 		if (s.length != 5) {
 			this.help(player);
 		} else {
-				try {
-					PriceList.setPrice(s[2], s[3],
-							s[4]);
-				} catch (NumberFormatException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			try {
+				PriceList.setPrice(s[2], s[3], s[4]);
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
 	public void remove(CommandSender player, String[] s) {
 		BetterShop.sendMessage(player, "Remove not implemented");
 		// TODO Implement remove method
+		if (s.length != 3) {
+			this.help(player);
+		} else {
+			try {
+				PriceList.remove(s[2]);
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public void update(CommandSender player, String[] s) {
-		BetterShop
-				.sendMessage(player, "Update not implemented.");
-		// TODO Implement update method
+		if (s.length != 5) {
+			this.help(player);
+		} else {
+			try {
+				PriceList.setPrice(s[2], s[3], s[4]);
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public void load(CommandSender player) {
@@ -155,7 +165,8 @@ public class BetterShop extends JavaPlugin {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			BetterShop.sendMessage(player, "Pricelist load error. See console.");
+			BetterShop
+					.sendMessage(player, "Pricelist load error. See console.");
 		}
 		BetterShop.sendMessage(player, "PriceList loaded.");
 	}

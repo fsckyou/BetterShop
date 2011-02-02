@@ -33,7 +33,8 @@ public class BetterShopPriceList {
 					-1);
 			sell = PriceList.getInt(
 					"prices.item" + String.valueOf(i) + ".sell", -1);
-			//System.out.println("item " + i + " buy: " + buy + " sell: " + sell);
+			// System.out.println("item " + i + " buy: " + buy + " sell: " +
+			// sell);
 			if ((buy != -1) && (sell != -1)) {
 				BuyMap.put(i, buy);
 				SellMap.put(i, sell);
@@ -72,8 +73,13 @@ public class BetterShopPriceList {
 		save();
 	}
 
-	public void remove(String item) {
-
+	public void remove(String s) throws Exception {
+		int i = itemDb.get(s);
+		if (BuyMap.containsKey(i)){
+			BuyMap.remove(i);
+			SellMap.remove(i);
+		}
+		save();
 	}
 
 	private void save() {
@@ -92,6 +98,8 @@ public class BetterShopPriceList {
 				if (BuyMap.containsKey(i)) {
 					output.write("  item" + String.valueOf(i) + ":");
 					output.newLine();
+					output.write("    name: " + itemDb.getName(i));
+					output.newLine();
 					output.write("    buy: " + BuyMap.get(i));
 					output.newLine();
 					output.write("    sell: " + SellMap.get(i));
@@ -99,6 +107,9 @@ public class BetterShopPriceList {
 				}
 			}
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
