@@ -41,7 +41,10 @@ public class BetterShopPriceList {
 			}
 			i++;
 		}
+	}
 
+	public boolean isForSale(int i) {
+		return BuyMap.containsKey(i);
 	}
 
 	public int getBuyPrice(int i) throws Exception {
@@ -75,7 +78,7 @@ public class BetterShopPriceList {
 
 	public void remove(String s) throws Exception {
 		int i = itemDb.get(s);
-		if (BuyMap.containsKey(i)){
+		if (BuyMap.containsKey(i)) {
 			BuyMap.remove(i);
 			SellMap.remove(i);
 		}

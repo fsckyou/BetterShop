@@ -88,13 +88,30 @@ public class BetterShop extends JavaPlugin {
 	}
 
 	public void list(CommandSender player, String[] s) {
-		BetterShop.sendMessage(player, "some sorta shop list");
-		// TODO Implement list method
-		try {
-			BetterShop.sendMessage(player, "" + PriceList.getBuyPrice(1));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		int pagesize = 5;
+		if ((s.length != 2) && (s.length != 3)) {
+			this.help(player);
+		} else {
+			int p = (s.length == 2) ? 1 : Integer.parseInt(s[2]);
+			int j = 1;
+			int i = 1;
+			while ((j < p * pagesize)&&(i<2280)) {
+				if (PriceList.isForSale(i)) {
+					if (j > (p - 1) * pagesize) {
+						try {
+							BetterShop.sendMessage(player, "["
+									+ itemDb.getName(i) + "] Buy: "
+									+ PriceList.getBuyPrice(i) + " Sell: "
+									+ PriceList.getSellPrice(i));
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					j++;						
+				}
+					i++;
+			}
 		}
 	}
 
@@ -125,8 +142,6 @@ public class BetterShop extends JavaPlugin {
 	}
 
 	public void remove(CommandSender player, String[] s) {
-		BetterShop.sendMessage(player, "Remove not implemented");
-		// TODO Implement remove method
 		if (s.length != 3) {
 			this.help(player);
 		} else {
