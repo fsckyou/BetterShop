@@ -1,3 +1,27 @@
 name: BetterShop
 main: com.bukkit.jjfs85.BetterShop.BetterShop
-version: 0.01
+version: 0.02
+website: http://github.com/jjfs85/BetterShop
+author: jjfs85
+description: >
+             BetterShop is a command-based shop for Bukkit. It uses iConomy
+             for the economic backbone.
+commands:
+  shoplist:
+    description: Lists prices for the shop
+    usage: /<command> <page>
+  shopbuy:
+    description: Buy an item for the price in the shop
+    usage: /<command> [item] [amount]
+  shopsell:
+    description: Sell an item for the price in the shop
+    usage: /<command> [item] <amount>
+  shopadd:
+    description: Add an item to or update an item in the price list
+    usage: /<command> [item] [buy-price] [sell-price]
+  shopremove:
+    description: Remove an item from the price list
+    usage: /<command> [item]
+  shopload:
+    description: reload prices from PriceList.yml
+    usage: /<command>
