@@ -16,6 +16,10 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.material.*;
+import com.nijikokun.bukkit.Permissions.Permissions;
+import com.nijiko.Messaging;
+import com.nijiko.permissions.PermissionHandler;
+import org.bukkit.plugin.Plugin;
 
 import com.nijikokun.bukkit.iConomy.iConomy;
 
@@ -28,8 +32,10 @@ import com.nijikokun.bukkit.iConomy.iConomy;
 public class BetterShop extends JavaPlugin {
 	public final static String commandPrefix = "";
 	public final static String messagePrefix = "§c[§7SHOP§c] ";
+	private static final String name = "BetterShop";
 	private final HashMap<Integer, ItemStack> leftover = new HashMap<Integer, ItemStack>();
 	private final BetterShopPriceList PriceList = new BetterShopPriceList();
+	public static PermissionHandler Permissions = null;
 
 	public BetterShop(PluginLoader pluginLoader, Server instance,
 			PluginDescriptionFile desc, File folder, File plugin,
@@ -53,6 +59,9 @@ public class BetterShop extends JavaPlugin {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		// setup the permissions
+		setupPermissions();
 	}
 
 	public void onDisable() {
@@ -65,6 +74,21 @@ public class BetterShop extends JavaPlugin {
 		System.out.println("BetterShop now unloaded");
 	}
 
+	public void setupPermissions() {
+		Plugin test = this.getServer().getPluginManager().getPlugin(
+				"Permissions");
+
+		if (BetterShop.Permissions == null) {
+			if (test != null) {
+				BetterShop.Permissions = ((Permissions) test).getHandler();
+			} else {
+				System.out.println(Messaging.bracketize(name)
+						+ " Permission system not enabled. Disabling plugin.");
+				this.getServer().getPluginManager().disablePlugin(this);
+			}
+		}
+	}
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command command,
 			String commandLabel, String[] args) {
@@ -73,6 +97,8 @@ public class BetterShop extends JavaPlugin {
 
 		if (commandName.equals("shoplist")) {
 			return list(sender, trimmedArgs);
+		} else if (commandName.equals("shophelp")) {
+			return help(sender);
 		} else if (commandName.equals("shopbuy")) {
 			return buy(sender, trimmedArgs);
 		} else if (commandName.equals("shopsell")) {
@@ -83,8 +109,6 @@ public class BetterShop extends JavaPlugin {
 			return remove(sender, trimmedArgs);
 		} else if (commandName.equals("shopload")) {
 			return load(sender);
-		} else if (commandName.equals("shophelp")) {
-			return help(sender);
 		}
 		return false;
 	}
@@ -92,6 +116,10 @@ public class BetterShop extends JavaPlugin {
 	public boolean list(CommandSender player, String[] s) {
 		int pagesize = 8;
 		int page = 0;
+		if (!hasPermission(player, "BetterShop.user.list")) {
+			sendMessage(player, "OI! You don't have permission to do that!");
+			return true;
+		}
 		try {
 			page = (s.length == 0) ? 1 : Integer.parseInt(s[0]);
 		} catch (Exception e) {
@@ -139,6 +167,10 @@ public class BetterShop extends JavaPlugin {
 		int amtleft = 0;
 		int amtbought = 1;
 		int cost = 0;
+		if (!hasPermission(player, "BetterShop.user.buy")) {
+			sendMessage(player, "OI! You don't have permission to do that!");
+			return true;
+		}
 		if ((s.length > 2) || (s.length == 0)) {
 			sendMessage(player, "What?");
 			return false;
@@ -199,9 +231,12 @@ public class BetterShop extends JavaPlugin {
 	}
 
 	public boolean sell(CommandSender player, String[] s) {
-		// TODO Implement sell method
 		int amtsold = 1;
 		int item = 0;
+		if (!hasPermission(player, "BetterShop.user.sell")) {
+			sendMessage(player, "OI! You don't have permission to do that!");
+			return true;
+		}
 		if ((s.length > 2) || (s.length == 0)) {
 			return false;
 		} else if (anonymousCheck(player)) {
@@ -246,49 +281,59 @@ public class BetterShop extends JavaPlugin {
 	}
 
 	public boolean add(CommandSender player, String[] s) {
-		Material mat = Material.matchMaterial(s[0]);
 		if (s.length != 3) {
 			return false;
-		} else {
-			if (mat == null) {
-				sendMessage(player, "What the heck is " + s[0] + "?");
-				return true;
-			}
-			try {
-				PriceList.setPrice(s[0], s[1], s[2]);
-			} catch (Exception e) {
-				e.printStackTrace();
-				sendMessage(player, "Something wasn't right there.");
-				return false;
-			}
-			try {
-				sendMessage(player, String.format("["
-						+ mat.name().toLowerCase()
-						+ "] added at the prices:    Buy: %d Sell: %d",
-						PriceList.getBuyPrice(mat.getId()), PriceList
-								.getSellPrice(mat.getId())));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		}
+		Material mat = Material.matchMaterial(s[0]);
+		if (!hasPermission(player, "BetterShop.admin.add")) {
+			sendMessage(player, "OI! You don't have permission to do that!");
 			return true;
 		}
+		if (mat == null) {
+			sendMessage(player, "What the heck is " + s[0] + "?");
+			return true;
+		}
+		try {
+			PriceList.setPrice(s[0], s[1], s[2]);
+		} catch (Exception e) {
+			e.printStackTrace();
+			sendMessage(player, "Something wasn't right there.");
+			return false;
+		}
+		try {
+			sendMessage(player, String.format("[" + mat.name().toLowerCase()
+					+ "] added at the prices:    Buy: %d Sell: %d", PriceList
+					.getBuyPrice(mat.getId()), PriceList.getSellPrice(mat
+					.getId())));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return true;
 	}
 
 	public boolean remove(CommandSender player, String[] s) {
+		if ((!hasPermission(player, "BetterShop.admin.remove"))) {
+			sendMessage(player, "OI! You don't have permission to do that!");
+			return true;
+		}
 		if (s.length != 1) {
 			return false;
 		} else {
 			try {
 				PriceList.remove(s[0]);
-				sendMessage(player, s + " has been removed from the shop.");
+				sendMessage(player, s[0] + " has been removed from the shop.");
 			} catch (Exception e) {
-				this.sendMessage(player, "You done goofed. Check the name.");
+				sendMessage(player, "You done goofed. Check the name.");
 			}
 			return true;
 		}
 	}
 
 	public boolean load(CommandSender player) {
+		if (!hasPermission(player, "BetterShop.admin.load")) {
+			sendMessage(player, "OI! You don't have permission to do that!");
+			return true;
+		}
 		try {
 			PriceList.load();
 		} catch (IOException e) {
@@ -301,6 +346,10 @@ public class BetterShop extends JavaPlugin {
 	}
 
 	public boolean help(CommandSender player) {
+		if (!hasPermission(player, "BetterShop.user.help")) {
+			sendMessage(player, "OI! You don't have permission to do that!");
+			return true;
+		}
 		sendMessage(player, "--------- Better Shop Usage --------");
 		sendMessage(player, "/" + commandPrefix
 				+ "shoplist <page> - List shop prices");
@@ -308,7 +357,7 @@ public class BetterShop extends JavaPlugin {
 				+ "shopbuy [item] <amount> - Buy items");
 		sendMessage(player, "/" + commandPrefix
 				+ "shopsell [item] <amount> - Sell items");
-		if (BetterShop.hasPermission(player, "Admin")) {
+		if (BetterShop.hasPermission(player, "BetterShop.admin")) {
 			sendMessage(player, "**-------- Admin commands --------**");
 			sendMessage(player, "/" + commandPrefix
 					+ "shopadd [item] [$buy] [$sell] - Add an item to the shop");
@@ -322,12 +371,8 @@ public class BetterShop extends JavaPlugin {
 	}
 
 	private static boolean hasPermission(CommandSender player, String string) {
-		// TODO Implement permission checking using the permissions plugin.
-		if (string.equalsIgnoreCase("admin")) {
-			if (((Player) player).getName().equalsIgnoreCase("jjfs85")
-					|| ((Player) player).getName().equalsIgnoreCase("haggu")) {
-				return true;
-			}
+		if (BetterShop.Permissions.has((Player) player, string)) {
+			return true;
 		}
 		return false;
 	}
@@ -342,7 +387,7 @@ public class BetterShop extends JavaPlugin {
 		}
 	}
 
-	private final void sendMessage(CommandSender player, String s) {
+	private final static void sendMessage(CommandSender player, String s) {
 		player.sendMessage(messagePrefix + s);
 	}
 
