@@ -109,8 +109,33 @@ public class BetterShop extends JavaPlugin {
 			return remove(sender, trimmedArgs);
 		} else if (commandName.equals("shopload")) {
 			return load(sender);
+		} else if (commandName.equals("shopcheck")) {
+			return check(sender, trimmedArgs);
 		}
 		return false;
+	}
+
+	private boolean check(CommandSender player, String[] s) {
+		
+		if (!hasPermission(player, "BetterShop.user.check")) {
+			sendMessage(player, "OI! You don't have permission to do that!");
+			return true;
+		}
+		if (s.length != 1){
+		return false;
+		}
+		Material item = Material.matchMaterial(s[0]);
+		if (null == item){
+			sendMessage(player,"What is "+ s[0]+"?");
+			return true;
+		}
+		try {
+			sendMessage(player,String.format("[%s] Buy: %d Sell: %d", item.name().toLowerCase(), PriceList.getBuyPrice(item.getId()), PriceList.getSellPrice(item.getId())));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 
 	public boolean list(CommandSender player, String[] s) {
@@ -357,6 +382,8 @@ public class BetterShop extends JavaPlugin {
 				+ "shopbuy [item] <amount> - Buy items");
 		sendMessage(player, "/" + commandPrefix
 				+ "shopsell [item] <amount> - Sell items");
+		sendMessage(player, "/" + commandPrefix
+				+ "shopcheck [item] - Check prices of item");
 		if (BetterShop.hasPermission(player, "BetterShop.admin")) {
 			sendMessage(player, "**-------- Admin commands --------**");
 			sendMessage(player, "/" + commandPrefix
