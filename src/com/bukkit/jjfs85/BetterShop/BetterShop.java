@@ -357,6 +357,8 @@ public class BetterShop extends JavaPlugin {
 				+ "shopbuy [item] <amount> - Buy items");
 		sendMessage(player, "/" + commandPrefix
 				+ "shopsell [item] <amount> - Sell items");
+		sendMessage(player, "/" + commandPrefix
+				+ "shopcheck [item] - Check prices of item");
 		if (BetterShop.hasPermission(player, "BetterShop.admin")) {
 			sendMessage(player, "**-------- Admin commands --------**");
 			sendMessage(player, "/" + commandPrefix
