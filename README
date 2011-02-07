@@ -1,6 +1,7 @@
 To build, you need to include the following as libraries:
     bukkit.jar
     iConomy.jar
+    permissions.jar
 
 If you want helpful bukkit javadocs, you should get:
     the Bukkit source code
