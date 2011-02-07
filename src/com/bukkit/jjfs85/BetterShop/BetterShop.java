@@ -2,25 +2,24 @@ package com.bukkit.jjfs85.BetterShop;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
-import org.bukkit.Material;
 import org.bukkit.Server;
-import org.bukkit.entity.HumanEntity;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.command.*;
+import org.bukkit.material.MaterialData;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.material.*;
-import com.nijikokun.bukkit.Permissions.Permissions;
+
 import com.nijiko.Messaging;
 import com.nijiko.permissions.PermissionHandler;
-import org.bukkit.plugin.Plugin;
-
+import com.nijikokun.bukkit.Permissions.Permissions;
 import com.nijikokun.bukkit.iConomy.iConomy;
 
 /**
@@ -28,14 +27,15 @@ import com.nijikokun.bukkit.iConomy.iConomy;
  * 
  * @author jjfs85
  */
-@SuppressWarnings("unused")
 public class BetterShop extends JavaPlugin {
-	public final static String commandPrefix = "";
-	public final static String messagePrefix = "§c[§7SHOP§c] ";
+	private final static Logger logger = Logger.getLogger("Minecraft");
+	private final static String commandPrefix = "";
+	private final static String messagePrefix = "§c[§7SHOP§c] ";
 	private static final String name = "BetterShop";
 	private final HashMap<Integer, ItemStack> leftover = new HashMap<Integer, ItemStack>();
-	private final BetterShopPriceList PriceList = new BetterShopPriceList();
-	public static PermissionHandler Permissions = null;
+	private final BSPriceList PriceList = new BSPriceList();
+	private static PermissionHandler Permissions = null;
+	private final static File pluginFolder = new File("plugins", name);
 
 	public BetterShop(PluginLoader pluginLoader, Server instance,
 			PluginDescriptionFile desc, File folder, File plugin,
@@ -47,21 +47,36 @@ public class BetterShop extends JavaPlugin {
 	}
 
 	public void onEnable() {
-		// Just output some info so we can check
-		// all is well
+
 		PluginDescriptionFile pdfFile = this.getDescription();
-		System.out.println(pdfFile.getName() + " version "
-				+ pdfFile.getVersion() + " is enabled!");
+		logger.info("Loading " + pdfFile.getName() + " version "
+				+ pdfFile.getVersion() + "...");
 
 		// Load pricelist.yml
 		try {
-			PriceList.load();
+			PriceList.load(pluginFolder, "PriceList.yml");
 		} catch (IOException e) {
 			e.printStackTrace();
+			logger.warning("cannot load PriceList.yml");
+			this.setEnabled(false);
+		}
+
+		// ready items.db
+		try {
+			itemDb.load(pluginFolder, "items.db");
+		} catch (IOException e) {
+			logger.warning("cannot load items.db");
+			e.printStackTrace();
+			this.setEnabled(false);
 		}
 
 		// setup the permissions
 		setupPermissions();
+
+		// Just output some info so we can check
+		// all is well
+		logger.info(pdfFile.getName() + " version " + pdfFile.getVersion()
+				+ " is enabled!");
 	}
 
 	public void onDisable() {
@@ -71,7 +86,7 @@ public class BetterShop extends JavaPlugin {
 
 		// EXAMPLE: Custom code, here we just output some info so we can check
 		// all is well
-		System.out.println("BetterShop now unloaded");
+		logger.info("BetterShop now unloaded");
 	}
 
 	public void setupPermissions() {
@@ -82,7 +97,7 @@ public class BetterShop extends JavaPlugin {
 			if (test != null) {
 				BetterShop.Permissions = ((Permissions) test).getHandler();
 			} else {
-				System.out.println(Messaging.bracketize(name)
+				logger.info(Messaging.bracketize(name)
 						+ " Permission system not enabled. Disabling plugin.");
 				this.getServer().getPluginManager().disablePlugin(this);
 			}
@@ -94,6 +109,12 @@ public class BetterShop extends JavaPlugin {
 			String commandLabel, String[] args) {
 		String[] trimmedArgs = args;
 		String commandName = command.getName().toLowerCase();
+
+		try {
+			logger.info(((Player) sender).getName() + " used command "
+					+ command.getName());
+		} catch (Exception e) {
+		}
 
 		if (commandName.equals("shoplist")) {
 			return list(sender, trimmedArgs);
@@ -115,31 +136,35 @@ public class BetterShop extends JavaPlugin {
 		return false;
 	}
 
-	private boolean check(CommandSender player, String[] s) {
-		
+	public boolean check(CommandSender player, String[] s) {
+		MaterialData mat;
 		if (!hasPermission(player, "BetterShop.user.check")) {
 			sendMessage(player, "OI! You don't have permission to do that!");
 			return true;
 		}
-		if (s.length != 1){
-		return false;
+		if (s.length != 1) {
+			return false;
 		}
-		Material item = Material.matchMaterial(s[0]);
-		if (null == item){
-			sendMessage(player,"What is "+ s[0]+"?");
+		try {
+			mat = itemDb.get(s[0]);
+		} catch (Exception e) {
+			sendMessage(player, "What is " + s[0] + "?");
 			return true;
 		}
 		try {
-			sendMessage(player,String.format("[%s] Buy: %d Sell: %d", item.name().toLowerCase(), PriceList.getBuyPrice(item.getId()), PriceList.getSellPrice(item.getId())));
+			sendMessage(player, String.format("[%s] Buy: %d Sell: %d", itemDb
+					.getName(mat.getItemTypeId(), mat.getData()), PriceList
+					.getBuyPrice(mat.getItemTypeId()), PriceList
+					.getSellPrice(mat.getItemTypeId())));
 		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
+			sendMessage(player, "That's not on the market.");
+			return true;
 		}
 		return true;
 	}
 
 	public boolean list(CommandSender player, String[] s) {
-		int pagesize = 8;
+		int pagesize = 9;
 		int page = 0;
 		if (!hasPermission(player, "BetterShop.user.list")) {
 			sendMessage(player, "OI! You don't have permission to do that!");
@@ -164,17 +189,22 @@ public class BetterShop extends JavaPlugin {
 			sendMessage(player, String.format(
 					"---- Price-list Page: %2d of %2d ----", page, pages));
 			while ((linenum < page * pagesize) && (i < 2280)) {
+				try {
+					itemDb.get(i, (byte) 0);
+				} catch (Exception e1) {
+					i++;
+					continue;
+				}
 				if (PriceList.isForSale(i)) {
 					if (linenum > (page - 1) * pagesize) {
 						try {
 							sendMessage(player, "["
-									+ Material.getMaterial(i).name()
-											.toLowerCase() + "] Buy: "
+									+ itemDb.getName(i, (byte) 0) + "] Buy: "
 									+ PriceList.getBuyPrice(i) + " Sell: "
 									+ PriceList.getSellPrice(i));
 						} catch (Exception e) {
 							e.printStackTrace();
-							sendMessage(player, "Nondescript shop error A");
+							logger.warning("Pricelist error!");
 						}
 					}
 					linenum++;
@@ -187,7 +217,7 @@ public class BetterShop extends JavaPlugin {
 	}
 
 	public boolean buy(CommandSender player, String[] s) {
-		int item = 0;
+		MaterialData item = new MaterialData(0);
 		int price = 0;
 		int amtleft = 0;
 		int amtbought = 1;
@@ -202,14 +232,14 @@ public class BetterShop extends JavaPlugin {
 		} else if (anonymousCheck(player)) {
 			return true;
 		} else {
-			if (Material.matchMaterial(s[0].toUpperCase()) == null) {
-				return false;
-			}
-			item = Material.matchMaterial(s[0].toUpperCase()).getId();
 			try {
-				price = PriceList.getBuyPrice(item);
+				item = itemDb.get(s[0]);
+			} catch (Exception e2) {
+				sendMessage(player, "What is " + s[0] + "?");
+			}
+			try {
+				price = PriceList.getBuyPrice(item.getItemTypeId());
 			} catch (Exception e1) {
-				e1.printStackTrace();
 				sendMessage(player, "That's not for sale!");
 				return true;
 			}
@@ -226,16 +256,21 @@ public class BetterShop extends JavaPlugin {
 			cost = amtbought * price;
 			try {
 				if (debit(player, cost)) {
-					sendMessage(player, "For " + amtbought + " " + s[0]
-							+ "? That will be " + cost + " " + iConomy.currency
-							+ ".");
+					sendMessage(player, "For "
+							+ amtbought
+							+ " "
+							+ itemDb.getName(item.getItemTypeId(), item
+									.getData()) + "? " + cost + " "
+							+ iConomy.currency + ". Thank you, come again!");
 					leftover.clear();
+					ItemStack itemS = new ItemStack(item.getItemTypeId(),
+							amtbought, (short) 0, item.getData());
 					leftover.putAll(((Player) player).getInventory().addItem(
-							new ItemStack(item, amtbought)));
+							itemS));
 					amtleft = (leftover.size() == 0) ? 0 : (leftover.get(0))
 							.getAmount();
-					cost = amtleft * price;
 					if (amtleft > 0) {
+						cost = amtleft * price;
 						sendMessage(player,
 								"You didn't have enough space for all that.");
 						sendMessage(player, "I'm refundng " + cost + " "
@@ -249,15 +284,14 @@ public class BetterShop extends JavaPlugin {
 					return true;
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
 				return false;
 			}
 		}
 	}
 
 	public boolean sell(CommandSender player, String[] s) {
-		int amtsold = 1;
-		int item = 0;
+		int amtSold = 1;
+		MaterialData item = new MaterialData(0);
 		if (!hasPermission(player, "BetterShop.user.sell")) {
 			sendMessage(player, "OI! You don't have permission to do that!");
 			return true;
@@ -267,37 +301,40 @@ public class BetterShop extends JavaPlugin {
 		} else if (anonymousCheck(player)) {
 			return true;
 		} else {
-			if (Material.matchMaterial(s[0].toUpperCase()) == null) {
+			try {
+				item = itemDb.get(s[0]);
+			} catch (Exception e1) {
+				sendMessage(player, "What's " + s[0] + "?");
 				return false;
 			}
-			item = Material.matchMaterial(s[0].toUpperCase()).getId();
-			ItemStack itemsToSell = new ItemStack(item);
-
+			ItemStack itemsToSell = item.toItemStack();
 			if (s.length == 2)
 				try {
-					amtsold = Integer.parseInt(s[1]);
+					amtSold = Integer.parseInt(s[1]);
 				} catch (Exception e) {
 					sendMessage(player, s[1] + " is definitely not a number.");
 				}
-			if (amtsold < 0) {
+			if (amtSold < 0) {
 				sendMessage(player,
 						"Why would you want to buy at the selling price!?");
 				return true;
 			}
-			itemsToSell.setAmount(amtsold);
+			itemsToSell.setAmount(amtSold);
 			PlayerInventory inv = ((Player) player).getInventory();
 			leftover.clear();
 			leftover.putAll(inv.removeItem(itemsToSell));
 			if (leftover.size() > 0) {
-				amtsold = amtsold - leftover.get(0).getAmount();
-				sendMessage(player, "You only had " + amtsold + ".");
+				amtSold = amtSold - leftover.get(0).getAmount();
+				sendMessage(player, "You only had " + amtSold + ".");
 			}
 			try {
-				credit(player, amtsold * PriceList.getSellPrice(item));
-				sendMessage(player, "You sold " + amtsold + " " + s[0] + " at "
-						+ PriceList.getSellPrice(item)
-						+ " each for a total of " + amtsold
-						* PriceList.getSellPrice(item));
+				credit(player, amtSold
+						* PriceList.getSellPrice(item.getItemTypeId()));
+				sendMessage(player, "You sold " + amtSold + " "
+						+ itemDb.getName(item.getItemTypeId(), item.getData())
+						+ " at " + PriceList.getSellPrice(item.getItemTypeId())
+						+ " each for a total of " + amtSold
+						* PriceList.getSellPrice(item.getItemTypeId()));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -309,27 +346,29 @@ public class BetterShop extends JavaPlugin {
 		if (s.length != 3) {
 			return false;
 		}
-		Material mat = Material.matchMaterial(s[0]);
+		MaterialData mat = new MaterialData(0);
+		try {
+			mat = itemDb.get(s[0]);
+		} catch (Exception e1) {
+			sendMessage(player, "What's " + s[0] + "?");
+			return false;
+		}
 		if (!hasPermission(player, "BetterShop.admin.add")) {
 			sendMessage(player, "OI! You don't have permission to do that!");
-			return true;
-		}
-		if (mat == null) {
-			sendMessage(player, "What the heck is " + s[0] + "?");
 			return true;
 		}
 		try {
 			PriceList.setPrice(s[0], s[1], s[2]);
 		} catch (Exception e) {
-			e.printStackTrace();
 			sendMessage(player, "Something wasn't right there.");
 			return false;
 		}
 		try {
-			sendMessage(player, String.format("[" + mat.name().toLowerCase()
-					+ "] added at the prices:    Buy: %d Sell: %d", PriceList
-					.getBuyPrice(mat.getId()), PriceList.getSellPrice(mat
-					.getId())));
+			sendMessage(player, String.format(
+					"[%s] added at the prices:    Buy: %d Sell: %d", itemDb
+							.getName(mat.getItemTypeId(), mat.getData()),
+					PriceList.getBuyPrice(mat.getItemTypeId()), PriceList
+							.getSellPrice(mat.getItemTypeId())));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -360,7 +399,7 @@ public class BetterShop extends JavaPlugin {
 			return true;
 		}
 		try {
-			PriceList.load();
+			PriceList.load(pluginFolder, "PriceList.yml");
 		} catch (IOException e) {
 			e.printStackTrace();
 			sendMessage(player, "Pricelist load error. See console.");
@@ -398,10 +437,14 @@ public class BetterShop extends JavaPlugin {
 	}
 
 	private static boolean hasPermission(CommandSender player, String string) {
-		if (BetterShop.Permissions.has((Player) player, string)) {
+		try {
+			if (BetterShop.Permissions.has((Player) player, string)) {
+				return true;
+			}
+			return false;
+		} catch (Exception e) {
 			return true;
 		}
-		return false;
 	}
 
 	private boolean anonymousCheck(CommandSender sender) {

@@ -2,6 +2,8 @@
  * All credit for this work goes to Zenexer, ementalo, Eris,
  * and/or Eggroll. Hope you guys don't mind that I'm using it, but hey,
  * why reinvent the wheel, right?
+ * 
+ * Ok, now I've had to edit it to add subtype support for my plugin. ~jjfs85
  */
 
 package com.bukkit.jjfs85.BetterShop;
@@ -12,17 +14,20 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
+
+import org.bukkit.material.MaterialData;
 
 public class itemDb {
 	private final static Logger logger = Logger.getLogger("Minecraft");
 	private static Map<String, Integer> map = new HashMap<String, Integer>();
+	private static Map<String, Byte> submap = new HashMap<String, Byte>();
 
 	public static void load(File folder, String fname) throws IOException {
 		folder.mkdirs();
 		File file = new File(folder, fname);
-
 		if (!file.exists()) {
 			file.createNewFile();
 			InputStream res = itemDb.class.getResourceAsStream("/items.db");
@@ -40,7 +45,6 @@ public class itemDb {
 		BufferedReader rx = new BufferedReader(new FileReader(file));
 		try {
 			map.clear();
-
 			for (int i = 0; rx.ready(); i++) {
 				try {
 					String line = rx.readLine().trim().toLowerCase();
@@ -51,6 +55,10 @@ public class itemDb {
 						continue;
 					int numeric = Integer.parseInt(parts[1]);
 					map.put(parts[0], numeric);
+					if (parts.length == 3) {
+						numeric = Integer.parseInt(parts[2]);
+						submap.put(parts[0], ((Integer) numeric).byteValue());
+					}
 				} catch (Exception ex) {
 					logger.warning("Error parsing " + fname + " on line " + i);
 				}
@@ -60,37 +68,65 @@ public class itemDb {
 		}
 	}
 
-	public static int get(String id) throws Exception {
-		int retval = getUnsafe(id);
-		if (map.containsValue(retval))
-			return retval;
-		throw new Exception("Unknown item numeric: " + retval);
+	public static MaterialData get(int i, byte b) throws Exception {
+		return get(String.format("%d:%d", i, b));
 	}
 
-	private static int getUnsafe(String id) throws Exception {
+	public static MaterialData get(String s) throws Exception {
+		MaterialData retval = new MaterialData(0);
+		String[] split = s.split(":");
+		int id = 0;
+		byte data = 0;
 		try {
-			return Integer.parseInt(id);
-		} catch (NumberFormatException ex) {
-			if (map.containsKey(id))
-				return map.get(id);
-			throw new Exception("Unknown item name: " + id);
+			id = Integer.parseInt(split[0]);
+			try {
+				data = Byte.parseByte(split[1], 10);
+			} catch (Exception e1) {
+				data = 0;
+			}
+			if (map.containsValue(id))
+				retval = new MaterialData(id, data);
+			else
+				throw new Exception("No data allowed");
+		} catch (Exception e2) {
+			if (map.containsKey(s)) {
+				// if it's a valid name
+				id = map.get(s);
+				retval = new MaterialData(id);
+				if (submap.containsKey(s)) {
+					retval.setData(submap.get(s));
+				}
+			} else
+				throw new Exception("Unknown material");
 		}
+		return retval;
 	}
 
-	// End Zenexer's code//
-	// Begin jjfs85's code//
-	public static String getName(int i) throws Exception {
-		String line;
+	public static String getName(int i, byte d) throws Exception {
 		File file = new File("plugins/BetterShop", "items.db");
 		BufferedReader items = new BufferedReader(new FileReader(file));
-		line = items.readLine();
+		String line = items.readLine();
 		while (line != null) {
-			if (Integer.parseInt(line.split(":")[1]) == i) {
-				return line.split(":")[0];
+			if (line.charAt(0) == '#') {
+				line = items.readLine();
+				continue;
+			}
+			if (Integer.parseInt(line.split("[^a-z0-9]")[1]) == i) {
+				while ((line != null) && (d != 0)) {
+					if (line.split("[^a-z0-9]").length == 3) {
+						if (Byte.parseByte(line.split("[^a-z0-9]")[2], 10) == d) {
+							return line.split("[^a-z0-9]")[0];
+						} else {
+							line = items.readLine();
+						}
+					} else {
+						line = items.readLine();
+					}
+				}
+				return line.split("[^a-z0-9]")[0];
 			}
 			line = items.readLine();
 		}
-		throw new Exception("EOF: no item # "+i);
-
+		throw new Exception(String.format("EOF: no item # %d-%d", i, d));
 	}
 }
