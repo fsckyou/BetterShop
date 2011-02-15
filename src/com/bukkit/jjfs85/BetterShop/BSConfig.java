@@ -41,17 +41,16 @@ public class BSConfig {
 		List<String> keyList = new LinkedList<String>();
 		config = new Configuration(new File(folder, configname));
 		config.load();
-		keyList.addAll(config.getKeys(null));
+		keyList.addAll(config.getKeys("strings"));
 		String tmpString;
 
 		for (int i = 0; i < keyList.size(); i++) {
 			// get the string
-			tmpString = config.getString(keyList.get(i));
-			logger.warning("Here's " + tmpString);
+			tmpString = config.getString("strings." + keyList.get(i));
 			while (tmpString.contains("&")) {
-				tmpString.replaceAll("\048", "\u00A7");
-				logger.warning(tmpString + " DOH!!!");
+				tmpString = tmpString.replace("&", "\u00A7");
 			}
+			logger.warning("Debug - Here's " + keyList.get(i) + " " + tmpString);
 			// put the string in a HashMap for retrieval later
 			stringMap.put(keyList.get(i), tmpString);
 		}

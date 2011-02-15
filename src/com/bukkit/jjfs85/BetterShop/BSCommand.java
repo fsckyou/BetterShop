@@ -39,8 +39,7 @@ public class BSCommand {
 			return false;
 		}
 		if (!BSutils.hasPermission(player, "BetterShop.admin.add")) {
-			BSutils.sendMessage(player,
-					"OI! You don't have permission to do that!");
+			PermDeny(player);
 			return true;
 		}
 		try {
@@ -68,8 +67,7 @@ public class BSCommand {
 		int amtbought = 1;
 		int cost = 0;
 		if (!BSutils.hasPermission(player, "BetterShop.user.buy")) {
-			BSutils.sendMessage(player,
-					"OI! You don't have permission to do that!");
+			PermDeny(player);
 			return true;
 		}
 		if ((s.length > 2) || (s.length == 0)) {
@@ -138,8 +136,7 @@ public class BSCommand {
 	public boolean check(CommandSender player, String[] s) {
 		MaterialData mat;
 		if (!BSutils.hasPermission(player, "BetterShop.user.check")) {
-			BSutils.sendMessage(player,
-					"OI! You don't have permission to do that!");
+			PermDeny(player);
 			return true;
 		}
 		if (s.length != 1) {
@@ -165,8 +162,7 @@ public class BSCommand {
 
 	public boolean help(CommandSender player) {
 		if (!BSutils.hasPermission(player, "BetterShop.user.help")) {
-			BSutils.sendMessage(player,
-					"OI! You don't have permission to do that!");
+			PermDeny(player);
 			return true;
 		}
 		BSutils.sendMessage(player, "--------- Better Shop Usage --------");
@@ -198,9 +194,9 @@ public class BSCommand {
 	public boolean list(CommandSender player, String[] s) {
 		int pagesize = 9;
 		int page = 0;
+
 		if (!BSutils.hasPermission(player, "BetterShop.user.list")) {
-			BSutils.sendMessage(player,
-					"OI! You don't have permission to do that!");
+			PermDeny(player);
 			return true;
 		}
 		try {
@@ -211,6 +207,9 @@ public class BSCommand {
 		}
 		int pages = (int) Math.ceil((double) PriceList.NameMap.size()
 				/ pagesize);
+		String listhead = BetterShop.configfile.get("listhead").replace(
+				"<page>", String.valueOf(page)).replace("<pages>",
+				String.valueOf(pages));
 		if ((s.length != 0) && (s.length != 1)) {
 			return false;
 		} else if (page > pages) {
@@ -219,8 +218,7 @@ public class BSCommand {
 		} else {
 			int linenum = 1;
 			int i = 1;
-			BSutils.sendMessage(player, String.format(
-					"---- Price-list Page: %2d of %2d ----", page, pages));
+			BSutils.sendMessage(player, String.format(listhead, page, pages));
 			while ((linenum < page * pagesize) && (i < 2280)) {
 				try {
 					itemDb.get(i, (byte) 0);
@@ -244,15 +242,14 @@ public class BSCommand {
 				}
 				i++;
 			}
-			BSutils.sendMessage(player, "-----------------------------");
+			BSutils.sendMessage(player, BetterShop.configfile.get("listtail"));
 			return true;
 		}
 	}
 
 	public boolean load(CommandSender player) {
 		if (!BSutils.hasPermission(player, "BetterShop.admin.load")) {
-			BSutils.sendMessage(player,
-					"OI! You don't have permission to do that!");
+			PermDeny(player);
 			return true;
 		}
 		try {
@@ -262,14 +259,15 @@ public class BSCommand {
 			BSutils.sendMessage(player, "Pricelist load error. See console.");
 			return true;
 		}
-		BSutils.sendMessage(player, "PriceList loaded.");
+		BSutils.sendMessage(player, "PriceList.yml loaded.");
+		BetterShop.configfile.load();
+		BSutils.sendMessage(player, "Config.yml loaded.");
 		return true;
 	}
 
 	public boolean remove(CommandSender player, String[] s) {
 		if ((!BSutils.hasPermission(player, "BetterShop.admin.remove"))) {
-			BSutils.sendMessage(player,
-					"OI! You don't have permission to do that!");
+			PermDeny(player);
 			return true;
 		}
 		if (s.length != 1) {
@@ -291,8 +289,7 @@ public class BSCommand {
 		int price = 0;
 		MaterialData item = new MaterialData(0);
 		if (!BSutils.hasPermission(player, "BetterShop.user.sell")) {
-			BSutils.sendMessage(player,
-					"OI! You don't have permission to do that!");
+			PermDeny(player);
 			return true;
 		}
 		if ((s.length > 2) || (s.length == 0)) {
@@ -346,6 +343,10 @@ public class BSCommand {
 			}
 			return true;
 		}
+	}
+
+	void PermDeny(CommandSender player) {
+		BSutils.sendMessage(player, BetterShop.configfile.get("permdeny"));
 	}
 
 }

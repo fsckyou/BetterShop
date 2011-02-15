@@ -1,2 +1,44 @@
+## BetterShop Configuration file ##
+# Colors are specified by using "&<colorcode>"
+#   Color table:
+#       &0 is black
+#       &1 is dark blue
+#       &2 is dark green
+#       &3 is dark sky blue
+#       &4 is red
+#       &5 is magenta
+#       &6 is gold or amber
+#       &7 is light grey
+#       &8 is dark grey
+#       &9 is medium blue
+#       &a is light green
+#       &b is cyan
+#       &c is orange-red
+#       &d is pink
+#       &e is yellow
+#       &f is white
+#
+#   
+
+###
+# strings section: Text used in messages
+###
 strings:
-    prefix: "&c[&7SHOP&8] "
+##
+# general messages
+##
+    prefix: "&c[&7SHOP&c]&f "
+# prefix is what comes before each BetterShop message.
+    permdeny: "OI! You don't have permission to do that!"
+# permdeny is the permission denied message.
+
+##
+# shoplist messages
+##
+    listhead: "----- Price-List Page: <page> of <pages> -----"
+# listhead is the top of a /shoplist page.
+#   listhead allows special tags:
+#       <page> is the current page. <pages> is total number of pages.
+    listtail: "----------------------------"
+# listtail is the end of a /shoplist page.
+
