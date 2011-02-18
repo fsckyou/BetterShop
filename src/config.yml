@@ -55,6 +55,7 @@ strings:
 
     notforsale: "&f<item>&c is not for sale."
     # notforsale is the item not for sale message.
+    
     buymsg: "<amt> <item> at <priceper> ... <total> total!"
     # buymsg is the message shown when successfully buying
     
