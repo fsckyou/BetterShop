@@ -35,7 +35,8 @@ public class BSCommand {
 		try {
 			mat = itemDb.get(s[0]);
 		} catch (Exception e1) {
-			BSutils.sendMessage(player, "What's " + s[0] + "?");
+			BSutils.sendMessage(player, String.format(BetterShop.configfile
+					.getString("unkitem").replace("<item>", "%s"), s[0]));
 			return false;
 		}
 		if (!BSutils.hasPermission(player, "BetterShop.admin.add")) {
@@ -79,12 +80,17 @@ public class BSCommand {
 			try {
 				item = itemDb.get(s[0]);
 			} catch (Exception e2) {
-				BSutils.sendMessage(player, "What is " + s[0] + "?");
+				BSutils.sendMessage(player, String.format(BetterShop.configfile
+						.getString("unkitem").replace("<item>", "%s"), s[0]));
+				return true;
 			}
 			try {
 				price = PriceList.getBuyPrice(item.getItemTypeId());
 			} catch (Exception e1) {
-				BSutils.sendMessage(player, "That's not for sale!");
+				BSutils
+						.sendMessage(player, String.format(
+								BetterShop.configfile.getString("notforsale")
+										.replace("<item>", "%s"), s[0]));
 				return true;
 			}
 			if (s.length == 2)
@@ -100,12 +106,12 @@ public class BSCommand {
 			cost = amtbought * price;
 			try {
 				if (BSutils.debit(player, cost)) {
-					BSutils.sendMessage(player, "For "
-							+ amtbought
-							+ " "
-							+ itemDb.getName(item.getItemTypeId(), item
-									.getData()) + "? " + cost + " "
-							+ iConomy.currency + ". Thank you, come again!");
+					BSutils.sendMessage(player, String.format(
+							BetterShop.configfile.getString("buymsg").replace(
+									"<item>", "%1$s").replace("<amt>", "%2$d")
+									.replace("<priceper>", "%3$d").replace(
+											"<total>", "%4$d"), itemDb.getName(
+									item.getItemTypeId(), item.getData()), amtbought, price, cost));
 					leftover.clear();
 					ItemStack itemS = new ItemStack(item.getItemTypeId(),
 							amtbought, (short) 0, item.getData());
@@ -145,7 +151,8 @@ public class BSCommand {
 		try {
 			mat = itemDb.get(s[0]);
 		} catch (Exception e) {
-			BSutils.sendMessage(player, "What is " + s[0] + "?");
+			BSutils.sendMessage(player, String.format(BetterShop.configfile
+					.getString("unkitem").replace("<item>", "%s"), s[0]));
 			return true;
 		}
 		try {
@@ -207,7 +214,7 @@ public class BSCommand {
 		}
 		int pages = (int) Math.ceil((double) PriceList.NameMap.size()
 				/ pagesize);
-		String listhead = BetterShop.configfile.get("listhead").replace(
+		String listhead = BetterShop.configfile.getString("listhead").replace(
 				"<page>", String.valueOf(page)).replace("<pages>",
 				String.valueOf(pages));
 		if ((s.length != 0) && (s.length != 1)) {
@@ -242,7 +249,8 @@ public class BSCommand {
 				}
 				i++;
 			}
-			BSutils.sendMessage(player, BetterShop.configfile.get("listtail"));
+			BSutils.sendMessage(player, BetterShop.configfile
+					.getString("listtail"));
 			return true;
 		}
 	}
@@ -278,7 +286,8 @@ public class BSCommand {
 				BSutils.sendMessage(player, s[0]
 						+ " has been removed from the shop.");
 			} catch (Exception e) {
-				BSutils.sendMessage(player, "You done goofed. Check the name.");
+				BSutils.sendMessage(player, String.format(BetterShop.configfile
+						.getString("unkitem").replace("<item>", "%s"), s[0]));
 			}
 			return true;
 		}
@@ -300,7 +309,8 @@ public class BSCommand {
 			try {
 				item = itemDb.get(s[0]);
 			} catch (Exception e1) {
-				BSutils.sendMessage(player, "What's " + s[0] + "?");
+				BSutils.sendMessage(player, String.format(BetterShop.configfile
+						.getString("unkitem").replace("<item>", "%s"), s[0]));
 				return false;
 			}
 			try {
@@ -346,7 +356,9 @@ public class BSCommand {
 	}
 
 	void PermDeny(CommandSender player) {
-		BSutils.sendMessage(player, BetterShop.configfile.get("permdeny"));
+		BSutils
+				.sendMessage(player, BetterShop.configfile
+						.getString("permdeny"));
 	}
 
 }

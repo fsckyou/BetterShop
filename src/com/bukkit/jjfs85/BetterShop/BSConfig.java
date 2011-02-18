@@ -34,7 +34,7 @@ public class BSConfig {
 			e.printStackTrace();
 		}
 		load();
-		logger.info("Read " + stringMap.size());
+		logger.info("Debug - Read " + stringMap.size());
 	}
 
 	public void load() {
@@ -56,7 +56,7 @@ public class BSConfig {
 		}
 	}
 
-	public String get(String key) {
+	public String getString(String key) {
 
 		return stringMap.get(key);
 	}

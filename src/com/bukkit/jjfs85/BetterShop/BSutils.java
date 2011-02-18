@@ -64,7 +64,7 @@ public class BSutils {
 	}
 
 	final static void sendMessage(CommandSender player, String s) {
-		player.sendMessage(BetterShop.configfile.get("prefix") + s);
+		player.sendMessage(BetterShop.configfile.getString("prefix") + s);
 	}
 
 }
