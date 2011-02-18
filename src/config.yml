@@ -1,5 +1,4 @@
 ## BetterShop Configuration file ##
-###################################
 # Colors are specified by using "&<colorcode>"
 #   Color table:
 #       &0 is black
@@ -21,41 +20,25 @@
 #
 #   
 
-##########################################
-# strings section: Text used in messages #
-##########################################
+###
+# strings section: Text used in messages
+###
 strings:
-
-#
+##
 # general messages
-####
-
-    prefix: "&c[&7SHOP&c] "
-    # prefix is what comes before each BetterShop message.
-
+##
+    prefix: "&c[&7SHOP&c]&f "
+# prefix is what comes before each BetterShop message.
     permdeny: "OI! You don't have permission to do that!"
-    # permdeny is the permission denied message.
+# permdeny is the permission denied message.
 
-    unkitem: "What the frack is &f<item>&c?"
-    # unkitem is the unknown item message.
-
-#
+##
 # shoplist messages
-####
-
+##
     listhead: "----- Price-List Page: <page> of <pages> -----"
-    # listhead is the top of a /shoplist page.
-
+# listhead is the top of a /shoplist page.
+#   listhead allows special tags:
+#       <page> is the current page. <pages> is total number of pages.
     listtail: "----------------------------"
-    # listtail is the end of a /shoplist page.
+# listtail is the end of a /shoplist page.
 
-#
-# shopbuy messages
-####
-
-    notforsale: "&f<item>&c is not for sale."
-    # notforsale is the item not for sale message.
-    
-    buymsg: "<amt> <item> at <priceper> ... <total> total!"
-    # buymsg is the message shown when successfully buying
-    
