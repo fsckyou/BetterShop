@@ -34,7 +34,6 @@ public class BSConfig {
 			e.printStackTrace();
 		}
 		load();
-		logger.info("Debug - Read " + stringMap.size());
 	}
 
 	public void load() {
@@ -51,8 +50,6 @@ public class BSConfig {
 				while (tmpString.contains("&")) {
 					tmpString = tmpString.replace("&", "\u00A7");
 				}
-				logger.warning("Debug - Here's " + keyList.get(i) + " "
-						+ tmpString);
 				// put the string in a HashMap for retrieval later
 				stringMap.put(keyList.get(i), tmpString);
 			}
