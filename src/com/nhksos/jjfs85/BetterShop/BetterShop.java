@@ -4,13 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.nijiko.Messaging;
@@ -29,15 +27,6 @@ public class BetterShop extends JavaPlugin {
 	private final static File pluginFolder = new File("plugins", name);
 	static BSConfig configfile;
 	private BSCommand bscommand;
-
-	public BetterShop(PluginLoader pluginLoader, Server instance,
-			PluginDescriptionFile desc, File folder, File plugin,
-			ClassLoader cLoader) throws IOException {
-		super(pluginLoader, instance, desc, folder, plugin, cLoader);
-
-		// NOTE: Event registration should be done in onEnable not here as all
-		// events are unregistered when a plugin is disabled
-	}
 
 	public void onEnable() {
 
