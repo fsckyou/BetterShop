@@ -47,12 +47,15 @@ public class BSConfig {
 		for (int i = 0; i < keyList.size(); i++) {
 			// get the string
 			tmpString = config.getString("strings." + keyList.get(i));
-			while (tmpString.contains("&")) {
-				tmpString = tmpString.replace("&", "\u00A7");
+			if (tmpString != null) {
+				while (tmpString.contains("&")) {
+					tmpString = tmpString.replace("&", "\u00A7");
+				}
+				logger.warning("Debug - Here's " + keyList.get(i) + " "
+						+ tmpString);
+				// put the string in a HashMap for retrieval later
+				stringMap.put(keyList.get(i), tmpString);
 			}
-			logger.warning("Debug - Here's " + keyList.get(i) + " " + tmpString);
-			// put the string in a HashMap for retrieval later
-			stringMap.put(keyList.get(i), tmpString);
 		}
 	}
 

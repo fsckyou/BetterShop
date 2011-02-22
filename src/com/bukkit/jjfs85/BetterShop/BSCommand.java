@@ -39,22 +39,25 @@ public class BSCommand {
 					.getString("unkitem").replace("<item>", "%s"), s[0]));
 			return false;
 		}
-		if (!BSutils.hasPermission(player, "BetterShop.admin.add")) {
-			PermDeny(player);
+		if (!BSutils.hasPermission(player, "BetterShop.admin.add", true)) {
 			return true;
 		}
 		try {
 			PriceList.setPrice(s[0], s[1], s[2]);
 		} catch (Exception e) {
-			BSutils.sendMessage(player, "Something wasn't right there.");
+			BSutils.sendMessage(player, BetterShop.configfile
+					.getString("paramerror"));
 			return false;
 		}
 		try {
-			BSutils.sendMessage(player, String.format(
-					"[%s] added at the prices:    Buy: %d Sell: %d", itemDb
-							.getName(mat.getItemTypeId(), mat.getData()),
+			BSutils.sendMessage(player, String.format(BetterShop.configfile
+					.getString("addmsg").replace("<item>", "%1$s").replace(
+							"<buyprice>", "%2$d")
+					.replace("<sellprice>", "%3$d").replace("<curr>", "%4$s"),
+					itemDb.getName(mat.getItemTypeId(), mat.getData()),
 					PriceList.getBuyPrice(mat.getItemTypeId()), PriceList
-							.getSellPrice(mat.getItemTypeId())));
+							.getSellPrice(mat.getItemTypeId()),
+					iConomy.currency));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -67,8 +70,7 @@ public class BSCommand {
 		int amtleft = 0;
 		int amtbought = 1;
 		int cost = 0;
-		if (!BSutils.hasPermission(player, "BetterShop.user.buy")) {
-			PermDeny(player);
+		if (!BSutils.hasPermission(player, "BetterShop.user.buy", true)) {
 			return true;
 		}
 		if ((s.length > 2) || (s.length == 0)) {
@@ -86,11 +88,17 @@ public class BSCommand {
 			}
 			try {
 				price = PriceList.getBuyPrice(item.getItemTypeId());
+				if (price < 0)
+					new Exception();
 			} catch (Exception e1) {
-				BSutils
-						.sendMessage(player, String.format(
-								BetterShop.configfile.getString("notforsale")
-										.replace("<item>", "%s"), s[0]));
+				try {
+					BSutils.sendMessage(player, String.format(
+							BetterShop.configfile.getString("notforsale")
+									.replace("<item>", "%s"), itemDb.getName(
+									item.getItemTypeId(), item.getData())));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				return true;
 			}
 			if (s.length == 2)
@@ -99,8 +107,9 @@ public class BSCommand {
 				} catch (Exception e) {
 					return false;
 				}
-			if (amtbought < 0) {
-				BSutils.sendMessage(player, "...Nice try.");
+			if (amtbought <= 0) {
+				BSutils.sendMessage(player, BetterShop.configfile
+						.getString("nicetry"));
 				return true;
 			}
 			cost = amtbought * price;
@@ -110,8 +119,10 @@ public class BSCommand {
 							BetterShop.configfile.getString("buymsg").replace(
 									"<item>", "%1$s").replace("<amt>", "%2$d")
 									.replace("<priceper>", "%3$d").replace(
-											"<total>", "%4$d"), itemDb.getName(
-									item.getItemTypeId(), item.getData()), amtbought, price, cost));
+											"<total>", "%4$d").replace(
+											"<curr>", "%5$s"), itemDb.getName(
+									item.getItemTypeId(), item.getData()),
+							amtbought, price, cost, iConomy.currency));
 					leftover.clear();
 					ItemStack itemS = new ItemStack(item.getItemTypeId(),
 							amtbought, (short) 0, item.getData());
@@ -121,16 +132,29 @@ public class BSCommand {
 							.getAmount();
 					if (amtleft > 0) {
 						cost = amtleft * price;
-						BSutils.sendMessage(player,
-								"You didn't have enough space for all that.");
-						BSutils.sendMessage(player, "I'm refundng " + cost
-								+ " " + iConomy.currency
-								+ " for what you couldn't hold.");
+						BSutils.sendMessage(player, String.format(
+								BetterShop.configfile.getString("outofroom")
+										.replace("<item>", "%1$s").replace(
+												"<leftover>", "%2$d").replace(
+												"<refund>", "%3$d").replace(
+												"<curr>", "%5$s").replace(
+												"<priceper>", "%4$d"), itemDb
+										.getName(item.getItemTypeId(), item
+												.getData()), amtleft, cost,
+								price, iConomy.currency));
 						BSutils.credit(player, cost);
 					}
 					return true;
 				} else {
-					BSutils.sendMessage(player, "Not enough money.");
+					BSutils.sendMessage(player, String.format(
+							BetterShop.configfile.getString("insuffunds")
+									.replace("<item>", "%1$s").replace("<amt>",
+											"%2$d").replace("<total>", "%3$d")
+									.replace("<curr>", "%5$s").replace(
+											"<priceper>", "%4$d"), itemDb
+									.getName(item.getItemTypeId(), item
+											.getData()), amtbought, cost,
+							price, iConomy.currency));
 					return true;
 				}
 			} catch (Exception e) {
@@ -141,8 +165,7 @@ public class BSCommand {
 
 	public boolean check(CommandSender player, String[] s) {
 		MaterialData mat;
-		if (!BSutils.hasPermission(player, "BetterShop.user.check")) {
-			PermDeny(player);
+		if (!BSutils.hasPermission(player, "BetterShop.user.check", true)) {
 			return true;
 		}
 		if (s.length != 1) {
@@ -156,20 +179,28 @@ public class BSCommand {
 			return true;
 		}
 		try {
-			BSutils.sendMessage(player, String.format("[%s] Buy: %d Sell: %d",
-					itemDb.getName(mat.getItemTypeId(), mat.getData()),
-					PriceList.getBuyPrice(mat.getItemTypeId()), PriceList
-							.getSellPrice(mat.getItemTypeId())));
+			BSutils.sendMessage(player, String.format(BetterShop.configfile
+					.getString("pricecheck").replace("<buyprice>", "%1$d")
+					.replace("<sellprice>", "%2$d").replace("<item>", "%3$s")
+					.replace("<curr>", "%4$s"), PriceList.getBuyPrice(mat
+					.getItemTypeId()), PriceList.getSellPrice(mat
+					.getItemTypeId()), itemDb.getName(mat.getItemTypeId(), mat
+					.getData()), iConomy.currency));
 		} catch (Exception e) {
-			BSutils.sendMessage(player, "That's not on the market.");
+			try {
+				BSutils.sendMessage(player, String.format(BetterShop.configfile
+						.getString("nolisting").replace("<item>", "%s"), itemDb
+						.getName(mat.getItemTypeId(), mat.getData())));
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
 			return true;
 		}
 		return true;
 	}
 
 	public boolean help(CommandSender player) {
-		if (!BSutils.hasPermission(player, "BetterShop.user.help")) {
-			PermDeny(player);
+		if (!BSutils.hasPermission(player, "BetterShop.user.help", true)) {
 			return true;
 		}
 		BSutils.sendMessage(player, "--------- Better Shop Usage --------");
@@ -181,7 +212,7 @@ public class BSCommand {
 				+ "shopsell [item] <amount> - Sell items");
 		BSutils.sendMessage(player, "/" + commandPrefix
 				+ "shopcheck [item] - Check prices of item");
-		if (BSutils.hasPermission(player, "BetterShop.admin")) {
+		if (BSutils.hasPermission(player, "BetterShop.admin", false)) {
 			BSutils.sendMessage(player, "**-------- Admin commands --------**");
 			BSutils
 					.sendMessage(
@@ -202,14 +233,13 @@ public class BSCommand {
 		int pagesize = 9;
 		int page = 0;
 
-		if (!BSutils.hasPermission(player, "BetterShop.user.list")) {
-			PermDeny(player);
+		if (!BSutils.hasPermission(player, "BetterShop.user.list", true)) {
 			return true;
 		}
 		try {
 			page = (s.length == 0) ? 1 : Integer.parseInt(s[0]);
 		} catch (Exception e) {
-			BSutils.sendMessage(player, "That's not a page number, idiot.");
+			BSutils.sendMessage(player, "That's not a page number.");
 			return false;
 		}
 		int pages = (int) Math.ceil((double) PriceList.NameMap.size()
@@ -236,10 +266,14 @@ public class BSCommand {
 				if (PriceList.isForSale(i)) {
 					if (linenum > (page - 1) * pagesize) {
 						try {
-							BSutils.sendMessage(player, "["
-									+ itemDb.getName(i, (byte) 0) + "] Buy: "
-									+ PriceList.getBuyPrice(i) + " Sell: "
-									+ PriceList.getSellPrice(i));
+							BSutils.sendMessage(player, String.format(
+									BetterShop.configfile.getString("listing")
+											.replace("<buyprice>", "%1$d")
+											.replace("<sellprice>", "%2$d")
+											.replace("<item>", "%3$s"),
+									PriceList.getBuyPrice(i), PriceList
+											.getSellPrice(i), itemDb.getName(i,
+											(byte) 0)));
 						} catch (Exception e) {
 							e.printStackTrace();
 							logger.warning("Pricelist error!");
@@ -256,8 +290,7 @@ public class BSCommand {
 	}
 
 	public boolean load(CommandSender player) {
-		if (!BSutils.hasPermission(player, "BetterShop.admin.load")) {
-			PermDeny(player);
+		if (!BSutils.hasPermission(player, "BetterShop.admin.load", true)) {
 			return true;
 		}
 		try {
@@ -274,8 +307,7 @@ public class BSCommand {
 	}
 
 	public boolean remove(CommandSender player, String[] s) {
-		if ((!BSutils.hasPermission(player, "BetterShop.admin.remove"))) {
-			PermDeny(player);
+		if ((!BSutils.hasPermission(player, "BetterShop.admin.remove", true))) {
 			return true;
 		}
 		if (s.length != 1) {
@@ -283,8 +315,9 @@ public class BSCommand {
 		} else {
 			try {
 				PriceList.remove(s[0]);
-				BSutils.sendMessage(player, s[0]
-						+ " has been removed from the shop.");
+				BSutils.sendMessage(player, String
+						.format(BetterShop.configfile.getString("removemsg")
+								.replace("<item>", "%1$s"), s[0]));
 			} catch (Exception e) {
 				BSutils.sendMessage(player, String.format(BetterShop.configfile
 						.getString("unkitem").replace("<item>", "%s"), s[0]));
@@ -297,8 +330,7 @@ public class BSCommand {
 		int amtSold = 1;
 		int price = 0;
 		MaterialData item = new MaterialData(0);
-		if (!BSutils.hasPermission(player, "BetterShop.user.sell")) {
-			PermDeny(player);
+		if (!BSutils.hasPermission(player, "BetterShop.user.sell", true)) {
 			return true;
 		}
 		if ((s.length > 2) || (s.length == 0)) {
@@ -313,12 +345,20 @@ public class BSCommand {
 						.getString("unkitem").replace("<item>", "%s"), s[0]));
 				return false;
 			}
+			String itemname = null;
+			try {
+				itemname = itemDb.getName(item.getItemTypeId(), item.getData());
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 			try {
 				price = PriceList.getSellPrice(item.getItemTypeId());
 				if (price < 1)
 					throw new Exception();
 			} catch (Exception e1) {
-				BSutils.sendMessage(player, "We don't want that!");
+				BSutils.sendMessage(player, String.format(BetterShop.configfile
+						.getString("donotwant").replace("<item>", "%1$s"),
+						itemname));
 				return true;
 			}
 			ItemStack itemsToSell = item.toItemStack();
@@ -330,8 +370,8 @@ public class BSCommand {
 							+ " is definitely not a number.");
 				}
 			if (amtSold < 0) {
-				BSutils.sendMessage(player,
-						"Why would you want to buy at the selling price!?");
+				BSutils.sendMessage(player, BetterShop.configfile
+						.getString("nicetry"));
 				return true;
 			}
 			itemsToSell.setAmount(amtSold);
@@ -339,26 +379,25 @@ public class BSCommand {
 			leftover.clear();
 			leftover.putAll(inv.removeItem(itemsToSell));
 			if (leftover.size() > 0) {
-				amtSold = amtSold - leftover.get(0).getAmount();
-				BSutils.sendMessage(player, "You only had " + amtSold + ".");
+				int amtHas = amtSold - leftover.get(0).getAmount();
+				BSutils.sendMessage(player, String.format(BetterShop.configfile
+						.getString("donthave").replace("<hasamt>", "%1$s")
+						.replace("<amt>", "%2$d"), amtHas, amtSold));
 			}
+			int total = amtSold * price;
 			try {
-				BSutils.credit(player, amtSold * price);
-				BSutils.sendMessage(player, "You sold " + amtSold + " "
-						+ itemDb.getName(item.getItemTypeId(), item.getData())
-						+ " at " + price + " each for a total of " + amtSold
-						* price);
+				BSutils.credit(player, total);
+				BSutils.sendMessage(player, String.format(BetterShop.configfile
+						.getString("sellmsg").replace("<item>", "%1$s")
+						.replace("<amt>", "%2$d").replace("<priceper>", "%3$d")
+						.replace("<total>", "%4$d").replace("<curr>", "%5$s"),
+						itemDb.getName(item.getItemTypeId(), item.getData()),
+						amtSold, price, total, iConomy.currency));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			return true;
 		}
-	}
-
-	void PermDeny(CommandSender player) {
-		BSutils
-				.sendMessage(player, BetterShop.configfile
-						.getString("permdeny"));
 	}
 
 }

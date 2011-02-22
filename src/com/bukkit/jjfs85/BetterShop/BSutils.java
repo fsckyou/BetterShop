@@ -3,7 +3,6 @@ package com.bukkit.jjfs85.BetterShop;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-
 public class BSutils {
 
 	static boolean anonymousCheck(CommandSender sender) {
@@ -52,15 +51,22 @@ public class BSutils {
 		return true;
 	}
 
-	static boolean hasPermission(CommandSender player, String string) {
+	static boolean hasPermission(CommandSender player, String node,
+			boolean notify) {
 		try {
-			if (BetterShop.Permissions.has((Player) player, string)) {
+			if (BetterShop.Permissions.has((Player) player, node)) {
 				return true;
 			}
-			return false;
 		} catch (Exception e) {
-			return true;
+			e.printStackTrace();
 		}
+		if (notify == true) PermDeny(player,node);
+		return false;
+	}
+
+	final static void PermDeny(CommandSender player, String node) {
+		BSutils.sendMessage(player, String.format(BetterShop.configfile
+				.getString("permdeny").replace("<perm>", "%1$s"), node));
 	}
 
 	final static void sendMessage(CommandSender player, String s) {
