@@ -376,15 +376,16 @@ public class BSCommand {
 			}
 			itemsToSell.setAmount(amtSold);
 			PlayerInventory inv = ((Player) player).getInventory();
+			int amtHas = amtSold;
 			leftover.clear();
 			leftover.putAll(inv.removeItem(itemsToSell));
 			if (leftover.size() > 0) {
-				int amtHas = amtSold - leftover.get(0).getAmount();
+				amtHas = amtSold - leftover.get(0).getAmount();
 				BSutils.sendMessage(player, String.format(BetterShop.configfile
 						.getString("donthave").replace("<hasamt>", "%1$s")
 						.replace("<amt>", "%2$d"), amtHas, amtSold));
 			}
-			int total = amtSold * price;
+			int total = amtHas * price;
 			try {
 				BSutils.credit(player, total);
 				BSutils.sendMessage(player, String.format(BetterShop.configfile
@@ -392,7 +393,7 @@ public class BSCommand {
 						.replace("<amt>", "%2$d").replace("<priceper>", "%3$d")
 						.replace("<total>", "%4$d").replace("<curr>", "%5$s"),
 						itemDb.getName(item.getItemTypeId(), item.getData()),
-						amtSold, price, total, iConomy.currency));
+						amtHas, price, total, iConomy.currency));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
