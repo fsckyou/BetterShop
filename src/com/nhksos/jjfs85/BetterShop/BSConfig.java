@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.bukkit.jjfs85.BetterShop;
+package com.nhksos.jjfs85.BetterShop;
 
 import java.io.File;
 import java.io.FileWriter;

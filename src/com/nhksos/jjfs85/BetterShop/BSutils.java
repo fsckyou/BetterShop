@@ -1,4 +1,4 @@
-package com.bukkit.jjfs85.BetterShop;
+package com.nhksos.jjfs85.BetterShop;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

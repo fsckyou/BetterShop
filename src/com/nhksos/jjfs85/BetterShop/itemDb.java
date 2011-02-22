@@ -6,7 +6,7 @@
  * Ok, now I've had to edit it to add subtype support for my plugin. ~jjfs85
  */
 
-package com.bukkit.jjfs85.BetterShop;
+package com.nhksos.jjfs85.BetterShop;
 
 import java.io.BufferedReader;
 import java.io.File;
