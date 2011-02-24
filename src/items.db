@@ -92,6 +92,16 @@ doubleslab:43
 dslab:43
 step:44
 slab:44
+halfstep:44:0
+sandstep:44:1
+sandstonestep:44:1
+sstep:44:1
+sstonestep:44:1
+woodstep:44:2
+wstep:44:2
+cobblestonestep:44:3
+cstonestep:44:3
+cstep:44:3
 brickblock:45
 bblock:45
 tnt:46
@@ -206,6 +216,8 @@ pumpkinlantern:91
 glowingpumpkin:91
 lightpumpkin:91
 cakeblock:92
+repeaterblockoff:93
+repeaterblockon:94
 #Item ID:
 ironshovel:256
 ironspade:256
@@ -508,6 +520,13 @@ whitedye:351:15
 bone:352
 sugar:353
 cake:354
+bed:355
+cot:355
+sleepingbag:355
+redstonerepeater:356
+repeater:356
+redstoneextender:356
+extender:356
 goldrecord:2256
 golddisk:2256
 grecord:2256
