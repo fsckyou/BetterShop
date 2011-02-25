@@ -7,13 +7,15 @@ import java.util.logging.Logger;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.event.Event;
+import org.bukkit.event.Event.Priority;
+import org.bukkit.event.server.PluginEvent;
+import org.bukkit.event.server.ServerListener;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.nijiko.Messaging;
-import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
+import com.nijikokun.bukkit.iConomy.iConomy;
 
 /**
  * BetterShop for Bukkit
@@ -23,10 +25,41 @@ import com.nijikokun.bukkit.Permissions.Permissions;
 public class BetterShop extends JavaPlugin {
 	private final static Logger logger = Logger.getLogger("Minecraft");
 	private static final String name = "BetterShop";
-	static PermissionHandler Permissions = null;
+	static Permissions Permissions = null;
 	private final static File pluginFolder = new File("plugins", name);
 	static BSConfig configfile;
 	private BSCommand bscommand;
+
+	public static iConomy iConomy;
+	private final Listener Listener = new Listener();
+
+	private class Listener extends ServerListener {
+
+		public Listener() {
+		}
+
+		@Override
+		public void onPluginEnabled(PluginEvent event) {
+			if (event.getPlugin().getDescription().getName().equals("iConomy")) {
+				BetterShop.iConomy = (iConomy) event.getPlugin();
+				logger.info("[BetterShop] Attached to iConomy.");
+			} else
+				logger.warning("[BetterShop] Oh god I can't find iConomy!!!");
+			if (event.getPlugin().getDescription().getName().equals(
+					"Permissions")) {
+				BetterShop.Permissions = (Permissions) event.getPlugin();
+				logger
+						.info("[BetterShop] Attached to Permissions or something close enough to it");
+			} else
+				logger
+						.warning("[BetterShop] DX .... I can't find permissions plugins!!");
+		}
+	}
+
+	private void registerEvents() {
+		this.getServer().getPluginManager().registerEvent(
+				Event.Type.PLUGIN_ENABLE, Listener, Priority.Monitor, this);
+	}
 
 	public void onEnable() {
 
@@ -58,8 +91,7 @@ public class BetterShop extends JavaPlugin {
 			this.setEnabled(false);
 		}
 
-		// setup the permissions
-		setupPermissions();
+		registerEvents();
 
 		// Just output some info so we can check
 		// all is well
@@ -107,20 +139,5 @@ public class BetterShop extends JavaPlugin {
 			return bscommand.check(sender, trimmedArgs);
 		}
 		return false;
-	}
-
-	void setupPermissions() {
-		Plugin test = this.getServer().getPluginManager().getPlugin(
-				"Permissions");
-
-		if (BetterShop.Permissions == null) {
-			if (test != null) {
-				BetterShop.Permissions = ((Permissions) test).getHandler();
-			} else {
-				logger.info(Messaging.bracketize(name)
-						+ " Permission system not enabled. Disabling plugin.");
-				this.getServer().getPluginManager().disablePlugin(this);
-			}
-		}
 	}
 }
