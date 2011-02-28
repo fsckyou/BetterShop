@@ -1,12 +1,15 @@
 package com.nhksos.jjfs85.BetterShop;
 
+import java.util.logging.Logger;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.nijikokun.bukkit.iConomy.Account;
-import com.nijikokun.bukkit.iConomy.iConomy;
+import com.nijiko.coelho.iConomy.system.*;
 
 public class BSutils {
+	@SuppressWarnings("unused")
+	private final static Logger logger = Logger.getLogger("Minecraft");
 
 	static boolean anonymousCheck(CommandSender sender) {
 		if (!(sender instanceof Player)) {
@@ -18,19 +21,25 @@ public class BSutils {
 		}
 	}
 
-	final static boolean credit(CommandSender player, float amount)
+	@SuppressWarnings("static-access")
+	final static boolean credit(CommandSender player, double amount)
 			throws Exception {
-		Account account = iConomy.Bank.getAccount(((Player)player).getName());
+		String name = ((Player) player).getName();
+		Account account = BetterShop.iConomy.getBank().getAccount(name);
 		double balance = account.getBalance();
 		account.setBalance(balance + amount);
 		account.save();
 		return true;
 	}
 
-	final static boolean debit(CommandSender player, int amount)
+	@SuppressWarnings("static-access")
+	final static boolean debit(CommandSender player, double amount)
 			throws Exception {
-		Account account = iConomy.Bank.getAccount(((Player)player).getName());
+		String name = ((Player) player).getName();
+		Account account = BetterShop.iConomy.getBank().getAccount(name);
 		double balance = account.getBalance();
+		if (balance < amount)
+			return false;
 		account.setBalance(balance - amount);
 		account.save();
 		return true;
@@ -43,10 +52,15 @@ public class BSutils {
 			if (BetterShop.Permissions.Security.has((Player) player, node)) {
 				return true;
 			}
-		} catch (Exception e) {
+		}
+		catch (ClassCastException e1) {
+			return true;
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
-		if (notify == true) PermDeny(player,node);
+		if (notify == true)
+			PermDeny(player, node);
 		return false;
 	}
 

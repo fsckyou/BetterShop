@@ -3,6 +3,7 @@ package com.nhksos.jjfs85.BetterShop;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import org.bukkit.command.CommandSender;
@@ -11,16 +12,18 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.material.MaterialData;
 
-import com.nijikokun.bukkit.iConomy.iConomy;
+import com.nijiko.coelho.iConomy.iConomy;
 
 public class BSCommand {
 
 	private final static BSPriceList PriceList = new BSPriceList();
 	private final static HashMap<Integer, ItemStack> leftover = new HashMap<Integer, ItemStack>();
 	private final static String commandPrefix = "";
+	@SuppressWarnings("unused")
 	private final static Logger logger = Logger.getLogger("Minecraft");
 	private static final String name = "BetterShop";
 	private final static File pluginFolder = new File("plugins", name);
+	String currency = iConomy.getBank().getCurrency();
 
 	public BSCommand() throws Exception {
 		// load the pricelist.
@@ -47,17 +50,17 @@ public class BSCommand {
 		} catch (Exception e) {
 			BSutils.sendMessage(player, BetterShop.configfile
 					.getString("paramerror"));
+			e.printStackTrace();
 			return false;
 		}
 		try {
 			BSutils.sendMessage(player, String.format(BetterShop.configfile
 					.getString("addmsg").replace("<item>", "%1$s").replace(
-							"<buyprice>", "%2$d")
-					.replace("<sellprice>", "%3$d").replace("<curr>", "%4$s"),
+							"<buyprice>", "%2$01.2f")
+					.replace("<sellprice>", "%3$01.2f").replace("<curr>", "%4$s"),
 					itemDb.getName(mat.getItemTypeId(), mat.getData()),
-					PriceList.getBuyPrice(mat.getItemTypeId()), PriceList
-							.getSellPrice(mat.getItemTypeId()),
-					iConomy.currency));
+					PriceList.getBuyPrice(s[0]), PriceList.getSellPrice(s[0]),
+					BetterShop.iBank.getCurrency()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -66,10 +69,10 @@ public class BSCommand {
 
 	public boolean buy(CommandSender player, String[] s) {
 		MaterialData item = new MaterialData(0);
-		int price = 0;
+		double price = 0;
 		int amtleft = 0;
 		int amtbought = 1;
-		int cost = 0;
+		double cost = 0;
 		if (!BSutils.hasPermission(player, "BetterShop.user.buy", true)) {
 			return true;
 		}
@@ -118,11 +121,11 @@ public class BSCommand {
 					BSutils.sendMessage(player, String.format(
 							BetterShop.configfile.getString("buymsg").replace(
 									"<item>", "%1$s").replace("<amt>", "%2$d")
-									.replace("<priceper>", "%3$d").replace(
-											"<total>", "%4$d").replace(
+									.replace("<priceper>", "%3$01.2f").replace(
+											"<total>", "%4$01.2f").replace(
 											"<curr>", "%5$s"), itemDb.getName(
 									item.getItemTypeId(), item.getData()),
-							amtbought, price, cost, iConomy.currency));
+							amtbought, price, cost, BetterShop.iBank.getCurrency()));
 					leftover.clear();
 					ItemStack itemS = new ItemStack(item.getItemTypeId(),
 							amtbought, (short) 0, item.getData());
@@ -136,12 +139,12 @@ public class BSCommand {
 								BetterShop.configfile.getString("outofroom")
 										.replace("<item>", "%1$s").replace(
 												"<leftover>", "%2$d").replace(
-												"<refund>", "%3$d").replace(
+												"<refund>", "%3$01.2f").replace(
 												"<curr>", "%5$s").replace(
 												"<priceper>", "%4$d"), itemDb
 										.getName(item.getItemTypeId(), item
 												.getData()), amtleft, cost,
-								price, iConomy.currency));
+								price, BetterShop.iBank.getCurrency()));
 						BSutils.credit(player, cost);
 					}
 					return true;
@@ -149,12 +152,12 @@ public class BSCommand {
 					BSutils.sendMessage(player, String.format(
 							BetterShop.configfile.getString("insuffunds")
 									.replace("<item>", "%1$s").replace("<amt>",
-											"%2$d").replace("<total>", "%3$d")
+											"%2$d").replace("<total>", "%3$01.2f")
 									.replace("<curr>", "%5$s").replace(
-											"<priceper>", "%4$d"), itemDb
+											"<priceper>", "%4$01.2f"), itemDb
 									.getName(item.getItemTypeId(), item
 											.getData()), amtbought, cost,
-							price, iConomy.currency));
+							price, BetterShop.iBank.getCurrency()));
 					return true;
 				}
 			} catch (Exception e) {
@@ -181,12 +184,13 @@ public class BSCommand {
 		}
 		try {
 			BSutils.sendMessage(player, String.format(BetterShop.configfile
-					.getString("pricecheck").replace("<buyprice>", "%1$d")
-					.replace("<sellprice>", "%2$d").replace("<item>", "%3$s")
-					.replace("<curr>", "%4$s"), PriceList.getBuyPrice(mat
-					.getItemTypeId()), PriceList.getSellPrice(mat
-					.getItemTypeId()), itemDb.getName(mat.getItemTypeId(), mat
-					.getData()), iConomy.currency));
+					.getString("pricecheck").replace("<buyprice>", "%1$01.2f")
+					.replace("<sellprice>", "%2$01.2f")
+					.replace("<item>", "%3$s").replace("<curr>", "%4$s"),
+					PriceList.getBuyPrice(mat.getItemTypeId()), PriceList
+							.getSellPrice(mat.getItemTypeId()), itemDb.getName(
+							mat.getItemTypeId(), mat.getData()), BetterShop.iBank
+							.getCurrency()));
 		} catch (Exception e) {
 			try {
 				BSutils.sendMessage(player, String.format(BetterShop.configfile
@@ -255,34 +259,23 @@ public class BSCommand {
 			return true;
 		} else {
 			int linenum = 1;
-			int i = 1;
+			Iterator<Double> iter = PriceList.ItemMap.iterator();
 			BSutils.sendMessage(player, String.format(listhead, page, pages));
-			while ((linenum < page * pagesize) && (i < 2280)) {
+			while ((linenum < (page-1)* pagesize) && iter.hasNext()){
+				iter.next();
+				linenum++;
+			}
+			while ((linenum < page * pagesize) && (iter.hasNext())) {
+				Double i = iter.next();
 				try {
-					itemDb.get(i, (byte) 0);
-				} catch (Exception e1) {
-					i++;
-					continue;
+					BSutils.sendMessage(player, String.format(
+							"[%1$s] Buy: %2$01.2f Sell: %3$01.2f", itemDb
+									.getName(i), PriceList.getBuyPrice(i),
+							PriceList.getSellPrice(i)));
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				if (PriceList.isForSale(i)) {
-					if (linenum > (page - 1) * pagesize) {
-						try {
-							BSutils.sendMessage(player, String.format(
-									BetterShop.configfile.getString("listing")
-											.replace("<buyprice>", "%1$d")
-											.replace("<sellprice>", "%2$d")
-											.replace("<item>", "%3$s"),
-									PriceList.getBuyPrice(i), PriceList
-											.getSellPrice(i), itemDb.getName(i,
-											(byte) 0)));
-						} catch (Exception e) {
-							e.printStackTrace();
-							logger.warning("Pricelist error!");
-						}
-					}
-					linenum++;
-				}
-				i++;
+				linenum++;
 			}
 			BSutils.sendMessage(player, BetterShop.configfile
 					.getString("listtail"));
@@ -329,7 +322,7 @@ public class BSCommand {
 
 	public boolean sell(CommandSender player, String[] s) {
 		int amtSold = 1;
-		int price = 0;
+		double price = 0;
 		MaterialData item = new MaterialData(0);
 		if (!BSutils.hasPermission(player, "BetterShop.user.sell", true)) {
 			return true;
@@ -353,7 +346,7 @@ public class BSCommand {
 				e2.printStackTrace();
 			}
 			try {
-				price = PriceList.getSellPrice(item.getItemTypeId());
+				price = PriceList.getSellPrice(itemname);
 				if (price < 1)
 					throw new Exception();
 			} catch (Exception e1) {
@@ -383,18 +376,18 @@ public class BSCommand {
 			if (leftover.size() > 0) {
 				amtHas = amtSold - leftover.get(0).getAmount();
 				BSutils.sendMessage(player, String.format(BetterShop.configfile
-						.getString("donthave").replace("<hasamt>", "%1$s")
+						.getString("donthave").replace("<hasamt>", "%1$d")
 						.replace("<amt>", "%2$d"), amtHas, amtSold));
 			}
-			int total = amtHas * price;
+			double total = amtHas * price;
 			try {
 				BSutils.credit(player, total);
 				BSutils.sendMessage(player, String.format(BetterShop.configfile
 						.getString("sellmsg").replace("<item>", "%1$s")
-						.replace("<amt>", "%2$d").replace("<priceper>", "%3$d")
-						.replace("<total>", "%4$d").replace("<curr>", "%5$s"),
+						.replace("<amt>", "%2$d").replace("<priceper>", "%3$01.2f")
+						.replace("<total>", "%4$01.2f").replace("<curr>", "%5$s"),
 						itemDb.getName(item.getItemTypeId(), item.getData()),
-						amtHas, price, total, iConomy.currency));
+						amtHas, price, total, BetterShop.iBank.getCurrency()));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

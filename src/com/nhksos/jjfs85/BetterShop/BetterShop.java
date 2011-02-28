@@ -14,8 +14,9 @@ import org.bukkit.event.server.ServerListener;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.nijiko.coelho.iConomy.iConomy;
+import com.nijiko.coelho.iConomy.system.Bank;
 import com.nijikokun.bukkit.Permissions.Permissions;
-import com.nijikokun.bukkit.iConomy.iConomy;
 
 /**
  * BetterShop for Bukkit
@@ -26,11 +27,12 @@ public class BetterShop extends JavaPlugin {
 	private final static Logger logger = Logger.getLogger("Minecraft");
 	private static final String name = "BetterShop";
 	static Permissions Permissions = null;
+	static iConomy iConomy = null;
 	private final static File pluginFolder = new File("plugins", name);
 	static BSConfig configfile;
 	private BSCommand bscommand;
+	static Bank iBank;
 
-	public static iConomy iConomy;
 	private final Listener Listener = new Listener();
 
 	private class Listener extends ServerListener {
@@ -43,22 +45,39 @@ public class BetterShop extends JavaPlugin {
 			if (event.getPlugin().getDescription().getName().equals("iConomy")) {
 				BetterShop.iConomy = (iConomy) event.getPlugin();
 				logger.info("[BetterShop] Attached to iConomy.");
-			} else
-				logger.warning("[BetterShop] Oh god I can't find iConomy!!!");
+				iBank = iConomy.getBank();
+			}
 			if (event.getPlugin().getDescription().getName().equals(
 					"Permissions")) {
 				BetterShop.Permissions = (Permissions) event.getPlugin();
 				logger
 						.info("[BetterShop] Attached to Permissions or something close enough to it");
-			} else
-				logger
-						.warning("[BetterShop] DX .... I can't find permissions plugins!!");
+			}
 		}
 	}
 
 	private void registerEvents() {
 		this.getServer().getPluginManager().registerEvent(
 				Event.Type.PLUGIN_ENABLE, Listener, Priority.Monitor, this);
+	}
+
+	private void hookDepends() {
+		if (this.getServer().getPluginManager().isPluginEnabled("iConomy")) {
+			BetterShop.iConomy = (iConomy) this.getServer().getPluginManager()
+					.getPlugin("iConomy");
+			logger.info("[BetterShop] Attached to iConomy.");
+			iBank = iConomy.getBank();
+		} else {
+			logger.warning("[BetterShop] WARNING: iConomy not yet found...");
+		}
+		if (this.getServer().getPluginManager().isPluginEnabled("Permissions")) {
+			BetterShop.Permissions = (Permissions) this.getServer()
+					.getPluginManager().getPlugin("Permissions");
+			logger.info("[BetterShop] Attached to Permissions.");
+		} else {
+			logger
+					.warning("[BetterShop] WARNING: Permissions not yet found...");
+		}
 	}
 
 	public void onEnable() {
@@ -90,7 +109,7 @@ public class BetterShop extends JavaPlugin {
 			e.printStackTrace();
 			this.setEnabled(false);
 		}
-
+		hookDepends();
 		registerEvents();
 
 		// Just output some info so we can check
@@ -119,6 +138,15 @@ public class BetterShop extends JavaPlugin {
 			logger.info(((Player) sender).getName() + " used command "
 					+ command.getName());
 		} catch (Exception e) {
+		}
+		if ((BetterShop.iConomy == null) || (BetterShop.Permissions == null)) {
+			BSutils.sendMessage(sender,
+					" BetterShop is missing a dependency. Check the console.");
+			logger
+					.severe("[BetterShop] Missing: "
+							+ ((BetterShop.iConomy == null) ? "iConomy"
+									: "Permissions"));
+			return true;
 		}
 
 		if (commandName.equals("shoplist")) {

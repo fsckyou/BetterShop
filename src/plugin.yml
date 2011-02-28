@@ -1,6 +1,6 @@
 name: BetterShop
 main: com.nhksos.jjfs85.BetterShop.BetterShop
-version: 1.4.3
+version: 1.5.0
 website: http://github.com/jjfs85/BetterShop
 author: jjfs85
 description: >
@@ -10,24 +10,32 @@ commands:
   shopcheck:
     description: Check prices for an item
     usage: /<command> [item]
+    aliases: [sc,scheck]
   shoplist:
     description: Lists prices for the shop
     usage: /<command> <page>
+    aliases: [sl,slist]
   shopbuy:
     description: Buy an item for the price in the shop
     usage: /<command> [item] [amount]
+    aliases: [buy,sbuy]
   shopsell:
     description: Sell an item for the price in the shop
     usage: /<command> [item] <amount>
+    aliases: [sell,ssell]
   shopadd:
     description: Add an item to or update an item in the price list
     usage: /<command> [item] [buy-price] [sell-price]
+    aliases: [sadd]
   shopremove:
     description: Remove an item from the price list
     usage: /<command> [item]
+    aliases: [sremove]
   shopload:
     description: reload prices from PriceList.yml
     usage: /<command>
+    aliases: [sload]
   shophelp:
     description: Lists available commands
     usage: /<command>
+    aliases: [shelp]

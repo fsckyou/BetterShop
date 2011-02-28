@@ -68,7 +68,9 @@ public class itemDb {
 		}
 	}
 
-	public static MaterialData get(int i, byte b) throws Exception {
+	public static MaterialData get(double d) throws Exception {
+		int i = (int) Math.floor(d);
+		int b = (int) (d - i) * 100;
 		return get(String.format("%d:%d", i, b));
 	}
 
@@ -100,6 +102,12 @@ public class itemDb {
 				throw new Exception("Unknown material");
 		}
 		return retval;
+	}
+
+	public static String getName(double d) throws Exception {
+		int i = (int) Math.floor(d);
+		byte b = (byte)((d-i)*100);
+		return getName(i, b);
 	}
 
 	public static String getName(int i, byte d) throws Exception {
