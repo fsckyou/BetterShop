@@ -117,9 +117,9 @@ strings:
     # outofroom is displayed when someone tries to buy more than they can carry. An additional key you can
     # use here is <priceper>
     
-    insuffunds: "You don't have &f<amt> &2<curr>!"
+    insuffunds: "You don't have &f<total> &2<curr>!"
     # insuffunds is displayed when someone tries to buy more than they can afford. Additional keys you can
-    # use here are <priceper>, <item>, and <total>.
+    # use here are <priceper>, <item>, and <amt>.
     
     notforsale: "&f[<item>] &2is not for sale."
     # notforsale is the item not for sale message.

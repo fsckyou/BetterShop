@@ -56,11 +56,11 @@ public class BSCommand {
 		try {
 			BSutils.sendMessage(player, String.format(BetterShop.configfile
 					.getString("addmsg").replace("<item>", "%1$s").replace(
-							"<buyprice>", "%2$01.2f")
-					.replace("<sellprice>", "%3$01.2f").replace("<curr>", "%4$s"),
-					itemDb.getName(mat.getItemTypeId(), mat.getData()),
-					PriceList.getBuyPrice(s[0]), PriceList.getSellPrice(s[0]),
-					BetterShop.iBank.getCurrency()));
+							"<buyprice>", "%2$01.2f").replace("<sellprice>",
+							"%3$01.2f").replace("<curr>", "%4$s"), itemDb
+					.getName(mat.getItemTypeId(), mat.getData()), PriceList
+					.getBuyPrice(s[0]), PriceList.getSellPrice(s[0]),
+					currency));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -125,7 +125,7 @@ public class BSCommand {
 											"<total>", "%4$01.2f").replace(
 											"<curr>", "%5$s"), itemDb.getName(
 									item.getItemTypeId(), item.getData()),
-							amtbought, price, cost, BetterShop.iBank.getCurrency()));
+							amtbought, price, cost, currency));
 					leftover.clear();
 					ItemStack itemS = new ItemStack(item.getItemTypeId(),
 							amtbought, (short) 0, item.getData());
@@ -139,12 +139,12 @@ public class BSCommand {
 								BetterShop.configfile.getString("outofroom")
 										.replace("<item>", "%1$s").replace(
 												"<leftover>", "%2$d").replace(
-												"<refund>", "%3$01.2f").replace(
-												"<curr>", "%5$s").replace(
+												"<refund>", "%3$01.2f")
+										.replace("<curr>", "%5$s").replace(
 												"<priceper>", "%4$d"), itemDb
 										.getName(item.getItemTypeId(), item
 												.getData()), amtleft, cost,
-								price, BetterShop.iBank.getCurrency()));
+								price, currency));
 						BSutils.credit(player, cost);
 					}
 					return true;
@@ -152,12 +152,12 @@ public class BSCommand {
 					BSutils.sendMessage(player, String.format(
 							BetterShop.configfile.getString("insuffunds")
 									.replace("<item>", "%1$s").replace("<amt>",
-											"%2$d").replace("<total>", "%3$01.2f")
-									.replace("<curr>", "%5$s").replace(
-											"<priceper>", "%4$01.2f"), itemDb
-									.getName(item.getItemTypeId(), item
-											.getData()), amtbought, cost,
-							price, BetterShop.iBank.getCurrency()));
+											"%2$d").replace("<total>",
+											"%3$01.2f").replace("<curr>",
+											"%5$s").replace("<priceper>",
+											"%4$01.2f"), itemDb.getName(item
+									.getItemTypeId(), item.getData()),
+							amtbought, cost, price, currency));
 					return true;
 				}
 			} catch (Exception e) {
@@ -169,6 +169,7 @@ public class BSCommand {
 
 	public boolean check(CommandSender player, String[] s) {
 		MaterialData mat;
+		double i = 0;
 		if (!BSutils.hasPermission(player, "BetterShop.user.check", true)) {
 			return true;
 		}
@@ -183,14 +184,13 @@ public class BSCommand {
 			return true;
 		}
 		try {
+			i = mat.getItemTypeId() + ((double) mat.getData() / 100);
 			BSutils.sendMessage(player, String.format(BetterShop.configfile
 					.getString("pricecheck").replace("<buyprice>", "%1$01.2f")
-					.replace("<sellprice>", "%2$01.2f")
-					.replace("<item>", "%3$s").replace("<curr>", "%4$s"),
-					PriceList.getBuyPrice(mat.getItemTypeId()), PriceList
-							.getSellPrice(mat.getItemTypeId()), itemDb.getName(
-							mat.getItemTypeId(), mat.getData()), BetterShop.iBank
-							.getCurrency()));
+					.replace("<sellprice>", "%2$01.2f").replace("<item>",
+							"%3$s").replace("<curr>", "%4$s"), PriceList
+					.getBuyPrice(i), PriceList.getSellPrice(i), itemDb
+					.getName(i), currency));
 		} catch (Exception e) {
 			try {
 				BSutils.sendMessage(player, String.format(BetterShop.configfile
@@ -261,7 +261,7 @@ public class BSCommand {
 			int linenum = 1;
 			Iterator<Double> iter = PriceList.ItemMap.iterator();
 			BSutils.sendMessage(player, String.format(listhead, page, pages));
-			while ((linenum < (page-1)* pagesize) && iter.hasNext()){
+			while ((linenum < (page - 1) * pagesize) && iter.hasNext()) {
 				iter.next();
 				linenum++;
 			}
@@ -384,10 +384,11 @@ public class BSCommand {
 				BSutils.credit(player, total);
 				BSutils.sendMessage(player, String.format(BetterShop.configfile
 						.getString("sellmsg").replace("<item>", "%1$s")
-						.replace("<amt>", "%2$d").replace("<priceper>", "%3$01.2f")
-						.replace("<total>", "%4$01.2f").replace("<curr>", "%5$s"),
-						itemDb.getName(item.getItemTypeId(), item.getData()),
-						amtHas, price, total, BetterShop.iBank.getCurrency()));
+						.replace("<amt>", "%2$d").replace("<priceper>",
+								"%3$01.2f").replace("<total>", "%4$01.2f")
+						.replace("<curr>", "%5$s"), itemDb.getName(item
+						.getItemTypeId(), item.getData()), amtHas, price,
+						total, currency));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

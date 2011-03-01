@@ -19,12 +19,12 @@ public class BSPriceList {
 	final List<String> keys = new LinkedList<String>();
 	private File PLfile;
 	private Configuration PriceList;
-	
-	public static
-	<T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
-	  List<T> list = new ArrayList<T>(c);
-	  java.util.Collections.sort(list);
-	  return list;
+
+	public static <T extends Comparable<? super T>> List<T> asSortedList(
+			Collection<T> c) {
+		List<T> list = new ArrayList<T>(c);
+		java.util.Collections.sort(list);
+		return list;
 	}
 
 	public void load(File PLpath, String fileName) throws IOException {
@@ -41,7 +41,6 @@ public class BSPriceList {
 		logger.info("Loading PriceList.yml");
 		PriceList = new Configuration(PLfile);
 		PriceList.load();
-		logger.info("PriceList.yml loaded.");
 		BuyMap.clear();
 		SellMap.clear();
 		NameMap.clear();
@@ -49,7 +48,7 @@ public class BSPriceList {
 		try {
 			keys.addAll(PriceList.getKeys("prices"));
 		} catch (Exception e0) {
-			logger.info("Empty PriceList");
+			logger.info("Empty PriceList or error reading PriceList");
 			return;
 		}
 		while (i < keys.size()) {
@@ -60,10 +59,16 @@ public class BSPriceList {
 			if (split.length != 0) {
 				int id = 0;
 				int sub = 0;
-				if (split[split.length - 1].equalsIgnoreCase("") != true)
-					sub = Integer.parseInt(split[split.length - 1]);
-				if (split[split.length - 4].equalsIgnoreCase("") != true)
+				try {
 					id = Integer.parseInt(split[split.length - 4]);
+				} catch (Exception e1) {
+					id = 0;
+				}
+				try {
+					sub = Integer.parseInt(split[split.length - 1]);
+				} catch (Exception e1) {
+					sub = 0;
+				}
 				if (keys.contains("item" + String.valueOf(id) + "sub"
 						+ String.valueOf(sub))) {
 					buy = PriceList.getDouble("prices.item"
@@ -83,20 +88,23 @@ public class BSPriceList {
 							+ String.valueOf(id) + ".name", "Unk");
 				}
 				if ((buy != -1) && (sell != -1)) {
-					BuyMap.put(((double) id + (sub / 100)), buy);
-					SellMap.put(((double) id + (sub / 100)), sell);
-					NameMap.put(((double) id + (sub / 100)), name);
+					double d = id + (sub*.01);
+					BuyMap.put(d, buy);
+					SellMap.put(d, sell);
+					NameMap.put(d, name);
 				}
 			}
 			i++;
 		}
 		ItemMap.clear();
 		ItemMap.addAll(NameMap.keySet());
+		logger.info("PriceList.yml loaded.");
 	}
 
 	public boolean isForSale(String s) throws Exception {
 		double i;
-		i = itemDb.get(s).getItemTypeId() + (double)itemDb.get(s).getData() / 100;
+		i = itemDb.get(s).getItemTypeId() + (double) itemDb.get(s).getData()
+				/ 100;
 		return isForSale(i);
 	}
 
@@ -106,7 +114,8 @@ public class BSPriceList {
 
 	public double getBuyPrice(String s) throws Exception {
 		double i;
-		i = itemDb.get(s).getItemTypeId() + (double)itemDb.get(s).getData() / 100;
+		i = itemDb.get(s).getItemTypeId() + (double) itemDb.get(s).getData()
+				/ 100;
 		return getBuyPrice(i);
 	}
 
@@ -119,7 +128,8 @@ public class BSPriceList {
 
 	public double getSellPrice(String s) throws Exception {
 		double i;
-		i = itemDb.get(s).getItemTypeId() + (double)itemDb.get(s).getData() / 100;
+		i = itemDb.get(s).getItemTypeId() + (double) itemDb.get(s).getData()
+				/ 100;
 		return getSellPrice(i);
 	}
 
@@ -133,7 +143,7 @@ public class BSPriceList {
 	public void setPrice(String item, String b, String s) throws Exception {
 
 		double i = itemDb.get(item).getItemTypeId()
-				+ (double)itemDb.get(item).getData() / 100;
+				+ (double) itemDb.get(item).getData() / 100;
 		// try to parse... hunt for exception...
 		Double.parseDouble(b);
 		Double.parseDouble(s);
@@ -150,11 +160,14 @@ public class BSPriceList {
 
 	public void remove(String s) throws Exception {
 		MaterialData matdat = itemDb.get(s);
-		if (NameMap
-				.containsKey(matdat.getItemTypeId() + (double)matdat.getData() / 100)) {
-			BuyMap.remove(matdat.getItemTypeId() + (double)matdat.getData() / 100);
-			SellMap.remove(matdat.getItemTypeId() + (double)matdat.getData() / 100);
-			NameMap.remove(matdat.getItemTypeId() + (double)matdat.getData() / 100);
+		if (NameMap.containsKey(matdat.getItemTypeId()
+				+ (double) matdat.getData() / 100)) {
+			BuyMap.remove(matdat.getItemTypeId() + (double) matdat.getData()
+					/ 100);
+			SellMap.remove(matdat.getItemTypeId() + (double) matdat.getData()
+					/ 100);
+			NameMap.remove(matdat.getItemTypeId() + (double) matdat.getData()
+					/ 100);
 		}
 		save();
 	}
@@ -178,7 +191,7 @@ public class BSPriceList {
 				double key = ItemIt.next();
 				int item = (int) Math.floor(key);
 				int sub = (int) ((key - item) * 100);
-				output.write(String.format("  item%01dsub%01d:",item , sub));
+				output.write(String.format("  item%01dsub%01d:", item, sub));
 				output.newLine();
 				output.write("    name: " + NameMap.get(key).toLowerCase());
 				output.newLine();

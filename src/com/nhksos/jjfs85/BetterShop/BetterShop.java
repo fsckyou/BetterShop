@@ -18,7 +18,7 @@ import com.nijiko.coelho.iConomy.iConomy;
 import com.nijiko.coelho.iConomy.system.Bank;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
-/**
+/*
  * BetterShop for Bukkit
  * 
  * @author jjfs85
@@ -40,6 +40,7 @@ public class BetterShop extends JavaPlugin {
 		public Listener() {
 		}
 
+		@SuppressWarnings("static-access")
 		@Override
 		public void onPluginEnabled(PluginEvent event) {
 			if (event.getPlugin().getDescription().getName().equals("iConomy")) {
@@ -61,6 +62,7 @@ public class BetterShop extends JavaPlugin {
 				Event.Type.PLUGIN_ENABLE, Listener, Priority.Monitor, this);
 	}
 
+	@SuppressWarnings("static-access")
 	private void hookDepends() {
 		if (this.getServer().getPluginManager().isPluginEnabled("iConomy")) {
 			BetterShop.iConomy = (iConomy) this.getServer().getPluginManager()
