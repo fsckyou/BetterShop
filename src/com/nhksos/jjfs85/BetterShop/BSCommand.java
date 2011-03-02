@@ -12,8 +12,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.material.MaterialData;
 
-import com.nijiko.coelho.iConomy.iConomy;
-
 public class BSCommand {
 
 	private final static BSPriceList PriceList = new BSPriceList();
