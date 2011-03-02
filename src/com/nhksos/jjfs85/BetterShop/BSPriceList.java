@@ -44,6 +44,8 @@ public class BSPriceList {
 		BuyMap.clear();
 		SellMap.clear();
 		NameMap.clear();
+		
+		keys.clear();
 
 		try {
 			keys.addAll(PriceList.getKeys("prices"));
@@ -52,43 +54,52 @@ public class BSPriceList {
 			return;
 		}
 		while (i < keys.size()) {
-			double buy = -1;
-			double sell = -1;
+			double buy = -1.003;
+			double sell = -1.003;
 			String name = "Unk";
 			String[] split = keys.get(i).split("[^0-9]");
 			if (split.length != 0) {
 				int id = 0;
 				int sub = 0;
-				try {
-					id = Integer.parseInt(split[split.length - 4]);
-				} catch (Exception e1) {
-					id = 0;
-				}
-				try {
-					sub = Integer.parseInt(split[split.length - 1]);
-				} catch (Exception e1) {
-					sub = 0;
+				if (split.length == 8) {
+					try {
+						id = Integer.parseInt(split[split.length - 4]);
+					} catch (Exception e1) {
+						id = 0;
+					}
+					try {
+						sub = Integer.parseInt(split[split.length - 1]);
+					} catch (Exception e1) {
+						sub = 0;
+					}
+				} else {
+					try {
+						id = Integer.parseInt(split[split.length - 1]);
+					} catch (Exception e1) {
+						id = 0;
+					}
 				}
 				if (keys.contains("item" + String.valueOf(id) + "sub"
 						+ String.valueOf(sub))) {
 					buy = PriceList.getDouble("prices.item"
 							+ String.valueOf(id) + "sub" + String.valueOf(sub)
 							+ ".buy", -1);
-					sell = PriceList.getInt("prices.item" + String.valueOf(id)
-							+ "sub" + String.valueOf(sub) + ".sell", -1);
+					sell = PriceList.getDouble("prices.item"
+							+ String.valueOf(id) + "sub" + String.valueOf(sub)
+							+ ".sell", -1);
 					name = PriceList.getString("prices.item"
 							+ String.valueOf(id) + "sub" + String.valueOf(sub)
 							+ ".name", "Unk");
 				} else if (keys.contains("item" + String.valueOf(id))) {
 					buy = PriceList.getDouble("prices.item"
 							+ String.valueOf(id) + ".buy", -1);
-					sell = PriceList.getInt("prices.item" + String.valueOf(id)
-							+ ".sell", -1);
+					sell = PriceList.getDouble("prices.item"
+							+ String.valueOf(id) + ".sell", -1);
 					name = PriceList.getString("prices.item"
 							+ String.valueOf(id) + ".name", "Unk");
 				}
-				if ((buy != -1) && (sell != -1)) {
-					double d = id + (sub*.01);
+				if ((buy != -1.003) && (sell != -1.003)) {
+					double d = id + (sub * .01);
 					BuyMap.put(d, buy);
 					SellMap.put(d, sell);
 					NameMap.put(d, name);
