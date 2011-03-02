@@ -23,14 +23,15 @@ public class BSCommand {
 	private final static Logger logger = Logger.getLogger("Minecraft");
 	private static final String name = "BetterShop";
 	private final static File pluginFolder = new File("plugins", name);
-	String currency = iConomy.getBank().getCurrency();
+	public static String currency = "";
 
 	public BSCommand() throws Exception {
 		// load the pricelist.
 		PriceList.load(pluginFolder, "PriceList.yml");
 	}
 
-	public boolean add(CommandSender player, String[] s) {
+	public boolean add(CommandSender player, String[] s) 
+	{
 		if (s.length != 3) {
 			return false;
 		}

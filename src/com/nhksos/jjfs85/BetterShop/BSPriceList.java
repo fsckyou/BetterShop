@@ -74,7 +74,7 @@ public class BSPriceList {
 					buy = PriceList.getDouble("prices.item"
 							+ String.valueOf(id) + "sub" + String.valueOf(sub)
 							+ ".buy", -1);
-					sell = PriceList.getInt("prices.item" + String.valueOf(id)
+					sell = PriceList.getDouble("prices.item" + String.valueOf(id)
 							+ "sub" + String.valueOf(sub) + ".sell", -1);
 					name = PriceList.getString("prices.item"
 							+ String.valueOf(id) + "sub" + String.valueOf(sub)
@@ -82,7 +82,7 @@ public class BSPriceList {
 				} else if (keys.contains("item" + String.valueOf(id))) {
 					buy = PriceList.getDouble("prices.item"
 							+ String.valueOf(id) + ".buy", -1);
-					sell = PriceList.getInt("prices.item" + String.valueOf(id)
+					sell = PriceList.getDouble("prices.item" + String.valueOf(id)
 							+ ".sell", -1);
 					name = PriceList.getString("prices.item"
 							+ String.valueOf(id) + ".name", "Unk");
