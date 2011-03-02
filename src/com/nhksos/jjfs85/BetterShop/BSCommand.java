@@ -363,7 +363,7 @@ public class BSCommand {
 			}
 			try {
 				price = PriceList.getSellPrice(itemname);
-				if (price < 1)
+				if (price <= 0)
 					throw new Exception();
 			} catch (Exception e1) {
 				BSutils.sendMessage(player, String.format(BetterShop.configfile
