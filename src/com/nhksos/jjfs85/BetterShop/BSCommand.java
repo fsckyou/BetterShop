@@ -345,16 +345,6 @@ public class BSCommand {
 			} catch (Exception e2) {
 				e2.printStackTrace();
 			}
-			try {
-				price = PriceList.getSellPrice(itemname);
-				if (price < 1)
-					throw new Exception();
-			} catch (Exception e1) {
-				BSutils.sendMessage(player, String.format(BetterShop.configfile
-						.getString("donotwant").replace("<item>", "%1$s"),
-						itemname));
-				return true;
-			}
 			ItemStack itemsToSell = item.toItemStack();
 			if (s.length == 2)
 				try {
@@ -368,6 +358,18 @@ public class BSCommand {
 						.getString("nicetry"));
 				return true;
 			}
+			
+			try {
+				price = PriceList.getSellPrice(itemname);
+				if ((price * amtSold) < 1)
+					throw new Exception();
+			} catch (Exception e1) {
+				BSutils.sendMessage(player, String.format(BetterShop.configfile
+						.getString("donotwant").replace("<item>", "%1$s"),
+						itemname));
+				return true;
+			}
+			
 			itemsToSell.setAmount(amtSold);
 			PlayerInventory inv = ((Player) player).getInventory();
 			int amtHas = amtSold;
