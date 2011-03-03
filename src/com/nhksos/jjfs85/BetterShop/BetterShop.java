@@ -43,10 +43,12 @@ public class BetterShop extends JavaPlugin {
 		@SuppressWarnings("static-access")
 		@Override
 		public void onPluginEnabled(PluginEvent event) {
-			if (event.getPlugin().getDescription().getName().equals("iConomy")) {
+			if (event.getPlugin().getDescription().getName().equals("iConomy")) 
+			{
 				BetterShop.iConomy = (iConomy) event.getPlugin();
-				logger.info("[BetterShop] Attached to iConomy.");
 				iBank = iConomy.getBank();
+				BSCommand.currency = iBank.getCurrency();
+				logger.info("[BetterShop] Attached to iConomy.");
 			}
 			if (event.getPlugin().getDescription().getName().equals(
 					"Permissions")) {

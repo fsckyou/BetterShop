@@ -12,8 +12,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.material.MaterialData;
 
-import com.nijiko.coelho.iConomy.iConomy;
-
 public class BSCommand {
 
 	private final static BSPriceList PriceList = new BSPriceList();
@@ -23,6 +21,7 @@ public class BSCommand {
 	private final static Logger logger = Logger.getLogger("Minecraft");
 	private static final String name = "BetterShop";
 	private final static File pluginFolder = new File("plugins", name);
+	public static String currency = "";
 
 	public BSCommand() throws Exception {
 		// load the pricelist.
@@ -30,7 +29,7 @@ public class BSCommand {
 	}
 
 	public boolean add(CommandSender player, String[] s) {
-		String currency = iConomy.getBank().getCurrency();
+		String currency = BetterShop.iBank.getCurrency();
 		if (s.length != 3) {
 			return false;
 		}
@@ -70,7 +69,7 @@ public class BSCommand {
 	}
 
 	public boolean buy(CommandSender player, String[] s) {
-		String currency = iConomy.getBank().getCurrency();
+		String currency = BetterShop.iBank.getCurrency();
 		MaterialData item = new MaterialData(0);
 		double price = 0;
 		int amtleft = 0;
@@ -172,7 +171,7 @@ public class BSCommand {
 	}
 
 	public boolean check(CommandSender player, String[] s) {
-		String currency = iConomy.getBank().getCurrency();
+		String currency = BetterShop.iBank.getCurrency();
 		MaterialData mat;
 		double i = 0;
 		if (!BSutils.hasPermission(player, "BetterShop.user.check", true)) {
@@ -336,7 +335,7 @@ public class BSCommand {
 	}
 
 	public boolean sell(CommandSender player, String[] s) {
-		String currency = iConomy.getBank().getCurrency();
+		String currency = BetterShop.iBank.getCurrency();
 		int amtSold = 1;
 		double price = 0;
 		MaterialData item = new MaterialData(0);
@@ -384,6 +383,18 @@ public class BSCommand {
 						.getString("nicetry"));
 				return true;
 			}
+			
+			try {
+				price = PriceList.getSellPrice(itemname);
+				if ((price * amtSold) < 1)
+					throw new Exception();
+			} catch (Exception e1) {
+				BSutils.sendMessage(player, String.format(BetterShop.configfile
+						.getString("donotwant").replace("<item>", "%1$s"),
+						itemname));
+				return true;
+			}
+			
 			itemsToSell.setAmount(amtSold);
 			PlayerInventory inv = ((Player) player).getInventory();
 			int amtHas = amtSold;

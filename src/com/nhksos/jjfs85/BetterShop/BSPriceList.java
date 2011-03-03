@@ -44,7 +44,7 @@ public class BSPriceList {
 		BuyMap.clear();
 		SellMap.clear();
 		NameMap.clear();
-		
+
 		keys.clear();
 
 		try {
