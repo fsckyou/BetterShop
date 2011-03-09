@@ -30,6 +30,7 @@ public class BSConfig {
     Configuration config;
     private boolean config_useMySQL = false;
     public String sql_username = "root", sql_password = "root", sql_database = "minecraft", sql_tableName = "BetterShop", sql_hostName = "localhost", sql_portNum = "3306";
+    public int pagesize = 9;
 
     public BSConfig() {
         create();
@@ -58,6 +59,7 @@ public class BSConfig {
             sql_hostName = n.getString("Hostname", sql_hostName);
             sql_portNum = n.getString("Port", sql_portNum);
         }
+        pagesize = config.getInt("ItemsPerPage", pagesize);
 
         keyList.addAll(config.getKeys("strings"));
         String tmpString;

@@ -3,7 +3,7 @@ package com.nhksos.jjfs85.BetterShop;
 import java.io.File;
 //import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
+//import java.util.Iterator;
 //import java.util.logging.Logger;
 
 import org.bukkit.command.CommandSender;
@@ -72,7 +72,7 @@ public class BSCommand {
         }
         
         String prior = "";
-        if (PriceList.isForSale(s[0])) {
+        if (PriceList.isForSale(itemName)) {
             prior = String.format(BetterShop.configfile.getString("chgmsg")
                     .replace("<item>", "%1$s")
                     .replace("<buyprice>", "%2$01.2f")
@@ -80,7 +80,6 @@ public class BSCommand {
                     .replace("<curr>", "%4$s"),
                     itemName, PriceList.getBuyPrice(itemName),
                     PriceList.getSellPrice(itemName), currency);
-
         }
         if (CheckInput.IsDouble(s[1]) && CheckInput.IsDouble(s[2])) {
             if (PriceList.setPrice(s[0], s[1], s[2])) {

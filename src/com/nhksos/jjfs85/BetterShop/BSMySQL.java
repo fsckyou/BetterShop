@@ -246,10 +246,11 @@ public class BSMySQL {
     public boolean ItemExists(double item) {
         if (IsConnected()) {
             try {
-                //logger.log(Level.INFO, String.format("SELECT * FROM %s WHERE ID='%d' AND SUB='%d';", sql_tableName, Math.floor(item), (int) (item - Math.floor(item)) * 100.));
+                //logger.log(Level.INFO, String.format("SELECT * FROM %s WHERE ID='%d' AND SUB='%d';", sql_tableName, (int) Math.floor(item), (int) Math.round((item - Math.floor(item))* 100)));
                 ResultSet table = DBconnection.createStatement().executeQuery(
                         String.format("SELECT * FROM %s WHERE ID='%d' AND SUB='%d';", sql_tableName, 
-                        (int) Math.floor(item), (int) Math.round((item - Math.floor(item))* 100.) ));
+                        (int) Math.floor(item), (int) Math.round((item - Math.floor(item))* 100.)));
+                //logger.log(Level.INFO, table.first()?"true":"false");
                 return table.first();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, "Error executing SELECT on " + sql_tableName, ex);
