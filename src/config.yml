@@ -1,6 +1,23 @@
 ## BetterShop Configuration file ##
 ################################### 
 
+useMySQLPricelist: false
+MySQL:
+    # database to use in MySQL
+    database: minecraft
+    # what to use for tablename
+    tablename: BetterShop
+    # MySQL Login Username
+    username: root
+    # MySQL Login Password
+    password: root
+    # MySQL Connection Hostname (IP)
+    Hostname: localhost
+    # MySQL Connection Port Number
+    Port: 3306
+
+ItemsPerPage: 9
+
 ##########################################
 # strings section: Text used in messages #
 ##########################################
@@ -76,6 +93,8 @@ strings:
     addmsg: "&f[<item>]&2 added to the shop. Buy: &f<buyprice>&2 Sell: &f<sellprice>"
     # addmsg confirms a successful addition to the shop. You can also use <curr> here.
 
+    #when item is changed
+    chgmsg: "&f[<item>]&2 updated. Buy: &f<buyprice>&2 Sell: &f<sellprice>"
 #
 # shopremove messages
 ####
@@ -97,13 +116,13 @@ strings:
 # shoplist messages
 ####
 
-    listhead: "----- Price-List Page: &f<page> &2of &f<pages> &2-----"
+    listhead: "-------- Price-List Page: &f<page> &2of &f<pages> &2--------"
     # listhead is the top of a /shoplist page.
     
-    listing: "&f[<item>]&2 Buy: &f<buyprice>&2 Sell: &f<sellprice>"
+    listing: "&f[<item>]&2 <tab> Buy: &f<buyprice>&2   Sell: &f<sellprice>"
     # listing is the actual price listing message
 
-    listtail: "----------------------------"
+    listtail: "-----------------------------------------"
     # listtail is the end of a /shoplist page.
 
 #

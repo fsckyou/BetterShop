@@ -106,7 +106,7 @@ public class itemDb {
 
 	public static String getName(double d) throws Exception {
 		int i = (int) Math.floor(d);
-		byte b = (byte)((d-i)*100);
+		byte b = (byte)Math.round((d-i)*100);
 		return getName(i, b);
 	}
 
