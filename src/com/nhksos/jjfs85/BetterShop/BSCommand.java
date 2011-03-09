@@ -40,7 +40,7 @@ public class BSCommand {
             PriceList = new BSPriceList(config.sql_database, config.sql_tableName,
                     config.sql_username, config.sql_password,
                     config.sql_hostName, config.sql_portNum);
-
+            PriceList.pagesize=config.pagesize;
         } else {
             PriceList = new BSPriceList(pluginFolder, pricefilename);
         }

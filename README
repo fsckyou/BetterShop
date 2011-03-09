@@ -2,10 +2,8 @@ To build, you need to include the following as libraries:
     bukkit.jar
     iConomy.jar
     Permissions.jar
-<<<<<<< HEAD
+
 -- Will also need mysql-connector-java-5.1.15-bin.jar in a "lib" folder at the bukkit server root
-=======
->>>>>>> 8b9a243c799a501ac17592e06d08444c89b5e2c1
 
 If you want helpful bukkit javadocs, you should get:
     the Bukkit source code
