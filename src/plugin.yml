@@ -1,8 +1,8 @@
 name: BetterShop
 main: com.nhksos.jjfs85.BetterShop.BetterShop
-version: 1.5.3
+version: 1.5.4
 website: http://github.com/jjfs85/BetterShop
-author: jjfs85
+author: jjfs85 and lologarithm
 description: >
              BetterShop is a command-based shop for Bukkit. It uses iConomy
              for the economic backbone and requires Permissions.
