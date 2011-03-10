@@ -40,10 +40,10 @@ public class BSCommand {
             PriceList = new BSPriceList(config.sql_database, config.sql_tableName,
                     config.sql_username, config.sql_password,
                     config.sql_hostName, config.sql_portNum);
-            PriceList.pagesize=config.pagesize;
         } else {
             PriceList = new BSPriceList(pluginFolder, pricefilename);
         }
+        PriceList.pagesize=config.pagesize;
     }
 
     public boolean HasAccess() {
@@ -284,10 +284,10 @@ public class BSCommand {
         if (!BSutils.hasPermission(player, "BetterShop.admin.load", true)) {
             return true;
         }
-        PriceList.reload();//(pluginFolder, pricefilename);
-        BSutils.sendMessage(player, pricefilename + " loaded.");
         BetterShop.configfile.load();
         BSutils.sendMessage(player, "Config.yml loaded.");
+        if(PriceList.reload()) BSutils.sendMessage(player, "Price Database loaded.");
+        else BSutils.sendMessage(player, "&4Price Database Load Error.");
         return true;
     }
 
@@ -299,8 +299,9 @@ public class BSCommand {
             return false;
         } else {
             try {
-                PriceList.remove(s[0]);
-                BSutils.sendMessage(player, String.format(BetterShop.configfile.getString("removemsg").replace("<item>", "%1$s"), s[0]));
+                String itemName = itemDb.getName(itemDb.get(s[0]));
+                PriceList.remove(itemName);
+                BSutils.sendMessage(player, String.format(BetterShop.configfile.getString("removemsg").replace("<item>", "%1$s"), itemName));// s[0]));
             } catch (Exception e) {
                 BSutils.sendMessage(player, String.format(BetterShop.configfile.getString("unkitem").replace("<item>", "%s"), s[0]));
             }

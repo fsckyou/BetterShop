@@ -104,6 +104,10 @@ public class itemDb {
 		return retval;
 	}
 
+	public static String getName(MaterialData dat) throws Exception {
+            return getName(dat.getItemTypeId(), dat.getData());
+	}
+
 	public static String getName(double d) throws Exception {
 		int i = (int) Math.floor(d);
 		byte b = (byte)Math.round((d-i)*100);

@@ -54,11 +54,11 @@ public class BSPriceList {
         return isMySQL ? (sql_hostName.compareToIgnoreCase("localhost") == 0 ? "" : sql_hostName) + "/" + sql_database + "/" + sql_tableName : fileName;
     }
 
-    public void reload() {
+    public boolean reload() {
         if (isMySQL) {
-            load(PLfolder, fileName);
+            return load(sql_database, sql_tableName, sql_username, sql_password, sql_hostName, sql_portNum);
         } else {
-            load(sql_database, sql_tableName, sql_username, sql_password, sql_hostName, sql_portNum);
+            return load(PLfolder, fileName);
         }
     }
 
@@ -66,42 +66,59 @@ public class BSPriceList {
         isLoaded = false;
         isMySQL = true;
 
-        sql_database = database;
-        sql_tableName = tableName;
-        sql_username = username;
-        sql_password = password;
-        sql_hostName = hostName;
-        sql_portNum = portNum;
+        if (MySQLPriceList==null || !(MySQLPriceList.IsConnected() && sql_database.equals(database)
+                && sql_tableName.equals(tableName)
+                && sql_username.equals(username)
+                && sql_hostName.equals(hostName))) {
 
-        BuyMap.clear();
-        SellMap.clear();
-        NameMap.clear();
+            sql_database = database;
+            sql_tableName = tableName;
+            sql_username = username;
+            sql_password = password;
+            sql_hostName = hostName;
+            sql_portNum = portNum;
 
-        ItemMap.clear();
-        keys.clear();
+            BuyMap.clear();
+            SellMap.clear();
+            NameMap.clear();
 
-        // try connecting to database
-        // todo: add option to cache database.. not what i want, so i'm not adding here
-        MySQLPriceList = new BSMySQL(database, tableName, username, password, hostName, portNum);
-        if (MySQLPriceList.IsConnected()) {
-            /*
-            LinkedList<BS_SQL_Data> tableDat = MySQLPriceList.GetFullList();
+            ItemMap.clear();
+            keys.clear();
 
-            for (int i = 0; i < keys.size(); ++i) {
-            BS_SQL_Data row = tableDat.get(i);
-            double d = row.itemNum + (row.itemSub * .01);
-            BuyMap.put(d, row.buy);
-            SellMap.put(d, row.sell);
-            NameMap.put(d, row.name);
+
+            // try connecting to database
+            // todo: add option to cache database.. not what i want, so i'm not adding here
+            MySQLPriceList = new BSMySQL(database, tableName, username, password, hostName, portNum);
+            if (MySQLPriceList.IsConnected()) {
+                /*
+                LinkedList<BS_SQL_Data> tableDat = MySQLPriceList.GetFullList();
+                
+                for (int i = 0; i < keys.size(); ++i) {
+                BS_SQL_Data row = tableDat.get(i);
+                double d = row.itemNum + (row.itemSub * .01);
+                BuyMap.put(d, row.buy);
+                SellMap.put(d, row.sell);
+                NameMap.put(d, row.name);
+                }
+                ItemMap.addAll(NameMap.keySet());
+                 */
+                logger.log(Level.INFO, "MySQL database " + pricelistName() + " loaded.");
+            } else {
+                return false;
             }
-            ItemMap.addAll(NameMap.keySet());
-             */
-            logger.log(Level.INFO, "MySQL database " + pricelistName() + " loaded.");
-            isLoaded = true;
-            return true;
         } else {
-            return false;
+            // here add cacheing info if enabled (future)
+            /*
+            BuyMap.clear();
+            SellMap.clear();
+            NameMap.clear();
+            
+            ItemMap.clear();
+            keys.clear();
+             */
         }
+        isLoaded = true;
+        return true;
     }
 
     public boolean load(File PLpath, String fileName) {
@@ -300,20 +317,45 @@ public class BSPriceList {
         return true;
     }
 
-    public void remove(String s) throws Exception {
-        // throws exception if item not known
-        MaterialData matdat = itemDb.get(s);
-        if (isMySQL) {
-            MySQLPriceList.RemoveItem(s);
-        } else {
-            if (NameMap.containsKey(matdat.getItemTypeId()
-                    + (double) matdat.getData() / 100)) {
-                BuyMap.remove(matdat.getItemTypeId() + (double) matdat.getData() / 100);
-                SellMap.remove(matdat.getItemTypeId() + (double) matdat.getData() / 100);
-                NameMap.remove(matdat.getItemTypeId() + (double) matdat.getData() / 100);
+    public boolean remove(String s) {
+        try {
+            MaterialData matdat = itemDb.get(s);
+            if (isMySQL) {
+                MySQLPriceList.RemoveItem(s);
+            } else {
+                if (NameMap.containsKey(matdat.getItemTypeId()
+                        + (double) matdat.getData() / 100)) {
+                    BuyMap.remove(matdat.getItemTypeId() + (double) matdat.getData() / 100);
+                    SellMap.remove(matdat.getItemTypeId() + (double) matdat.getData() / 100);
+                    NameMap.remove(matdat.getItemTypeId() + (double) matdat.getData() / 100);
+                }
+                save();
             }
-            save();
+        } catch (Exception ex) {
+            //logger.log(Level.SEVERE, null, ex);
+            return false;
         }
+        return true;
+    }
+
+    public boolean remove(double i) { // throws Exception
+        try {
+            MaterialData matdat = itemDb.get(i);
+            if (isMySQL) {
+                MySQLPriceList.RemoveItem(itemDb.getName(matdat));
+            } else {
+                if (NameMap.containsKey(matdat.getItemTypeId()+ (double) matdat.getData() / 100)) {
+                    BuyMap.remove(matdat.getItemTypeId() + (double) matdat.getData() / 100);
+                    SellMap.remove(matdat.getItemTypeId() + (double) matdat.getData() / 100);
+                    NameMap.remove(matdat.getItemTypeId() + (double) matdat.getData() / 100);
+                }
+                save();
+            }
+        } catch (Exception ex) {
+            //logger.log(Level.SEVERE, null, ex);
+            return false;
+        }
+        return true;
     }
 
     private void save() {
