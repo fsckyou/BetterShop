@@ -127,12 +127,11 @@ public class BetterShop extends JavaPlugin {
             String commandLabel, String[] args) {
         String[] trimmedArgs = args;
         String commandName = command.getName().toLowerCase();
-
+        /*
         try {
-            logger.info(((Player) sender).getName() + " used command "
-                    + command.getName());
+            logger.info(((Player) sender).getName() + " used command " + command.getName());
         } catch (Exception e) {
-        }
+        }*/
         if ((BetterShop.iConomy == null) || (BetterShop.Permissions == null)) {
             BSutils.sendMessage(sender,
                     " BetterShop is missing a dependency. Check the console.");
