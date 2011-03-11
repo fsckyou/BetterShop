@@ -142,7 +142,8 @@ strings:
     # <curr> - iConomy currency
     # using <r> will attempt to right-align preceeding text
     # using <l> will attempt to left-align preceeding text
-    # <r> and <l> will accept replacement chars: <r.> will right-align using . as spacer
+    # using <c> will attempt to center (all) preceeding text
+    # <r>,  <l>,  &  <c> will accept replacement chars: <r.> will right-align using . as spacer
     listing: "&f[<item>]&2 <l> Buy: &f<buyprice>&2   Sell: &f<sellprice>"
 
     listtail: "-----------------------------------------"

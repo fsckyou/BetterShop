@@ -30,7 +30,7 @@ public class BSConfig {
     private boolean config_useMySQL = false;
     public String sql_username = "root", sql_password = "root", sql_database = "minecraft", sql_tableName = "BetterShop", sql_hostName = "localhost", sql_portNum = "3306";
     public boolean logUserTransactions = false, logTotalTransactions = false;
-    public BigInteger userTansactionLifespan = new BigInteger("2880"); // 2 days.. i'd like to use unsigned long, but java doesn't have it..
+    public BigInteger userTansactionLifespan = new BigInteger("172800"); // 2 days.. i'd like to use unsigned long, but java doesn't have it..
     public String transLogTablename = "BetterShopMarketActivity", recordTablename = "BetterShopTransactionTotals";
     public int pagesize = 9;
 
@@ -78,16 +78,16 @@ public class BSConfig {
                         userTansactionLifespan = new BigInteger(lifespan.substring(0, charPos));
                         if (charPos == lifespan.length() - 1 || lifespan.charAt(charPos) == 'h') {
                             // it's annoying that this class doesn't accept a long..
-                            userTansactionLifespan.multiply(new BigInteger("60"));
+                            userTansactionLifespan.multiply(new BigInteger("3600"));
                         } else if (lifespan.charAt(charPos) == 'd') {
-                            userTansactionLifespan.multiply(new BigInteger("1440"));
+                            userTansactionLifespan.multiply(new BigInteger("86400"));
                         } else if (lifespan.charAt(charPos) == 'w') {
-                            userTansactionLifespan.multiply(new BigInteger("10080"));
+                            userTansactionLifespan.multiply(new BigInteger("604800"));
                         } else if (lifespan.charAt(charPos) == 'M') {
                             // using 1m = 30 days
-                            userTansactionLifespan.multiply(new BigInteger("302400"));
+                            userTansactionLifespan.multiply(new BigInteger("18144000"));
                         } else if (lifespan.charAt(charPos) == 'm') {
-                            // already number that need
+                            userTansactionLifespan.multiply(new BigInteger("60"));
                         } else {
                             good = false;
                         }
@@ -97,13 +97,13 @@ public class BSConfig {
                     BetterShop.Log(Level.WARNING, "userTansactionLifespan has an illegal value");
                 }
             }
-        }
+        }else BetterShop.Log(Level.WARNING, "transactionLog section in config not found");
 
         n = config.getNode("totalsTransactionLog");
         if (n != null) {
             logTotalTransactions = n.getBoolean("enabled", logTotalTransactions);
             recordTablename = n.getString("logtablename", recordTablename).replace(" ", "_");
-        }
+        }else BetterShop.Log(Level.WARNING, "totalsTransactionLog section in config not found");
 
         n = config.getNode("strings");
         if (n != null) {
@@ -123,6 +123,10 @@ public class BSConfig {
         }
         return true;
     }
+    /*
+    public void unload(){
+    stringMap.clear();
+    }*/
 
     public boolean useMySQL() {
         return config_useMySQL;//(getString("useMySQL").equalsIgnoreCase("true"));

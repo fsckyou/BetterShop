@@ -28,12 +28,14 @@ public class BetterShop extends JavaPlugin {
     public final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
     public final static BSConfig config = new BSConfig();
-    public static BSCommand bscommand = new BSCommand();
     public static BSPriceList pricelist = new BSPriceList();
+    public static BSTransactionLog transactions = new BSTransactionLog();
+    public static BSCommand bscommand = new BSCommand();
     static Permissions Permissions = null;
     static iConomy iConomy = null;
     static Bank iBank = null;
     private final Listener Listener = new Listener();
+    private static boolean isLoaded = true;
 
     private class Listener extends ServerListener {
 
@@ -83,22 +85,30 @@ public class BetterShop extends JavaPlugin {
 
         PluginDescriptionFile pdfFile = this.getDescription();
         logger.log(Level.INFO, String.format("Loading %s version %s ...", pdfFile.getName(), pdfFile.getVersion()));
-        
+
+        if(!isLoaded){
+            pricelist.reload();
+        }if(transactions ==null){
+            transactions = new BSTransactionLog();
+        }
         if (!pricelist.HasAccess()) {
-            Log(Level.WARNING, "cannot load " + pricelist.pricelistName());
+            Log(Level.SEVERE, "cannot load " + pricelist.pricelistName());
             this.setEnabled(false);
+            return;
         }
 
         // ready items.db
         try {
             itemDb.load(BSConfig.pluginFolder, "items.db");
         } catch (Exception e) {
-            Log(Level.WARNING, "cannot load items.db", e);
+            Log(Level.SEVERE, "cannot load items.db", e);
             this.setEnabled(false);
+            return;
         }
 
         hookDepends();
         registerEvents();
+        isLoaded=true;
 
         // Just output some info so we can check
         // all is well
@@ -111,8 +121,10 @@ public class BetterShop extends JavaPlugin {
         // NOTE: All registered events are automatically unregistered when a
         // plugin is disabled
 
-        // EXAMPLE: Custom code, here we just output some info so we can check
-        // all is well
+        pricelist.close();
+        isLoaded=false;
+        transactions = null;
+
         logger.info("BetterShop now unloaded");
     }
 
@@ -123,17 +135,13 @@ public class BetterShop extends JavaPlugin {
         
         // i don't like seeing these messages all the time..
         //Log(((Player) sender).getName() + " used command " + command.getName());
-
-        if ((BetterShop.iConomy == null) && (BetterShop.Permissions == null)) {
-            BSutils.sendMessage(sender, " BetterShop is missing a dependency. Check the console.");
-            Log(Level.SEVERE, "[BetterShop] Missing: iConomy and Permissions");
-            return true;
-        }else if ((BetterShop.iConomy == null) || (BetterShop.Permissions == null)) {
-            BSutils.sendMessage(sender, " BetterShop is missing a dependency. Check the console.");
-            Log(Level.SEVERE, "[BetterShop] Missing: " + ((iConomy == null) ? "iConomy" : "Permissions"));
+        
+        if ((BetterShop.iConomy == null)) {
+            BSutils.sendMessage(sender, "&4 BetterShop is missing a dependency. Check the console.");
+            Log(Level.SEVERE, "[BetterShop] Missing: iConomy");
             return true;
         }
-
+        
         if (commandName.equals("shoplist")) {
             return bscommand.list(sender, args);
         } else if (commandName.equals("shophelp")) {

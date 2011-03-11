@@ -239,7 +239,7 @@ public class MySQL {
                 return DBconnection.createStatement().executeQuery(qry);
 
             } catch (SQLException ex) {
-                disconnect();
+                //disconnect();
                 throw ex;
             }
         } else {
@@ -252,7 +252,7 @@ public class MySQL {
             try {
                 return DBconnection.prepareStatement(qry).executeUpdate();
             } catch (SQLException ex) {
-                disconnect();
+                //disconnect();
                 throw ex;
             }
         } else {
@@ -271,7 +271,7 @@ public class MySQL {
                 return DBconnection.createStatement().executeQuery("SELECT * FROM " + tablename + ";");
 
             } catch (SQLException ex) {
-                disconnect();
+                //disconnect();
                 throw ex;
             }
         } else {

@@ -11,6 +11,7 @@ import java.util.HashMap;
 //import org.bukkit.World;
 
 import com.jascotty2.CheckInput;
+import com.jascotty2.MySQL.UserTransaction;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -113,12 +114,12 @@ public class BSCommand {
             cost = amtbought * price;
             try {
                 if (BSutils.debit(player, cost)) {
+                    String itemname = itemDb.getName(item);
                     BSutils.sendMessage(player, String.format(
                             BetterShop.config.getString("buymsg").replace(
                             "<item>", "%1$s").replace("<amt>", "%2$d").replace("<priceper>", "%3$01.2f").replace(
                             "<total>", "%4$01.2f").replace(
-                            "<curr>", "%5$s"), itemDb.getName(
-                            item.getItemTypeId(), item.getData()),
+                            "<curr>", "%5$s"), itemname,
                             amtbought, price, cost, BetterShop.config.currency));
                     leftover.clear();
                     ItemStack itemS = new ItemStack(item.getItemTypeId(),
@@ -135,10 +136,13 @@ public class BSCommand {
                                 BetterShop.config.getString("outofroom").replace("<item>", "%1$s").replace(
                                 "<leftover>", "%2$d").replace(
                                 "<refund>", "%3$01.2f").replace("<curr>", "%5$s").replace(
-                                "<priceper>", "%4$d"), itemDb.getName(item.getItemTypeId(), item.getData()), amtleft, cost,
+                                "<priceper>", "%4$d"), itemname, amtleft, cost,
                                 price, BetterShop.config.currency));
                         BSutils.credit(player, cost);
+                        amtbought -= amtleft;
                     }
+                    BetterShop.transactions.addRecord(new UserTransaction(item.getItemTypeId(), item.getData(), itemname, false, amtbought - amtleft, ((Player) player).getDisplayName()));
+
                     return true;
                 } else {
                     BSutils.sendMessage(player, String.format(
@@ -218,8 +222,8 @@ public class BSCommand {
                     + "shopremove [item] - Remove an item from the shop");
             BSutils.sendMessage(player, "/" + commandPrefix
                     + "shopload - Reload the PriceList.yml file");
-            BSutils.sendMessage(player, "----------------------------------");
         }
+        BSutils.sendMessage(player, "----------------------------------");
         return true;
     }
 
@@ -230,7 +234,7 @@ public class BSCommand {
         if (!BSutils.hasPermission(player, "BetterShop.user.list", true)) {
             return true;
         }
-        if ((s.length != 0) && (s.length != 1)) {
+        if ((s.length > 1)) {
             return false;
         }
         try {
@@ -254,6 +258,7 @@ public class BSCommand {
         BetterShop.config.load();
         BSutils.sendMessage(player, "Config.yml loaded.");
         if (BetterShop.pricelist.reload()) {
+            BetterShop.transactions.load();
             BSutils.sendMessage(player, "Price Database loaded.");
         } else {
             BSutils.sendMessage(player, "&4Price Database Load Error.");
@@ -297,10 +302,11 @@ public class BSCommand {
                 item = null;
             } else {
                 try {
-                    if(s[0].equalsIgnoreCase("all")){
+                    if (s[0].equalsIgnoreCase("all")) {
                         item = itemDb.get(s[1]);
-                    }else
-                    item = itemDb.get(s[0]);
+                    } else {
+                        item = itemDb.get(s[0]);
+                    }
                 } catch (Exception e1) {
                     BSutils.sendMessage(player, String.format(BetterShop.config.getString("unkitem").replace("<item>", "%s"), s[0]));
                     return false;
@@ -405,6 +411,7 @@ public class BSCommand {
                             replace("<total>", "%4$01.2f").
                             replace("<curr>", "%5$s"),
                             itemname, amtSold, total / amtSold, total, BetterShop.config.currency));
+                    BetterShop.transactions.addRecord(new UserTransaction(0, 0, itemname, true, amtSold, ((Player) player).getDisplayName()));
 
                 } else {
                     BSutils.sendMessage(player, String.format(BetterShop.config.getString("sellmsg").
@@ -414,6 +421,9 @@ public class BSCommand {
                             replace("<total>", "%4$01.2f").
                             replace("<curr>", "%5$s"),
                             itemDb.getName(item.getItemTypeId(), item.getData()), amtSold, price, total, BetterShop.config.currency));
+
+                    BetterShop.transactions.addRecord(new UserTransaction(item.getItemTypeId(), item.getData(), itemname, true, amtSold, ((Player) player).getDisplayName()));
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();

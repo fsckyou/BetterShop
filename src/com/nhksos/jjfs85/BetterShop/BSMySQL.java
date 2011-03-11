@@ -84,8 +84,8 @@ public class BSMySQL {
         }
     }
 
-    public PriceList GetItem(String name) {
-        PriceList ret = new PriceList();
+    public PriceListItem GetItem(String name) {
+        PriceListItem ret = new PriceListItem();
         if (MySQLdatabase.IsConnected()) {
             try {
                 //BetterShop.Log(Level.INFO, String.format("SELECT * FROM %s WHERE NAME='%s';", sql_tableName, name));
@@ -108,8 +108,8 @@ public class BSMySQL {
         return ret;
     }
 
-    public PriceList GetItem(double item) {
-        PriceList ret = new PriceList();
+    public PriceListItem GetItem(double item) {
+        PriceListItem ret = new PriceListItem();
         if (MySQLdatabase.IsConnected()) {
             try {
                 //BetterShop.Log(Level.INFO, String.format("SELECT * FROM %s WHERE ID='%d' AND SUB='%d';", sql_tableName, (int)Math.floor(item), (int) Math.round((item - Math.floor(item)) * 100.)));
@@ -242,8 +242,8 @@ public class BSMySQL {
         return false;
     }
 
-    public LinkedList<PriceList> GetFullList() {
-        LinkedList<PriceList> tableDat = new LinkedList<PriceList>();
+    public LinkedList<PriceListItem> GetFullList() {
+        LinkedList<PriceListItem> tableDat = new LinkedList<PriceListItem>();
         if (MySQLdatabase.IsConnected()) {
             try {
                 // Statement to use to issue SQL queries
@@ -256,7 +256,7 @@ public class BSMySQL {
                 //BetterShop.Log(Level.INFO, "Table selected: ");
                 for (table.beforeFirst(); table.next();) {
                     //BetterShop.Log(Level.INFO, table.getString(3));//
-                    tableDat.add(new PriceList(table.getInt(1), table.getInt(2), table.getString(3),
+                    tableDat.add(new PriceListItem(table.getInt(1), table.getInt(2), table.getString(3),
                             table.getDouble(4), table.getDouble(5)));
                 }
             } catch (SQLException ex) {

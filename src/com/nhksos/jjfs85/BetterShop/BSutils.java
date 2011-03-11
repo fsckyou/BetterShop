@@ -41,10 +41,12 @@ public class BSutils {
                     (!node.substring(0,16).equalsIgnoreCase("BetterShop.admin") || player.isOp())){
                 return true;
             }
-        }else{
+        }else if(player instanceof Player){
             if (BetterShop.Permissions.Security.has((Player) player, node)) {
                 return true;
             }
+        }else{ // is ConsoleSender
+            return true;
         }
         if (notify == true) {
             PermDeny(player, node);

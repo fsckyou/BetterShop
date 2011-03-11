@@ -1,7 +1,8 @@
 package com.nhksos.jjfs85.BetterShop;
 
 import com.jascotty2.CheckInput;
-import com.jascotty2.MySQL.PriceList;
+import com.jascotty2.MinecraftFontWidthCalculator;
+import com.jascotty2.MySQL.PriceListItem;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -58,6 +59,14 @@ public class BSPriceList {
             return loadMySQL();
         } else {
             return loadFile();
+        }
+    }
+
+    public void close(){
+        if(isMySQL){
+            MySQLPriceList.disconnect();
+        }else{
+            save();
         }
     }
 
@@ -374,7 +383,7 @@ public class BSPriceList {
     public LinkedList<String> GetShopListPage(int pageNum, boolean isPlayer) {
         LinkedList<String> ret = new LinkedList<String>();
         if (isMySQL) {
-            LinkedList<PriceList> tableDat = MySQLPriceList.GetFullList();
+            LinkedList<PriceListItem> tableDat = MySQLPriceList.GetFullList();
 
             int pages = (int) Math.ceil((double) tableDat.size() / BetterShop.config.pagesize);
             String listhead = BetterShop.config.getString("listhead").replace("<page>", String.valueOf(pageNum)).replace("<pages>", String.valueOf(pages));
@@ -426,33 +435,11 @@ public class BSPriceList {
                 }
             }
         }
-        if (isPlayer) {
-            // format spaces
-            if (ret.size() > 1 && ret.get(1).contains("<tab>")) {
-                // go through each line:
-                // - max pos of first found, then space all to be that length
-                while (ret.get(1).contains("<tab>")) {
-                    int maxPos = 0;
-                    // todo? count chars with pixel width.. minecraft chat does not use fixed-width font
-                    for (int i = 1; i < ret.size(); ++i) {
-                        if (ret.get(i).indexOf("<tab>") > maxPos) {
-                            maxPos = ret.get(i).indexOf("<tab>");
-                        }
-                    }
-                    LinkedList<String> newret = new LinkedList<String>();
-                    for (int i = 0; i < ret.size(); ++i) {
-                        String line = ret.get(i);
-                        if (line.indexOf("<tab>") != -1) {
-                            newret.add(String.format("%" + maxPos + "s %s", line.substring(0, line.indexOf("<tab>")), line.substring(line.indexOf("<tab>") + 5)));
-                        } else {
-                            newret.add(line);
-                        }
-                    }
-                    ret = newret;
-                }
-            }
-        }
         ret.add(BetterShop.config.getString("listtail"));
+        if (ret.size() > 2) {
+            // format spaces
+            return MinecraftFontWidthCalculator.alignTags(ret, isPlayer);
+        }
         return ret;
     }
 }
