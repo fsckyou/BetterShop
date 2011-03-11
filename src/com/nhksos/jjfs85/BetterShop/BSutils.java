@@ -1,76 +1,62 @@
 package com.nhksos.jjfs85.BetterShop;
 
-import java.util.logging.Logger;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.nijiko.coelho.iConomy.system.*;
 
 public class BSutils {
-	@SuppressWarnings("unused")
-	private final static Logger logger = Logger.getLogger("Minecraft");
 
-	static boolean anonymousCheck(CommandSender sender) {
-		if (!(sender instanceof Player)) {
-			sendMessage(sender,
-					"Cannot execute that command, I don't know who you are!");
-			return true;
-		} else {
-			return false;
-		}
-	}
+    static boolean anonymousCheck(CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            sendMessage(sender, "Cannot execute that command, I don't know who you are!");
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-	@SuppressWarnings("static-access")
-	final static boolean credit(CommandSender player, double amount)
-			throws Exception {
-		String name = ((Player) player).getName();
-		Account account = BetterShop.iConomy.getBank().getAccount(name);
-		double balance = account.getBalance();
-		account.setBalance(balance + amount);
-		account.save();
-		return true;
-	}
+    static boolean credit(CommandSender player, double amount) {
+        Account account = BetterShop.iConomy.getBank().getAccount(((Player) player).getName());
+        account.add(amount);
+        account.save();
+        return true;
+    }
 
-	@SuppressWarnings("static-access")
-	final static boolean debit(CommandSender player, double amount)
-			throws Exception {
-		String name = ((Player) player).getName();
-		Account account = BetterShop.iConomy.getBank().getAccount(name);
-		double balance = account.getBalance();
-		if (balance < amount)
-			return false;
-		account.setBalance(balance - amount);
-		account.save();
-		return true;
-	}
+    static boolean debit(CommandSender player, double amount) {
+        Account account = BetterShop.iConomy.getBank().getAccount(((Player) player).getName());
+        // don't allow account to go negative
+        if (account.getBalance() < amount) {
+            return false;
+        }
+        account.subtract(amount);
+        account.save();
+        return true;
+    }
 
-	@SuppressWarnings("static-access")
-	static boolean hasPermission(CommandSender player, String node,
-			boolean notify) {
-		try {
-			if (BetterShop.Permissions.Security.has((Player) player, node)) {
-				return true;
-			}
-		}
-		catch (ClassCastException e1) {
-			return true;
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-		if (notify == true)
-			PermDeny(player, node);
-		return false;
-	}
+    static boolean hasPermission(CommandSender player, String node, boolean notify) {
+        if(BetterShop.Permissions==null){
+            // only ops have access to .admin
+            if((node==null || node.length()<16) ||
+                    (!node.substring(0,16).equalsIgnoreCase("BetterShop.admin") || player.isOp())){
+                return true;
+            }
+        }else{
+            if (BetterShop.Permissions.Security.has((Player) player, node)) {
+                return true;
+            }
+        }
+        if (notify == true) {
+            PermDeny(player, node);
+        }
+        return false;
+    }
 
-	final static void PermDeny(CommandSender player, String node) {
-		BSutils.sendMessage(player, String.format(BetterShop.configfile
-				.getString("permdeny").replace("<perm>", "%1$s"), node));
-	}
+    static void PermDeny(CommandSender player, String node) {
+        BSutils.sendMessage(player, String.format(BetterShop.config.getString("permdeny").replace("<perm>", "%1$s"), node));
+    }
 
-	final static void sendMessage(CommandSender player, String s) {
-		player.sendMessage(BetterShop.configfile.getString("prefix") + s);
-	}
-
+    static void sendMessage(CommandSender player, String s) {
+        player.sendMessage(BetterShop.config.getString("prefix") + s);
+    }
 }

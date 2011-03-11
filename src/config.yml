@@ -1,7 +1,9 @@
 ## BetterShop Configuration file ##
 ################################### 
 
+ItemsPerPage: 9
 useMySQLPricelist: false
+
 MySQL:
     # database to use in MySQL
     database: minecraft
@@ -15,8 +17,22 @@ MySQL:
     Hostname: localhost
     # MySQL Connection Port Number
     Port: 3306
-
-ItemsPerPage: 9
+#logs not yet implemented..
+# section for logging transactions (future can be used to make a dynamic market)
+#todo: add flatfile compatability
+transactionLog:
+    enabled: false
+    # what to use for transaction log tablename (or flatfile flename)
+    logtablename: BetterShopMarketActivity
+    # max lifespan of an individual record
+    #   integer values only, units being m(inutes) h(hours) d(ays) w(eeks) M(onths) (default: h)
+    #   recommend not going too high, since the db could get pretty large
+    #   (older records are removed when adding new ones)
+    userTansactionLifespan: 2d
+# besides logging individual transactions, can also record the totals for whole world
+totalsTransactionLog:
+    enabled: false
+    logtablename: BetterShopTransactionTotals
 
 ##########################################
 # strings section: Text used in messages #
@@ -118,9 +134,16 @@ strings:
 
     listhead: "-------- Price-List Page: &f<page> &2of &f<pages> &2--------"
     # listhead is the top of a /shoplist page.
-    
-    listing: "&f[<item>]&2 <tab> Buy: &f<buyprice>&2   Sell: &f<sellprice>"
-    # listing is the actual price listing message
+
+    # price listing message
+    # <item> - what was looked up
+    # <buyprice> - current buy cost
+    # <sellprice> - current sell value
+    # <curr> - iConomy currency
+    # using <r> will attempt to right-align preceeding text
+    # using <l> will attempt to left-align preceeding text
+    # <r> and <l> will accept replacement chars: <r.> will right-align using . as spacer
+    listing: "&f[<item>]&2 <l> Buy: &f<buyprice>&2   Sell: &f<sellprice>"
 
     listtail: "-----------------------------------------"
     # listtail is the end of a /shoplist page.

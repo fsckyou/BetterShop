@@ -1,13 +1,12 @@
 package com.nhksos.jjfs85.BetterShop;
 
-import java.io.File;
-//import java.io.IOException;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+//import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.server.PluginEvent;
@@ -26,14 +25,14 @@ import com.nijikokun.bukkit.Permissions.Permissions;
  */
 public class BetterShop extends JavaPlugin {
 
-    private final static Logger logger = Logger.getLogger("Minecraft");
-    private static final String name = "BetterShop";
+    public final static Logger logger = Logger.getLogger("Minecraft");
+    public static final String name = "BetterShop";
+    public final static BSConfig config = new BSConfig();
+    public static BSCommand bscommand = new BSCommand();
+    public static BSPriceList pricelist = new BSPriceList();
     static Permissions Permissions = null;
     static iConomy iConomy = null;
-    private final static File pluginFolder = new File("plugins", name);
-    static BSConfig configfile;
-    private BSCommand bscommand;
-    static Bank iBank;
+    static Bank iBank = null;
     private final Listener Listener = new Listener();
 
     private class Listener extends ServerListener {
@@ -47,12 +46,12 @@ public class BetterShop extends JavaPlugin {
             if (event.getPlugin().getDescription().getName().equals("iConomy")) {
                 BetterShop.iConomy = (iConomy) event.getPlugin();
                 iBank = iConomy.getBank();
-                BSCommand.currency = iBank.getCurrency();
-                logger.info("[BetterShop] Attached to iConomy.");
+                config.currency = iBank.getCurrency();
+                Log("Attached to iConomy.");
             }
             if (event.getPlugin().getDescription().getName().equals("Permissions")) {
                 BetterShop.Permissions = (Permissions) event.getPlugin();
-                logger.info("[BetterShop] Attached to Permissions or something close enough to it");
+                Log("Attached to Permissions or something close enough to it");
             }
         }
     }
@@ -65,41 +64,36 @@ public class BetterShop extends JavaPlugin {
     @SuppressWarnings("static-access")
     private void hookDepends() {
         if (this.getServer().getPluginManager().isPluginEnabled("iConomy")) {
-            BetterShop.iConomy =
-                    (iConomy) this.getServer().getPluginManager().getPlugin("iConomy");
-            logger.info("[BetterShop] Attached to iConomy.");
+            iConomy = (iConomy) this.getServer().getPluginManager().getPlugin("iConomy");
             iBank = iConomy.getBank();
+            config.currency = iBank.getCurrency();
+            Log("Attached to iConomy.");
         } else {
-            logger.warning("[BetterShop] WARNING: iConomy not yet found...");
+            logger.warning("iConomy not yet found...");
         }
         if (this.getServer().getPluginManager().isPluginEnabled("Permissions")) {
-            BetterShop.Permissions =
-                    (Permissions) this.getServer().getPluginManager().getPlugin("Permissions");
-            logger.info("[BetterShop] Attached to Permissions.");
+            Permissions = (Permissions) this.getServer().getPluginManager().getPlugin("Permissions");
+            Log("Attached to Permissions.");
         } else {
-            logger.warning("[BetterShop] WARNING: Permissions not yet found...");
+            Log(Level.WARNING, "Permissions not yet found...");
         }
     }
 
     public void onEnable() {
 
         PluginDescriptionFile pdfFile = this.getDescription();
-        logger.log(Level.INFO, "Loading " + pdfFile.getName() + " version " + pdfFile.getVersion() + "...");
-        configfile = new BSConfig(pluginFolder, "config.yml");
-
-        // ready command handlers
-        bscommand = new BSCommand(configfile);
-        if (!bscommand.HasAccess()) {
-            logger.log(Level.WARNING, "cannot load " + bscommand.pricelistName());
+        logger.log(Level.INFO, String.format("Loading %s version %s ...", pdfFile.getName(), pdfFile.getVersion()));
+        
+        if (!pricelist.HasAccess()) {
+            Log(Level.WARNING, "cannot load " + pricelist.pricelistName());
             this.setEnabled(false);
         }
 
         // ready items.db
         try {
-            itemDb.load(pluginFolder, "items.db");
+            itemDb.load(BSConfig.pluginFolder, "items.db");
         } catch (Exception e) {
-            logger.warning("cannot load items.db");
-            e.printStackTrace();
+            Log(Level.WARNING, "cannot load items.db", e);
             this.setEnabled(false);
         }
 
@@ -125,39 +119,58 @@ public class BetterShop extends JavaPlugin {
     @Override
     public boolean onCommand(CommandSender sender, Command command,
             String commandLabel, String[] args) {
-        String[] trimmedArgs = args;
         String commandName = command.getName().toLowerCase();
-        /*
-        try {
-            logger.info(((Player) sender).getName() + " used command " + command.getName());
-        } catch (Exception e) {
-        }*/
-        if ((BetterShop.iConomy == null) || (BetterShop.Permissions == null)) {
-            BSutils.sendMessage(sender,
-                    " BetterShop is missing a dependency. Check the console.");
-            logger.severe("[BetterShop] Missing: "
-                    + ((BetterShop.iConomy == null) ? "iConomy"
-                    : "Permissions"));
+        
+        // i don't like seeing these messages all the time..
+        //Log(((Player) sender).getName() + " used command " + command.getName());
+
+        if ((BetterShop.iConomy == null) && (BetterShop.Permissions == null)) {
+            BSutils.sendMessage(sender, " BetterShop is missing a dependency. Check the console.");
+            Log(Level.SEVERE, "[BetterShop] Missing: iConomy and Permissions");
+            return true;
+        }else if ((BetterShop.iConomy == null) || (BetterShop.Permissions == null)) {
+            BSutils.sendMessage(sender, " BetterShop is missing a dependency. Check the console.");
+            Log(Level.SEVERE, "[BetterShop] Missing: " + ((iConomy == null) ? "iConomy" : "Permissions"));
             return true;
         }
 
         if (commandName.equals("shoplist")) {
-            return bscommand.list(sender, trimmedArgs);
+            return bscommand.list(sender, args);
         } else if (commandName.equals("shophelp")) {
             return bscommand.help(sender);
         } else if (commandName.equals("shopbuy")) {
-            return bscommand.buy(sender, trimmedArgs);
+            return bscommand.buy(sender, args);
         } else if (commandName.equals("shopsell")) {
-            return bscommand.sell(sender, trimmedArgs);
+            return bscommand.sell(sender, args);
         } else if (commandName.equals("shopadd")) {
-            return bscommand.add(sender, trimmedArgs);
+            return bscommand.add(sender, args);
         } else if (commandName.equals("shopremove")) {
-            return bscommand.remove(sender, trimmedArgs);
+            return bscommand.remove(sender, args);
         } else if (commandName.equals("shopload")) {
             return bscommand.load(sender);
         } else if (commandName.equals("shopcheck")) {
-            return bscommand.check(sender, trimmedArgs);
+            return bscommand.check(sender, args);
         }
         return false;
+    }
+    
+    public static void Log(String txt) {
+        logger.log(Level.INFO, String.format("[%s] %s", name, txt));
+    }
+
+    public static void Log(String txt, Object params) {
+        logger.log(Level.INFO, String.format("[%s] %s", name, txt == null ? "" : txt), params);
+    }
+
+    public static void Log(Level loglevel, String txt) {
+        logger.log(loglevel, String.format("[%s] %s", name, txt == null ? "" : txt));
+    }
+
+    public static void Log(Level loglevel, String txt, Object params) {
+        logger.log(loglevel, String.format("[%s] %s", name, txt == null ? "" : txt), params);
+    }
+
+    public static void Log(Level loglevel, String txt, Object[] params) {
+        logger.log(loglevel, String.format("[%s] %s", name, txt == null ? "" : txt), params);
     }
 }

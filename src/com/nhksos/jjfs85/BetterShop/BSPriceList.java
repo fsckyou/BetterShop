@@ -1,32 +1,28 @@
 package com.nhksos.jjfs85.BetterShop;
 
+import com.jascotty2.CheckInput;
+import com.jascotty2.MySQL.PriceList;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.bukkit.material.MaterialData;
 import org.bukkit.util.config.*;
 
 public class BSPriceList {
 
-    private final static Logger logger = Logger.getLogger("Minecraft");
     final Map<Double, Double> BuyMap = new HashMap<Double, Double>();
     final Map<Double, Double> SellMap = new HashMap<Double, Double>();
     final Map<Double, String> NameMap = new HashMap<Double, String>();
     Set<Double> ItemMap = new TreeSet<Double>();
-    final LinkedList<String> keys = new LinkedList<String>();
-    private File PLfile, PLfolder;
     private String fileName = "PriceList.yml";
-    private Configuration PriceList;
     private boolean isLoaded = false;
     private boolean isMySQL = false;
-    public String sql_database, sql_tableName, sql_username, sql_password, sql_hostName, sql_portNum;
-    BSMySQL MySQLPriceList = null;
-    public int pagesize = 9;
+    BSMySQL MySQLPriceList = new BSMySQL();
 
     public static <T extends Comparable<? super T>> List<T> asSortedList(
             Collection<T> c) {
@@ -36,14 +32,13 @@ public class BSPriceList {
     }
 
     public BSPriceList() {
-    }
-
-    public BSPriceList(File pluginFolder, String fileName) {
-        load(pluginFolder, fileName);
-    }
-
-    public BSPriceList(String database, String tableName, String username, String password, String hostName, String portNum) {
-        load(database, tableName, username, password, hostName, portNum);
+        // load the pricelist.
+        if (BetterShop.config.useMySQL()) {
+            //isMySQL = true;
+            loadMySQL();
+        } else {
+            loadFile();
+        }
     }
 
     public boolean HasAccess() {
@@ -51,45 +46,35 @@ public class BSPriceList {
     }
 
     public String pricelistName() {
-        return isMySQL ? (sql_hostName.compareToIgnoreCase("localhost") == 0 ? "" : sql_hostName) + "/" + sql_database + "/" + sql_tableName : fileName;
+        return isMySQL
+                ? ((BetterShop.config.sql_hostName.compareToIgnoreCase("localhost") == 0 ? ""
+                : BetterShop.config.sql_hostName) + "/"
+                + BetterShop.config.sql_database + "/"
+                + BetterShop.config.sql_tableName) : fileName;
     }
 
     public boolean reload() {
         if (isMySQL) {
-            return load(sql_database, sql_tableName, sql_username, sql_password, sql_hostName, sql_portNum);
+            return loadMySQL();
         } else {
-            return load(PLfolder, fileName);
+            return loadFile();
         }
     }
 
-    public boolean load(String database, String tableName, String username, String password, String hostName, String portNum) {
+    public final boolean loadMySQL() {
         isLoaded = false;
         isMySQL = true;
 
-        if (MySQLPriceList==null || !(MySQLPriceList.IsConnected() && sql_database.equals(database)
-                && sql_tableName.equals(tableName)
-                && sql_username.equals(username)
-                && sql_hostName.equals(hostName))) {
-
-            sql_database = database;
-            sql_tableName = tableName;
-            sql_username = username;
-            sql_password = password;
-            sql_hostName = hostName;
-            sql_portNum = portNum;
+        if (MySQLPriceList.connect()) {
 
             BuyMap.clear();
             SellMap.clear();
             NameMap.clear();
 
             ItemMap.clear();
-            keys.clear();
 
-
-            // try connecting to database
-            // todo: add option to cache database.. not what i want, so i'm not adding here
-            MySQLPriceList = new BSMySQL(database, tableName, username, password, hostName, portNum);
             if (MySQLPriceList.IsConnected()) {
+                // todo: add option to cache database.. not what i want, so i'm not adding here
                 /*
                 LinkedList<BS_SQL_Data> tableDat = MySQLPriceList.GetFullList();
                 
@@ -102,12 +87,12 @@ public class BSPriceList {
                 }
                 ItemMap.addAll(NameMap.keySet());
                  */
-                logger.log(Level.INFO, "MySQL database " + pricelistName() + " loaded.");
+                BetterShop.Log(Level.INFO, "MySQL database " + pricelistName() + " loaded.");
             } else {
                 return false;
             }
         } else {
-            // here add cacheing info if enabled (future)
+            // here reload cache if enabled (future)
             /*
             BuyMap.clear();
             SellMap.clear();
@@ -117,82 +102,74 @@ public class BSPriceList {
             keys.clear();
              */
         }
-        isLoaded = true;
-        return true;
+        return isLoaded = true;
     }
 
-    public boolean load(File PLpath, String fileName) {
+    public final boolean loadFile() {
         isLoaded = false;
         isMySQL = false;
-        PLfolder = PLpath;
-        PLfile = new File(PLpath, fileName);
-        if (!PLfile.getParentFile().exists()) {
-            logger.log(Level.INFO, "Creating " + PLpath.getAbsolutePath());
-            PLpath.mkdirs();
-        }
+        File PLfile = new File(BSConfig.pluginFolder, fileName);
         if (!PLfile.exists()) {
             try {
-                logger.log(Level.INFO, "Creating " + PLfile.getAbsolutePath());
+                BetterShop.Log(Level.INFO, "Creating " + PLfile.getAbsolutePath());
                 PLfile.createNewFile();
+                return isLoaded = true;
             } catch (IOException ex) {
-                Logger.getLogger(BSPriceList.class.getName()).log(Level.SEVERE, "Error creating " + PLfile.getAbsolutePath(), ex);
+                BetterShop.Log(Level.SEVERE, "Error creating " + PLfile.getAbsolutePath(), ex);
                 return false;
             }
         }
-        logger.log(Level.INFO, "Loading " + fileName);
-        PriceList = new Configuration(PLfile);
+        BetterShop.Log(Level.INFO, "Loading " + fileName);
+
+        Configuration PriceList = new Configuration(PLfile);
         PriceList.load();
         BuyMap.clear();
         SellMap.clear();
         NameMap.clear();
+        ItemMap.clear();
 
-        keys.clear();
+        LinkedList<String> keys = new LinkedList<String>();
 
-        try {
+        if (PriceList.getNode("prices") != null) {
             keys.addAll(PriceList.getKeys("prices"));
-        } catch (Exception e0) {
-            logger.info("Empty PriceList or error reading PriceList");
-            return false;
-        }
-        for (int i = 0; i < keys.size(); ++i) {
-            double buy = -1.003;
-            double sell = -1.003;
-            String name = "Unk";
-            String[] split = keys.get(i).split("[^0-9]");
-            if (split.length != 0) {
-                int id = 0;
-                int sub = 0;
-                if (split.length == 8) {
-                    id = CheckInput.GetInt(split[split.length - 4], 0);
-                    sub = CheckInput.GetInt(split[split.length - 1], 0);
-                } else {
-                    id = CheckInput.GetInt(split[split.length - 1], 0);
-                }
-                if (keys.contains("item" + String.valueOf(id) + "sub" + String.valueOf(sub))) {
-                    buy = PriceList.getDouble("prices.item" + String.valueOf(id)
-                            + "sub" + String.valueOf(sub) + ".buy", -1);
-                    sell = PriceList.getDouble("prices.item" + String.valueOf(id)
-                            + "sub" + String.valueOf(sub) + ".sell", -1);
-                    name = PriceList.getString("prices.item" + String.valueOf(id)
-                            + "sub" + String.valueOf(sub) + ".name", "Unk");
-                } else if (keys.contains("item" + String.valueOf(id))) {
-                    buy = PriceList.getDouble("prices.item" + String.valueOf(id) + ".buy", -1);
-                    sell = PriceList.getDouble("prices.item" + String.valueOf(id) + ".sell", -1);
-                    name = PriceList.getString("prices.item" + String.valueOf(id) + ".name", "Unk");
-                }
-                if ((buy != -1.003) && (sell != -1.003)) {
-                    double d = id + (sub * .01);
-                    BuyMap.put(d, buy);
-                    SellMap.put(d, sell);
-                    NameMap.put(d, name);
+            for (int i = 0; i < keys.size(); ++i) {
+                double buy = -1.003;
+                double sell = -1.003;
+                String name = "Unk";
+                String[] split = keys.get(i).split("[^0-9]");
+                if (split.length != 0) {
+                    int id = 0;
+                    int sub = 0;
+                    if (split.length == 8) {
+                        id = CheckInput.GetInt(split[split.length - 4], 0);
+                        sub = CheckInput.GetInt(split[split.length - 1], 0);
+                    } else {
+                        id = CheckInput.GetInt(split[split.length - 1], 0);
+                    }
+                    if (keys.contains("item" + String.valueOf(id) + "sub" + String.valueOf(sub))) {
+                        buy = PriceList.getDouble("prices.item" + String.valueOf(id)
+                                + "sub" + String.valueOf(sub) + ".buy", -1);
+                        sell = PriceList.getDouble("prices.item" + String.valueOf(id)
+                                + "sub" + String.valueOf(sub) + ".sell", -1);
+                        name = PriceList.getString("prices.item" + String.valueOf(id)
+                                + "sub" + String.valueOf(sub) + ".name", "Unk");
+                    } else if (keys.contains("item" + String.valueOf(id))) {
+                        buy = PriceList.getDouble("prices.item" + String.valueOf(id) + ".buy", -1);
+                        sell = PriceList.getDouble("prices.item" + String.valueOf(id) + ".sell", -1);
+                        name = PriceList.getString("prices.item" + String.valueOf(id) + ".name", name);
+                    }
+                    if ((buy != -1.003) && (sell != -1.003)) {
+                        double d = id + (sub * .01);
+                        BuyMap.put(d, buy);
+                        SellMap.put(d, sell);
+                        NameMap.put(d, name);
+                    }
                 }
             }
+            ItemMap.addAll(NameMap.keySet());
         }
-        ItemMap.clear();
-        ItemMap.addAll(NameMap.keySet());
-        logger.log(Level.INFO, fileName + " loaded.");
-        isLoaded = true;
-        return true;
+        BetterShop.Log(Level.INFO, fileName + " loaded.");
+        return isLoaded = true;
     }
 
     public boolean isForSale(String s) { // throws Exception
@@ -344,7 +321,7 @@ public class BSPriceList {
             if (isMySQL) {
                 MySQLPriceList.RemoveItem(itemDb.getName(matdat));
             } else {
-                if (NameMap.containsKey(matdat.getItemTypeId()+ (double) matdat.getData() / 100)) {
+                if (NameMap.containsKey(matdat.getItemTypeId() + (double) matdat.getData() / 100)) {
                     BuyMap.remove(matdat.getItemTypeId() + (double) matdat.getData() / 100);
                     SellMap.remove(matdat.getItemTypeId() + (double) matdat.getData() / 100);
                     NameMap.remove(matdat.getItemTypeId() + (double) matdat.getData() / 100);
@@ -363,60 +340,51 @@ public class BSPriceList {
             MySQLPriceList.commit();
         } else {
             BufferedWriter output = null;
-            ItemMap.clear();
-            ItemMap.addAll(NameMap.keySet());
             try {
-                output = new BufferedWriter(new FileWriter(PLfile));
-            } catch (IOException e1) {
-                logger.log(Level.WARNING, "Cannot write to " + PLfile.getName());
-                e1.printStackTrace();
-            }
-            try {
+                output = new BufferedWriter(new FileWriter(BSConfig.pluginFolder));
+                ItemMap.clear();
+                ItemMap.addAll(NameMap.keySet());
                 // FileWriter always assumes default encoding is OK!
-                output.write("prices:");
-                output.newLine();
+                output.write("prices:\n");
                 Iterator<Double> ItemIt = ItemMap.iterator();
                 while (ItemIt.hasNext()) {
                     double key = ItemIt.next();
                     int item = (int) Math.floor(key);
                     int sub = (int) ((key - item) * 100);
-                    output.write(String.format("  item%01dsub%01d:", item, sub));
-                    output.newLine();
-                    output.write("    name: " + NameMap.get(key).toLowerCase());
-                    output.newLine();
-                    output.write("    buy: " + BuyMap.get(key));
-                    output.newLine();
-                    output.write("    sell: " + SellMap.get(key));
-                    output.newLine();
+                    output.write(String.format("  item%01dsub%01d:%n", item, sub));
+                    output.write("    name: " + NameMap.get(key).toLowerCase() + "\n");
+                    output.write("    buy: " + BuyMap.get(key) + "\n");
+                    output.write("    sell: " + SellMap.get(key) + "\n");
                 }
             } catch (Exception e) {
-                logger.log(Level.WARNING, "Cannot write to " + PLfile.getName());
-                e.printStackTrace();
+                BetterShop.Log(Level.SEVERE, "Cannot write to " + BSConfig.pluginFolder.getName(), e);
             } finally {
-                try {
-                    output.flush();
-                    output.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (output != null) {
+                    try {
+                        output.flush();
+                        output.close();
+                    } catch (IOException e) {
+                        BetterShop.Log(Level.SEVERE, "Error closing " + BSConfig.pluginFolder.getName(), e);
+                    }
                 }
             }
         }
     }
 
-    public LinkedList<String> GetShopListPage(int pageNum) {
+    public LinkedList<String> GetShopListPage(int pageNum, boolean isPlayer) {
         LinkedList<String> ret = new LinkedList<String>();
         if (isMySQL) {
-            LinkedList<BS_SQL_Data> tableDat = MySQLPriceList.GetFullList();
+            LinkedList<PriceList> tableDat = MySQLPriceList.GetFullList();
 
-            int pages = (int) Math.ceil((double) tableDat.size() / pagesize);
-            String listhead = BetterShop.configfile.getString("listhead").replace("<page>", String.valueOf(pageNum)).replace("<pages>", String.valueOf(pages));
+            int pages = (int) Math.ceil((double) tableDat.size() / BetterShop.config.pagesize);
+            String listhead = BetterShop.config.getString("listhead").replace("<page>", String.valueOf(pageNum)).replace("<pages>", String.valueOf(pages));
             if (pageNum > pages) {
                 ret.add("There is no page " + pageNum + ".");
             } else {
                 ret.add(String.format(listhead, pageNum, pages));
-                String listStr = BetterShop.configfile.getString("listing").replace("<item>", "%1$s").replace("<buyprice>", "%2$s").replace("<sellprice>", "%3$s");
+                String listStr = BetterShop.config.getString("listing").replace("<item>", "%1$s").replace("<buyprice>", "%2$s").replace("<sellprice>", "%3$s");
                 //                .replace("<tab>", "\t");
-                for (int i = pagesize * (pageNum - 1), n = 0; n < pagesize && i < tableDat.size(); ++i, ++n) {
+                for (int i = BetterShop.config.pagesize * (pageNum - 1), n = 0; n < BetterShop.config.pagesize && i < tableDat.size(); ++i, ++n) {
                     ret.add(String.format(listStr, tableDat.get(i).name,
                             tableDat.get(i).buy <= 0 ? "No" : String.format("%5s", String.format("%01.2f", tableDat.get(i).buy)),
                             tableDat.get(i).sell <= 0 ? "No" : String.format("%5s", String.format("%01.2f", tableDat.get(i).sell))));
@@ -424,9 +392,8 @@ public class BSPriceList {
 
             }
         } else {
-            // old method, pagenum fixed
-            int pages = (int) Math.ceil((double) NameMap.size() / pagesize);
-            String listhead = BetterShop.configfile.getString("listhead").replace(
+            int pages = (int) Math.ceil((double) NameMap.size() / BetterShop.config.pagesize);
+            String listhead = BetterShop.config.getString("listhead").replace(
                     "<page>", String.valueOf(pageNum)).replace("<pages>",
                     String.valueOf(pages));
             if (pageNum > pages) {
@@ -435,11 +402,10 @@ public class BSPriceList {
                 ret.add(String.format(listhead, pageNum, pages));
                 int linenum = 0;
                 Iterator<Double> iter = ItemMap.iterator();
-                while ((linenum < (pageNum - 1) * pagesize) && iter.hasNext()) {
+                for (; (linenum < (pageNum - 1) * BetterShop.config.pagesize) && iter.hasNext(); ++linenum) {
                     iter.next();
-                    ++linenum;
                 }
-                while ((linenum < pageNum * pagesize) && (iter.hasNext())) {
+                while ((linenum < pageNum * BetterShop.config.pagesize) && (iter.hasNext())) {
                     Double i = iter.next();
                     try {
                         String sellStr = (getSellPrice(i) <= 0) ? "No"
@@ -447,46 +413,46 @@ public class BSPriceList {
                         String buyStr = (getBuyPrice(i) < 0) ? "No"
                                 : String.format("%01.2f", getBuyPrice(i));
                         ret.add(String.format(
-                                BetterShop.configfile.getString("listing").replace(
+                                BetterShop.config.getString("listing").replace(
                                 "<item>", "%1$s").replace("<buyprice>",
                                 "%2$s").replace("<sellprice>", "%3$s"), //.replace("<tab>", "     "),
                                 itemDb.getName(i),
                                 buyStr, sellStr));
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        //e.printStackTrace();
+                        BetterShop.Log("Error while loading pricelist", e);
                     }
                     ++linenum;
                 }
             }
         }
-        // format spaces
-        // todo: dynamic number spacing, depending on largest number
-        //      (easier not to do here, but in string formatting above)
-        if (ret.size() > 1 && ret.get(1).contains("<tab>")) {
-            // go through each line:
-            // - max pos of first found, then space all to be that length
-            while (ret.get(1).contains("<tab>")) {
-                int maxPos = 0;
-                // todo? count chars with pixel width.. minecraft chat does not use fixed-width font
-                for (int i = 1; i < ret.size(); ++i) {
-                    if (ret.get(i).indexOf("<tab>") > maxPos) {
-                        maxPos = ret.get(i).indexOf("<tab>");
+        if (isPlayer) {
+            // format spaces
+            if (ret.size() > 1 && ret.get(1).contains("<tab>")) {
+                // go through each line:
+                // - max pos of first found, then space all to be that length
+                while (ret.get(1).contains("<tab>")) {
+                    int maxPos = 0;
+                    // todo? count chars with pixel width.. minecraft chat does not use fixed-width font
+                    for (int i = 1; i < ret.size(); ++i) {
+                        if (ret.get(i).indexOf("<tab>") > maxPos) {
+                            maxPos = ret.get(i).indexOf("<tab>");
+                        }
                     }
-                }
-                LinkedList<String> newret = new LinkedList<String>();
-                for (int i = 0; i < ret.size(); ++i) {
-                    String line = ret.get(i);
-                    if (line.indexOf("<tab>") != -1) {
-                        newret.add(String.format("%" + maxPos + "s %s", line.substring(0, line.indexOf("<tab>")), line.substring(line.indexOf("<tab>") + 5)));
-                    } else {
-                        newret.add(line);
+                    LinkedList<String> newret = new LinkedList<String>();
+                    for (int i = 0; i < ret.size(); ++i) {
+                        String line = ret.get(i);
+                        if (line.indexOf("<tab>") != -1) {
+                            newret.add(String.format("%" + maxPos + "s %s", line.substring(0, line.indexOf("<tab>")), line.substring(line.indexOf("<tab>") + 5)));
+                        } else {
+                            newret.add(line);
+                        }
                     }
+                    ret = newret;
                 }
-                ret = newret;
             }
         }
-
-        ret.add(BetterShop.configfile.getString("listtail"));
+        ret.add(BetterShop.config.getString("listtail"));
         return ret;
     }
 }

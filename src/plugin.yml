@@ -1,8 +1,8 @@
 name: BetterShop
 main: com.nhksos.jjfs85.BetterShop.BetterShop
-version: 1.6
+version: 1.5.9b
 website: http://github.com/jjfs85/BetterShop
-author: jjfs85 and lologarithm (MySQL integration by jascotty2)
+author: jjfs85, lologarithm, and jascotty2
 description: >
              BetterShop is a command-based shop for Bukkit. It uses iConomy
              for the economic backbone and requires Permissions.
@@ -32,7 +32,7 @@ commands:
     usage: /<command> [item]
     aliases: [sremove]
   shopload:
-    description: reload prices from PriceList.yml
+    description: reload prices from pricelist database
     usage: /<command>
     aliases: [sload]
   shophelp:
