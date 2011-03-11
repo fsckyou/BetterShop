@@ -25,7 +25,8 @@ public class MySQL {
     private String sql_username, sql_password, sql_database = "minecraft", sql_hostName = "localhost", sql_portNum = "3306";
     // DB connection
     private Connection DBconnection = null;
-
+    private static int checkedDep = 0;
+    
     public MySQL() {
     }
 
@@ -37,9 +38,11 @@ public class MySQL {
     public MySQL(String database, String username, String password, String hostName) throws Exception {
         connect(database, username, password, hostName);
     }
+
     public MySQL(String database, String username, String password) throws Exception {
         connect(database, username, password);
     }
+
     public MySQL(String database, String username) throws Exception {
         connect(database, username, "");
     }
@@ -70,7 +73,7 @@ public class MySQL {
         }
         return false;
     }
-    
+
     /**
      * Connect to a database
      * @param database MySQL database to use
@@ -90,11 +93,12 @@ public class MySQL {
             sql_username = username;
             sql_password = password;
             sql_hostName = hostName;
-            sql_portNum =  "3306";
+            sql_portNum = "3306";
             return connect();
         }
         return false;
     }
+
     /**
      * Connect to a database on localhost
      * @param database MySQL database to use
@@ -112,11 +116,12 @@ public class MySQL {
             sql_username = username;
             sql_password = password;
             sql_hostName = "localhost";
-            sql_portNum =  "3306";
+            sql_portNum = "3306";
             return connect();
         }
         return false;
     }
+
     /**
      * Connect to a database on localhost (blank password)
      * @param database MySQL database to use
@@ -132,20 +137,20 @@ public class MySQL {
             sql_username = username;
             sql_password = "";
             sql_hostName = "localhost";
-            sql_portNum =  "3306";
+            sql_portNum = "3306";
             return connect();
         }
         return false;
     }
-    
+
     /**
      * Checks if mysql-connector-java-bin.jar exists
      * @return
      */
     public static boolean checkDependency() {
-        int checked = 0;
-        if (checked != 0) {
-            return checked > 0;
+        //int checked = 0;
+        if (checkedDep != 0) {
+            return checkedDep > 0;
         }
         // file used by iConomy
         // 4 can try, name shared with iConomy mysql.. i don't check for all possibilities, though)
@@ -154,19 +159,27 @@ public class MySQL {
             "lib/mysql-connector-java-5.1.14-bin.jar",
             "lib/mysql-connector-java-5.1.15-bin.jar"};
         File f = null;
-        for (int i = 0; i < names.length - 1; ++i) {
+        for (int i = 0; i < names.length; ++i) {
             f = new File(names[i]);
             if (f.exists()) {
-                checked = 1;
+                checkedDep = 1;
                 return true;
             }
         }
         // !f.exists()
-        // todo: download jar to lib folder
-        checked = -1;
-        return false;
+        
+        // downloads jar to lib folder
+        if (!InstallDependency.install()) {
+
+            checkedDep = -1;
+            return false;
+        }
+
+        checkedDep = 1;
+        return true;
 
     }
+
     /**
      * Connect/Reconnect using current info
      * @return if can connect & connected
@@ -182,7 +195,9 @@ public class MySQL {
         // connect to database
         Class.forName("com.mysql.jdbc.Driver").newInstance();
 
-        if(IsConnected()) disconnect();
+        if (IsConnected()) {
+            disconnect();
+        }
 
         DBconnection = DriverManager.getConnection(
                 String.format("jdbc:mysql://%s:%s/%s?create=true", sql_hostName, sql_portNum, sql_database),
@@ -192,7 +207,7 @@ public class MySQL {
 
         return true;
     }
-    
+
     /**
      * close the MySQL server connection
      */
@@ -292,6 +307,5 @@ public class MySQL {
         }
         return false;
     }
-
 } // end class BSMySQL
 
