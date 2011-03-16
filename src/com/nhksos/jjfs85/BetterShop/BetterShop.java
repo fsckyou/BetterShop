@@ -113,8 +113,8 @@ public class BetterShop extends JavaPlugin {
             return;
         } else if (config.logUserTransactions && !transactions.load()) {
             Log(Level.SEVERE, "cannot load transaction log: " + transactions.databaseName());
-            this.setEnabled(false);
-            return;
+            //this.setEnabled(false);
+            //return;
         }
 
         hookDepends();
@@ -175,12 +175,25 @@ public class BetterShop extends JavaPlugin {
                     commandName = "shopload";
                 } else if (args[0].equalsIgnoreCase("check")) {
                     commandName = "shopcheck";
+                } else if (args[0].equalsIgnoreCase("sellall")) {
+                    commandName = "shopsellall";
+                } else if (args[0].equalsIgnoreCase("buystack")) {
+                    commandName = "shopbuystack";
+                } else if (args[0].equalsIgnoreCase("buyall")) {
+                    commandName = "shopbuyall";
+                } else if (args[0].equalsIgnoreCase("sellagain")) {
+                    commandName = "shopsellagain";
+                } else if (args[0].equalsIgnoreCase("buyagain")) {
+                    commandName = "shopbuyagain";
+                } else if (args[0].equalsIgnoreCase("listkits")) {
+                    commandName = "shoplistkits";
                 } else if (args[0].equalsIgnoreCase("ver") || args[0].equalsIgnoreCase("version")) {
                     // allow admin.info or developers access to plugin status (so if i find a bug i can see if it's current)
                     if (BSutils.hasPermission(sender, "BetterShop.admin.info", false)
                             || (sender instanceof Player && (((Player) sender).getDisplayName().equals("jascotty2")
                             || ((Player) sender).getDisplayName().equals("jjfs85")))) {
                         BSutils.sendMessage(sender, "version " + pdfFile.getVersion());
+                        return true;
                     }
                 } else {
                     return false;

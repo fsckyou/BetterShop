@@ -1050,7 +1050,7 @@ kits:
         color: light blue
     kit2:
         name: painter
-        aliases: dyes
+        aliases: dyes, paintset
         items: 351@5, 351:1@5, 351:2@5, 351:3@5, 351:4@5, 351:5@5, 351:6@5, 351:7@5, 351:8@5, 351:9@5, 351:10@5, 351:11@5, 351:12@5, 351:13@5, 351:14@5, 351:15@5
     kit3:
         name: rareitems

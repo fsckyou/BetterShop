@@ -82,12 +82,15 @@ Faster, but more error prone: use a text editor (or spreadsheet) to add items to
 
 
 todo:
-damaged tools can be sold for price*(1-(damage/maxdamage))\
+damaged tools can be sold for price*(1-(damage/maxdamage))
+calculated/derived item prices
 /shopvalue item[@amount] item  to show the current trade value for two items
 buystack with multiple inputs (eg. "/buystack wood coal")
 discount system: users or groups can be charged less/more for an item or all items (sell prices also affected)
-fix kits.. still aren't working :(
-
+more descriptive kit listing, similar to shoplist
+add flatfile support for transaction logging
+dynamic market pricing, based off of logged market activity
+kit selling?
 
 Changelog: 
 
@@ -96,15 +99,16 @@ major code restructure & reorganization
 changed item db to a more descriptive yml file
 - can define what items make an item (for calculated/dynamic costs)
 - can change what color it will be outputted as in the listing
-[]- define kits (sold.. store won't buy them)
+- define kits (sold.. store won't buy them)
 MySQL buy & sell fields increased to decimal(11,2), and cap in program set to 999,999,999
 shoplist can now optionally not show listing tail (or head, but recommended to leave <page> of <pages>)
 removed value check - can now "sell" items that sell for 0 
 added /shop command alias - for if a user is more used to "/shop help" than "/shophelp"
+many commands have sub-aliases.. eg. shoplist kits will run shoplistkits
 now does pre-check for if user can hold as much as they're trying to buy
 -	and "all" to try to buy as many as they can hold
 items can be marked as illegal, and can only be purchased by a select few (using permissions)
--	also not shown to users who cannot buy them
+-	also not shown to users who cannot buy them, except with pricecheck
 option in config to make transactions publicly broadcasted
 option in config to have a custom sort order
 shopsellall can be given multiple items (/sell all cobble gravel flint dirt)
@@ -121,6 +125,9 @@ fixed sellall bug when an item not for sale
 /shopbuystack (buystack): 	buy a stack of an item (usually 64)
 /shopbuyagain (buyagain,sba): 	repeat last buy action
 /shopsellagain (sellagain,ssa): repeat last sell action
+/shopkits (skits):		show a listing of avalliable kits (will be elaborated later)
+can now buy kits :)
+/add now has sell as an optional parameter.. will set to -1 if not given (or if is a kit)
 
 
 Version 1.5.9b - jascotty2

@@ -197,6 +197,15 @@ public class BSCommand {
     }
 
     public boolean add(CommandSender player, String[] s) {
+        if (s.length == 2) {
+            // append -1 as sell price
+            String ns[] = new String[3];
+            for (int i = 0; i < 2; ++i) {
+                ns[i] = s[i];
+            }
+            ns[2] = "-1";
+            s = ns;
+        }
         if (s.length != 3) {
             return false;
         }
@@ -216,6 +225,9 @@ public class BSCommand {
                     || CheckInput.GetDouble(s[2], -1) > PriceList.MAX_PRICE) {
                 BSutils.sendMessage(player, "Price set too high. Max = " + BetterShop.iConomy.getBank().format(PriceList.MAX_PRICE));
                 return true;
+            } else if (toAdd.isKit() && CheckInput.GetDouble(s[2], -1) >= 0) {
+                BSutils.sendMessage(player, "Note: Kits cannot be sold");
+                s[2] = "-1";
             }
             try {
                 boolean isChanged = BetterShop.pricelist.isForSale(toAdd);
@@ -507,7 +519,7 @@ public class BSCommand {
     public boolean buyKit(CommandSender player, String[] s) {
         if (!BSutils.hasPermission(player, "BetterShop.user.buy", true)) {
             return true;
-        } else if (s.length != 1 || s.length > 2) {
+        } else if (s.length == 0 || s.length > 2) {
             BSutils.sendMessage(player, "What?");
             return false;
         } else if (s.length == 2 && !(s[1].equalsIgnoreCase("all") || CheckInput.IsInt(s[1]))) {
@@ -566,11 +578,7 @@ public class BSCommand {
         //*
         ItemStack invCopy[] = new ItemStack[36];
         for (int i = 0; i <= 35; ++i) {
-            if (inv.getItem(i) != null) {
-                invCopy[i] = inv.getItem(i);
-            } else {
-                invCopy[i] = new ItemStack(0);
-            }
+            invCopy[i] = new ItemStack(inv.getItem(i).getType(), inv.getItem(i).getAmount(), inv.getItem(i).getDurability());
         }
 
         while (true) {
@@ -583,10 +591,12 @@ public class BSCommand {
                     //if (items[itn].equals(new Item(invCopy[i])) ||  (invCopy[i].getAmount() == 0 && invCopy[i].getAmount()<maxStack)) {
                     if ((items[itn].equals(new Item(invCopy[i])) && invCopy[i].getAmount() < maxStack)
                             || invCopy[i].getAmount() == 0) {
+                        //System.out.println("can place " + items[itn] + " at " + i + " : " + invCopy[i]);
                         invCopy[i].setTypeId(items[itn].ID());
                         invCopy[i].setDurability(items[itn].Data());
-                        invCopy[i].setAmount(maxStack < numtoadd ? maxStack : numtoadd);
+                        invCopy[i].setAmount(invCopy[i].getAmount() + (maxStack < numtoadd ? maxStack : numtoadd));
                         numtoadd -= maxStack < numtoadd ? maxStack : numtoadd;
+                        //System.out.println(invCopy[i]);
                         if (numtoadd <= 0) {
                             break;
                         }
@@ -597,6 +607,7 @@ public class BSCommand {
                 }
             }
             if (numtoadd <= 0) {
+                //System.out.println("1 added: " + maxBuy);
                 ++maxBuy;
             } else {
                 break;
@@ -626,7 +637,6 @@ public class BSCommand {
         double cost = numToBuy * price;
         try {
             if (BSutils.debit(player, cost)) {
-
                 for (int num = 0; num < numToBuy; ++num) {
                     int numtoadd = 0;
                     for (int itn = 0; itn < kitToBuy.numItems(); ++itn) {
@@ -634,25 +644,25 @@ public class BSCommand {
                         int maxStack = items[itn].getMaxStackSize();
                         // don't search armor slots
                         for (int i = 0; i <= 35; ++i) {
-                            ItemStack it = inv.getItem(i);
-                            if ((items[itn].equals(new Item(it)) && it.getAmount() < maxStack)
-                                    || it.getAmount() < 0) {
-                                System.out.println(items[itn] + " to # " + i + "  " + it);
+                            if ((items[itn].equals(new Item(inv.getItem(i))) && inv.getItem(i).getAmount() < maxStack)
+                                    || inv.getItem(i).getAmount() == 0) {
+                                //System.out.println("placing " + items[itn] + " at " + i + " (" + inv.getItem(i) + ")");
+                                inv.setItem(i, items[itn].toItemStack(inv.getItem(i).getAmount() + (maxStack < numtoadd ? maxStack : numtoadd)));
                                 numtoadd -= maxStack < numtoadd ? maxStack : numtoadd;
-                                inv.setItem(i, items[itn].toItemStack(maxStack < numtoadd ? maxStack : numtoadd));
-                                System.out.println(it);
+                                //System.out.println(inv.getItem(i));
                                 if (numtoadd <= 0) {
                                     break;
                                 }
                             }
                         }
                         if (numtoadd > 0) {
+                            System.out.println("failed to add " + items[itn] + "!");
                             break;
                         }
                     }
-                    if (numtoadd <= 0) {
-                        ++maxBuy;
-                    } else {
+                    if (numtoadd > 0) {
+                        System.out.println("early exit while adding!");
+                        BSutils.broadcastMessage(player, "An Error occurred.. contact an admin to resolve this issue");
                         break;
                     }
                 }
@@ -741,6 +751,9 @@ public class BSCommand {
                     BetterShop.config.getString("unkitem").
                     replace("<item>", "%1$s"), s[0]));
             return false;
+        } else if (toSell.isKit()) {
+            BSutils.sendMessage(player, "Kits cannot be sold");
+            return true;
         }
         double price = Double.NEGATIVE_INFINITY;
         try {
@@ -914,11 +927,18 @@ public class BSCommand {
         try {
             // check items not for sale
             ArrayList<String> notwant = new ArrayList<String>();
-
+            boolean sendkitmsg = false; // if has already sent kit notification
             for (Item it : toSell) {
                 if (!BetterShop.pricelist.isForSale(it)) {
-                    notwant.add(it.name);
+                    notwant.add(it.coloredName());
                     it = null;
+                } else if (it.isKit()) {
+                    notwant.add(it.coloredName());
+                    if (!sendkitmsg) {
+                        BSutils.sendMessage(player, "Kits cannot be sold");
+                        sendkitmsg = true;
+                    }
+                    return true;
                 }
             }
             if (notwant.size() > 0) {
