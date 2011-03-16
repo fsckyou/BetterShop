@@ -85,6 +85,8 @@ todo:
 damaged tools can be sold for price*(1-(damage/maxdamage))\
 /shopvalue item[@amount] item  to show the current trade value for two items
 buystack with multiple inputs (eg. "/buystack wood coal")
+discount system: users or groups can be charged less/more for an item or all items (sell prices also affected)
+fix kits.. still aren't working :(
 
 
 Changelog: 
@@ -95,7 +97,6 @@ changed item db to a more descriptive yml file
 - can define what items make an item (for calculated/dynamic costs)
 - can change what color it will be outputted as in the listing
 []- define kits (sold.. store won't buy them)
-[]discount system: users or groups can be charged less/more for an item or all items (sell prices also affected)
 MySQL buy & sell fields increased to decimal(11,2), and cap in program set to 999,999,999
 shoplist can now optionally not show listing tail (or head, but recommended to leave <page> of <pages>)
 removed value check - can now "sell" items that sell for 0 
