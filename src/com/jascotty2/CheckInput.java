@@ -7,6 +7,7 @@
  */
 package com.jascotty2;
 
+import java.math.BigInteger;
 import java.util.regex.Pattern;
 
 /**
@@ -99,6 +100,51 @@ public class CheckInput {
         } catch (NumberFormatException e) {
             return onError;
         }
+    }
+
+    public static BigInteger GetBigInt_TimeSpanInSec(String str) throws Exception {
+        return GetBigInt_TimeSpanInSec(str, 's');
+    }
+    
+    public static BigInteger GetBigInt_TimeSpanInSec(String str, char defaultUnit) throws Exception {
+        BigInteger ret = new BigInteger("0");
+        int charPos = 0;
+        for (; charPos < str.length() ; ++charPos) {
+            if (!Character.isDigit(str.charAt(charPos))) {
+                break;
+            }
+        }
+        //boolean good = false;
+        if (charPos > 0) {
+            // double-check value
+            if (CheckInput.IsInt(str.substring(0, charPos))) {
+                ret = new BigInteger(str.substring(0, charPos));
+                char unit = str.length()==charPos ? defaultUnit : str.charAt(charPos);
+                if(unit == 's'){
+                    // do nothing: is already seconds
+                    return ret;
+                } else if (unit == 'm') {
+                    // it's annoying that this class doesn't accept a long..
+                    ret=ret.multiply(new BigInteger("60"));
+                } else if (unit  == 'h') {
+                    ret=ret.multiply(new BigInteger("3600"));
+                } else if (unit== 'd') {
+                    ret=ret.multiply(new BigInteger("86400"));
+                } else if (unit == 'w') {
+                    ret=ret.multiply(new BigInteger("604800"));
+                } else if (unit == 'M') {
+                    // using 1m = 30 days
+                    ret=ret.multiply(new BigInteger("18144000"));
+                } else {
+                    throw new Exception("Unknown TimeSpan unit: "  + str.charAt(charPos));
+                }
+                return ret;
+            }else{
+                throw new Exception("Invalid Numerical Value: "  + str);
+            }
+        }
+        // will throw it's own exception
+        return new BigInteger(str);
     }
 } // end class CheckInput
 

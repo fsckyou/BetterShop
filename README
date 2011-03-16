@@ -1,9 +1,7 @@
 To build, you need to include the following as libraries:
-    bukkit.jar
+    bukkit.jar	(current build used git-Bukkit-0.0.0-493-g8b5496e-b493jnks)
     iConomy.jar
     Permissions.jar
-
--- Will also need mysql-connector-java-5.1.15-bin.jar in a "lib" folder at the bukkit server root
 
 If you want helpful bukkit javadocs, you should get:
     the Bukkit source code
@@ -16,3 +14,160 @@ or on Windows using:
     I have no clue. I guess something similar to jar.
 
 And it's ready to be placed in a plugins directory :)
+
+In-Game Commands:
+/shop				for those used to a plugin having one command, this is another way to get to the following
+/shophelp (shelp)		shows you all the commands you can use
+/shoplist (sl,slist)		shows a listing of items for sale
+/shopitems (sitems)		show full listing of items in shop, without prices
+/shopcheck (sc,scheck)		lookup a specific item so you don't have to read through pages of prices
+/shopbuy (buy,sbuy): 		buy an item for the price in the shopshop ("all" is accepted as an amount)
+/shopbuyall (buyall,sbuyall): 	buy all of an item that you can hold
+/shopsell (sell,ssell):  	sell an item for the price in the shop
+/shopadd (sadd): 		add an item to or update an item in the price list
+/shopremove (sremove): 		remove an item from the price list
+/shopload (sload): 		reload prices from pricelist database
+/shopsellall (sellall):		Sell all of item from your inventory (alias to command /shop sell all)
+/shopbuystack (buystack): 	buy a stack of an item (usually 64)
+/shopbuyagain (buyagain,sba): 	repeat last buy action
+/shopsellagain (sellagain,ssa): repeat last sell action
+/shopkits (skits):		show a listing of avalliable kits (will be elaborated later)
+
+toadd: 
+/shopvalue item[@amount] item  shows the current trade value for two items
+
+Features:
+
+currently dependent on iConomy
+Permissions support
+Fully configurable colors and message text in config.yml file
+Every item and subtype can be priced differently
+Disable selling or buying of an item or subtype by giving it a price of -1
+Item sub-type support for dye colors, cloth colors, etc: magentacloth = 35:2 = cloth:magenta
+command aliases to stop carpal tunnel
+MySQL pricelist support 
+Transaction records (MySQL only right now)
+Downloads mysql-bin.jar dependency automatically
+"all" is a valid amount when selling: "/sell cobblestone all" or "/sell all cobblestone"
+shoplist can have text alignment (read config for more info): <item> <l(eft-aligned)> <buy and sell info>
+Configurable max pagesize when printing shoplist
+shopsellall can be given multiple items (/sell all cobble gravel flint dirt)
+
+Permissions:
+Just add the following nodes to Permissions' config.yml file (or data.yml file for GroupManager):
+
+- 'BetterShop.user.*'
+^ Allows the user to use the list, sell, buy, and help commands
+- 'BetterShop.admin.*'
+^ Allows the user to use the add, remove, and load commands
+
+There are other nodes that allow only more specific permissions, but I recommend using the above.
+They work like this:
+BetterShop.user.list
+BetterShop.user.check
+BetterShop.user.buy
+BetterShop.user.help
+BetterShop.user.sell
+BetterShop.admin.add
+BetterShop.admin.remove
+BetterShop.admin.load
+BetterShop.admin.info
+BetterShop.admin.illegal	# gives the ability to purchase 'illegal' items
+
+There are two ways to add things to the shop:
+Recommended, but slow: use /shopadd [item] [buy-price] [sell-price]
+Faster, but more error prone: use a text editor (or spreadsheet) to add items to the BetterShop.csv file. 
+	BUT add an item using method 1 first, so you can see how it needs to be formatted. 
+	The name value is there only for human readability, it's not read by the plugin.
+
+
+todo:
+damaged tools can be sold for price*(1-(damage/maxdamage))\
+/shopvalue item[@amount] item  to show the current trade value for two items
+buystack with multiple inputs (eg. "/buystack wood coal")
+
+
+Changelog: 
+
+Version 1.6.0 - jascotty2
+major code restructure & reorganization 
+changed item db to a more descriptive yml file
+- can define what items make an item (for calculated/dynamic costs)
+- can change what color it will be outputted as in the listing
+[]- define kits (sold.. store won't buy them)
+[]discount system: users or groups can be charged less/more for an item or all items (sell prices also affected)
+MySQL buy & sell fields increased to decimal(11,2), and cap in program set to 999,999,999
+shoplist can now optionally not show listing tail (or head, but recommended to leave <page> of <pages>)
+removed value check - can now "sell" items that sell for 0 
+added /shop command alias - for if a user is more used to "/shop help" than "/shophelp"
+now does pre-check for if user can hold as much as they're trying to buy
+-	and "all" to try to buy as many as they can hold
+items can be marked as illegal, and can only be purchased by a select few (using permissions)
+-	also not shown to users who cannot buy them
+option in config to make transactions publicly broadcasted
+option in config to have a custom sort order
+shopsellall can be given multiple items (/sell all cobble gravel flint dirt)
+now shows what items were sold when using shopsellall
+fixed bug where single sell parameter would == sell [item] all
+all, full, -1 added as a pricelist pagenumber: will print the full list (intended for console use)
+marketactivity table truncate logic repaired.. 
+marketactivity MySQL table changed with primary key(DATE, USER, ID) (instead of DATE, USER) to resolve conflits with sellall
+items can be marked as 'legal: false', and only those with permissions can buy them (can still sell)
+if encounters errors while editing a player's account, will attempt to reload iConomy
+sellall can be given "inv" as first parameter to only sell from inventory (not in quick access slots)
+shopcheck given partial name matching: "/shopcheck wool" (not "shopcheck 35") will show all colored wool prices :)
+fixed sellall bug when an item not for sale
+/shopbuystack (buystack): 	buy a stack of an item (usually 64)
+/shopbuyagain (buyagain,sba): 	repeat last buy action
+/shopsellagain (sellagain,ssa): repeat last sell action
+
+
+Version 1.5.9b - jascotty2
+width outputting in minecraft chat (for /shoplist): now can have item (or listing) right-align, left-align, or centered
+implemented transaction log and total transactions record
+no longer dependent on permissions: if missing, ops have .admin.* & everyone has .user.*
+bugs: MySQL buy & sell is decimal(6,2), limiting price to 9,999 (plus a nondescriptive error)
+	- to fix (db minecraft, table BetterShop): 
+		alter table minecraft.BetterShop change column buy buy decimal(11,2);
+		alter table minecraft.BetterShop change column sell sell decimal(11,2);
+     unkown error: MySQL connection seems to get dropped & won't connect until restart plugin
+		seems to stem from iConomy (v4.4 (Arcadia)) or v0.2 [Coelho].. i only have 4.4, but .2 is being logged
+		shopload should fix this, but iconomy will still be down.. if you have a plugin like hotswap, reload iConomy
+     not a bug, but forgot to remove: logs select statements being executed
+
+Version 1.5.8(?) - jascotty2
+( the (?) means plugin didn't report that as the version.. sorry :))
+fixed a sell error for one parameter
+major code restructure - removed data redundancy
+/ shopsell all [item] (alias to /shopsell [item] all)
+
+
+Version 1.5.7(?) - jascotty2
+/ shopsell [item] all added: sell all of an item that you have
+fixed total sell value min to .01 instead of 1 (if your server uses low prices)
+	before this fix, one could get around this check by trying to sell alot of an item
+now automatically downloads mysql dependency (zip from mysql mirror & unzip or from iConomy mirror)
+
+
+Version 1.5.5(?) - jascotty2
+Pricelist can now be in a MySQL database
+
+
+Version 1.5.4
+Fixed some lingering bugs with lologarithm's help.
+
+
+Version 1.5.3
+Fixed sell 0 < sellprice < 1 bug.
+
+
+Version 1.5.2
+Now it'll convert your old pricelist.yml to the new 1.5.x format automagically!
+
+
+Version 1.5.1
+Fixed the bug where setting a price to -1 didn't disable it
+Fixed the "LOLWTFDOESN'TWORK" bug. 
+Made price-list listing configurable in config.yml. The way it was 'sposta be.
+
+

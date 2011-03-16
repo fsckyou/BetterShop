@@ -26,7 +26,7 @@ public class MySQL {
     // DB connection
     private Connection DBconnection = null;
     private static int checkedDep = 0;
-    
+
     public MySQL() {
     }
 
@@ -46,6 +46,7 @@ public class MySQL {
     public MySQL(String database, String username) throws Exception {
         connect(database, username, "");
     }
+
 
     /**
      * Connect to a database
@@ -167,7 +168,7 @@ public class MySQL {
             }
         }
         // !f.exists()
-        
+
         // downloads jar to lib folder
         if (!InstallDependency.install()) {
 
@@ -186,25 +187,32 @@ public class MySQL {
      * @throws Exception
      */
     public final boolean connect() throws Exception {
+        if (DBconnection == null) {
+            // double-check that mysql-bin.jar exists
+            if (!checkDependency()) {
+                return false;
+            }
 
-        // double-check that mysql-bin.jar exists
-        if (!checkDependency()) {
-            return false;
+            // connect to database
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+
+            if (IsConnected()) {
+                disconnect();
+            }
+
+            DBconnection = DriverManager.getConnection(
+                    String.format("jdbc:mysql://%s:%s/%s?create=true,autoReconnect=true", sql_hostName, sql_portNum, sql_database),
+                    sql_username, sql_password);
+            // or append "user=%s&password=%s", sql_username, sql_password);
+            // create=true: create database if not already exist
+            // autoReconnect=true: should fix errors that occur if the connection times out
+        } else {
+            if (DBconnection.isClosed()) {
+                DBconnection = DriverManager.getConnection(
+                        String.format("jdbc:mysql://%s:%s/%s?create=true,autoReconnect=true", sql_hostName, sql_portNum, sql_database),
+                        sql_username, sql_password);
+            }
         }
-
-        // connect to database
-        Class.forName("com.mysql.jdbc.Driver").newInstance();
-
-        if (IsConnected()) {
-            disconnect();
-        }
-
-        DBconnection = DriverManager.getConnection(
-                String.format("jdbc:mysql://%s:%s/%s?create=true", sql_hostName, sql_portNum, sql_database),
-                sql_username, sql_password);
-        // or append "user=%s&password=%s", sql_username, sql_password);
-        // create=true: create database if not already exist
-
         return true;
     }
 
@@ -306,6 +314,19 @@ public class MySQL {
             //}
         }
         return false;
+    }
+
+    public String GetUserName(){
+        return sql_username;
+    }
+    public String GetDatabaseName(){
+        return sql_database;
+    }
+    public String GetHostName(){
+        return sql_hostName;
+    }
+    public String GetPortNum(){
+        return sql_portNum;
     }
 } // end class BSMySQL
 

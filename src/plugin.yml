@@ -1,12 +1,16 @@
 name: BetterShop
 main: com.nhksos.jjfs85.BetterShop.BetterShop
-version: 1.5.9b
-website: http://github.com/jjfs85/BetterShop
+version: 1.6.0 beta3
+website: http://github.com/jascotty2/BetterShop
 author: jjfs85, lologarithm, and jascotty2
 description: >
              BetterShop is a command-based shop for Bukkit. It uses iConomy
              for the economic backbone and requires Permissions.
 commands:
+  shop:
+    description: Check prices for an item
+    usage: /<command> [check|list|buy|sell|add|remove|[re]load|help]
+    aliases: [bettershop]
   shopcheck:
     description: Check prices for an item
     usage: /<command> [item]
@@ -15,14 +19,30 @@ commands:
     description: Lists prices for the shop
     usage: /<command> <page>
     aliases: [sl,slist]
+  shopitems:
+    description: show listing of items in shop, without prices
+    usage: /<command>
+    aliases: [sitems]
   shopbuy:
     description: Buy an item for the price in the shop
     usage: /<command> [item] [amount]
     aliases: [buy,sbuy]
+  shopbuyall:
+    description: Buy all of an item that you can hold
+    usage: /<command> [item]
+    aliases: [buyall,sbuyall]
+  shopbuystack:
+    description: Buy a stack of an item for the price in the shop
+    usage: /<command> [item]
+    aliases: [buystack,sbuystack,sbuys,buys]
   shopsell:
     description: Sell an item for the price in the shop
     usage: /<command> [item] <amount>
     aliases: [sell,ssell]
+  shopsellall:
+    description: Sell all of item from your inventory
+    usage: /<command> [item]
+    aliases: [sellall]
   shopadd:
     description: Add an item to or update an item in the price list
     usage: /<command> [item] [buy-price] [sell-price]
@@ -39,3 +59,15 @@ commands:
     description: Lists available commands
     usage: /<command>
     aliases: [shelp]
+  shoplistkits:
+    description: Lists available kits
+    usage: /<command> <page>
+    aliases: [shopkits,skits]
+  shopbuyagain:
+    description: repeat last purchase
+    usage: /<command>
+    aliases: [sbuyagain, buyagain, sba]
+  shopsellagain:
+    description: repeat last sale
+    usage: /<command>
+    aliases: [ssellagain, sellagain, ssa]

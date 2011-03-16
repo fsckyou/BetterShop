@@ -1,0 +1,1059 @@
+#craft syntax: itemID[:subData][@numUsed][+otheritems][=amount][,another recipe... ]
+#kits are similar, but without the + or =
+#colors are used when outputtung the item name (overrides coloring in listing)
+items:
+    item0:
+        name: air
+        aliases:
+        legal: false
+    item1:
+        name: stone
+        aliases:
+        craft: 4@8+263=8, 4@3+5@2=3
+        color:
+    item2:
+        name: grass
+        aliases:
+        legal: false
+    item3:
+        name: dirt
+        aliases:
+    item4:
+        name: cobblestone
+        aliases: cobble
+    item5:
+        name: wood
+        aliases: plank
+        craft: 17=4
+    item6:
+        name: sapling
+        aliases:
+    item7:
+        name: bedrock
+        aliases: adminium
+        legal: false
+    item8:
+        name: water
+        aliases:
+        legal: false
+    item9:
+        name: stationarywater
+        aliases: swater
+        legal: false
+    item10:
+        name: lava
+        aliases:
+        legal: false
+    item11:
+        name: stationarylava
+        aliases: slava
+        legal: false
+    item12:
+        name: sand
+        aliases:
+    item13:
+        name: gravel
+        aliases:
+    item14:
+        name: goldore
+        aliases: gore
+    item15:
+        name: ironore
+        aliases: iore
+    item16:
+        name: coalore
+        aliases: core
+        legal: false
+    item17:
+        name: log
+        aliases: trunk
+    item17sub1:
+        name: redwood
+        aliases: redlog
+    item17sub2:
+        name: birch
+        aliases: whitelog
+    item18:
+        name: leaves
+        aliases:
+        legal: false
+    item19:
+        name: sponge
+        aliases:
+        legal: false
+    item20:
+        name: glass
+        aliases:
+        craft: 12@8+263=8, 12@3+5@2=3
+    item21:
+        name: lapislazuliore
+        aliases: lapisore, lore
+        legal: false
+    item22:
+        name: lapislazuliblock
+        aliases: lapisblock, lblock
+        craft: 351:11@9
+        color: blue
+    item23:
+        name: dispenser
+        aliases:
+        craft: 4@7+331+261
+    item24:
+        name: sandstone
+        aliases: sstone
+        craft: 12@4
+    item25:
+        name: noteblock
+        aliases: musicblock, nblock, mblock
+        craft: 5@8+331
+    item26:
+        name: bedblock
+        aliases:
+        legal: false
+    item35sub0:
+        name: whitewool
+        aliases: cloth, whitecloth, whitewool, wool
+        sub: white, w
+        craft: 287@9
+        color: white
+    item35sub1:
+        name: orangewool
+        aliases: orangecloth
+        sub: orange, o
+        craft: 35+351:1
+        color: orange
+    item35sub2:
+        name: magentawool
+        aliases: magentacloth
+        sub: magenta, m
+        craft: 35+351:2
+        color: magenta
+    item35sub3:
+        name: lightbluewool
+        aliases: lightbluecloth, lbluewool, lbluecloth
+        sub: lightblue, lblue, lb
+        craft: 35+351:3
+        color: light blue
+    item35sub4:
+        name: yellowwool
+        aliases: yellowcloth
+        sub: yellow, y
+        craft: 35+351:4
+        color: yellow
+    item35sub5:
+        name: lightgreenwool
+        aliases: lightgreencloth, limewool, limecloth, limegreenwool, limegreencloth
+        sub: lightgreen, lgreen, lg
+        craft: 35+351:5
+        color: lime
+    item35sub6:
+        name: pinkwool
+        aliases: pinkcloth
+        sub: pink, pn
+        craft: 35+351:6
+        color: pink
+    item35sub7:
+        name: darkgraywool
+        aliases: darkgreywool, graywool, greywool, darkgraycloth, darkgreycloth, graycloth, greycloth
+        sub: darkgray, dgray, darkgrey, dgrey, dg
+        craft: 35+351:7
+        color: gray
+    item35sub8:
+        name: lightgraywool
+        aliases: lightgreywool, lightgraycloth, lightgreycloth
+        sub: lightgray, lgray, lightgrey, lgrey lg
+        craft: 35+351:8
+        color: light gray
+    item35sub9:
+        name: cyanwool
+        aliases: tealwool, cyancloth, tealcloth
+        sub: cyan, teal, c, t
+        craft: 35+351:9
+        color: cyan
+    item35sub10:
+        name: purplewool
+        aliases: purplecloth
+        sub: purple, pu
+        craft: 35+351:10
+        color: magenta
+    item35sub11:
+        name: bluewool
+        aliases: bluecloth
+        sub: blue, blu
+        craft: 35+351:11
+        color: blue
+    item35sub12:
+        name: brownwool
+        aliases: browncloth
+        sub: brown, br
+        craft: 35+351:12
+        color: gray
+    item35sub13:
+        name: darkgreenwool
+        aliases: darkgreencloth, greenwool, greencloth
+        sub: darkgreen, dgreen, dgr
+        craft: 35+351:13
+        color: green
+    item35sub14:
+        name: redwool
+        aliases: redcloth
+        sub: red, r
+        craft: 35+351:14
+        color: red
+    item35sub15:
+        name: blackwool
+        aliases: blackcloth
+        sub: black
+        craft: 35+351:15
+        color: black
+    item37:
+        name: yellowflower
+        aliases: yflower, flower
+        color: yellow
+    item38:
+        name: redrose
+        aliases: rrose, rose, redflower, rflower
+        color: red
+    item39:
+        name: brownmushroom
+        aliases: brownmush, bmushroom, bmush
+    item40:
+        name: redmushroom
+        aliases: redmush, rmushroom, rmush
+    item41:
+        name: goldblock
+        aliases: gblock
+        craft: 266@9
+    item42:
+        name: ironblock
+        aliases: iblock
+        craft: 265@9
+    item43:
+        name: doublestep
+        aliases: dstep, doubleslab, dslab
+        craft: 44@2
+        legal: false
+    item43sub1:
+        name: sanddoublestep
+        aliases: sandstonedoublestep, sdoublestep, sstonedoublestep, sanddoubleslab, sdslab, sdstep
+        craft: 44:1@2
+        legal: false
+    item43sub2:
+        name: wooddoublestep
+        aliases: wdoublestep, wooddoubleslab, wdstep, wdslab
+        craft: 44:2@2
+        legal: false
+    item43sub3:
+        name: cobblestonedoublestep
+        aliases: cstonedoublestep, cdoublestep, cobbledoublestoneslab, cobbledoubleslab, cdstep, cdslab
+        craft: 44:3@2
+    item44:
+        name: step
+        aliases: slab, halfstep
+        craft: 1@3
+    item44sub1:
+        name: sandstep
+        aliases: sandstonestep, sstep, sstonestep, sandslab
+        craft: 24@3
+    item44sub2:
+        name: woodstep
+        aliases: wstep, woodslab
+        craft: 5@3
+    item44sub3:
+        name: cobblestonestep
+        aliases: cstonestep, cstep, cobblestoneslab, cobbleslab
+        craft: 4@3
+    item45:
+        name: brickblock
+        aliases: bblock
+        craft: 336@4
+    item46:
+        name: tnt
+        aliases: dynamite, dynomite
+        craft: 12@4+289@5
+    item47:
+        name: bookshelf
+        aliases: bookblock
+        craft: 5@6+340@3
+    item48:
+        name: mossycobblestone
+        aliases: mossycobble, mosscobble, mcobble, mosstone, mossstone
+    item49:
+        name: obsidian
+        aliases: obsi, obby
+    item50:
+        name: torch
+        aliases:
+        craft: 280+263=4
+    item51:
+        name: fire
+        aliases:
+        legal: false
+    item52:
+        name: mobspawner
+        aliases: monsterspawner, spawner
+        legal: false
+    item53:
+        name: woodenstairs
+        aliases: woodstairs, wstairs
+        craft: 5@6=4
+    item54:
+        name: chest
+        aliases:
+        craft: 5@8
+    item55:
+        name: redstonewire
+        aliases: redwire, rswire
+        legal: false
+    item56:
+        name: diamondore
+        aliases: dore
+        legal: false
+    item57:
+        name: diamondblock
+        aliases: dblock
+        craft: 264@9
+    item58:
+        name: workbench
+        aliases: wbench, workb
+        craft: 5@4
+    item59:
+        name: crops
+        aliases: crop
+        legal: false
+    item60:
+        name: soil
+        aliases:
+        legal: false
+    item61:
+        name: furnace
+        aliases:
+        craft: 4@8
+    item62:
+        name: burningfurnace
+        aliases: bfurnace
+        legal: false
+    item63:
+        name: signpost
+        aliases:
+        legal: false
+    item64:
+        name: woodendoorhalf
+        aliases: wooddoorhalf, wdoorhalf
+        legal: false
+    item65:
+        name: ladder
+        aliases:
+        craft: 280@7
+    item66:
+        name: minecarttrack
+        aliases: minecartrail, track, rail
+        craft: 265@6+280=16
+    item67:
+        name: cobblestonestairs
+        aliases: stonestairs, cobblestairs, sstairs, cstairs
+        craft: 4@6
+    item68:
+        name: wallsign
+        aliases:
+        legal: false
+    item69:
+        name: lever
+        aliases:
+        craft: 4+280
+    item70:
+        name: stonepressureplate
+        aliases: stoneplate, splate
+        craft: 1@2
+    item71:
+        name: irondoorhalf
+        aliases: idoorhalf
+        legal: false
+    item72:
+        name: woodenpressureplate
+        aliases: woodenplate, woodplate, wplate
+        craft: 5@2
+    item73:
+        name: redstoneore
+        aliases: rsore
+        legal: false
+    item74:
+        name: glowingredstoneore
+        aliases: gredstoneore, glowingrsore, grsore
+        legal: false
+    item75:
+        name: redstonetorchoff
+        aliases: redtorchoff, rstorchoff
+        legal: false
+    item76:
+        name: redstonetorch
+        aliases: redstonetorchon, redtorchon, redtorch, rstorchon, rstorch
+        craft: 280+331
+    item77:
+        name: stonebutton
+        aliases: sbutton, button
+        craft: 1@2
+    item78:
+        name: snowcovering
+        aliases: snowcover
+        legal: false
+    item79:
+        name: ice
+        aliases:
+        legal: false
+    item80:
+        name: snowblock
+        aliases: sblock
+    item81:
+        name: cactus
+        aliases:
+    item82:
+        name: clayblock
+        aliases: cblock
+        craft: 337@4
+    item83:
+        name: sugarcaneblock
+        aliases: reedblock, rblock, scblock
+        legal: false
+    item84:
+        name: jukebox
+        aliases: jbox
+        craft: 5@8+264
+    item85:
+        name: fence
+        aliases:
+        craft: 280@6
+    item86:
+        name: pumpkin
+        aliases:
+    item87:
+        name: netherack
+        aliases: netherstone, hellstone, nstone, hstone
+    item88:
+        name: soulsand
+        aliases: slowsand, slowmud, ssand, smud, mud
+    item89:
+        name: glowstone
+        aliases: lightstone, lstone
+        craft: 348@9
+    item90:
+        name: portal
+        aliases:
+        legal: false
+    item91:
+        name: jackolantern
+        aliases: pumpkinlantern, glowingpumpkin, lightpumpkin
+    item92:
+        name: cakeblock
+        aliases:
+        legal: false
+    item93:
+        name: repeaterblockoff
+        aliases:
+        legal: false
+    item94:
+        name: repeaterblockon
+        aliases:
+        legal: false
+# items
+    item256:
+        name: ironshovel
+        aliases: ironspade, ishovel, ispade
+        craft: 280@2+265
+        maxstack: 1
+        maxdamage: 251
+    item257:
+        name: ironpickaxe
+        aliases: ironpick, ipickaxe, ipick
+        craft: 280@2+265@3
+        maxstack: 1
+        maxdamage: 251
+    item258:
+        name: ironaxe
+        aliases: iaxe
+        craft: 280@2+265@3
+        maxstack: 1
+        maxdamage: 251
+    item259:
+        name: flintandsteel
+        aliases: lighter
+        craft: 318+265
+        maxstack: 1
+        maxdamage: 65
+    item260:
+        name: apple
+        aliases:
+        maxstack: 1
+    item261:
+        name: bow
+        aliases:
+        craft: 280@3+287@3
+        maxstack: 1
+    item262:
+        name: arrow
+        aliases:
+        craft: 280+318+288
+    item263:
+        name: coal
+        aliases:
+    item264:
+        name: diamond
+        aliases:
+    item265:
+        name: ironingot
+        aliases: ironbar, iingot, ibar
+        craft: 15@8+263=8, 15@3+5@2=3
+    item266:
+        name: goldingot
+        aliases: goldbar, gingot, gbar
+        craft: 14@8+263=8, 14@3+5@2=3
+    item267:
+        name: ironsword
+        aliases: isword
+        craft: 280+265@2
+        maxstack: 1
+        maxdamage: 251
+    item268:
+        name: woodensword
+        aliases: woodsword, wsword
+        craft: 280+5@2
+        maxstack: 1
+        maxdamage: 60
+    item269:
+        name: woodenshovel
+        aliases: woodenspade, woodshovel, woodspade, wshovel, wspade
+        craft: 280@2+5
+        maxstack: 1
+        maxdamage: 60
+    item270:
+        name: woodenpickaxe
+        aliases: woodenpick, woodpickaxe, woodpick, wpickaxe, wpick
+        craft: 280@2+5@3
+        maxstack: 1
+        maxdamage: 60
+    item271:
+        name: woodenaxe
+        aliases: woodaxe, waxe
+        craft: 280@2+5@3
+        maxstack: 1
+        maxdamage: 60
+    item272:
+        name: stonesword
+        aliases: ssword
+        craft: 280+5@2
+        maxstack: 1
+        maxdamage: 132
+    item273:
+        name: stoneshovel
+        aliases: stonespade, sshovel, sspade
+        craft: 280@2+4
+        maxstack: 1
+        maxdamage: 132
+    item274:
+        name: stonepickaxe
+        aliases: stonepick, spickaxe, spick
+        craft: 280@2+4@3
+        maxstack: 1
+        maxdamage: 132
+    item275:
+        name: stoneaxe
+        aliases: saxe
+        craft: 280@2+4@3
+        maxstack: 1
+        maxdamage: 132
+    item276:
+        name: diamondsword
+        aliases: dsword
+        craft: 280+264@2
+        maxstack: 1
+        maxdamage: 1562
+    item277:
+        name: diamondshovel
+        aliases: diamondspade, dshovel, dspade
+        craft: 280@2+264
+        maxstack: 1
+        maxdamage: 1562
+    item278:
+        name: diamondpickaxe
+        aliases: diamondpick, dpickaxe, dpick
+        craft: 280@2+264@3
+        maxstack: 1
+        maxdamage: 1562
+    item279:
+        name: diamondaxe
+        aliases: daxe
+        craft: 280@2+264@3
+        maxstack: 1
+        maxdamage: 1562
+    item280:
+        name: stick
+        aliases:
+        craft: 5@2=4
+    item281:
+        name: bowl
+        aliases:
+        craft: 5@3=4
+    item282:
+        name: mushroomsoup
+        aliases: mrsoup, soup
+        craft: 281+39+40
+    item283:
+        name: goldsword
+        aliases: gsword
+        craft: 280+266@2
+        maxdamage: 33
+        maxstack: 1
+    item284:
+        name: goldshovel
+        aliases: goldspade, gshovel, gspade
+        craft: 280@2+266
+        maxdamage: 33
+        maxstack: 1
+    item285:
+        name: goldpickaxe
+        aliases: goldpick, gpickaxe, gpick
+        craft: 280@2+266@3
+        maxdamage: 33
+        maxstack: 1
+    item286:
+        name: goldaxe
+        aliases: gaxe
+        craft: 280@2+266@3
+        maxdamage: 33
+        maxstack: 1
+    item287:
+        name: string
+        aliases: rope
+    item288:
+        name: feather
+        aliases:
+    item289:
+        name: gunpowder
+        aliases: sulpher
+    item290:
+        name: woodenhoe
+        aliases: woodhoe, whoe
+        craft: 280@2+5@2
+        maxdamage: 60
+        maxstack: 1
+    item291:
+        name: stonehoe
+        aliases: shoe
+        maxdamage: 132
+        maxstack: 1
+    item292:
+        name: ironhoe
+        aliases: ihoe
+        maxstack: 1
+        maxdamage: 251
+    item293:
+        name: diamondhoe
+        aliases: dhoe
+        maxdamage: 1562
+        maxstack: 1
+    item294:
+        name: goldhoe
+        aliases: ghoe
+        maxdamage: 33
+        maxstack: 1
+    item295:
+        name: seeds
+        aliases: seed
+    item296:
+        name: wheat
+        aliases:
+    item297:
+        name: bread
+        aliases:
+        craft: 296@3
+        maxstack: 1
+    item298:
+        name: leatherhelmet
+        aliases: leatherhelm, leatherhat, lhelmet, lhelm, lhat
+        craft: 334@5
+        maxstack: 1
+    item299:
+        name: leatherchestplate
+        aliases: leatherplatebody, leathershirt, lchestplate, lplatebody, lshirt
+        craft: 334@8
+        maxstack: 1
+    item300:
+        name: leatherleggings
+        aliases: leatherpants, lleggings, lpants
+        craft: 334@7
+        maxstack: 1
+    item301:
+        name: leatherboots
+        aliases: leathershoes, lboots, lshoes
+        craft: 334@4
+        maxstack: 1
+    #chainmail is currently illegal, but should be added later..
+    item302:
+        name: chainmailhelmet
+        aliases: chainmailhelm, chainmailhat, cmhelmet, cmhelm, cmhat
+        maxstack: 1
+    item303:
+        name: chainmailchestplate
+        aliases: chainmailplatebody, chainmailshirt, cmchestplate, cmplatebody, cmshirt
+        maxstack: 1
+    item304:
+        name: chainmailleggings
+        aliases: chainmailpants, cmleggings, cmpants
+        maxstack: 1
+    item305:
+        name: chainmailboots
+        aliases: chainmailshoes, cmboots, cmshoes
+        maxstack: 1
+    item306:
+        name: ironhelmet
+        aliases: ironhelm, ironhat, ihelmet, ihelm, ihat
+        craft: 265@5
+        maxstack: 1
+    item307:
+        name: ironchestplate
+        aliases: ironplatebody, ironshirt, ichestplate, iplatebody, ishirt
+        craft: 265@8
+        maxstack: 1
+    item308:
+        name: ironleggings
+        aliases: ironpants, ileggings, ipants
+        craft: 265@7
+        maxstack: 1
+    item309:
+        name: ironboots
+        aliases: ironshoes, iboots, ishoes
+        craft: 265@4
+        maxstack: 1
+    item310:
+        name: diamondhelmet
+        aliases: diamondhelm, diamondhat, dhelmet, dhelm, dhat
+        craft: 265@5
+        maxstack: 1
+    item311:
+        name: diamondchestplate
+        aliases: diamondplatebody, diamondshirt, dchestplate, dplatebody, dshirt
+        craft: 265@8
+        maxstack: 1
+    item312:
+        name: diamondleggings
+        aliases: diamondpants, dleggings, dpants
+        craft: 265@7
+        maxstack: 1
+    item313:
+        name: diamondboots
+        aliases: diamondshoes, dboots, dshoes
+        craft: 265@4
+        maxstack: 1
+    item314:
+        name: goldhelmet
+        aliases: goldhelm, goldhat, ghelmet, ghelm, ghat
+        craft: 265@5
+        maxstack: 1
+    item315:
+        name: goldchestplate
+        aliases: goldplatebody, goldshirt, gchestplate, gplatebody, gshirt
+        craft: 265@8
+        maxstack: 1
+    item316:
+        name: goldleggings
+        aliases: goldpants, gleggings, gpants
+        craft: 265@7
+        maxstack: 1
+    item317:
+        name: goldboots
+        aliases: goldshoes, gboots, gshoes
+        craft: 265@4
+        maxstack: 1
+    item318:
+        name: flint
+        aliases:
+    item319:
+        name: pork
+        aliases: rawpork
+        maxstack: 1
+    item320:
+        name: grilledpork
+        aliases: cookedpork, bacon
+        #purposely less than perfect conversion
+        craft: 319@6+263=6
+        maxstack: 1
+    item321:
+        name: painting
+        aliases: picture
+        craft: 280@8+15
+    item322:
+        name: goldenapple
+        aliases: goldapple, gapple
+        craft: 260+41@8
+        maxstack: 1
+    item323:
+        name: sign
+        aliases:
+        craft: 280+5@6
+        maxstack: 1
+    item324:
+        name: woodendoor
+        aliases: wooddoor, wdoor
+        craft: 5@6
+        maxstack: 1
+    item325:
+        name: bucket
+        aliases:
+        craft: 265@3
+        maxstack: 1
+    item326:
+        name: waterbucket
+        aliases: wbucket
+        maxstack: 1
+    item327:
+        name: lavabucket
+        aliases: lbucket
+        maxstack: 1
+    item328:
+        name: minecart
+        aliases: cart
+        craft: 265@5
+        maxstack: 1
+    item329:
+        name: saddle
+        aliases:
+        maxstack: 1
+    item330:
+        name: irondoor
+        aliases: idoor
+        craft: 265@6
+        maxstack: 1
+    item331:
+        name: redstone
+        aliases:
+    item332:
+        name: snowball
+        aliases: sb, snowballs
+        maxstack: 16
+    item333:
+        name: boat
+        aliases:
+        craft: 5@5
+        maxstack: 1
+    item334:
+        name: leather
+        aliases:
+    item335:
+        name: milkbucket
+        aliases: mbucket
+        maxstack: 1
+    item336:
+        name: claybrick
+        aliases: brick
+        craft: 337@8+263=8, 337@3+5@2=3
+    item337:
+        name: clayball
+        aliases: clay
+    item338:
+        name: sugarcane
+        aliases: reed, reeds
+    item339:
+        name: paper
+        aliases: papyrus
+        craft: 338@3=3
+    item340:
+        name: book
+        aliases:
+        craft: 339@3
+    item341:
+        name: slimeball
+        aliases: sball
+    item342:
+        name: storageminecart
+        aliases: chestminecart, storagecart, chestcart, sminecart, cminecart, scart, ccart
+        craft: 328+54
+        maxstack: 1
+    item343:
+        name: poweredminecart
+        aliases: furnaceminecart, poweredcart, furnacecart, pminecart, fminecart, pcart, fcart
+        craft: 328+61
+        maxstack: 1
+    item344:
+        name: egg
+        aliases:
+        maxstack: 16
+    item345:
+        name: compass
+        aliases:
+        craft: 265@4+331
+    item346:
+        name: fishingrod
+        aliases: rod
+        craft: 280@3+287@2
+        maxstack: 1
+    item347:
+        name: clock
+        aliases: watch
+        craft: 266@4+331
+    item348:
+        name: lightstonedust
+        aliases: glowstonedust, lsdust, gsdust
+    item349:
+        name: rawfish
+        aliases:
+        maxstack: 1
+    item350:
+        name: cookedfish
+        aliases:
+        #purposely less than perfect conversion
+        craft: 349@6+263=6
+        maxstack: 1
+    item351sub0:
+        name: blackdye
+        aliases: inksack, bdye, dye
+        sub: black
+        color: black
+    item351sub1:
+        name: reddye
+        aliases:
+        sub: red
+        craft: 38=2
+        color: red
+    item351sub2:
+        name: greendye
+        aliases:
+        sub: green
+        craft: 81@8+263=8, 81@3+5@2=3
+        color: green
+    item351sub3:
+        name: browndye
+        aliases:
+        sub: brown
+        color: gray
+    item351sub4:
+        name: bluedye
+        aliases: lapislazuli
+        sub: blue
+        craft: 22=9
+        color: blue
+    item351sub5:
+        name: purpledye
+        aliases:
+        sub: purple
+        # blue + red
+        craft: 351:4+351:1=2
+        color: magenta
+    item351sub6:
+        name: cyandye
+        aliases: tealdye
+        sub: cyan, teal
+        # blue + green
+        craft: 351:4+351:2=2
+        color: cyan
+    item351sub7:
+        name: lightgraydye
+        aliases: lightgreydye
+        sub: lightgrey, lightgray
+        # grey+white
+        craft: 351:8+351:15=2
+        color: light gray
+    item351sub8:
+        name: graydye
+        aliases: greydye
+        sub: grey, gray
+        # black+white
+        craft: 351:15+351=2
+        color: gray
+    item351sub9:
+        name: pinkdye
+        aliases:
+        sub: pink
+        # red + white
+        craft: 351:1+351=2
+        color: pink
+    item351sub10:
+        name: limedye
+        aliases: lightgreendye
+        sub: lime, limegreen
+        # green + white
+        craft: 351:2+351:15=2
+        color: lime
+    item351sub11:
+        name: yellowdye
+        aliases:
+        sub: yellow
+        craft: 37=2
+        color: yellow
+    item351sub12:
+        name: lightbluedye
+        aliases:
+        sub: lightblue
+        # blue + white
+        craft: 351:4+351:15=2
+        color: sky blue
+    item351sub13:
+        name: magentadye
+        aliases:
+        sub: magenta
+        # purple + pink
+        craft: 351:4+351:9=2
+        color: magenta
+    item351sub14:
+        name: orangedye
+        aliases:
+        sub: orange
+        # red + yellow
+        craft: 351:1+351:11=2
+        color: orange
+    item351sub15:
+        name: bonemeal
+        aliases: whitedye
+        sub: white
+        craft: 352=2
+        color: white
+    item352:
+        name: bone
+        aliases:
+    item353:
+        name: sugar
+        aliases:
+        craft: 338
+    item354:
+        name: cake
+        aliases:
+        craft: 335@3+353@2+344+296@3
+        maxstack: 1
+    item355:
+        name: bed
+        aliases: cot
+        craft: 5@3+35@3
+        maxstack: 1
+    item356:
+        name: redstonerepeater
+        aliases: repeater, redstoneextender, extender
+        craft: 1@3+76@2+331
+    item2256:
+        name: goldrecord
+        aliases: golddisk, grecord, gdisk
+        color: gold
+        maxstack: 1
+    item2257:
+        name: greenrecord
+        aliases: greendisk, grrecord, grdisk
+        color: green
+        maxstack: 1
+
+#kits can be added here (must be numbered, stating at 1)
+# kits can be bought, not sold
+#numbering must be unique if the item has been added to a pricelist..
+#     changing the kit number would also render the pricelist entry invalid or to the wrong kit
+kits:
+    kit1:
+        name: diamondarmor
+        aliases: darmor
+        items: 310, 311, 312, 313
+        color: light blue
+    kit2:
+        name: painter
+        aliases: dyes
+        items: 351@5, 351:1@5, 351:2@5, 351:3@5, 351:4@5, 351:5@5, 351:6@5, 351:7@5, 351:8@5, 351:9@5, 351:10@5, 351:11@5, 351:12@5, 351:13@5, 351:14@5, 351:15@5
+    kit3:
+        name: rareitems
+        aliases:
+        items: diamond@10, lapis@20
+

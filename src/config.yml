@@ -1,14 +1,20 @@
 ## BetterShop Configuration file ##
 ################################### 
 
+# number of lines outputted in shop list
 ItemsPerPage: 9
+# broadcast all transactions publicly?
+publicmarket: false
+
+# what to use for tablename
+tablename: BetterShop
+
+#use MySQL for pricelist?
 useMySQLPricelist: false
 
 MySQL:
     # database to use in MySQL
     database: minecraft
-    # what to use for tablename
-    tablename: BetterShop
     # MySQL Login Username
     username: root
     # MySQL Login Password
@@ -17,7 +23,19 @@ MySQL:
     Hostname: localhost
     # MySQL Connection Port Number
     Port: 3306
-#logs not yet implemented..
+    # db caching not yet implemented..
+    cache: true
+    # max lifespan of a list cache
+    #   positive integer values only, units being s(econds) m(inutes) h(hours) d(ays) w(eeks) M(onths) (default: h)
+    #   0 = never update cache (use if you won't be editing the database outside of the plugin)
+    #   if you don't want to have caching, you shoud still enable it & set this to something low, like 25 seconds
+    cacheUpdate: 0
+    # if false, will disconnect from db when now using it (use if have a high cacheUpdate)
+    persistentMySQL: true
+    # if cache is disabled, will hold a temp cache of the last item looked up
+    #   (to lower database lookups & increase performance)
+    #   use this to change how long it is considered current (seconds)
+    tempCacheTTL: 10
 # section for logging transactions (future can be used to make a dynamic market)
 #todo: add flatfile compatability
 transactionLog:
@@ -25,7 +43,7 @@ transactionLog:
     # what to use for transaction log tablename (or flatfile flename)
     logtablename: BetterShopMarketActivity
     # max lifespan of an individual record
-    #   integer values only, units being m(inutes) h(hours) d(ays) w(eeks) M(onths) (default: h)
+    #   positive integer values only, units being m(inutes) h(hours) d(ays) w(eeks) M(onths) (default: h)
     #   recommend not going too high, since the db could get pretty large
     #   (older records are removed when adding new ones)
     userTansactionLifespan: 2d
@@ -33,6 +51,28 @@ transactionLog:
 totalsTransactionLog:
     enabled: false
     logtablename: BetterShopTransactionTotals
+
+# if a user has an applicable discount, will also discount items crafted using discount
+dynamicDiscount: true
+
+dynamicMarket:
+    # dynamic pricing not yet implemented..
+    # when it is, will require transactionLog.enabled: true
+    enabled: false
+    #if a price is not set on a craftable item, can still sell if the materials to make are for sale
+    # this is in effect even if dynamic market pricing is disabled
+    sellcraftables: true
+    # if sellcraftables, how much % more a crafted item costs than the materials
+    #     (sell prices also reduced by this amount)
+    sellcraftableMarkup: 5
+    # if sellcraftables, if colored wool should sell for less than sellcraftableMarkup
+    #   (otherwise, a player could buy dye, color a sheep, get 1-3 colored wool, make profit)
+    woolsellweight: true
+
+#items listed here will be sorted before everything else, in this order
+# ex:  4, 35, 35:1, 35:2, 35:3, 35:4, 35:5, 8, 2
+# (can also use item names)
+customsort:
 
 ##########################################
 # strings section: Text used in messages #
@@ -48,9 +88,11 @@ strings:
 # 
 #   For example, in the notforsale string, <item> is used to 
 # represent the item that the user is trying to buy but can't.
+# whenever using <item>, will output using a custom color is one is set for the item, 
+# so it's a good idea to put a color formatting afterwards
 # In this file the default for that line is:
 # 
-#   notforsale: "&f[<item>] &2is not for sale."
+#   notforsale: "&f[<item>&f] &2is not for sale."
 #
 # In game, trying to buy wood while it's not in the shop would result
 # in seeing this message:
@@ -72,13 +114,15 @@ strings:
 #       &7 is light grey
 #       &8 is dark grey
 #       &9 is medium blue
-#       &2 is light green
+#       &a is light green
 #       &b is cyan
 #       &c is orange-red
 #       &d is pink
 #       &e is yellow
 #       &f is white
 #
+# note on <item>: if you have custom item colors (there are some included)
+#    you should have a default color after lising the item
 #  Get it? Good. Now have fun.
 
 
@@ -87,13 +131,13 @@ strings:
 # general messages
 ####
 
-    prefix: "&fSHOP&2: "
+    prefix: "&fSHOP: &2"
     # prefix is what comes before each and EVERY BetterShop message. Putting default colors here makes things easy.
 
     permdeny: "OI! You don't have permission to do that!"
     # permdeny is the permission denied message. The key <perm> can be used to show the permission node that was checked.
 
-    unkitem: "What the frack is &f<item>&2?"
+    unkitem: "What is &f<item>&2?"
     # unkitem is the unknown item message.
     
     nicetry: "...Nice try!"
@@ -103,37 +147,60 @@ strings:
 # shopadd messages
 ####
 
-    paramerror: "Oops... something wasn't right there."
     # paramerror indicates a syntax error when trying to add an item to the shop.
+    paramerror: "Oops... something wasn't right there."
     
-    addmsg: "&f[<item>]&2 added to the shop. Buy: &f<buyprice>&2 Sell: &f<sellprice>"
-    # addmsg confirms a successful addition to the shop. You can also use <curr> here.
+    # confirms a successful addition to the shop.
+    # <item> - what was added
+    # <buyprice> - current buy cost
+    # <sellprice> - current sell value
+    # <curr> - iConomy currency
+    # <buycur> - formatted buy cost (like "1,800 Coins" instead of "1800 Coin")
+    # <sellcur> - formatted sell value
+    addmsg: "&f[<item>&f]&2 added to the shop. Buy: &f<buyprice>&2 Sell: &f<sellprice>"
 
     #when item is changed
-    chgmsg: "&f[<item>]&2 updated. Buy: &f<buyprice>&2 Sell: &f<sellprice>"
+    # <item> - what was changed
+    # <buyprice> - updated buy cost
+    # <sellprice> - updated sell value
+    # <curr> - iConomy currency
+    # <buycur> - formatted buy cost 
+    # <sellcur> - formatted sell value
+    chgmsg: "&f[<item>&f]&2 updated. Buy: &f<buyprice>&2 Sell: &f<sellprice>"
 #
 # shopremove messages
 ####
 
-    removemsg: "&f[<item>]&2 removed from the shop"
-    # removemsg confirms a successful removal from the shop.       
+    # confirms a successful removal from the shop.  
+    # <item> - what was removed
+    removemsg: "&f[<item>&f]&2 removed from the shop"    
      
 #
 # shopcheck messages
 ####
 
-    pricecheck: "Price check! &f[<item>]&2 Buy: &f<buyprice> &2Sell: &f<sellprice>"
-    # pricecheck is what shows up when a player asks for a /shopcheck. You can also use the <curr> key here.
+    # pricecheck is what shows up when a player asks for a item lookup
+    # <item> - what was looked up
+    # <buyprice> - current buy cost
+    # <sellprice> - current sell value
+    # <curr> - iConomy currency
+    # <max> - how much they can buy
+    # <buycur> - formatted buy cost (like "1,800 Coins" instead of "1800 Coin")
+    # <sellcur> - formatted sell value
+    pricecheck: "Price check! &f[<item>&f]&2 Buy: &f<buyprice> &2Sell: &f<sellprice>"
     
-    nolisting: "&f[<item>] &2cannot be bought or sold."
-    # nolisting is the message that the item is neither for sale nor can be sold.
+    # message that the item is neither for sale nor can be sold.
+    # <item> - what user is looking up
+    nolisting: "&f[<item>&f] &2cannot be bought or sold."
 
 #
 # shoplist messages
 ####
 
+    # top of a shop listing page (blank for none (not recommended))
+    # <page> - current list page
+    # <pages> - total # of pages
     listhead: "-------- Price-List Page: &f<page> &2of &f<pages> &2--------"
-    # listhead is the top of a /shoplist page.
 
     # price listing message
     # <item> - what was looked up
@@ -144,39 +211,89 @@ strings:
     # using <l> will attempt to left-align preceeding text
     # using <c> will attempt to center (all) preceeding text
     # <r>,  <l>,  &  <c> will accept replacement chars: <r.> will right-align using . as spacer
-    listing: "&f[<item>]&2 <l> Buy: &f<buyprice>&2   Sell: &f<sellprice>"
+    listing: "&f[<item>&f]&2 <l> Buy: &f<buyprice>&2   Sell: &f<sellprice>"
 
+    # bottom of market list page (blank for none)
     listtail: "-----------------------------------------"
-    # listtail is the end of a /shoplist page.
 
 #
 # shopbuy messages
 ####
-    
-    buymsg: "Buying &f<amt> &2<item> at &f<priceper> &2<curr> each... &f<total> &2<curr> total!"
-    # buymsg is the message shown when successfully buying
-    
-    outofroom: "You bought &f<leftover>&2 too much &f<item>&2. Refunding &f<refund> <curr>&2."
-    # outofroom is displayed when someone tries to buy more than they can carry. An additional key you can
-    # use here is <priceper>
-    
-    insuffunds: "You don't have &f<total> &2<curr>!"
-    # insuffunds is displayed when someone tries to buy more than they can afford. Additional keys you can
-    # use here are <priceper>, <item>, and <amt>.
-    
-    notforsale: "&f[<item>] &2is not for sale."
-    # notforsale is the item not for sale message.
 
+    # the message shown when successfully buying
+    # <amt> - how much bought
+    # <item> - what was bought
+    # <priceper> - current buy cost
+    # <total> - total paid
+    # <curr> - iConomy currency
+    # <totcur> - formatted total (like "1,800 Coins" instead of "1800 Coin")
+    buymsg: "Buying &f<amt> &2<item>&2 at &f<priceper> &2<curr> each... &f<total> &2<curr> total!"
+    
+    #public message is like buymsg, but shown to everyone (if enabled)
+    # <player> - who bought from the store
+    # <amt> - how much bought
+    # <item> - what was bought
+    # <priceper> - current buy cost
+    # <total> - total paid
+    # <curr> - iConomy currency
+    # <totcur> - formatted total (like "1,800 Coins" instead of "1800 Coin")
+    publicbuymsg: "<player> bought &f<amt> &2<item>&2 for &f<totcur>"
+    
+
+    # outofroom is displayed when someone tries to buy more items than they can carry.
+    # <amt> - how much tried to buy
+    # <item> - what tried to buy
+    # <leftover> - how much can't fit into inventory
+    # <free> - how much they can buy
+    # (will then continue to buy <free>)
+    outofroom: "You tried to buy &f<leftover>&2 too many.. you can only hold <free> <item>&2 more"
+
+    # when someone tries to buy more than they can afford.
+    # <amt> - how much tried to buy
+    # <item> - what tried to buy
+    # <priceper> - current buy cost
+    # <total> - total owed
+    # <max> - how much they can buy
+    # <curr> - iConomy currency
+    # <totcur> - formatted total (like "1,800 Coins" instead of "1800 Coin")
+    insuffunds: "&4You don't have enough <curr>! &f<amt> &2<item> at &f<priceper> &2<curr> each = &c<total>"
+
+    # when tries to sell something the shop won't buy
+    # <item> - what tried to buy
+    notforsale: "&f[<item>&f] &2cannot be bought"
+    
+    # if the item is not legal, and not given permissions to buy it
+    illegalbuy: "&4you don't have permissions to buy &f[<item>&f]"
 #
 # shopsell messages
 ####
 
+    # when the user tries to sell more than they have. 
+    # <item> - what tried to sell
+    # <hasamt> - how much user has
+    # <amt> - how much user tried to sell
+    # (after showing message, will then sell <hasamt>)
     donthave: "You only have <hasamt>, not <amt>"
-    # donthave is displayed when the user tries to sell more than they have.
     
-    sellmsg: "Selling &f<amt> &2<item> at &f<priceper> &2<curr> each... &f<total> &2<curr> total!"
-    # sellmsg is shown when a successful sell occurs. 
-    
-    donotwant: "&f[<item>] &2has no value to me. No thanks."
-    # donotwant is what shows when a user tries to sell something that the shop won't buy from them.
-    
+    # when the user tries to sell something that's not for sale
+    # <item> - what tried to sell
+    donotwant: "&f[<item>&f] &2has no value to me. No thanks."
+
+    # Successful sale
+    # <amt> - how much sold
+    # <item> - what was sold
+    # <priceper> - sell value per item
+    # <total> - total recieved
+    # <curr> - iConomy currency
+    # <totcur> - formatted total (like "1,800 Coins" instead of "1800 Coin") iConomy.getBank().format(
+    sellmsg: "Selling &f<amt> &2<item>&2 at &f<priceper> &2<curr> each... &f<total> &2<curr> total!"
+
+    #public message is like sellmsg, but shown to everyone (if enabled)
+    # <player> - who bought from the store
+    # <amt> - how much bought
+    # <item> - what was bought
+    # <priceper> - current buy cost
+    # <total> - total paid
+    # <curr> - iConomy currency
+    # <totcur> - formatted total (like "1,800 Coins" instead of "1800 Coin")
+    publicsellmsg: "<player> sold &f<amt> &2<item>&2 for &f<totcur>"
