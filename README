@@ -1,105 +1,116 @@
-To build, you need to include the following as libraries:
-    bukkit.jar	(current build used git-Bukkit-0.0.0-493-g8b5496e-b493jnks)
-    iConomy.jar
-    Permissions.jar
+BetterShop - The "better" global command-based shop that ties into iConomy
 
-If you want helpful bukkit javadocs, you should get:
-    the Bukkit source code
-
-Once it builds, compress on linux using:
-    jar or an equivalent archiver
-      jenny:~/workspace/BetterShop/bin$ jar -cf BetterShop.jar *
-
-or on Windows using:
-    I have no clue. I guess something similar to jar.
-
-And it's ready to be placed in a plugins directory :)
-
+active developers: jascotty2 & jjfs85
+===============================================================================
 In-Game Commands:
-/shop				for those used to a plugin having one command, this is another way to get to the following
-/shophelp (shelp)		shows you all the commands you can use
-/shoplist (sl,slist)		shows a listing of items for sale
-/shopitems (sitems)		show full listing of items in shop, without prices
-/shopcheck (sc,scheck)		lookup a specific item so you don't have to read through pages of prices
-/shopbuy (buy,sbuy): 		buy an item for the price in the shopshop ("all" is accepted as an amount)
-/shopbuyall (buyall,sbuyall): 	buy all of an item that you can hold
-/shopsell (sell,ssell):  	sell an item for the price in the shop
-/shopadd (sadd): 		add an item to or update an item in the price list
-/shopremove (sremove): 		remove an item from the price list
-/shopload (sload): 		reload prices from pricelist database
-/shopsellall (sellall):		Sell all of item from your inventory (alias to command /shop sell all)
-/shopbuystack (buystack): 	buy a stack of an item (usually 64)
-/shopbuyagain (buyagain,sba): 	repeat last buy action
-/shopsellagain (sellagain,ssa): repeat last sell action
-/shopkits (skits):		show a listing of avalliable kits (will be elaborated later)
+===============================================================================
 
-toadd: 
-/shopvalue item[@amount] item  shows the current trade value for two items
+/shop							for those used to a plugin having one command, this is another way to get to the following
+/shophelp (shelp)					shows you all the commands you can use
+/shoplist (sl,slist)		[pagenum]		shows a listing of items for sale (if -1, all, or full given, will show full list. (for console use))
+/shopitems (sitems)					show full listing of items in shop, without prices
+/shopcheck (sc,scheck) 		<item>			lookup a specific item so you don't have to read through pages of prices
+/shopbuy (buy,sbuy) 		<item> [amount]		buy an item for the price in the shopshop ("all" is accepted as an amount)
+/shopbuyall (buyall,sbuyall) 	<item> 			buy all of an item that you can hold
+/shopsell (sell,ssell)   	<item> [amount]		sell an item for the price in the shop
+/shopadd (sadd): 		<item> <buy> [sell]	add an item to or update an item in the price list
+/shopremove (sremove): 		<item>			remove an item from the price list
+/shopload (sload): 					reload prices from pricelist database
+/shopsellall (sellall):		<item> [item [...]]	Sell all of item from your inventory (alias to command /shop sell all)
+/shopbuystack (buystack): 	<item> [item | amount]	buy a stack of an item (usually 64)
+/shopbuyagain (buyagain,sba): 				repeat last buy action
+/shopsellagain (sellagain,ssa): 			repeat last sell action
+/shopkits (skits):					show a listing of avalliable kits (will be elaborated later)
 
+
+===============================================================================
 Features:
+===============================================================================
 
 currently dependent on iConomy
 Permissions support
 Fully configurable colors and message text in config.yml file
+shoplist can optionally not show listing tail (or head, but recommended to leave <page> of <pages>)
+Items can be colored in the new itemsdb.yml file
+also in itemsdb.yml: kits!
+- define your own kits that the shop can sell
+- three expamples provided, edit and add to your liking
+Configurable Options:
+-max pagesize when printing shoplist
+-whether to broadcast all transactions publicly
+-name of the pricelist file/table
+-customsort: a custom sorting order, so you can have items at the top of the shop list
+-allowbuyillegal: if someone without BetterShop.admin.illegal can buy illegal items
+-whether maxstack should be honored
+-if used tools can be bought back
 Every item and subtype can be priced differently
 Disable selling or buying of an item or subtype by giving it a price of -1
 Item sub-type support for dye colors, cloth colors, etc: magentacloth = 35:2 = cloth:magenta
 command aliases to stop carpal tunnel
+many commands have sub-aliases.. eg. shoplist kits will run shoplistkits
 MySQL pricelist support 
 Transaction records (MySQL only right now)
 Downloads mysql-bin.jar dependency automatically
-"all" is a valid amount when selling: "/sell cobblestone all" or "/sell all cobblestone"
+"all" is a valid amount when buying or selling: "/sell cobblestone all" or "/sell all cobblestone"
 shoplist can have text alignment (read config for more info): <item> <l(eft-aligned)> <buy and sell info>
-Configurable max pagesize when printing shoplist
+- uses minecraft font character spacing, so is very close to perfectly aligned in chat
 shopsellall can be given multiple items (/sell all cobble gravel flint dirt)
+if encounters errors while editing a player's account, will attempt to reload iConomy (i've had issuses with it before)
+buy/sell cap in program set to 999,999,999 (not that you'd be using that much, but the cap is to prevent other errors)
+buystack can be given multiple items, or number of stacks: "/buystack wool 5" or "/buystack wool blackdye reddye"
+damaged tools can be resold for an adjusted value of sellprice*(1-(damage/maxdamage))
 
-Permissions:
-Just add the following nodes to Permissions' config.yml file (or data.yml file for GroupManager):
-
-- 'BetterShop.user.*'
-^ Allows the user to use the list, sell, buy, and help commands
-- 'BetterShop.admin.*'
-^ Allows the user to use the add, remove, and load commands
-
-There are other nodes that allow only more specific permissions, but I recommend using the above.
-They work like this:
-BetterShop.user.list
-BetterShop.user.check
-BetterShop.user.buy
-BetterShop.user.help
-BetterShop.user.sell
-BetterShop.admin.add
-BetterShop.admin.remove
-BetterShop.admin.load
-BetterShop.admin.info
-BetterShop.admin.illegal	# gives the ability to purchase 'illegal' items
 
 There are two ways to add things to the shop:
 Recommended, but slow: use /shopadd [item] [buy-price] [sell-price]
 Faster: use a text editor (or spreadsheet program) to add items to the BetterShop.csv file. 
 	items are in this order: id, subdata, buy, sell, name
 	item id & subdata are checked against itemsdb.yml, and are removed if they don't exist
+	for your convinence, you can use names (not subnames, though), so "wool,blue,1,-1" is a valid entry
 	The name value is there only for human readability, it's not read by the plugin.
 
+===============================================================================
+Permissions:
+===============================================================================
+Just add the following nodes to Permissions' config.yml file (or data.yml file for GroupManager):
 
-todo:
-damaged tools can be sold for price*(1-(damage/maxdamage))
+BetterShop.user.*	Allows the user to use the list, sell, buy, and help commands
+BetterShop.admin.*	Allows the user to use the add, remove, and load commands
+
+There are other nodes that allow only more specific permissions, but I recommend using the above.
+
+BetterShop.user.list		look through shop listing of prices
+BetterShop.user.check		check the price of item(s)
+BetterShop.user.help		view ingame help menu
+BetterShop.user.buy		buy items from the shop
+BetterShop.user.sell		sell items to the shop
+BetterShop.admin.add		add/edit items to/in the shop
+BetterShop.admin.remove		remove items from the shop
+BetterShop.admin.load		reload configuration & pricelist
+BetterShop.admin.info		show shop stats (only version number right now)
+BetterShop.admin.illegal	gives the ability to purchase 'illegal' items
+
+===============================================================================
+TODO (items are removed as they're added)
+===============================================================================
+
 calculated/derived item prices
 /shopvalue item[@amount] item  to show the current trade value for two items
-buystack with multiple inputs (eg. "/buystack wood coal") and # of stacks to buy
 discount system: users or groups can be charged less/more for an item or all items (sell prices also affected)
 more descriptive kit listing, similar to shoplist
 add flatfile support for transaction logging
 dynamic market pricing, based off of logged market activity
-kit selling?
 region shops (items added while in a region defined as a shop are only added to that shop)
 stock option - BetterShop.admin.stock to update how much stock the shop has
 	- selling to the shop increases the stock
 		- also descreases how much item is worth to the shop (optional, not inluenced by market activity)
+finish database caching
 
+===============================================================================
 Changelog: 
+===============================================================================
 
-Version 1.6.0c - jascotty2
+Version 1.6.0c - 3/17/11 - jascotty2
 added more options:  allowbuyillegal, usemaxstack, buybacktools
 fixed buystack history
 major buystack logic error repaired - previously didn't work correctly
@@ -107,12 +118,12 @@ buystack can now be given multiple items, or number of stacks: "/buystack wool 5
 damaged tools can now be resold for an adjusted value of sellprice*(1-(damage/maxdamage))
 
 
-Version 1.6.0b - jascotty2
+Version 1.6.0b - 3/16/11 - jascotty2
 fixed a minor buy error if tried to buy more than they can hold, and could hold 0 more
 major MySQL problem fixed - pricelist table wasn't being created
 
 
-Version 1.6.0 - jascotty2
+Version 1.6.0 - 3/16/11 - jascotty2
 major code restructure & reorganization 
 changed item db to a more descriptive yml file
 - can define what items make an item (for calculated/dynamic costs)
@@ -148,7 +159,7 @@ can now buy kits :)
 /add now has sell as an optional parameter.. will set to -1 if not given (or if is a kit)
 
 
-Version 1.5.9b - jascotty2
+Version 1.5.9b - 3/11/11 - jascotty2
 width outputting in minecraft chat (for /shoplist): now can have item (or listing) right-align, left-align, or centered
 implemented transaction log and total transactions record
 no longer dependent on permissions: if missing, ops have .admin.* & everyone has .user.*
@@ -161,25 +172,25 @@ bugs: MySQL buy & sell is decimal(6,2), limiting price to 9,999 (plus a nondescr
 		shopload should fix this, but iconomy will still be down.. if you have a plugin like hotswap, reload iConomy
      not a bug, but forgot to remove: logs select statements being executed
 
-Version 1.5.8(?) - jascotty2
+Version 1.5.8(?) - 3/10/11 - jascotty2
 ( the (?) means plugin didn't report that as the version.. sorry :))
 fixed a sell error for one parameter
-major code restructure - removed data redundancy
+major-ish code restructure - removed data redundancy
 / shopsell all [item] (alias to /shopsell [item] all)
 
 
-Version 1.5.7(?) - jascotty2
+Version 1.5.7(?) - 3/10/11 - jascotty2
 / shopsell [item] all added: sell all of an item that you have
 fixed total sell value min to .01 instead of 1 (if your server uses low prices)
 	before this fix, one could get around this check by trying to sell alot of an item
 now automatically downloads mysql dependency (zip from mysql mirror & unzip or from iConomy mirror)
 
 
-Version 1.5.5(?) - jascotty2
+Version 1.5.5(?) - 3/9/11 - jascotty2
 Pricelist can now be in a MySQL database
 
 
-Version 1.5.4
+Version 1.5.4 - 3/2/11
 Fixed some lingering bugs with lologarithm's help.
 
 
@@ -196,4 +207,26 @@ Fixed the bug where setting a price to -1 didn't disable it
 Fixed the "LOLWTFDOESN'TWORK" bug. 
 Made price-list listing configurable in config.yml. The way it was 'sposta be.
 
+(older versions not shown..)
+
+===============================================================================
+Building
+===============================================================================
+
+To build, you need to include the following as libraries:
+    bukkit.jar	(current build used git-Bukkit-0.0.0-516-gdf87bb3-b531jnks (MC: 1.3))
+    iConomy.jar	(4.4.7)
+    Permissions.jar 
+
+If you want helpful bukkit javadocs, you should get:
+    the Bukkit source code
+
+Once it builds, compress on linux using:
+    jar or an equivalent archiver
+      jenny:~/workspace/BetterShop/bin$ jar -cf BetterShop.jar *
+
+or on Windows using:
+    I have no clue. I guess something similar to jar.
+
+And it's ready to be placed in a plugins directory :)
 
