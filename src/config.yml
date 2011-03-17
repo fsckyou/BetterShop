@@ -74,6 +74,14 @@ dynamicMarket:
 # (can also use item names)
 customsort:
 
+#item buying behavior
+#if someone without BetterShop.admin.illegal can buy illegal items
+allowbuyillegal: false
+#whether maxstack should be honored
+usemaxstack: true
+#used tools can be bought back?
+buybacktools: true
+
 ##########################################
 # strings section: Text used in messages #
 ##########################################

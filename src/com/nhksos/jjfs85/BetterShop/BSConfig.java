@@ -23,7 +23,7 @@ import org.bukkit.util.config.ConfigurationNode;
  * 
  */
 public class BSConfig {
-    
+
     // chat messages
     private final HashMap<String, String> stringMap = new HashMap<String, String>();
     public String currency = "Coin";
@@ -46,6 +46,14 @@ public class BSConfig {
     public String transLogTablename = "BetterShopMarketActivity", recordTablename = "BetterShopTransactionTotals";
     // if pricelist is to have a custom sort order, what should be at the top
     public ArrayList<String> sortOrder = new ArrayList<String>();
+    //item buying behavior
+    //if someone without BetterShop.admin.illegal can buy illegal items
+    public boolean allowbuyillegal = false;
+    //whether maxstack should be honored
+    public boolean usemaxstack = true;
+    //used tools can be bought back?
+    public boolean buybacktools = true;
+
     public enum DBType {
 
         MYSQL, SQLITE, FLATFILE
@@ -62,6 +70,11 @@ public class BSConfig {
         ConfigurationNode n;
         pagesize = config.getInt("ItemsPerPage", pagesize);
         publicmarket = config.getBoolean("publicmarket", publicmarket);
+
+        allowbuyillegal = config.getBoolean("allowbuyillegal", allowbuyillegal);
+        usemaxstack = config.getBoolean("usemaxstack", usemaxstack);
+        buybacktools = config.getBoolean("buybacktools", buybacktools);
+
         tableName = config.getString("tablename", tableName);
         databaseType = config.getBoolean("useMySQLPricelist", false) ? DBType.MYSQL : DBType.FLATFILE;
         if (databaseType == DBType.MYSQL) {
@@ -76,10 +89,10 @@ public class BSConfig {
                 if (lifespan != null) {
                     tempCacheTTL = CheckInput.GetInt(lifespan, tempCacheTTL);
                     /*try {
-                        tempCacheTTL = CheckInput.GetBigInt_TimeSpanInSec(lifespan).intValue();
+                    tempCacheTTL = CheckInput.GetBigInt_TimeSpanInSec(lifespan).intValue();
                     } catch (Exception ex) {
-                        BetterShop.Log(Level.WARNING, "tempCacheTTL has an illegal value", ex);
-                        //BetterShop.Log(Level.WARNING, ex);
+                    BetterShop.Log(Level.WARNING, "tempCacheTTL has an illegal value", ex);
+                    //BetterShop.Log(Level.WARNING, ex);
                     }//*/
                 }
             } else {
@@ -128,19 +141,19 @@ public class BSConfig {
             BetterShop.Log(Level.SEVERE, String.format("strings section missing from configuration file %s", configname));
         }
         String customsort = config.getString("customsort");
-        if(customsort!=null){
+        if (customsort != null) {
             // parse for items && add to custom sort arraylist
             String items[] = customsort.split(",");
-            for(String i : items){
+            for (String i : items) {
                 Item toAdd = Item.findItem(i.trim());
-                if(toAdd!=null){
+                if (toAdd != null) {
                     sortOrder.add(toAdd.IdDatStr());
-                }else{
+                } else {
                     BetterShop.Log("Invalid Item in customsort configuration: " + i);
                 }
             }
         }
-        
+
         return true;
     }
 
@@ -160,7 +173,7 @@ public class BSConfig {
         }
         return ret;
     }
-    
+
     public boolean hasString(String key) {
         String ret = stringMap.get(key);
         if (ret == null) {

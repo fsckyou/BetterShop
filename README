@@ -76,8 +76,9 @@ BetterShop.admin.illegal	# gives the ability to purchase 'illegal' items
 
 There are two ways to add things to the shop:
 Recommended, but slow: use /shopadd [item] [buy-price] [sell-price]
-Faster, but more error prone: use a text editor (or spreadsheet) to add items to the BetterShop.csv file. 
-	BUT add an item using method 1 first, so you can see how it needs to be formatted. 
+Faster: use a text editor (or spreadsheet program) to add items to the BetterShop.csv file. 
+	items are in this order: id, subdata, buy, sell, name
+	item id & subdata are checked against itemsdb.yml, and are removed if they don't exist
 	The name value is there only for human readability, it's not read by the plugin.
 
 
@@ -91,11 +92,25 @@ more descriptive kit listing, similar to shoplist
 add flatfile support for transaction logging
 dynamic market pricing, based off of logged market activity
 kit selling?
+region shops (items added while in a region defined as a shop are only added to that shop)
+stock option - BetterShop.admin.stock to update how much stock the shop has
+	- selling to the shop increases the stock
+		- also descreases how much item is worth to the shop (optional, not inluenced by market activity)
 
 Changelog: 
 
+Version 1.6.0c - jascotty2
+added more options:  allowbuyillegal, usemaxstack, buybacktools
+fixed buystack history
+major buystack logic error repaired - previously didn't work correctly
+buystack can now be given multiple items, or number of stacks: "/buystack wool 5" or "/buystack wool blackdye reddye"
+damaged tools can now be resold for an adjusted value of sellprice*(1-(damage/maxdamage))
+
+
 Version 1.6.0b - jascotty2
 fixed a minor buy error if tried to buy more than they can hold, and could hold 0 more
+major MySQL problem fixed - pricelist table wasn't being created
+
 
 Version 1.6.0 - jascotty2
 major code restructure & reorganization 

@@ -71,6 +71,7 @@ public class ItemDB extends Item {
                             item.SetColor(n.getString("color"));
                             item.SetMaxStack(n.getInt("maxstack", 64));
                             item.isLegal = n.getBoolean("legal", true);
+                            item.maxdamage=(short)n.getInt("maxdamage", 0);
                             String itemidd = "0";
                             if (k.indexOf("sub") > 0) {
                                 itemidd = k.substring(4, k.indexOf("sub")) + ":" + k.substring(k.indexOf("sub") + 3);
@@ -141,11 +142,12 @@ public class ItemDB extends Item {
                                     } else {
                                         // kits are numbered starting at 5000
                                         kit.itemId = 4999 + CheckInput.GetInt(k.substring(3), 0);
-                                        kit.SetColor(n.getString("color"));
                                         if (kit.itemId == 4999) {
                                             logger.log(Level.WARNING, String.format("%s is an invalid kit number. (Must start at 1)", k));
                                             continue;  //next kit node
                                         }
+                                        kit.SetColor(n.getString("color"));
+                                        kit.isLegal = n.getBoolean("legal", true);
                                         kit.name = n.getString("name", "null").toLowerCase();
                                         // now add aliases (if any)
                                         a = n.getString("aliases");

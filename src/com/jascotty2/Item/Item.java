@@ -28,7 +28,9 @@ public class Item {
     private LinkedList<String> subAliases = new LinkedList<String>();
     private LinkedList<CraftRecipe> recipes = new LinkedList<CraftRecipe>();
     // max data value to accept in a damage value (ItemStack)
-    public final static byte MAX_DATA = (byte)30;
+    //public final static byte MAX_DATA = (byte)30;
+    // max damage. indicates that this is a tool
+    protected short maxdamage = 0;
 
     public Item() {
         itemId = -1;
@@ -62,12 +64,11 @@ public class Item {
         itemData = dat;
         this.name = name;
     }
-    
-    
+
     public Item(ItemStack i) {
         itemId = i.getTypeId();
-        if(i.getDurability()<MAX_DATA)
-        itemData = (byte)i.getDurability();
+        //if(maxdamage==0)// i.getDurability()<MAX_DATA)
+        itemData = (byte) i.getDurability();
         name = "";
     }
 
@@ -77,6 +78,14 @@ public class Item {
 
     public byte Data() {
         return itemData;
+    }
+
+    public short MaxDamage() {
+        return maxdamage;
+    }
+
+    public boolean IsTool() {
+        return maxdamage > 0;
     }
 
     public boolean IsLegal() {
@@ -97,9 +106,14 @@ public class Item {
         itemData = d;
     }
 
+    public void setMaxDamage(short d) {
+        maxdamage = d;
+    }
+
     public void SetLegal(boolean isAllowed) {
         isLegal = isAllowed;
     }
+
     public void SetMaxStack(int stack) {
         maxStack = stack;
     }
@@ -198,7 +212,7 @@ public class Item {
     }
 
     public static Item findItem(ItemStack search) {
-        return findItem(search.getType() + ":" + (search.getDurability()<MAX_DATA?search.getDurability():0));
+        return findItem(search.getType() + ":" + search.getDurability());//(search.getDurability()<MAX_DATA?search.getDurability():0));
     }
 
     public static Item findItem(Item search) {
@@ -230,6 +244,7 @@ public class Item {
     }
 
     public static Item findItem(String search) {
+        //System.out.println("searching: " + search);
         if (items.containsKey(search)) {
             return items.get(search);
         } else if (CheckInput.IsInt(search)) {// && (!search.contains(":") || search.length() == search.indexOf(":"))) {
@@ -237,17 +252,22 @@ public class Item {
         } else if (search.contains(":")) {
             // run a search for both parts (faster than .equals for string)
             Item isearch = findItem(search.substring(0, search.indexOf(":")));
+            //System.out.println("found: " + (isearch==null?"null" : isearch) + "   " + (isearch != null && isearch.IsTool()));
             if (isearch != null) {
-                int id = isearch.ID();
-                // now check second part
-                if (CheckInput.IsByte(search.substring(search.indexOf(":") + 1))) {
-                    byte dat = CheckInput.GetByte(search.substring(search.indexOf(":") + 1), (byte) 0);
-                    for (Item i : items.values()) {
-                        if (i.ID() == id && i.Data() == dat) {
-                            return i;
+                if (isearch.IsTool()) {
+                    // this is a tool, so return as found
+                    return isearch;
+                } else {
+                    int id = isearch.ID();
+                    // now check second part
+                    if (CheckInput.IsByte(search.substring(search.indexOf(":") + 1))) {
+                        byte dat = CheckInput.GetByte(search.substring(search.indexOf(":") + 1), (byte) 0);
+                        for (Item i : items.values()) {
+                            if (i.ID() == id && i.Data() == dat) {
+                                return i;
+                            }
                         }
                     }
-                } else {
                     search = search.substring(search.indexOf(":") + 1);
                     for (Item i : items.values()) {
                         if (i.ID() == id && i.HasSubAlias(search)) {
@@ -295,7 +315,7 @@ public class Item {
     }
 
     public boolean equals(Item i) {
-        return (i.ID() == itemId && i.Data() == itemData) || i.equals(name) || equals(i.name);
+        return (i.ID() == itemId && ((IsTool() && i.IsTool()) || i.Data() == itemData)) || i.equals(name) || equals(i.name);
     }
 
     public boolean equals(String s) {
@@ -399,11 +419,11 @@ public class Item {
     }
 
     public boolean equals(ItemStack i) {
-        return itemId == i.getTypeId() && itemData == i.getDurability();
+        return itemId == i.getTypeId() && (IsTool() || itemData == i.getDurability());
     }
     /*
     public boolean equals(KitItem ki){
-        return ki.equals(this);
+    return ki.equals(this);
     }*/
 
     // required for equals(Object obj)
@@ -428,13 +448,13 @@ public class Item {
     public ItemStack toItemStack(int amount) {
         return new ItemStack(itemId, amount, (short) 0, itemData);
     }
-    
+
     // kits are numbered at 5000+
-    public boolean isKit(){
-        return itemId>=5000;
+    public boolean isKit() {
+        return itemId >= 5000;
     }
-    
-    public int getMaxStackSize(){
+
+    public int getMaxStackSize() {
         return maxStack;
     }
 } // end class Item

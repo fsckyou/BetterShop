@@ -1,6 +1,9 @@
 #craft syntax: itemID[:subData][@numUsed][+otheritems][=amount][,another recipe... ]
 #kits are similar, but without the + or =
 #colors are used when outputtung the item name (overrides coloring in listing)
+#maxstack can be changed if you want to be able to stack nonstackables
+#legal can be changed if you want to add/remove items that normal users can't buy
+#don't mess with maxdamage: those are minecraft constants, and buyback would be otherwise inaccurate
 items:
     item0:
         name: air
@@ -387,7 +390,7 @@ items:
         legal: false
     item76:
         name: redstonetorch
-        aliases: redstonetorchon, redtorchon, redtorch, rstorchon, rstorch
+        aliases: redstonetorchon, redtorchon, redtorch, rstorchon, rstorch, rtorch
         craft: 280+331
     item77:
         name: stonebutton
