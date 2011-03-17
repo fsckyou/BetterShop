@@ -27,9 +27,14 @@ In-Game Commands:
 Features:
 ===============================================================================
 
+=== plugin support
 currently dependent on iConomy
 Permissions support
+
+=== configurable
 Fully configurable colors and message text in config.yml file
+shoplist can have text alignment (read config for more info): <item> <l(eft-aligned)> <buy and sell info>
+- uses minecraft font character spacing, so is very close to perfectly aligned in chat
 shoplist can optionally not show listing tail (or head, but recommended to leave <page> of <pages>)
 Items can be colored in the new itemsdb.yml file
 also in itemsdb.yml: kits!
@@ -43,22 +48,25 @@ Configurable Options:
 -allowbuyillegal: if someone without BetterShop.admin.illegal can buy illegal items
 -whether maxstack should be honored
 -if used tools can be bought back
-Every item and subtype can be priced differently
-Disable selling or buying of an item or subtype by giving it a price of -1
+
+=== shop flexibility
+shopcheck will run a name comparison check, and return all matching items
 Item sub-type support for dye colors, cloth colors, etc: magentacloth = 35:2 = cloth:magenta
+"all" is a valid amount when buying or selling: "/sell cobblestone all" or "/sell all cobblestone"
+damaged tools can be resold for an adjusted value of sellprice*(1-(damage/maxdamage))
+buystack can be given multiple items, or number of stacks: "/buystack wool 5" or "/buystack wool blackdye reddye"
+shopsellall can be given multiple items (/sell all cobble gravel flint dirt)
+
+=== administration
+Every item and subtype can be priced differently
+Disable buying or selling of an item by giving it a price of -1	 (0 makes it free)
 command aliases to stop carpal tunnel
 many commands have sub-aliases.. eg. shoplist kits will run shoplistkits
 MySQL pricelist support 
 Transaction records (MySQL only right now)
 Downloads mysql-bin.jar dependency automatically
-"all" is a valid amount when buying or selling: "/sell cobblestone all" or "/sell all cobblestone"
-shoplist can have text alignment (read config for more info): <item> <l(eft-aligned)> <buy and sell info>
-- uses minecraft font character spacing, so is very close to perfectly aligned in chat
-shopsellall can be given multiple items (/sell all cobble gravel flint dirt)
-if encounters errors while editing a player's account, will attempt to reload iConomy (i've had issuses with it before)
 buy/sell cap in program set to 999,999,999 (not that you'd be using that much, but the cap is to prevent other errors)
-buystack can be given multiple items, or number of stacks: "/buystack wool 5" or "/buystack wool blackdye reddye"
-damaged tools can be resold for an adjusted value of sellprice*(1-(damage/maxdamage))
+if encounters errors while editing a player's account, will attempt to reload iConomy (i've had issuses with it before)
 
 
 There are two ways to add things to the shop:
