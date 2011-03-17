@@ -400,6 +400,7 @@ public class BSCommand {
                             replace("<priceper>", "%3$01.2f").replace("<leftover>", "%4$d").
                             replace("<curr>", "%5$s").replace("<free>", "%6$d"), toBuy.coloredName(),
                             amtbought, price, amtbought - canHold, BetterShop.config.currency, canHold));
+                    if(canHold==0) return true;
                     amtbought = canHold;
                 } else if (amtbought <= 0) {
                     BSutils.sendMessage(player, BetterShop.config.getString("nicetry"));
@@ -631,6 +632,7 @@ public class BSCommand {
                     replace("<priceper>", "%3$01.2f").replace("<leftover>", "%4$d").
                     replace("<curr>", "%5$s").replace("<free>", "%6$d"), toBuy.coloredName(),
                     numToBuy, price, numToBuy - maxBuy, BetterShop.config.currency, maxBuy));
+            if(maxBuy==0) return true;
             numToBuy = maxBuy;
         }
 

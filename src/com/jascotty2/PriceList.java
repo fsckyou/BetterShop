@@ -6,6 +6,7 @@
  */
 package com.jascotty2;
 
+import com.jascotty2.MySQL.MySQLPriceList;
 import com.jascotty2.Item.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

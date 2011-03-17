@@ -85,7 +85,7 @@ todo:
 damaged tools can be sold for price*(1-(damage/maxdamage))
 calculated/derived item prices
 /shopvalue item[@amount] item  to show the current trade value for two items
-buystack with multiple inputs (eg. "/buystack wood coal")
+buystack with multiple inputs (eg. "/buystack wood coal") and # of stacks to buy
 discount system: users or groups can be charged less/more for an item or all items (sell prices also affected)
 more descriptive kit listing, similar to shoplist
 add flatfile support for transaction logging
@@ -93,6 +93,9 @@ dynamic market pricing, based off of logged market activity
 kit selling?
 
 Changelog: 
+
+Version 1.6.0b - jascotty2
+fixed a minor buy error if tried to buy more than they can hold, and could hold 0 more
 
 Version 1.6.0 - jascotty2
 major code restructure & reorganization 

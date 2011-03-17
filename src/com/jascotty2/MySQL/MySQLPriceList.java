@@ -5,9 +5,10 @@
  * Description: class for working with a MySQL server
  * Date: Mar 8, 2011
  */
-package com.jascotty2.Item;
+package com.jascotty2.MySQL;
 
-import com.jascotty2.MySQL.MySQL;
+import com.jascotty2.Item.Item;
+import com.jascotty2.Item.PriceListItem;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,7 +27,10 @@ public class MySQLPriceList {
         MySQLdatabase.connect(database, username, password, hostName, portNum);
         sql_database = database;
         sql_tableName = tableName;
-
+        // now check & create table
+        if(!MySQLdatabase.tableExists(tableName)){
+            createPricelistTable(tableName);
+        }
     } // end default constructor
 
     public MySQL getMySQLconnection(){
@@ -150,7 +154,7 @@ public class MySQLPriceList {
                 try {
                     MySQLdatabase.RunUpdate(
                             String.format("INSERT INTO %s VALUES(%d, %d, '%s', %1.2f, %1.2f);", sql_tableName,
-                            toAdd.itemId, toAdd.itemData, toAdd.name, buy, sell));
+                            toAdd.ID(), toAdd.Data(), toAdd.name, buy, sell));
                     return true;
                 } catch (SQLException ex) {
                     throw new SQLException("Error executing INSERT on " + sql_tableName, ex);
@@ -166,7 +170,7 @@ public class MySQLPriceList {
                 //logger.log(Level.INFO, String.format("UPDATE %s SET BUY=%1.2f, SELL=%1.2f WHERE ID='%d' AND SUB='%d';", sql_tableName, buy, sell, item.itemId, (int) item.itemData));
                 MySQLdatabase.RunUpdate(
                         String.format("UPDATE %s SET BUY=%1.2f, SELL=%1.2f WHERE ID='%d' AND SUB='%d';", sql_tableName,
-                        buy, sell, item.itemId, (int) item.itemData));
+                        buy, sell, item.ID(), (int) item.Data()));
                 //return true;
             } catch (SQLException ex) {
                 throw new SQLException("Error executing UPDATE on " + sql_tableName, ex);
@@ -178,7 +182,7 @@ public class MySQLPriceList {
                 //logger.log(Level.INFO, String.format("INSERT INTO %s VALUES(%d, %d, '%s', %1.2f, %1.2f);", sql_tableName, item.itemId, (int)item.itemData, item.name, buy, sell)
                 MySQLdatabase.RunUpdate(
                         String.format("INSERT INTO %s VALUES(%d, %d, '%s', %1.2f, %1.2f);", sql_tableName,
-                        item.itemId, (int) item.itemData, item.name, buy, sell));
+                        item.ID(), (int) item.Data(), item.name, buy, sell));
                 //return true;
             } catch (SQLException ex) {
                 throw new SQLException("Error executing INSERT on " + sql_tableName, ex);
@@ -208,7 +212,7 @@ public class MySQLPriceList {
                 //BetterShop.Log(Level.INFO, String.format("SELECT * FROM %s WHERE ID='%d' AND SUB='%d';", sql_tableName, (int) Math.floor(item), (int) Math.round((item - Math.floor(item))* 100)));
                 ResultSet table = MySQLdatabase.GetQuery(
                         String.format("SELECT * FROM %s WHERE ID='%d' AND SUB='%d';", sql_tableName,
-                        item.itemId, (int) item.itemData));
+                        item.ID(), (int) item.Data()));
                 //BetterShop.Log(Level.INFO, table.first()?"true":"false");
                 return table.first();
             } catch (SQLException ex) {
@@ -233,7 +237,7 @@ public class MySQLPriceList {
         if (MySQLdatabase.IsConnected()) {
             try {
                 MySQLdatabase.RunUpdate(String.format(
-                        "DELETE FROM %s WHERE ID='%d' AND SUB='%d';", sql_tableName, item.itemId, (int) item.itemData));
+                        "DELETE FROM %s WHERE ID='%d' AND SUB='%d';", sql_tableName, item.ID(), (int) item.Data()));
             } catch (SQLException ex) {
                 throw new SQLException("Error executing DELETE on " + sql_tableName, ex);
             }
@@ -271,7 +275,7 @@ public class MySQLPriceList {
         return MySQLdatabase.IsConnected();
     }
 
-    protected boolean createPricelistTable(String tableName) throws SQLException {
+    private boolean createPricelistTable(String tableName) throws SQLException {
         if (!MySQLdatabase.IsConnected() || tableName.contains(" ")) {
             return false;
         }
