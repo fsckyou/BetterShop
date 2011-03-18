@@ -115,10 +115,13 @@ stock option - BetterShop.admin.stock to update how much stock the shop has
 finish database caching
 
 ===============================================================================
-Changelog: 
+Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
-Version 1.6.0c - 3/17/11 - jascotty2
+Version 1.6.0d - 3/17/11 - jascotty2
+if the old PriceList.yml file exists, will import into whatever db is enabled, then rename the file
+
+Version 1.6.0c (?) - 3/17/11 - jascotty2
 added more options:  allowbuyillegal, usemaxstack, buybacktools
 fixed buystack history
 major buystack logic error repaired - previously didn't work correctly
@@ -126,7 +129,7 @@ buystack can now be given multiple items, or number of stacks: "/buystack wool 5
 damaged tools can now be resold for an adjusted value of sellprice*(1-(damage/maxdamage))
 
 
-Version 1.6.0b - 3/16/11 - jascotty2
+Version 1.6.0b (?) - 3/16/11 - jascotty2
 fixed a minor buy error if tried to buy more than they can hold, and could hold 0 more
 major MySQL problem fixed - pricelist table wasn't being created
 
@@ -181,7 +184,6 @@ bugs: MySQL buy & sell is decimal(6,2), limiting price to 9,999 (plus a nondescr
      not a bug, but forgot to remove: logs select statements being executed
 
 Version 1.5.8(?) - 3/10/11 - jascotty2
-( the (?) means plugin didn't report that as the version.. sorry :))
 fixed a sell error for one parameter
 major-ish code restructure - removed data redundancy
 / shopsell all [item] (alias to /shopsell [item] all)
