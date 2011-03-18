@@ -16,7 +16,7 @@ In-Game Commands:
 /shopadd (sadd): 		<item> <buy> [sell]	add an item to or update an item in the price list
 /shopremove (sremove): 		<item>			remove an item from the price list
 /shopload (sload): 					reload prices from pricelist database
-/shopsellall (sellall):		<item> [item [...]]	Sell all of item from your inventory (alias to command /shop sell all)
+/shopsellall (sellall):		[inv] [item [...]]	Sell all of item from your inventory (alias to command /shop sell all) (inv will not search lower 9 slots)
 /shopbuystack (buystack): 	<item> [item | amount]	buy a stack of an item (usually 64)
 /shopbuyagain (buyagain,sba): 				repeat last buy action
 /shopsellagain (sellagain,ssa): 			repeat last sell action
@@ -118,12 +118,15 @@ stock option - BetterShop.admin.stock to update how much stock the shop has
 === Removed (not going to implement)
 persistentMySQL: if false, will disconnect from db when now using it (use if have a high cacheUpdate)
 		(the MySQL connection is now shared with other features, so disonnecting could cause more performance issues)
+dynamicDiscount: if a user has an applicable discount, will also discount items crafted using discount
+		(if i do implement discounts, this will be automatic)
 
 ===============================================================================
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
 Version 1.6.1 - ? - jascotty2
+update check is optional (in config)
 []added flatfile support for transaction logging
 []stock option - BetterShop.admin.stock to update how much stock the shop has
 []	- selling to the shop increases the stock
