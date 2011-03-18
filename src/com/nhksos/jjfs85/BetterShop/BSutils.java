@@ -70,9 +70,10 @@ public class BSutils {
 
     static void sendMessage(CommandSender player, String s, boolean isPublic) {
         if (player != null) {
-            player.sendMessage(BetterShop.config.getString("prefix") + s);
             if (isPublic) {
-                broadcastMessage(player, s, false);
+                broadcastMessage(player, s);
+            }else{
+                player.sendMessage(BetterShop.config.getString("prefix") + s);
             }
         }
     }
