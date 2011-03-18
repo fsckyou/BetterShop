@@ -37,6 +37,7 @@ public class BSutils {
     static boolean hasPermission(CommandSender player, String node) {
         return hasPermission(player, node, false);
     }
+
     static boolean hasPermission(CommandSender player, String node, boolean notify) {
         if (BetterShop.Permissions == null) {
             // only ops have access to .admin
@@ -62,33 +63,41 @@ public class BSutils {
     }
 
     static void sendMessage(CommandSender player, String s) {
-        if(player!=null)
-        player.sendMessage(BetterShop.config.getString("prefix") + s);
+        if (player != null) {
+            player.sendMessage(BetterShop.config.getString("prefix") + s);
+        }
     }
+
     static void sendMessage(CommandSender player, String s, boolean isPublic) {
-        if(player!=null){
-        if(!isPublic)player.sendMessage(BetterShop.config.getString("prefix") + s);
-        else broadcastMessage(player, s);
-    }}
+        if (player != null) {
+            player.sendMessage(BetterShop.config.getString("prefix") + s);
+            if (isPublic) {
+                broadcastMessage(player, s, false);
+            }
+        }
+    }
 
     static void broadcastMessage(CommandSender player, String s) {
-        if(player!=null){
-        player.getServer().broadcastMessage(BetterShop.config.getString("prefix") + s);
+        if (player != null) {
+            player.getServer().broadcastMessage(BetterShop.config.getString("prefix") + s);
+        }
         BetterShop.Log("(public announcement) " + s.replaceAll("\\\u00A7.", ""));
-    }}
+    }
 
     static void broadcastMessage(CommandSender player, String s, boolean includePlayer) {
-        if(player!=null){
-        if (includePlayer) {
-            broadcastMessage(player, s);
-        } else {
-            String name = player instanceof Player ? ((Player) player).getDisplayName() : "";
-            for (Player p : player.getServer().getOnlinePlayers()) {
-                if (!p.getDisplayName().equals(name)) {
-                    player.getServer().broadcastMessage(BetterShop.config.getString("prefix") + s);
+        if (player != null) {
+            if (includePlayer) {
+                broadcastMessage(player, s);
+            } else {
+                String name = player instanceof Player ? ((Player) player).getDisplayName() : "";
+                for (Player p : player.getServer().getOnlinePlayers()) {
+                    if (!p.getDisplayName().equals(name)) {
+                        //player.getServer().broadcastMessage(BetterShop.config.getString("prefix") + s);
+                        p.sendMessage(BetterShop.config.getString("prefix") + s);
+                    }
                 }
+                BetterShop.Log("(public announcement) " + s.replaceAll("\\\u00A7.", ""));
             }
-            BetterShop.Log("(public announcement) " + s.replaceAll("\\\u00A7.", ""));
         }
-    }}
+    }
 }

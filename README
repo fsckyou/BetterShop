@@ -120,6 +120,8 @@ Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 
 Version 1.6.0d - 3/17/11 - jascotty2
 if the old PriceList.yml file exists, will import into whatever db is enabled, then rename the file
+fixed public message bug - would send broadcast (num players-1) times
+
 
 Version 1.6.0c (?) - 3/17/11 - jascotty2
 added more options:  allowbuyillegal, usemaxstack, buybacktools
