@@ -212,6 +212,7 @@ public class Item {
     }
 
     public static Item findItem(ItemStack search) {
+        if(search==null) return null;// || search.getAmount()==0
         return findItem(search.getType() + ":" + search.getDurability());//(search.getDurability()<MAX_DATA?search.getDurability():0));
     }
 
@@ -244,6 +245,7 @@ public class Item {
     }
 
     public static Item findItem(String search) {
+        if(search==null) return null;
         //System.out.println("searching: " + search);
         if (items.containsKey(search)) {
             return items.get(search);
@@ -289,6 +291,7 @@ public class Item {
     }
 
     public static Item[] findItems(String search) {
+        if(search==null) return null;
         if (CheckInput.IsInt(search)) {
             return new Item[]{items.get(search.replace(":", "") + ":0")};
         } else if (items.containsKey(search)) {
@@ -315,10 +318,12 @@ public class Item {
     }
 
     public boolean equals(Item i) {
+        if(i==null) return false;
         return (i.ID() == itemId && ((IsTool() && i.IsTool()) || i.Data() == itemData)) || i.equals(name) || equals(i.name);
     }
 
     public boolean equals(String s) {
+        if(s==null) return false;
         s = s.toLowerCase().trim();
         if (s.contains(":")) {
             // find base id
@@ -408,6 +413,7 @@ public class Item {
 
     @Override
     public boolean equals(Object obj) {
+        if(obj == null) return false;
         if (obj instanceof Item) {
             return equals((Item) obj);
         } else if (obj instanceof String) {
@@ -419,6 +425,7 @@ public class Item {
     }
 
     public boolean equals(ItemStack i) {
+        if(i==null) return false;
         return itemId == i.getTypeId() && (IsTool() || itemData == i.getDurability());
     }
     /*

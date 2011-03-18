@@ -63,6 +63,7 @@ Disable buying or selling of an item by giving it a price of -1	 (0 makes it fre
 command aliases to stop carpal tunnel
 many commands have sub-aliases.. eg. shoplist kits will run shoplistkits
 MySQL pricelist support 
+MySQL pricelist can be cached for a given timespan (decreases table selects) (flatfile is cached until manually updated)
 Transaction records (MySQL only right now)
 Downloads mysql-bin.jar dependency automatically
 buy/sell cap in program set to 999,999,999 (not that you'd be using that much, but the cap is to prevent other errors)
@@ -111,12 +112,38 @@ dynamic market pricing, based off of logged market activity
 region shops (items added while in a region defined as a shop are only added to that shop)
 stock option - BetterShop.admin.stock to update how much stock the shop has
 	- selling to the shop increases the stock
-		- also descreases how much item is worth to the shop (optional, not inluenced by market activity)
-finish database caching
+		- also descreases how much item is worth to the shop (optional, not influenced by market activity)
+
+
+=== Removed (not going to implement)
+persistentMySQL: if false, will disconnect from db when now using it (use if have a high cacheUpdate)
+		(the MySQL connection is now shared with other features, so disonnecting could cause more performance issues)
 
 ===============================================================================
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
+
+Version 1.6.1 - ? - jascotty2
+[]added flatfile support for transaction logging
+[]stock option - BetterShop.admin.stock to update how much stock the shop has
+[]	- selling to the shop increases the stock
+][		- also descreases how much item is worth to the shop (optional, not influenced by market activity)
+
+Version 1.6.1 alpha - 3/18/11 - jascotty2
+Checks git to see if there is a newer version avaliable (todo: config & download update?)
+fixed price = 0 to be free
+fixed null in sellall if selling all sellable
+
+
+Version 1.6.0f - 3/18/11 - jascotty2
+better error check for config & importing old yml pricelist
+MySQL pricelist can be cached for a given timespan (decreases table selects)
+fixed sell bug (selling one would credit for amount in the first stack)
+
+
+Version 1.6.0e - 3/17/11 - jascotty2
+fixed a removal error - there was a typecast exception previously
+
 
 Version 1.6.0d - 3/17/11 - jascotty2
 if the old PriceList.yml file exists, will import into whatever db is enabled, then rename the file

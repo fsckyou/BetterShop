@@ -350,7 +350,7 @@ public class BSCommand {
         } catch (Exception ex) {
             BetterShop.Log(Level.SEVERE, ex);
         }
-        if (price <= 0) {
+        if (price < 0) {
             if (price == Double.NEGATIVE_INFINITY) {
                 BSutils.sendMessage(player, "Error looking up price.. Attempting DB reload.. ");
                 if (load(null)) {
@@ -571,7 +571,7 @@ public class BSCommand {
         } catch (Exception ex) {
             BetterShop.Log(Level.SEVERE, ex);
         }
-        if (price <= 0) {
+        if (price < 0) {
             if (price == Double.NEGATIVE_INFINITY) {
                 BSutils.sendMessage(player, "Error looking up price.. Attempting DB reload.. ");
                 if (load(null)) {
@@ -852,22 +852,23 @@ public class BSCommand {
             if (toSell.equals(thisSlot) && (!toSell.IsTool() || (toSell.IsTool()
                     && (thisSlot.getDurability() == 0
                     || (thisSlot.getDurability() > 0 && BetterShop.config.buybacktools))))) {
-                int amt = thisSlot.getAmount();
-
-                if (toSell.IsTool()) {
-                    System.out.println("tool with " + thisSlot.getDurability() +"/"+ toSell.MaxDamage());
-                    total += (price * (1 - ((double)thisSlot.getDurability() / toSell.MaxDamage()))) * amt;
-                } else {
-                    total += price * amt;
-                }
+                int amt = thisSlot.getAmount(), tamt = amt;
 
                 if (itemsLeft >= amt) {
                     inv.setItem(i, null);
                 } else {
                     // remove only whats left to remove
                     inv.setItem(i, toSell.toItemStack(amt - itemsLeft));
+                    amt = itemsLeft;
                 }
-                itemsLeft -= amt;
+                if (toSell.IsTool()) {
+                    //System.out.println("tool with " + thisSlot.getDurability() +"/"+ toSell.MaxDamage());
+                    total += (price * (1 - ((double) thisSlot.getDurability() / toSell.MaxDamage()))) * amt;
+                } else {
+                    total += price * amt;
+                }
+                itemsLeft -= tamt;
+
                 if (itemsLeft <= 0) {
                     break;
                 }
@@ -962,28 +963,30 @@ public class BSCommand {
         double total = 0;
 
         try {
-            // check items not for sale
-            ArrayList<String> notwant = new ArrayList<String>();
-            boolean sendkitmsg = false; // if has already sent kit notification
-            for (Item it : toSell) {
-                if (!BetterShop.pricelist.isForSale(it)) {
-                    notwant.add(it.coloredName());
-                    it = null;
-                } else if (it.isKit()) {
-                    notwant.add(it.coloredName());
-                    if (!sendkitmsg) {
-                        BSutils.sendMessage(player, "Kits cannot be sold");
-                        sendkitmsg = true;
+            if (toSell != null && toSell.length > 0) {
+                // check items not for sale
+                ArrayList<String> notwant = new ArrayList<String>();
+                boolean sendkitmsg = false; // if has already sent kit notification
+                for (Item it : toSell) {
+                    if (!BetterShop.pricelist.isForSale(it)) {
+                        notwant.add(it.coloredName());
+                        it = null;
+                    } else if (it.isKit()) {
+                        notwant.add(it.coloredName());
+                        if (!sendkitmsg) {
+                            BSutils.sendMessage(player, "Kits cannot be sold");
+                            sendkitmsg = true;
+                        }
+                        return true;
                     }
-                    return true;
                 }
-            }
-            if (notwant.size() > 0) {
-                BSutils.sendMessage(player, String.format(
-                        BetterShop.config.getString("donotwant").
-                        replace("<item>", "%1$s"), "(" + argStr(notwant.toArray(new String[0]), ", ") + ")"));
-                if (notwant.size() == toSell.length) {
-                    return true;
+                if (notwant.size() > 0) {
+                    BSutils.sendMessage(player, String.format(
+                            BetterShop.config.getString("donotwant").
+                            replace("<item>", "%1$s"), "(" + argStr(notwant.toArray(new String[0]), ", ") + ")"));
+                    if (notwant.size() == toSell.length) {
+                        return true;
+                    }
                 }
             }
             // go through inventory & find how much user has
@@ -1039,30 +1042,32 @@ public class BSCommand {
                 ItemStack thisSlot = inv.getItem(i);
                 if (toSell == null || toSell.length == 0) {
                     Item it = Item.findItem(thisSlot);
-                    if (BetterShop.pricelist.isForSale(it) && (!it.IsTool() || (it.IsTool()
-                            && (thisSlot.getDurability() == 0
-                            || (thisSlot.getDurability() > 0 && BetterShop.config.buybacktools))))) {
-                        int amt = thisSlot.getAmount();
+                    if (it != null) {
+                        if (BetterShop.pricelist.isForSale(it) && (!it.IsTool() || (it.IsTool()
+                                && (thisSlot.getDurability() == 0
+                                || (thisSlot.getDurability() > 0 && BetterShop.config.buybacktools))))) {
+                            int amt = thisSlot.getAmount();
 
-                        if (it.IsTool()) {
-                            total += (BetterShop.pricelist.getSellPrice(it) * (1 - ((double)thisSlot.getDurability() / it.MaxDamage()))) * amt;
-                        } else {
-                            total += BetterShop.pricelist.getSellPrice(it) * amt;
-                        }
-                        amtSold += amt;
-                        boolean in = false;
-                        for (UserTransaction t : transactions) {
-                            if (t.equals(thisSlot)) {
-                                in = true;
-                                t.amount += thisSlot.getAmount();
-                                break;
+                            if (it.IsTool()) {
+                                total += (BetterShop.pricelist.getSellPrice(it) * (1 - ((double) thisSlot.getDurability() / it.MaxDamage()))) * amt;
+                            } else {
+                                total += BetterShop.pricelist.getSellPrice(it) * amt;
                             }
+                            amtSold += amt;
+                            boolean in = false;
+                            for (UserTransaction t : transactions) {
+                                if (t.equals(thisSlot)) {
+                                    in = true;
+                                    t.amount += thisSlot.getAmount();
+                                    break;
+                                }
+                            }
+                            if (!in) {
+                                transactions.add(new UserTransaction(thisSlot, true, thisSlot.getAmount(),
+                                        ((Player) player).getDisplayName()));
+                            }
+                            inv.setItem(i, null);
                         }
-                        if (!in) {
-                            transactions.add(new UserTransaction(thisSlot, true, thisSlot.getAmount(),
-                                    ((Player) player).getDisplayName()));
-                        }
-                        inv.setItem(i, null);
                     }
                 } else {
                     for (Item it : toSell) {
@@ -1073,7 +1078,7 @@ public class BSCommand {
                             int amt = thisSlot.getAmount();
 
                             if (it.IsTool()) {
-                                total += (BetterShop.pricelist.getSellPrice(it) * (1 - ((double)thisSlot.getDurability() / it.MaxDamage()))) * amt;
+                                total += (BetterShop.pricelist.getSellPrice(it) * (1 - ((double) thisSlot.getDurability() / it.MaxDamage()))) * amt;
                             } else {
                                 total += BetterShop.pricelist.getSellPrice(it) * amt;
                             }

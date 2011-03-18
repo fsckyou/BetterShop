@@ -33,12 +33,16 @@ public class BSConfig {
     public final static String configname = "config.yml";
     public final static File pluginFolder = new File("plugins", BetterShop.name);
     public final static File configfile = new File(pluginFolder, configname);
+    // plugin settings
+    public boolean checkUpdates = true;
     // database information
     public String tableName = "BetterShop";
     public String sql_username = "root", sql_password = "root", sql_database = "minecraft", sql_hostName = "localhost", sql_portNum = "3306";
     private DBType databaseType = DBType.FLATFILE;
     // database caching (MySQL only)
-    public BigInteger priceListLifespan = new BigInteger("0"); // 0 = never update
+    public boolean useDBCache = true;
+    //public BigInteger priceListLifespan = new BigInteger("0"); // 0 = never update
+    public long priceListLifespan = 0; // 0 = never update
     public int tempCacheTTL = 10; //how long before tempCache is considered outdated (seconds)
     // logging settings
     public boolean logUserTransactions = false, logTotalTransactions = false;
@@ -53,6 +57,11 @@ public class BSConfig {
     public boolean usemaxstack = true;
     //used tools can be bought back?
     public boolean buybacktools = true;
+    // global or region shops
+    public boolean useRegionShops = false;
+    // stock items
+    public boolean useItemStock = false;
+
 
     public enum DBType {
 
@@ -65,95 +74,104 @@ public class BSConfig {
     }
 
     public final boolean load() {
-        Configuration config = new Configuration(configfile);
-        config.load();
-        ConfigurationNode n;
-        pagesize = config.getInt("ItemsPerPage", pagesize);
-        publicmarket = config.getBoolean("publicmarket", publicmarket);
+        try {
+            Configuration config = new Configuration(configfile);
+            config.load();
+            ConfigurationNode n;
+            pagesize = config.getInt("ItemsPerPage", pagesize);
+            publicmarket = config.getBoolean("publicmarket", publicmarket);
 
-        allowbuyillegal = config.getBoolean("allowbuyillegal", allowbuyillegal);
-        usemaxstack = config.getBoolean("usemaxstack", usemaxstack);
-        buybacktools = config.getBoolean("buybacktools", buybacktools);
+            allowbuyillegal = config.getBoolean("allowbuyillegal", allowbuyillegal);
+            usemaxstack = config.getBoolean("usemaxstack", usemaxstack);
+            buybacktools = config.getBoolean("buybacktools", buybacktools);
 
-        tableName = config.getString("tablename", tableName);
-        databaseType = config.getBoolean("useMySQLPricelist", false) ? DBType.MYSQL : DBType.FLATFILE;
-        if (databaseType == DBType.MYSQL) {
-            n = config.getNode("MySQL");
+            tableName = config.getString("tablename", tableName);
+            databaseType = config.getBoolean("useMySQLPricelist", false) ? DBType.MYSQL : DBType.FLATFILE;
+            if (databaseType == DBType.MYSQL) {
+                n = config.getNode("MySQL");
+                if (n != null) {
+                    sql_username = n.getString("username", sql_username);
+                    sql_password = n.getString("password", sql_password);
+                    sql_database = n.getString("database", sql_database).replace(" ", "_");
+                    sql_hostName = n.getString("Hostname", sql_hostName);
+                    sql_portNum = n.getString("Port", sql_portNum);
+                    String lifespan = n.getString("tempCacheTTL");
+                    if (lifespan != null) {
+                        tempCacheTTL = CheckInput.GetInt(lifespan, tempCacheTTL);
+                    }
+                    useDBCache = n.getBoolean("cache", useDBCache);
+                    lifespan = n.getString("cacheUpdate");
+                    if (lifespan != null) {
+                        try {
+                            priceListLifespan = CheckInput.GetBigInt_TimeSpanInSec(lifespan).intValue();
+                        } catch (Exception ex) {
+                            BetterShop.Log(Level.WARNING, "cacheUpdate has an illegal value");
+                            BetterShop.Log(Level.WARNING, ex);
+                        }
+                    }
+                } else {
+                    BetterShop.Log(Level.WARNING, "MySQL section in " + configname + " is missing");
+                }
+            }
+            n = config.getNode("transactionLog");
             if (n != null) {
-                sql_username = n.getString("username", sql_username);
-                sql_password = n.getString("password", sql_password);
-                sql_database = n.getString("database", sql_database).replace(" ", "_");
-                sql_hostName = n.getString("Hostname", sql_hostName);
-                sql_portNum = n.getString("Port", sql_portNum);
-                String lifespan = n.getString("tempCacheTTL");
+                logUserTransactions = n.getBoolean("enabled", logUserTransactions);
+                transLogTablename = n.getString("logtablename", transLogTablename).replace(" ", "_");
+                String lifespan = n.getString("userTansactionLifespan");
                 if (lifespan != null) {
-                    tempCacheTTL = CheckInput.GetInt(lifespan, tempCacheTTL);
-                    /*try {
-                    tempCacheTTL = CheckInput.GetBigInt_TimeSpanInSec(lifespan).intValue();
+                    try {
+                        userTansactionLifespan = CheckInput.GetBigInt_TimeSpanInSec(lifespan);
                     } catch (Exception ex) {
-                    BetterShop.Log(Level.WARNING, "tempCacheTTL has an illegal value", ex);
-                    //BetterShop.Log(Level.WARNING, ex);
-                    }//*/
+                        BetterShop.Log(Level.WARNING, "userTansactionLifespan has an illegal value", ex);
+                    }
                 }
             } else {
-                BetterShop.Log(Level.WARNING, "MySQL section in " + configname + " is missing");
+                BetterShop.Log(Level.WARNING, "transactionLog section in config not found");
             }
-        }
-        n = config.getNode("transactionLog");
-        if (n != null) {
-            logUserTransactions = n.getBoolean("enabled", logUserTransactions);
-            transLogTablename = n.getString("logtablename", transLogTablename).replace(" ", "_");
-            String lifespan = n.getString("userTansactionLifespan");
-            if (lifespan != null) {
-                try {
-                    userTansactionLifespan = CheckInput.GetBigInt_TimeSpanInSec(lifespan);
-                } catch (Exception ex) {
-                    BetterShop.Log(Level.WARNING, "userTansactionLifespan has an illegal value", ex);
+
+            n = config.getNode("totalsTransactionLog");
+            if (n != null) {
+                logTotalTransactions = n.getBoolean("enabled", logTotalTransactions);
+                recordTablename = n.getString("logtablename", recordTablename).replace(" ", "_");
+            } else {
+                BetterShop.Log(Level.WARNING, "totalsTransactionLog section in config not found");
+            }
+
+            n = config.getNode("strings");
+            if (n != null) {
+                stringMap.clear();
+                for (Object k : config.getKeys("strings").toArray()) {
+                    if (k instanceof String) {
+                        String tmpString = n.getString(k.toString());
+                        // double-check that recieved a value
+                        if (tmpString != null) {
+                            tmpString = tmpString.replace("&", "\u00A7").replace("%", "%%"); // tmpString.replaceAll("&.", "\u00A7").replace("%", "%%");//
+                            // put the string in a HashMap for retrieval later
+                            stringMap.put(k.toString(), tmpString);
+                        }
+                    }
                 }
+            } else {
+                BetterShop.Log(Level.SEVERE, String.format("strings section missing from configuration file %s", configname));
             }
-        } else {
-            BetterShop.Log(Level.WARNING, "transactionLog section in config not found");
-        }
-
-        n = config.getNode("totalsTransactionLog");
-        if (n != null) {
-            logTotalTransactions = n.getBoolean("enabled", logTotalTransactions);
-            recordTablename = n.getString("logtablename", recordTablename).replace(" ", "_");
-        } else {
-            BetterShop.Log(Level.WARNING, "totalsTransactionLog section in config not found");
-        }
-
-        n = config.getNode("strings");
-        if (n != null) {
-            stringMap.clear();
-            for (Object k : config.getKeys("strings").toArray()) {
-                if (k instanceof String) {
-                    String tmpString = n.getString(k.toString());
-                    // double-check that recieved a value
-                    if (tmpString != null) {
-                        tmpString = tmpString.replace("&", "\u00A7").replace("%", "%%"); // tmpString.replaceAll("&.", "\u00A7").replace("%", "%%");// 
-                        // put the string in a HashMap for retrieval later
-                        stringMap.put(k.toString(), tmpString);
+            String customsort = config.getString("customsort");
+            if (customsort != null) {
+                // parse for items && add to custom sort arraylist
+                String items[] = customsort.split(",");
+                for (String i : items) {
+                    Item toAdd = Item.findItem(i.trim());
+                    if (toAdd != null) {
+                        sortOrder.add(toAdd.IdDatStr());
+                    } else {
+                        BetterShop.Log("Invalid Item in customsort configuration: " + i);
                     }
                 }
             }
-        } else {
-            BetterShop.Log(Level.SEVERE, String.format("strings section missing from configuration file %s", configname));
+        } catch (Exception ex) {
+            BetterShop.Log(Level.SEVERE, "Error parsing configuration file");
+            BetterShop.Log(Level.SEVERE, ex);
+            return false;
         }
-        String customsort = config.getString("customsort");
-        if (customsort != null) {
-            // parse for items && add to custom sort arraylist
-            String items[] = customsort.split(",");
-            for (String i : items) {
-                Item toAdd = Item.findItem(i.trim());
-                if (toAdd != null) {
-                    sortOrder.add(toAdd.IdDatStr());
-                } else {
-                    BetterShop.Log("Invalid Item in customsort configuration: " + i);
-                }
-            }
-        }
-
         return true;
     }
 

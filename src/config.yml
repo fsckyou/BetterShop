@@ -29,9 +29,7 @@ MySQL:
     #   positive integer values only, units being s(econds) m(inutes) h(hours) d(ays) w(eeks) M(onths) (default: h)
     #   0 = never update cache (use if you won't be editing the database outside of the plugin)
     #   if you don't want to have caching, you shoud still enable it & set this to something low, like 25 seconds
-    cacheUpdate: 0
-    # if false, will disconnect from db when now using it (use if have a high cacheUpdate)
-    persistentMySQL: true
+    cacheUpdate: 5m
     # if cache is disabled, will hold a temp cache of the last item looked up
     #   (to lower database lookups & increase performance)
     #   use this to change how long it is considered current (seconds)

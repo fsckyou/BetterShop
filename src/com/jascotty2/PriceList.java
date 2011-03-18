@@ -33,8 +33,10 @@ public class PriceList {
     public int tempCacheTTL = 10;
     // temporary storage for last queried item (primarily for when caching is disabled)
     PriceListItem tempCache = null;
+    // use full db caching?
+    public boolean useCache = false;
     // if using caching, how long before cache is considered outdated (seconds)
-    public int dbCacheTTL = 0;
+    public long dbCacheTTL = 0;
     // if false, will disconnect from db when now using it (use if have a high dbCacheTTL)
     public boolean persistentMySQL = true;
     // last time the pricelist was updated
@@ -111,7 +113,6 @@ public class PriceList {
     }
 
     public final boolean reloadList() throws SQLException, IOException, Exception {
-        lastCacheUpdate = new Date();
         if (databaseType == DBType.MYSQL) {
             return reloadMySQL();
         } else {
@@ -313,20 +314,27 @@ public class PriceList {
         return false;
     }
 
+    public void updateCache() throws SQLException, Exception {
+        updateCache(true);
+    }
+
     public void updateCache(boolean checkFirst) throws SQLException, Exception {
-        if (databaseType != DBType.MYSQL || dbCacheTTL == 0) {
+        if (databaseType != DBType.MYSQL) {
             // (flatfile is cached, manually updated)
-            // caching disabled
             return;
         }
-        if (!checkFirst
-                || (checkFirst && databaseType == DBType.MYSQL && dbCacheTTL > 0 && lastCacheUpdate != null
-                && ((new Date()).getTime() - lastCacheUpdate.getTime()) < dbCacheTTL * 1000)) {
+        //System.out.println("use c:" + useCache + "   " + dbCacheTTL);
+        if (!checkFirst || (useCache && lastCacheUpdate == null)
+                || (useCache && dbCacheTTL > 0 && lastCacheUpdate != null
+                && ((new Date()).getTime() - lastCacheUpdate.getTime()) / 1000 > dbCacheTTL)) {
+            //System.out.println("updating cache (" + (lastCacheUpdate != null?((new Date()).getTime() - lastCacheUpdate.getTime())/100:-1) + "s since last update)");
             // MySQL cache outdated: update
             LinkedList<PriceListItem> update = MySQLpricelist.GetFullList();
             priceList.clear();
             priceList.addAll(update);
+            lastCacheUpdate = new Date();
         }
+        //else cache up-to-date, or disabled
     }
 
     public boolean ItemExists(String check) throws SQLException, Exception {
@@ -397,26 +405,11 @@ public class PriceList {
         if (it == null) {
             return -1;
         }
-        if (tempCache != null && tempCache.equals(it)
-                && ((new Date()).getTime() - tempCache.getTime()) < tempCacheTTL * 1000) {
-            // use temp
-            return tempCache.sell;
+        PriceListItem itp = getItemPrice(it);
+        if(itp!=null){
+            return itp.sell;
         }
-        updateCache(true);
-        if (databaseType == DBType.MYSQL && dbCacheTTL == 0) {
-            tempCache = MySQLpricelist.GetItem(it);
-        } else {
-            int i = priceList.indexOf(it);
-            if (i < 0) {
-                return -1;
-            }//else
-            if (tempCache == null) {
-                tempCache = new PriceListItem(priceList.get(i));
-            } else {
-                tempCache.Set(priceList.get(i));
-            }
-        }
-        return tempCache == null ? -1 : tempCache.sell;
+        return -1;
     }
 
     public double getBuyPrice(String s) throws SQLException, Exception {
@@ -427,26 +420,11 @@ public class PriceList {
         if (it == null) {
             return -1;
         }
-        if (tempCache != null && tempCache.equals(it)
-                && ((new Date()).getTime() - tempCache.getTime()) < tempCacheTTL * 1000) {
-            // use temp
-            return tempCache.buy;
+        PriceListItem itp = getItemPrice(it);
+        if(itp!=null){
+            return itp.buy;
         }
-        updateCache(true);
-        if (databaseType == DBType.MYSQL && dbCacheTTL == 0) {
-            tempCache = MySQLpricelist.GetItem(it);
-        } else {
-            int i = priceList.indexOf(it);
-            if (i < 0) {
-                return -1;
-            }//else
-            if (tempCache == null) {
-                tempCache = new PriceListItem(priceList.get(i));
-            } else {
-                tempCache.Set(priceList.get(i));
-            }
-        }
-        return tempCache == null ? -1 : tempCache.buy;
+        return -1;
     }
 
     public PriceListItem getItemPrice(Item it) throws SQLException, Exception {
@@ -454,14 +432,14 @@ public class PriceList {
             return null;
         }
         if (tempCache != null && tempCache.equals(it)
-                && ((new Date()).getTime() - tempCache.getTime()) < tempCacheTTL * 1000) {
+                && ((new Date()).getTime() - tempCache.getTime())/1000 < tempCacheTTL) {
             // use temp
             return tempCache;
         }
-        updateCache(true);
-        if (databaseType == DBType.MYSQL && dbCacheTTL == 0) {
+        if (databaseType == DBType.MYSQL && !useCache) {
             tempCache = MySQLpricelist.GetItem(it);
         } else {
+            updateCache(true);
             int i = priceList.indexOf(it);
             if (i < 0) {
                 return null;
@@ -510,7 +488,7 @@ public class PriceList {
             updateCache(false);
             return true;
         } else {
-            if (priceList.remove((PriceListItem) it)) {
+            if (priceList.remove(new PriceListItem(it))) {
                 return save();
             }
         }
@@ -572,10 +550,10 @@ public class PriceList {
      */
     public LinkedList<String> GetShopListPage(int pageNum, boolean isPlayer, int pageSize, String listing, String header, String footer, boolean showIllegal) throws SQLException, Exception {
         LinkedList<String> ret = new LinkedList<String>();
-        if (databaseType == DBType.MYSQL && dbCacheTTL == 0) {
-            // manually update
-            priceList.clear();
-            priceList.addAll(MySQLpricelist.GetFullList());
+        if (databaseType == DBType.MYSQL && !useCache) {
+            updateCache(false);// manually update
+        } else {
+            updateCache();
         }
         int pricelistsize = priceList.size();
         if (!showIllegal) {
@@ -635,10 +613,10 @@ public class PriceList {
      */
     public LinkedList<String> GetShopListPage(int pageNum, String playerName, int pageSize, String listing, String header, String footer, boolean showIllegal) throws SQLException, Exception {
         LinkedList<String> ret = new LinkedList<String>();
-        if (databaseType == DBType.MYSQL && dbCacheTTL == 0) {
-            // manually update
-            priceList.clear();
-            priceList.addAll(MySQLpricelist.GetFullList());
+        if (databaseType == DBType.MYSQL && !useCache) {
+            updateCache(false);// manually update
+        }else{
+            updateCache();
         }
         int pricelistsize = priceList.size();
         if (!showIllegal) {
@@ -682,34 +660,36 @@ public class PriceList {
         }
         return ret;
     }
-    
-    public Item[] getItems() throws SQLException, Exception{
-        return (Item[])getPricelistItems();
+
+    public Item[] getItems() throws SQLException, Exception {
+        return (Item[]) getPricelistItems();
     }
-    public PriceListItem[] getPricelistItems() throws SQLException, Exception{
-        if (databaseType == DBType.MYSQL && dbCacheTTL == 0) {
-            // manually update
-            priceList.clear();
-            priceList.addAll(MySQLpricelist.GetFullList());
-        }else{
+
+    public PriceListItem[] getPricelistItems() throws SQLException, Exception {
+        if (databaseType == DBType.MYSQL && !useCache) {
+            updateCache(false);// manually update
+        } else {
             updateCache(true);
         }
         return priceList.toArray(new PriceListItem[0]);
     }
-    
-    public Item[] getItems(boolean showIllegal) throws SQLException, Exception{
+
+    public Item[] getItems(boolean showIllegal) throws SQLException, Exception {
         //for(Item i :((Item[])getPricelistItems())) System.out.println(i);
-        if(showIllegal) return getPricelistItems();
+        if (showIllegal) {
+            return getPricelistItems();
+        }
         //else
-        return (Item[])getPricelistItems(showIllegal);
+        return (Item[]) getPricelistItems(showIllegal);
     }
-    public PriceListItem[] getPricelistItems(boolean showIllegal) throws SQLException, Exception{
-        if (databaseType == DBType.MYSQL && dbCacheTTL == 0) {
+
+    public PriceListItem[] getPricelistItems(boolean showIllegal) throws SQLException, Exception {
+        if (databaseType == DBType.MYSQL && !useCache) {
             // manually update
             priceList.clear();
             priceList.addAll(MySQLpricelist.GetFullList());
-        }else{
-            updateCache(true);
+        } else {
+            updateCache();
         }
         ArrayList<PriceListItem> items = new ArrayList<PriceListItem>();
         for (int i = 0; i < priceList.size(); ++i) {

@@ -27,7 +27,8 @@ import java.util.ArrayList;
  * @author jjfs85
  */
 public class BetterShop extends JavaPlugin {
-
+    public final static String lastUpdatedStr = "3/18/11 15:55 -0500"; // "MM/dd/yy HH:mm Z"
+    public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
     public static BSConfig config = null;//final new BSConfig();
@@ -38,8 +39,8 @@ public class BetterShop extends JavaPlugin {
     static iConomy iConomy = null;
     static Bank iBank = null;
     private final Listener Listener = new Listener();
-    private static boolean isLoaded = true;
-    PluginDescriptionFile pdfFile;// = this.getDescription();
+    //private static boolean isLoaded = true;
+    public static PluginDescriptionFile pdfFile;// = this.getDescription();
 
     private class Listener extends ServerListener {
 
@@ -85,10 +86,11 @@ public class BetterShop extends JavaPlugin {
     public void onEnable() {
         pdfFile = this.getDescription();
         logger.log(Level.INFO, String.format("Loading %s version %s ...", pdfFile.getName(), pdfFile.getVersion()));
-
+        
         // ready items db (needed for pricelist, sorting in config, item lookup, ...)
         try {
             ItemDB.load(BSConfig.pluginFolder);
+            //Log("Itemsdb loaded");
         } catch (Exception e) {
             Log(Level.SEVERE, e);
             Log(Level.SEVERE, "cannot load items db: closing plugin");
@@ -98,6 +100,10 @@ public class BetterShop extends JavaPlugin {
 
         if (config == null) {
             config = new BSConfig();
+            //Log("config loaded");
+            if(config.checkUpdates){
+                Updater.check();
+            }
             pricelist = new BSPriceList();
             transactions = new BSTransactionLog();
             bscommand = new BSCommand();
@@ -119,7 +125,7 @@ public class BetterShop extends JavaPlugin {
 
         hookDepends();
         registerEvents();
-        isLoaded = true;
+        //isLoaded = true;
 
         // Just output some info so we can check
         // all is well
@@ -137,7 +143,7 @@ public class BetterShop extends JavaPlugin {
         } catch (Exception ex) {
             Log(Level.SEVERE, ex);
         }
-        isLoaded = false;
+        //isLoaded = false;
         transactions = null;
 
         logger.info("BetterShop now unloaded");

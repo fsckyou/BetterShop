@@ -164,7 +164,7 @@ public class MySQLPriceList {
         return false;
     }
 
-    public void SetPrice(Item item, double buy, double sell) throws SQLException, Exception { //
+    public void SetPrice(Item item, double buy, double sell) throws SQLException { //
         if (ItemExists(item)) {
             try {
                 //logger.log(Level.INFO, String.format("UPDATE %s SET BUY=%1.2f, SELL=%1.2f WHERE ID='%d' AND SUB='%d';", sql_tableName, buy, sell, item.itemId, (int) item.itemData));
@@ -186,8 +186,6 @@ public class MySQLPriceList {
                 //return true;
             } catch (SQLException ex) {
                 throw new SQLException("Error executing INSERT on " + sql_tableName, ex);
-            } catch (Exception ex) {
-                throw new Exception("Error looking up item " + item, ex);
             }
         }
     }
