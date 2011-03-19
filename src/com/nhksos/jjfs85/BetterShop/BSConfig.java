@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -46,7 +45,8 @@ public class BSConfig {
     public int tempCacheTTL = 10; //how long before tempCache is considered outdated (seconds)
     // logging settings
     public boolean logUserTransactions = false, logTotalTransactions = false;
-    public BigInteger userTansactionLifespan = new BigInteger("172800"); // 2 days.. i'd like to use unsigned long, but java doesn't have it..
+    //public BigInteger userTansactionLifespan = new BigInteger("172800"); // 2 days.. i'd like to use unsigned long, but java doesn't have it..
+    public long userTansactionLifespan = 172800;
     public String transLogTablename = "BetterShopMarketActivity", recordTablename = "BetterShopTransactionTotals";
     // if pricelist is to have a custom sort order, what should be at the top
     public ArrayList<String> sortOrder = new ArrayList<String>();
@@ -59,10 +59,29 @@ public class BSConfig {
     public boolean buybacktools = true;
     // global or region shops
     public boolean useRegionShops = false;
+    // dynamic pricing options
+    public boolean useDynamicPricing = false;
+    //if a price is not set on a craftable item, can still sell if the materials to make are for sale
+    public boolean sellcraftables= true;
+    // if sellcraftables, how much % more a crafted item costs than the materials
+    public double sellcraftableMarkup = .05;
+    // if sellcraftables, if colored wool should sell for less than sellcraftableMarkup
+    //   (otherwise, a player could buy dye, color a sheep, get 1-3 colored wool, make profit)
+    public boolean woolsellweight= true;
     // stock items
     public boolean useItemStock = false;
-
-
+    // table/file name to use
+    public String stockTablename = "BetterShopStock";
+    //  how much an added item has to start with
+    public long startStock = 200;
+    // max stock to carry (stock is increased with sales)
+    public long maxStock =500;
+    // deny sales if stock is full?
+    public boolean noOverStock = true;
+    // restock interval.. automatic, and stock will be reset to startStock value
+    public long restock = 21600; //6h
+    
+    
     public enum DBType {
 
         MYSQL, SQLITE, FLATFILE
@@ -78,6 +97,9 @@ public class BSConfig {
             Configuration config = new Configuration(configfile);
             config.load();
             ConfigurationNode n;
+            
+            checkUpdates=config.getBoolean("CheckForUpdates", checkUpdates);
+            
             pagesize = config.getInt("ItemsPerPage", pagesize);
             publicmarket = config.getBoolean("publicmarket", publicmarket);
 
@@ -87,6 +109,21 @@ public class BSConfig {
 
             tableName = config.getString("tablename", tableName);
             databaseType = config.getBoolean("useMySQLPricelist", false) ? DBType.MYSQL : DBType.FLATFILE;
+            
+            String customsort = config.getString("customsort");
+            if (customsort != null) {
+                // parse for items && add to custom sort arraylist
+                String items[] = customsort.split(",");
+                for (String i : items) {
+                    Item toAdd = Item.findItem(i.trim());
+                    if (toAdd != null) {
+                        sortOrder.add(toAdd.IdDatStr());
+                    } else {
+                        BetterShop.Log("Invalid Item in customsort configuration: " + i);
+                    }
+                }
+            }
+            
             if (databaseType == DBType.MYSQL) {
                 n = config.getNode("MySQL");
                 if (n != null) {
@@ -103,7 +140,7 @@ public class BSConfig {
                     lifespan = n.getString("cacheUpdate");
                     if (lifespan != null) {
                         try {
-                            priceListLifespan = CheckInput.GetBigInt_TimeSpanInSec(lifespan).intValue();
+                            priceListLifespan = CheckInput.GetBigInt_TimeSpanInSec(lifespan).longValue();
                         } catch (Exception ex) {
                             BetterShop.Log(Level.WARNING, "cacheUpdate has an illegal value");
                             BetterShop.Log(Level.WARNING, ex);
@@ -120,7 +157,7 @@ public class BSConfig {
                 String lifespan = n.getString("userTansactionLifespan");
                 if (lifespan != null) {
                     try {
-                        userTansactionLifespan = CheckInput.GetBigInt_TimeSpanInSec(lifespan);
+                        userTansactionLifespan = CheckInput.GetBigInt_TimeSpanInSec(lifespan).longValue();
                     } catch (Exception ex) {
                         BetterShop.Log(Level.WARNING, "userTansactionLifespan has an illegal value", ex);
                     }
@@ -136,7 +173,35 @@ public class BSConfig {
             } else {
                 BetterShop.Log(Level.WARNING, "totalsTransactionLog section in config not found");
             }
-
+            
+            n = config.getNode("dynamicMarket");
+            if (n != null) {
+                useDynamicPricing = n.getBoolean("enabled", useDynamicPricing);
+                sellcraftables= n.getBoolean("sellcraftables", sellcraftables);
+                sellcraftableMarkup = n.getDouble("sellcraftableMarkup", sellcraftableMarkup/100)*100;
+                woolsellweight=n.getBoolean("woolsellweight", woolsellweight) ;
+            }
+            
+            n = config.getNode("itemStock");
+            if (n != null) {
+                useItemStock=n.getBoolean("enabled", useItemStock);
+                stockTablename = n.getString("stockTablename", stockTablename);
+                noOverStock = n.getBoolean("noOverStock", noOverStock);
+                String num = n.getString("startStock");
+                if(num!=null){
+                    startStock = CheckInput.GetBigInt(num, startStock).longValue();
+                }
+                num = n.getString("maxStock");
+                if(num!=null){
+                    maxStock = CheckInput.GetBigInt(num, maxStock).longValue();
+                }
+                num = n.getString("restock");
+                if(num!=null){
+                    restock = CheckInput.GetBigInt(num, restock).longValue();
+                }
+            }
+            
+            
             n = config.getNode("strings");
             if (n != null) {
                 stringMap.clear();
@@ -153,19 +218,6 @@ public class BSConfig {
                 }
             } else {
                 BetterShop.Log(Level.SEVERE, String.format("strings section missing from configuration file %s", configname));
-            }
-            String customsort = config.getString("customsort");
-            if (customsort != null) {
-                // parse for items && add to custom sort arraylist
-                String items[] = customsort.split(",");
-                for (String i : items) {
-                    Item toAdd = Item.findItem(i.trim());
-                    if (toAdd != null) {
-                        sortOrder.add(toAdd.IdDatStr());
-                    } else {
-                        BetterShop.Log("Invalid Item in customsort configuration: " + i);
-                    }
-                }
             }
         } catch (Exception ex) {
             BetterShop.Log(Level.SEVERE, "Error parsing configuration file");

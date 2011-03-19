@@ -24,14 +24,18 @@ public class Updater extends InstallDependency {
 
     public static String downloadPage = "https://github.com/jascotty2/BetterShop/downloads";
     public static String downloadLink = "/downloads/jascotty2/BetterShop/BetterShop.jar";
+    public static String altDownloadPage = "https://github.com/BetterShop/BetterShop/downloads";
+    public static String altDownloadLink = "/downloads/BetterShop/BetterShop/BetterShop.jar";
 
     public Updater() {
     } // end default constructor
 
     public static void check() {
-        //check("https://github.com/downloads/jascotty2/BetterShop/BetterShop_test2.jar");
         check(downloadPage, downloadLink);
-        //check("https://github.com/jascotty2/BetterShop");
+    }
+
+    public static void checkMain() {
+        check(altDownloadPage, altDownloadLink);
     }
 
     public static void check(String location, String linktofind) {
@@ -158,7 +162,7 @@ public class Updater extends InstallDependency {
         }
         return true;
     }
-    
+
     public boolean loadNew() {
         /*
         File pluginFile = new File(new File("plugins"), pluginName + ".jar");

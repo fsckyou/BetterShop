@@ -67,7 +67,7 @@ public class ItemDB extends Item {
                         n = itemdb.getNode("items." + k);
                         if (n != null) {
                             Item item = new Item();
-                            item.name = n.getString("name", "null").toLowerCase();
+                            item.name = n.getString("name", "null");
                             item.SetColor(n.getString("color"));
                             item.SetMaxStack(n.getInt("maxstack", 64));
                             item.isLegal = n.getBoolean("legal", true);
@@ -148,7 +148,7 @@ public class ItemDB extends Item {
                                         }
                                         kit.SetColor(n.getString("color"));
                                         kit.isLegal = n.getBoolean("legal", true);
-                                        kit.name = n.getString("name", "null").toLowerCase();
+                                        kit.name = n.getString("name", "null");
                                         // now add aliases (if any)
                                         a = n.getString("aliases");
                                         if (a != null) {
@@ -235,5 +235,9 @@ public class ItemDB extends Item {
 
     public static boolean isKit(String search) {
         return getKit(search) != null;
+    }
+
+    public static int size(){
+        return items.size();
     }
 }

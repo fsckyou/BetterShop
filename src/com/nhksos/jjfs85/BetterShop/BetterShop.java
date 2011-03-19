@@ -19,6 +19,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.nijiko.coelho.iConomy.iConomy;
 import com.nijiko.coelho.iConomy.system.Bank;
 import com.nijikokun.bukkit.Permissions.Permissions;
+import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 /*
@@ -27,7 +29,7 @@ import java.util.ArrayList;
  * @author jjfs85
  */
 public class BetterShop extends JavaPlugin {
-    public final static String lastUpdatedStr = "3/18/11 15:55 -0500"; // "MM/dd/yy HH:mm Z"
+    public final static String lastUpdatedStr = "3/19/11 17:40 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
@@ -193,6 +195,21 @@ public class BetterShop extends JavaPlugin {
                     commandName = "shopbuyagain";
                 } else if (args[0].equalsIgnoreCase("listkits")) {
                     commandName = "shoplistkits";
+                } else if (args[0].equalsIgnoreCase("backup")) {
+                    if (BSutils.hasPermission(sender, "BetterShop.admin.load", true)){
+                        SimpleDateFormat formatter = new SimpleDateFormat("_yyyy_MM_dd_HH-mm-ss");
+                        String backFname = BSConfig.pluginFolder.getPath() + File.separatorChar + 
+                                config.tableName + formatter.format(new java.util.Date()) + ".csv";
+                        try {
+                            if (pricelist.saveFile(new File(backFname))) {
+                                sender.sendMessage("Backup saved as " + backFname);
+                            }
+                        } catch (IOException ex) {
+                            Log(Level.SEVERE, "Failed to save backup file " + backFname, ex);
+                            sender.sendMessage("\u00A74Failed to save backup file " + backFname);
+                        }
+                    }
+                    return true;
                 } else if (args[0].equalsIgnoreCase("ver") || args[0].equalsIgnoreCase("version")) {
                     // allow admin.info or developers access to plugin status (so if i find a bug i can see if it's current)
                     if (BSutils.hasPermission(sender, "BetterShop.admin.info", false)

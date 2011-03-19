@@ -12,12 +12,13 @@ import java.net.HttpURLConnection;
 
 import java.net.URLConnection;
 import java.net.URL;
+
 /**
  * @author jacob
  */
 public class InstallDependency {
 
-    protected static int count, total, itemCount, itemTotal;
+    protected static int total, itemCount, itemTotal; // count, 
     protected static long lastModified;
     protected static String error;
     protected static boolean cancelled;
@@ -63,7 +64,7 @@ public class InstallDependency {
     public static boolean install(String location, String filename) {
         try {
             cancelled = false;
-            count = total = itemCount = itemTotal = 0;
+            total = itemCount = itemTotal = 0;
             if (cancelled) {
                 return false;
             }
@@ -110,17 +111,7 @@ public class InstallDependency {
 
         byte[] buffer = new byte[65536];
         //int currentCount = 0;
-        for (;;) {
-            if (cancelled) {
-                break;
-            }
-
-            int count = in.read(buffer);
-
-            if (count < 0) {
-                break;
-            }
-
+        for (int count; !cancelled && (count = in.read(buffer)) >= 0;) {
             out.write(buffer, 0, count);
             //currentCount += count;
         }

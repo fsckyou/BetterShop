@@ -6,28 +6,38 @@
  */
 package com.nhksos.jjfs85.BetterShop;
 
+import com.jascotty2.CSV;
+import com.jascotty2.CheckInput;
+import com.jascotty2.Item.Item;
 import com.jascotty2.MySQL.MySQL;
-import com.jascotty2.MySQL.UserTransaction;
+import com.jascotty2.Shop.TotalTransaction;
+import com.jascotty2.Shop.UserTransaction;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.logging.Level;
 
-//todo: add logging for flatfile format
 public class BSTransactionLog {
 
-    MySQL MySQLconnection = null;
-    boolean isLoaded = false;
+    protected MySQL MySQLconnection = null;
+    protected boolean isLoaded = false;
     // file, if flatfile
-    File flatFile = null;
+    protected File flatFile = null, totalsFlatFile = null;
     // cache of records
-    ArrayList<UserTransaction> priceList = new ArrayList<UserTransaction>();
+    protected ArrayList<UserTransaction> transactions = new ArrayList<UserTransaction>();
+    protected ArrayList<TotalTransaction> totalTransactions = new ArrayList<TotalTransaction>();
 
     public BSTransactionLog() {
         //load();
     } // end default constructor
 
     public final boolean load() {
+        transactions.clear();
+        totalTransactions.clear();
         if (BetterShop.config.useMySQL()) {
             // use same connection pricelist is using (pricelist MUST be initialized.. does not check)
             MySQLconnection = BetterShop.pricelist.getMySQLconnection();
@@ -35,7 +45,9 @@ public class BSTransactionLog {
                 if (BetterShop.config.logUserTransactions) {
                     if (!MySQLconnection.tableExists(BetterShop.config.transLogTablename)) {
                         BetterShop.config.logUserTransactions = createTransactionLogTable();
-                    }else truncateRecords();
+                    } else {
+                        truncateRecords();
+                    }
                 }
                 if (BetterShop.config.logTotalTransactions) {
                     if (!MySQLconnection.tableExists(BetterShop.config.recordTablename)) {
@@ -47,29 +59,89 @@ public class BSTransactionLog {
                 BetterShop.config.logUserTransactions = false;
                 return isLoaded = false;
             }
-            return isLoaded = true;
-        }else{
-            flatFile = new File(BSConfig.pluginFolder.getAbsolutePath() + File.separatorChar + BetterShop.config.transLogTablename);
-            
+            updateCache();
+        } else {
+            if (BetterShop.config.logUserTransactions) {
+                flatFile = new File(BSConfig.pluginFolder.getAbsolutePath() + File.separatorChar + BetterShop.config.transLogTablename + ".csv");
+                if (flatFile.exists()) {
+                    try {
+                        ArrayList<String[]> actFile = CSV.loadFile(flatFile);
+                        for (int n = 0; n < actFile.size(); ++n) {//String[] line : actFile) {
+                            String[] line = actFile.get(n);
+                            if (line.length > 3) {
+                                Item plItem = Item.findItem(line[2] + ":" + (line[3].equals(" ") ? "0" : line[3]));
+                                if (plItem != null) {
+                                    //priceList.add(new PriceListItem(plItem, fields[2].length() == 0 ? -1 : CheckInput.GetDouble(fields[2], -1), fields[3].length() == 0 ? -1 : CheckInput.GetDouble(fields[3], -1)));
+                                    transactions.add(new UserTransaction(CheckInput.GetInt(line[0], 0), line[1], plItem,
+                                            CheckInput.GetInt(line[5], 0), CheckInput.GetInt(line[6], 0) != 0, CheckInput.GetDouble(line[7], 0)));
+                                } else if (n > 0) { // first line is expected invalid: is title
+                                    BetterShop.Log(Level.WARNING, String.format("Invalid item on line %d in %s", (n + 1), flatFile.getName()));
+                                }
+                            } else {
+                                BetterShop.Log(Level.WARNING, String.format("unexpected pricelist line at %d in %s", (n + 1), flatFile.getName()));
+                            }
+                        }
+                    } catch (FileNotFoundException ex) {
+                        BetterShop.Log(Level.SEVERE, "Unexpected Error: File not found: " + flatFile.getName(), ex);
+                    } catch (IOException ex) {
+                        BetterShop.Log(Level.SEVERE, "Error opening " + flatFile.getName() + " for reading", ex);
+                    }
+                    //System.out.println("loaded " + transactions.size());
+                } else {
+                    save();
+                }
+            }
+            if (BetterShop.config.logUserTransactions) {
+                totalsFlatFile = new File(BSConfig.pluginFolder.getAbsolutePath() + File.separatorChar + BetterShop.config.recordTablename + ".csv");
+                if (totalsFlatFile.exists()) {
+                    try {
+                        ArrayList<String[]> actFile = CSV.loadFile(totalsFlatFile);
+                        for (int n = 0; n < actFile.size(); ++n) {//String[] line : actFile) {
+                            String[] line = actFile.get(n);
+                            if (line.length > 3) {
+                                Item plItem = Item.findItem(line[2] + ":" + (line[3].equals(" ") ? "0" : line[3]));
+                                if (plItem != null) {
+                                    //priceList.add(new PriceListItem(plItem, fields[2].length() == 0 ? -1 : CheckInput.GetDouble(fields[2], -1), fields[3].length() == 0 ? -1 : CheckInput.GetDouble(fields[3], -1)));
+                                    totalTransactions.add(new TotalTransaction(CheckInput.GetLong(line[0], 0), plItem,
+                                            CheckInput.GetLong(line[5], 0), CheckInput.GetLong(line[6], 0)));
+                                } else if (n > 0) { // first line is expected invalid: is title
+                                    BetterShop.Log(Level.WARNING, String.format("Invalid item on line %d in %s", (n + 1), flatFile.getName()));
+                                }
+                            } else {
+                                BetterShop.Log(Level.WARNING, String.format("unexpected pricelist line at %d in %s", (n + 1), flatFile.getName()));
+                            }
+                        }
+                    } catch (FileNotFoundException ex) {
+                        BetterShop.Log(Level.SEVERE, "Unexpected Error: File not found: " + totalsFlatFile.getName(), ex);
+                    } catch (IOException ex) {
+                        BetterShop.Log(Level.SEVERE, "Error opening " + totalsFlatFile.getName() + " for reading", ex);
+                    }
+                    //System.out.println("loaded " + totalTransactions.size());
+                } else {
+                    save();
+                }
+            }
         }
-        return isLoaded = false;
+        return isLoaded = true;
     }
 
     public boolean isOpened() {
         return isLoaded && (BetterShop.config.useMySQL()
                 ? MySQLconnection != null && MySQLconnection.IsConnected() : flatFile != null);
     }
-    
-    public String databaseName(){
-        return BetterShop.config.useMySQL() ? 
-            (MySQLconnection != null ? MySQLconnection.GetDatabaseName() : "null") :
-            (flatFile != null ? flatFile.getName() : "null");
+
+    public String databaseName() {
+        return BetterShop.config.useMySQL()
+                ? (MySQLconnection != null ? MySQLconnection.GetDatabaseName() : "null")
+                : (flatFile != null ? flatFile.getName() : "null");
     }
 
     public void addRecord(UserTransaction rec) {
         //System.out.println("add record: " + BetterShop.config.logUserTransactions + "  " + BetterShop.config.logTotalTransactions);
         if (BetterShop.config.logUserTransactions) {
-            truncateRecords();
+            truncateRecords(false);
+            transactions.add(rec);
+            //System.out.println("adding " + rec + "  (" + transactions.size());
             if (BetterShop.config.useMySQL()) {
                 try {
                     MySQLconnection.RunUpdate("INSERT INTO " + BetterShop.config.sql_database + "." + BetterShop.config.transLogTablename
@@ -78,6 +150,9 @@ public class BSTransactionLog {
                     BetterShop.Log(Level.SEVERE, "Error inserting transaction data");
                     BetterShop.Log(Level.SEVERE, e);
                 }
+            } else {
+                // append to transaction list & save
+                save();
             }
         }
         if (BetterShop.config.logTotalTransactions) {
@@ -117,6 +192,14 @@ public class BSTransactionLog {
      * removes records older than specified interval
      */
     public void truncateRecords() {
+        truncateRecords(true);
+    }
+
+    /**
+     * 
+     * @param saveFile if using flatfile, whether should save on completion
+     */
+    public void truncateRecords(boolean saveFile) {
         if (BetterShop.config.useMySQL()) {
             try {
                 //BetterShop.Log("DELETE FROM " + BetterShop.config.sql_database + "." + BetterShop.config.transLogTablename + " WHERE UNIX_TIMESTAMP() - DATE > " + BetterShop.config.userTansactionLifespan + ";");
@@ -126,7 +209,44 @@ public class BSTransactionLog {
                 BetterShop.Log(Level.SEVERE, "Error while removing old records");
                 BetterShop.Log(Level.SEVERE, e);
             }
+            updateCache();
+        } else {
+            // loop through cache & remove old entries
+            long curTime = (new Date()).getTime();
+            for (int i = transactions.size() - 1; i > 0; --i) {
+                if (transactions.get(i).time - curTime > BetterShop.config.userTansactionLifespan) {
+                    transactions.remove(i);
+                }
+            }
+            if (saveFile) {
+                save();
+            }
         }
+    }
+
+    protected boolean updateCache() {
+        transactions.clear();
+        if (BetterShop.config.useMySQL()) {
+            if (MySQLconnection.IsConnected()) {
+                try {
+                    ResultSet table = MySQLconnection.GetQuery(
+                            "SELECT * FROM " + BetterShop.config.transLogTablename + "  ORDER BY DATE ASC;");
+
+                    for (table.beforeFirst(); table.next();) {
+                        transactions.add(new UserTransaction(table.getInt(1), table.getString(2),
+                                table.getInt(3), table.getInt(4), table.getString(5),
+                                table.getInt(6), table.getByte(7) != 0, table.getDouble(8)));
+                    }
+                } catch (SQLException ex) {
+                    BetterShop.Log(Level.SEVERE, "Error executing SELECT on " + BetterShop.config.transLogTablename, ex);
+                }
+            } else {
+                BetterShop.Log(Level.SEVERE, "Error: MySQL DB not connected");
+            }
+        } else {
+            return load();
+        }
+        return false;
     }
 
     protected final boolean createTransactionLogTable() {
@@ -142,6 +262,7 @@ public class BSTransactionLog {
                     + "NAME  VARCHAR(25) NOT NULL,"
                     + "AMT   INTEGER   NOT NULL,"
                     + "SOLD  BIT NOT NULL,"
+                    + "PRICE DECIMAL(11,2),"
                     + "PRIMARY KEY (DATE, USER, ID));");
         } catch (SQLException e) {
             BetterShop.Log(Level.SEVERE, "Error while creating transaction log table");
@@ -170,6 +291,56 @@ public class BSTransactionLog {
             return false;
         }
         return true;
+    }
+
+    public boolean save() {
+        if (BetterShop.config.useMySQL()) {
+            if (MySQLconnection.IsConnected()) {
+                try {
+                    MySQLconnection.commit();
+                    return true;
+                } catch (SQLException ex) {
+                    BetterShop.Log(Level.SEVERE, "Error executing COMMIT", ex);
+                }
+            }
+        } else {
+            if (BetterShop.config.logUserTransactions) {
+                if (flatFile != null && !flatFile.isDirectory()) {
+                    ArrayList<String> lines = new ArrayList<String>();
+                    lines.add("date,user,id,sub,name,amt,sold,price");
+                    for (UserTransaction i : transactions) {
+                        lines.add(i.time + "," + i.user + ","
+                                + i.itemNum + "," + i.itemSub + "," + i.name + ","
+                                + i.amount + "," + (i.sold ? "1" : "0") + "," + i.price);
+                    }
+                    try {
+                        CSV.saveFile(flatFile, lines);
+                    } catch (IOException ex) {
+                        BetterShop.Log(Level.SEVERE, "Error opening " + flatFile.getName() + " for writing", ex);
+                    }
+
+                }
+            }
+
+            if (BetterShop.config.logTotalTransactions) {
+                if (totalsFlatFile != null && !totalsFlatFile.isDirectory()) {
+                    ArrayList<String> lines = new ArrayList<String>();
+                    lines.add("date,id,sub,name,sold,bought");
+                    for (TotalTransaction i : totalTransactions) {
+                        lines.add(i.time + ","
+                                + i.itemNum + "," + i.itemSub + "," + i.name + ","
+                                + i.sold + "," + i.bought);
+                    }
+                    try {
+                        CSV.saveFile(totalsFlatFile, lines);
+                    } catch (IOException ex) {
+                        BetterShop.Log(Level.SEVERE, "Error opening " + totalsFlatFile.getName() + " for writing", ex);
+                    }
+
+                }
+            }
+        }
+        return false;
     }
 } // end class BSLog
 

@@ -54,7 +54,7 @@ public class CheckInput {
 
     public static boolean IsInt(String input) {
         //return Pattern.matches(IntPattern, input);
-        // pattern faster for small strings, but NumberFormatException is more accurate :(
+        // pattern may be faster for small strings, but NumberFormatException is more accurate :(
         try {
             Integer.parseInt(input);
             return true;
@@ -74,6 +74,15 @@ public class CheckInput {
 
     public static boolean IsDouble(String input) {
         return Pattern.matches(fpRegex, input);
+    }
+
+    public static long GetLong(String input, long onError) {
+        try {
+            return Pattern.matches(IntPattern, input) ? Long.parseLong(input) : onError;
+        } catch (NumberFormatException e) {
+            // just in case the number is too large... can never be too careful..
+            return onError;
+        }
     }
 
     public static int GetInt(String input, int onError) {
@@ -102,6 +111,18 @@ public class CheckInput {
         }
     }
 
+    
+    public static BigInteger GetBigInt(String str, long defaultNum) {
+        if(str==null){
+            return new BigInteger(String.valueOf(defaultNum));
+        }
+        try{
+            return new BigInteger(str);
+        }catch(Exception e){
+            return new BigInteger(String.valueOf(defaultNum));
+        }
+    }
+    
     public static BigInteger GetBigInt_TimeSpanInSec(String str) throws Exception {
         return GetBigInt_TimeSpanInSec(str, 's');
     }

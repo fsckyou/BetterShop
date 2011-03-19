@@ -8,8 +8,8 @@ import com.jascotty2.Item.ItemDB;
 import com.jascotty2.Item.Kit;
 import com.jascotty2.Item.Kit.KitItem;
 import com.jascotty2.Item.PriceListItem;
-import com.jascotty2.MySQL.UserTransaction;
-import com.jascotty2.PriceList;
+import com.jascotty2.Shop.UserTransaction;
+import com.jascotty2.Shop.PriceList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -64,7 +64,7 @@ public class BSCommand {
                     replace("<item>", "%s"), s[0]));
             return true;
         }
-        boolean canBuyIllegal = BSutils.hasPermission(player, "BetterShop.admin.illegal", false);
+        boolean canBuyIllegal = BetterShop.config.allowbuyillegal || BSutils.hasPermission(player, "BetterShop.admin.illegal", false);
         int inStore = 0;
         try {
             for (Item i : lookup) {
@@ -133,7 +133,8 @@ public class BSCommand {
             }
         }
 
-        for (String line : BetterShop.pricelist.GetShopListPage(pagenum, player instanceof Player, BSutils.hasPermission(player, "BetterShop.admin.illegal", false))) {
+        for (String line : BetterShop.pricelist.GetShopListPage(pagenum, player instanceof Player, 
+                BetterShop.config.allowbuyillegal || BSutils.hasPermission(player, "BetterShop.admin.illegal", false))) {
             BSutils.sendMessage(player, line);
         }
 
@@ -147,7 +148,8 @@ public class BSCommand {
             //return false;
         }
         try {
-            LinkedList<String> items = BetterShop.pricelist.GetItemList(BSutils.hasPermission(player, "BetterShop.admin.illegal", false));
+            LinkedList<String> items = BetterShop.pricelist.GetItemList(
+                    BetterShop.config.allowbuyillegal || BSutils.hasPermission(player, "BetterShop.admin.illegal", false));
             String output = "\u00A72";
             for (int i = 0; i < items.size(); ++i) {
                 output += items.get(i);
@@ -177,6 +179,16 @@ public class BSCommand {
         if (player != null && !BSutils.hasPermission(player, "BetterShop.admin.load", true)) {
             return true;
         }
+        if(ItemDB.load(BSConfig.pluginFolder)){
+            BSutils.sendMessage(player, ItemDB.size() + " items loaded.");
+        }else{
+            BetterShop.Log(Level.SEVERE, "Cannot Load Items db!");
+            if (player == null) {
+                return false;
+            } else {
+                BSutils.sendMessage(player, "\u00A74Item Database Load Error.");
+            }
+        }
         if (player == null && !BetterShop.config.load()) {
             return false;
         } else {
@@ -190,7 +202,7 @@ public class BSCommand {
             if (player == null) {
                 return false;
             } else {
-                BSutils.sendMessage(player, "\u00A7Price Database Load Error.");
+                BSutils.sendMessage(player, "\u00A74Price Database Load Error.");
             }
         }
         return true;
@@ -414,16 +426,14 @@ public class BSCommand {
         double cost = amtbought * price;
         try {
             if (BSutils.debit(player, cost)) {
-
-                if (maxStack == 64) //((Player) player).getInventory().addItem(toBuy.toItemStack(amtbought));
-                {
+                if (maxStack == 64) { //((Player) player).getInventory().addItem(toBuy.toItemStack(amtbought));
                     inv.addItem(toBuy.toItemStack(amtbought));
                 } else {
                     int amtLeft = amtbought;
                     for (int i = 0; i <= 35; ++i) {
                         ItemStack it = inv.getItem(i);
-                        if (it.getAmount() == 0 || toBuy.equals(it)) {
-                            inv.setItem(i, toBuy.toItemStack(maxStack < amtLeft ? maxStack : amtLeft));
+                        if (it.getAmount() == 0 || (toBuy.equals(it) && it.getAmount() < maxStack)) {
+                            inv.setItem(i, toBuy.toItemStack((maxStack < amtLeft ? maxStack : amtLeft)+it.getAmount()));
                             amtLeft -= maxStack;
                         }
                         if (amtLeft <= 0) {
@@ -457,7 +467,8 @@ public class BSCommand {
 
                 }
 
-                BetterShop.transactions.addRecord(new UserTransaction(toBuy, false, amtbought, ((Player) player).getDisplayName()));
+                BetterShop.transactions.addRecord(new UserTransaction(
+                        toBuy, false, amtbought, price, ((Player) player).getDisplayName()));
 
                 return true;
             } else {
@@ -711,7 +722,8 @@ public class BSCommand {
 
                 }
 
-                BetterShop.transactions.addRecord(new UserTransaction(toBuy, false, numToBuy, ((Player) player).getDisplayName()));
+                BetterShop.transactions.addRecord(new UserTransaction(
+                        toBuy, false, numToBuy, price, ((Player) player).getDisplayName()));
 
                 return true;
             } else {
@@ -922,7 +934,8 @@ public class BSCommand {
 
         }
 
-        BetterShop.transactions.addRecord(new UserTransaction(toSell, true, amtSold, ((Player) player).getDisplayName()));
+        BetterShop.transactions.addRecord(new UserTransaction(
+                toSell, true, amtSold, total / amtSold, ((Player) player).getDisplayName()));
 
         return true;
     }
@@ -1031,12 +1044,13 @@ public class BSCommand {
             return true;
         }
         int amtSold = 0;
-        // now scan through & remove the items
         LinkedList<UserTransaction> transactions = new LinkedList<UserTransaction>();
+        // now scan through & remove the items
+        /*
         if (toSell != null && toSell.length == 1) {
             transactions.add(new UserTransaction(toSell[0], true, amtHas, ((Player) player).getDisplayName()));
             //amtSold = amtHas;
-        }
+        }*/
         try {
             for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
                 ItemStack thisSlot = inv.getItem(i);
@@ -1064,6 +1078,7 @@ public class BSCommand {
                             }
                             if (!in) {
                                 transactions.add(new UserTransaction(thisSlot, true, thisSlot.getAmount(),
+                                        BetterShop.pricelist.getSellPrice(it),
                                         ((Player) player).getDisplayName()));
                             }
                             inv.setItem(i, null);
@@ -1093,6 +1108,7 @@ public class BSCommand {
                             }
                             if (!in) {
                                 transactions.add(new UserTransaction(it, true, thisSlot.getAmount(),
+                                        BetterShop.pricelist.getSellPrice(it),
                                         ((Player) player).getDisplayName()));
                             }
                             inv.setItem(i, null);

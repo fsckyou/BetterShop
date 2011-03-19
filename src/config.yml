@@ -1,15 +1,31 @@
 ## BetterShop Configuration file ##
 ################################### 
 
+# at start, will tell you if this plugin is the current version
+CheckForUpdates: true
+
 # number of lines outputted in shop list
 ItemsPerPage: 9
 # broadcast all transactions publicly?
 publicmarket: false
 
-# what to use for tablename
+#items listed here will be sorted before everything else, in this order
+# ex:  4, 35, 35:1, 35:2, 35:3, 35:4, 35:5, 8, 2
+# (can also use item names)
+customsort:
+
+#item buying behavior
+#if someone without BetterShop.admin.illegal can buy illegal items
+allowbuyillegal: false
+#whether maxstack should be honored
+usemaxstack: true
+#used tools can be bought back?
+buybacktools: true
+
+# what to use for table/file name (files are saved as .csv)
 tablename: BetterShop
 
-#use MySQL for pricelist?
+#use MySQL for databases? (includes marketActivity and transactionTotals)
 useMySQLPricelist: false
 
 MySQL:
@@ -23,7 +39,7 @@ MySQL:
     Hostname: localhost
     # MySQL Connection Port Number
     Port: 3306
-    # db caching not yet implemented..
+    # Cache pricelist table?
     cache: true
     # max lifespan of a list cache
     #   positive integer values only, units being s(econds) m(inutes) h(hours) d(ays) w(eeks) M(onths) (default: h)
@@ -50,35 +66,39 @@ totalsTransactionLog:
     enabled: false
     logtablename: BetterShopTransactionTotals
 
-# if a user has an applicable discount, will also discount items crafted using discount
-dynamicDiscount: true
-
 dynamicMarket:
     # dynamic pricing not yet implemented..
     # when it is, will require transactionLog.enabled: true
     enabled: false
+
+    # the following are not influenced if dynamicMarket is disabled
+    
     #if a price is not set on a craftable item, can still sell if the materials to make are for sale
-    # this is in effect even if dynamic market pricing is disabled
     sellcraftables: true
+
     # if sellcraftables, how much % more a crafted item costs than the materials
     #     (sell prices also reduced by this amount)
     sellcraftableMarkup: 5
+
     # if sellcraftables, if colored wool should sell for less than sellcraftableMarkup
     #   (otherwise, a player could buy dye, color a sheep, get 1-3 colored wool, make profit)
     woolsellweight: true
 
-#items listed here will be sorted before everything else, in this order
-# ex:  4, 35, 35:1, 35:2, 35:3, 35:4, 35:5, 8, 2
-# (can also use item names)
-customsort:
-
-#item buying behavior
-#if someone without BetterShop.admin.illegal can buy illegal items
-allowbuyillegal: false
-#whether maxstack should be honored
-usemaxstack: true
-#used tools can be bought back?
-buybacktools: true
+itemStock:
+    # enable a stock for items?
+    enabled: false
+    # table/file name to use
+    tablename: BetterShopStock
+    #  how much an added item has to start with
+    startStock: 200
+    # max stock to carry (stock is increased with sales)
+    #(cannot exceed  2^63-1, or 9,223,372,036,854,775,807)
+    maxStock: 500
+    # deny sales if stock is full?
+    noOverStock: true
+    # restock interval.. automatic, and stock will be reset to startStock value
+    #   positive integer values only, units being m(inutes) h(hours) d(ays) w(eeks) M(onths) (default: h)
+    restock: 6h
 
 ##########################################
 # strings section: Text used in messages #
