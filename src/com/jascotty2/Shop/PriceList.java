@@ -191,7 +191,7 @@ public class PriceList {
                                     priceList.add(new PriceListItem(plItem,
                                             fields[2].equals(" ") ? -1 : CheckInput.GetDouble(fields[2], -1),
                                             fields[3].equals(" ") ? -1 : CheckInput.GetDouble(fields[3], -1)));
-                                    //System.out.println("added: " + priceList.get(priceList.size()-1));
+                                    //System.out.println("added: " + priceList.get(priceList.size()-1).coloredName());
                                 } else if (n > 0) { // first line is expected invalid: is title
                                     logger.log(Level.WARNING, String.format("Invalid item on line %d in %s", (n + 1), toload.getName()));
                                 }
@@ -462,7 +462,7 @@ public class PriceList {
     }
 
     public boolean setPrice(Item it, double b, double s) throws SQLException, IOException, Exception {
-        if (it == null || (b < 0 && s < 0)) {
+        if (it == null) {//  ||(b < 0 && s < 0)) {
             return false;
         }
         tempCache = null;
@@ -540,15 +540,37 @@ public class PriceList {
     }
 
     /**
-     * size of items that shop will buy or sell
+     * number of items that shop will buy or sell & is legal or can buy illegal
      * @return
      */
     public int GetShopSize(boolean showIllegal) {
         int num = priceList.size();
         for (PriceListItem i : priceList) {
-            if ((i.buy < 0 && i.sell < 0) || !i.IsLegal()) {
+            if ((i.buy < 0 && i.sell < 0)
+                    || !(showIllegal || i.IsLegal())) {
                 --num;
             }
+        }
+        return num;
+    }
+
+    /**
+     *
+     * @param pageNum zero-indexed page to get
+     * @param pageSize size of an output page
+     * @param showIllegal whether to count illegal items
+     * @return
+     */
+    public int GetShopPageStart(int pageNum, int pageSize, boolean showIllegal) {
+        if(pageSize<=0) pageSize=1;
+        int num = 0, showNum=0;
+        for (PriceListItem i : priceList) {
+            if (!((i.buy < 0 && i.sell < 0)
+                    || !(showIllegal || i.IsLegal()))) {
+                if(showNum / pageSize==pageNum) break;
+                ++showNum;
+            }
+            ++num;
         }
         return num;
     }
@@ -589,9 +611,21 @@ public class PriceList {
         } else {
             updateCache();
         }
+        System.out.println("full list: " + priceList.size());
         int pricelistsize = GetShopSize(showIllegal);//priceList.size();
-
+        System.out.println("adj: " + showIllegal + "  " + pricelistsize);
         int pages = (int) Math.ceil((double) pricelistsize / pageSize);
+        System.out.println("pages: " + pages);
+
+        int pageStart;
+        if (pageNum <= 0) {
+            //pageNum = 1;
+            pageStart = 0;
+            pageSize = pricelistsize;
+        } else {
+            pageStart = GetShopPageStart(pageNum-1, pageSize, showIllegal);
+        }
+
         String listhead = header == null || header.length() == 0 ? ""
                 : header.replace("<page>", pageNum < 0 ? "(All)" : String.valueOf(pageNum)).
                 replace("<pages>", String.valueOf(pages));
@@ -602,11 +636,8 @@ public class PriceList {
                 ret.add(String.format(listhead, pageNum, pages));
             }
             listing = listing.replace("<item>", "%1$s").replace("<buyprice>", "%2$s").replace("<sellprice>", "%3$s");
-            if (pageNum <= 0) {
-                pageNum = 1;
-                pageSize = priceList.size();
-            }
-            for (int i = pageSize * (pageNum - 1), n = 0; n < pageSize && i < priceList.size(); ++i, ++n) {
+            ///for (int i = pageSize * (pageNum - 1), n = 0; n < pageSize && i < priceList.size(); ++i, ++n) {
+            for (int i = pageStart, n = 0; n < pageSize && i < priceList.size(); ++i, ++n) {
                 if ((!showIllegal && !priceList.get(i).IsLegal())
                         || (priceList.get(i).buy < 0 && priceList.get(i).sell < 0)) {
                     --n;
@@ -640,56 +671,49 @@ public class PriceList {
      * @throws SQLException if using MySQL database & there was some database connection error
      * @throws Exception some serious error occurred (details in message)
      */
-    public LinkedList<String> GetShopListPage(int pageNum, String playerName, int pageSize, String listing, String header, String footer, boolean showIllegal) throws SQLException, Exception {
-        LinkedList<String> ret = new LinkedList<String>();
-        if (databaseType == DBType.MYSQL && !useCache) {
-            updateCache(false);// manually update
-        } else {
-            updateCache();
-        }
-        int pricelistsize = priceList.size();
-        if (!showIllegal) {
-            for (PriceListItem i : priceList) {
-                if (!i.IsLegal()) {
-                    --pricelistsize;
-                }
-            }
-        }
-        int pages = (int) Math.ceil((double) pricelistsize / pageSize);
-        String listhead = header == null || header.length() == 0 ? ""
-                : header.replace("<page>", pageNum < 0 ? "(All)" : String.valueOf(pageNum)).
-                replace("<pages>", String.valueOf(pages));
-        if (pageNum > pages) {
-            ret.add("There is no page " + pageNum + ". (" + pages + " pages total)");
-        } else {
-            if (listhead.length() > 0) {
-                ret.add(String.format(listhead, pageNum, pages));
-            }
-            listing = listing.replace("<item>", "%1$s").replace("<buyprice>", "%2$s").replace("<sellprice>", "%3$s");
-            if (pageNum <= 0) {
-                pageNum = 1;
-                pageSize = priceList.size();
-            }
-            for (int i = pageSize * (pageNum - 1), n = 0; n < pageSize && i < priceList.size(); ++i, ++n) {
-                if (!showIllegal && !priceList.get(i).IsLegal()) {
-                    --n;
-                    continue;
-                }
-                ret.add(String.format(listing, priceList.get(i).coloredName(),
-                        String.format("%5s", priceList.get(i).buy <= 0 ? " No " : String.format("%01.2f", priceList.get(i).buy)),
-                        String.format("%5s", priceList.get(i).sell <= 0 ? " No " : String.format("%01.2f", priceList.get(i).sell))));
-            }
-            if (footer != null && footer.length() > 0) {
-                ret.add(footer);
-            }
-        }
-        if (ret.size() > 2) {
-            // format spaces
-            return MinecraftFontWidthCalculator.alignTags(ret, true);
-        }
-        return ret;
+    /*public LinkedList<String> GetShopListPage(int pageNum, String playerName, int pageSize, String listing, String header, String footer, boolean showIllegal) throws SQLException, Exception {
+    LinkedList<String> ret = new LinkedList<String>();
+    if (databaseType == DBType.MYSQL && !useCache) {
+    updateCache(false);// manually update
+    } else {
+    updateCache();
     }
+    int pricelistsize = GetShopSize(showIllegal);//priceList.size();
 
+    int pages = (int) Math.ceil((double) pricelistsize / pageSize);
+    String listhead = header == null || header.length() == 0 ? ""
+    : header.replace("<page>", pageNum < 0 ? "(All)" : String.valueOf(pageNum)).
+    replace("<pages>", String.valueOf(pages));
+    if (pageNum > pages) {
+    ret.add("There is no page " + pageNum + ". (" + pages + " pages total)");
+    } else {
+    if (listhead.length() > 0) {
+    ret.add(String.format(listhead, pageNum, pages));
+    }
+    listing = listing.replace("<item>", "%1$s").replace("<buyprice>", "%2$s").replace("<sellprice>", "%3$s");
+    if (pageNum <= 0) {
+    pageNum = 1;
+    pageSize = priceList.size();
+    }
+    for (int i = pageSize * (pageNum - 1), n = 0; n < pageSize && i < priceList.size(); ++i, ++n) {
+    if (!showIllegal && !priceList.get(i).IsLegal()) {
+    --n;
+    continue;
+    }
+    ret.add(String.format(listing, priceList.get(i).coloredName(),
+    String.format("%5s", priceList.get(i).buy <= 0 ? " No " : String.format("%01.2f", priceList.get(i).buy)),
+    String.format("%5s", priceList.get(i).sell <= 0 ? " No " : String.format("%01.2f", priceList.get(i).sell))));
+    }
+    if (footer != null && footer.length() > 0) {
+    ret.add(footer);
+    }
+    }
+    if (ret.size() > 2) {
+    // format spaces
+    return MinecraftFontWidthCalculator.alignTags(ret, true);
+    }
+    return ret;
+    }//*/
     public Item[] getItems() throws SQLException, Exception {
         return (Item[]) getPricelistItems();
     }

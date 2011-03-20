@@ -504,9 +504,12 @@ items:
         name: Arrow
         aliases:
         craft: 280+318+288
-    item263:
+    item263sub0:
         name: Coal
         aliases:
+    item263sub1:
+        name: Charcoal
+        aliases: ccoal
     item264:
         name: Diamond
         aliases:

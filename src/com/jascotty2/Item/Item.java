@@ -149,6 +149,7 @@ public class Item {
             this.name = copy.name;
             this.isLegal = copy.isLegal;
             this.maxStack = copy.maxStack;
+            this.color=copy.color;
         }
     }
 
@@ -215,7 +216,8 @@ public class Item {
         if (search == null) {
             return null;// || search.getAmount()==0
         }
-        return findItem(search.getType() + ":" + search.getDurability());//(search.getDurability()<MAX_DATA?search.getDurability():0));
+        //System.out.println("find: " + search.getTypeId() + ":" + search.getDurability());
+        return findItem(search.getTypeId() + ":" + search.getDurability());//(search.getDurability()<MAX_DATA?search.getDurability():0));
     }
 
     public static Item findItem(Item search) {

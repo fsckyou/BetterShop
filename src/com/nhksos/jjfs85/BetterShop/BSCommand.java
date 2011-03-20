@@ -133,7 +133,7 @@ public class BSCommand {
             }
         }
 
-        for (String line : BetterShop.pricelist.GetShopListPage(pagenum, player instanceof Player, 
+        for (String line : BetterShop.pricelist.GetShopListPage(pagenum, player instanceof Player,
                 BetterShop.config.allowbuyillegal || BSutils.hasPermission(player, "BetterShop.admin.illegal", false))) {
             BSutils.sendMessage(player, line);
         }
@@ -179,9 +179,9 @@ public class BSCommand {
         if (player != null && !BSutils.hasPermission(player, "BetterShop.admin.load", true)) {
             return true;
         }
-        if(ItemDB.load(BSConfig.pluginFolder)){
+        if (ItemDB.load(BSConfig.pluginFolder)) {
             BSutils.sendMessage(player, ItemDB.size() + " items loaded.");
-        }else{
+        } else {
             BetterShop.Log(Level.SEVERE, "Cannot Load Items db!");
             if (player == null) {
                 return false;
@@ -433,7 +433,7 @@ public class BSCommand {
                     for (int i = 0; i <= 35; ++i) {
                         ItemStack it = inv.getItem(i);
                         if (it.getAmount() == 0 || (toBuy.equals(it) && it.getAmount() < maxStack)) {
-                            inv.setItem(i, toBuy.toItemStack((maxStack < amtLeft ? maxStack : amtLeft)+it.getAmount()));
+                            inv.setItem(i, toBuy.toItemStack((maxStack < amtLeft ? maxStack : amtLeft) + it.getAmount()));
                             amtLeft -= maxStack;
                         }
                         if (amtLeft <= 0) {
@@ -797,7 +797,7 @@ public class BSCommand {
         } catch (Exception ex) {
             BetterShop.Log(Level.SEVERE, ex);
         }
-        if (price <= 0) {
+        if (price < 0) {
             if (price == Double.NEGATIVE_INFINITY) {
                 BSutils.sendMessage(player, "Error looking up price.. Attempting DB reload..");
                 if (load(null)) {
@@ -972,6 +972,7 @@ public class BSCommand {
 
         boolean err = false;
         PlayerInventory inv = ((Player) player).getInventory();
+        ItemStack[] its = inv.getContents();
         int amtHas = 0;
         double total = 0;
 
@@ -1003,7 +1004,6 @@ public class BSCommand {
                 }
             }
             // go through inventory & find how much user has
-            ItemStack[] its = inv.getContents();
             if (toSell == null || toSell.length == 0) {
                 for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
                     if (BetterShop.pricelist.isForSale(its[i])) {
@@ -1043,76 +1043,78 @@ public class BSCommand {
                     : (toSell.length == 1 ? toSell[0].coloredName() : "of those items")));
             return true;
         }
+
         int amtSold = 0;
         LinkedList<UserTransaction> transactions = new LinkedList<UserTransaction>();
         // now scan through & remove the items
         /*
         if (toSell != null && toSell.length == 1) {
-            transactions.add(new UserTransaction(toSell[0], true, amtHas, ((Player) player).getDisplayName()));
-            //amtSold = amtHas;
+        transactions.add(new UserTransaction(toSell[0], true, amtHas, ((Player) player).getDisplayName()));
+        //amtSold = amtHas;
         }*/
         try {
-            for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
-                ItemStack thisSlot = inv.getItem(i);
-                if (toSell == null || toSell.length == 0) {
-                    Item it = Item.findItem(thisSlot);
+            if (toSell == null || toSell.length == 0) {
+                for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
+                    Item it = Item.findItem(its[i]);
                     if (it != null) {
-                        if (BetterShop.pricelist.isForSale(it) && (!it.IsTool() || (it.IsTool()
-                                && (thisSlot.getDurability() == 0
-                                || (thisSlot.getDurability() > 0 && BetterShop.config.buybacktools))))) {
-                            int amt = thisSlot.getAmount();
+                        if (BetterShop.pricelist.isForSale(it) && (!it.IsTool()
+                                || (its[i].getDurability() == 0 || BetterShop.config.buybacktools))) {
+                            int amt = its[i].getAmount();
 
                             if (it.IsTool()) {
-                                total += (BetterShop.pricelist.getSellPrice(it) * (1 - ((double) thisSlot.getDurability() / it.MaxDamage()))) * amt;
+                                total += (BetterShop.pricelist.getSellPrice(it) * (1 - ((double) its[i].getDurability() / it.MaxDamage()))) * amt;
                             } else {
                                 total += BetterShop.pricelist.getSellPrice(it) * amt;
                             }
                             amtSold += amt;
                             boolean in = false;
                             for (UserTransaction t : transactions) {
-                                if (t.equals(thisSlot)) {
+                                if (t.equals(its[i])) {
                                     in = true;
-                                    t.amount += thisSlot.getAmount();
+                                    t.amount += its[i].getAmount();
                                     break;
                                 }
                             }
                             if (!in) {
-                                transactions.add(new UserTransaction(thisSlot, true, thisSlot.getAmount(),
+                                transactions.add(new UserTransaction(it, true, its[i].getAmount(),
                                         BetterShop.pricelist.getSellPrice(it),
                                         ((Player) player).getDisplayName()));
                             }
                             inv.setItem(i, null);
                         }
-                    }
-                } else {
+                    }//else //null usually == AIR x -1
+                    //    BetterShop.Log("Error: searching for an item that should exist, but isn't in db\n" + its[i]);
+                }
+            } else {
+                for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
                     for (Item it : toSell) {
-                        //if (it != null && it.equals(thisSlot)) {
-                        if (it != null && it.equals(thisSlot) && (!it.IsTool() || (it.IsTool()
-                                && (thisSlot.getDurability() == 0
-                                || (thisSlot.getDurability() > 0 && BetterShop.config.buybacktools))))) {
-                            int amt = thisSlot.getAmount();
+                        if (it != null && it.equals(its[i])) {
+                            if (!it.IsTool() || (its[i].getDurability() == 0 || BetterShop.config.buybacktools)) {
+                                int amt = its[i].getAmount();
 
-                            if (it.IsTool()) {
-                                total += (BetterShop.pricelist.getSellPrice(it) * (1 - ((double) thisSlot.getDurability() / it.MaxDamage()))) * amt;
-                            } else {
-                                total += BetterShop.pricelist.getSellPrice(it) * amt;
-                            }
-                            amtSold += amt;
-                            boolean in = false;
-                            for (UserTransaction t : transactions) {
-                                if (t.equals(it)) {
-                                    in = true;
-                                    t.amount += thisSlot.getAmount();
-                                    break;
+                                if (it.IsTool()) {
+                                    total += (BetterShop.pricelist.getSellPrice(it) * (1 - ((double) its[i].getDurability() / it.MaxDamage()))) * amt;
+                                } else {
+                                    total += BetterShop.pricelist.getSellPrice(it) * amt;
                                 }
+                                amtSold += amt;
+                                boolean in = false;
+                                for (UserTransaction t : transactions) {
+                                    if (t.equals(it)) {
+                                        in = true;
+                                        t.amount += its[i].getAmount();
+                                        break;
+                                    }
+                                }
+                                if (!in) {
+                                    transactions.add(new UserTransaction(it, true, its[i].getAmount(),
+                                            BetterShop.pricelist.getSellPrice(it),
+                                            ((Player) player).getDisplayName()));
+                                }
+                                inv.setItem(i, null);
+
                             }
-                            if (!in) {
-                                transactions.add(new UserTransaction(it, true, thisSlot.getAmount(),
-                                        BetterShop.pricelist.getSellPrice(it),
-                                        ((Player) player).getDisplayName()));
-                            }
-                            inv.setItem(i, null);
-                            break; // stop checking against item list & continue to next inventory slot
+                            break;// stop checking against item list & continue to next inventory slot
                         }
                     }
                 }

@@ -117,6 +117,7 @@ stock option - BetterShop.admin.stock to update how much stock the shop has
 /shop import <file> - insert values from file in plugin folder
 /shop restore <file> - clear shop & load from saved backup file
 /shop alias <item> - show the itemname, with a list of aliases
+add pages for /shopitems
 
 integrate with other economy plugins?
 BOSeconomy  	http://forums.bukkit.org/threads/econ-boseconomy-v0-6-1-simple-server-economy-531.4874/
@@ -137,6 +138,13 @@ Version 1.6.2 - ? - jascotty2
 []stock option - BetterShop.admin.stock to update how much stock the shop has
 []	- selling to the shop increases the stock
 ][		- also descreases how much item is worth to the shop (optional, not influenced by market activity)
+
+
+Version 1.6.1.1 - 3/19/11 - jascotty2
+removed double negative add check.. can add an item for -1, -1
+fixed some Item errors: color and .equals(ItemStack).. fixes itemdb colors and sellall
+fixed page numbering for when there are hidden items
+fixed sell for 0: a <= instead of < .. thought i'd fixed that, but apparently not all of those.
 
 
 Version 1.6.1 - 3/19/11 - jascotty2
