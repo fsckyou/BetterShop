@@ -121,8 +121,6 @@ add pages for /shopitems
 
 integrate with other economy plugins?
 BOSeconomy  	http://forums.bukkit.org/threads/econ-boseconomy-v0-6-1-simple-server-economy-531.4874/
-Cookies		http://forums.bukkit.org/threads/inactive-econ-cookies-v0-5-economic-system-w-api-424.5327/
-
 
 === Removed (not going to implement)
 persistentMySQL: if false, will disconnect from db when now using it (use if have a high cacheUpdate)
