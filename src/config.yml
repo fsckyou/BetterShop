@@ -95,10 +95,17 @@ itemStock:
     #(cannot exceed  2^63-1, or 9,223,372,036,854,775,807)
     maxStock: 500
     # deny sales if stock is full?
+    #   (if false, stock will not increase above maxStock.. it will just be thrown out)
     noOverStock: true
     # restock interval.. automatic, and stock will be reset to startStock value
     #   positive integer values only, units being m(inutes) h(hours) d(ays) w(eeks) M(onths) (default: h)
+    #   0 == never restock
     restock: 6h
+
+#what color to reset text to after printing an item with a custom color
+#   black, dark blue, dark green, dark sky blue, red, magenta, gold or amber, light grey
+#   dark grey, medium blue, light green, cyan, orange-red, pink, yellow, white
+defaultItemColor: white
 
 ##########################################
 # strings section: Text used in messages #

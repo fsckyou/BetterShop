@@ -611,12 +611,11 @@ public class PriceList {
         } else {
             updateCache();
         }
-        System.out.println("full list: " + priceList.size());
-        int pricelistsize = GetShopSize(showIllegal);//priceList.size();
-        System.out.println("adj: " + showIllegal + "  " + pricelistsize);
-        int pages = (int) Math.ceil((double) pricelistsize / pageSize);
-        System.out.println("pages: " + pages);
 
+        int pricelistsize = GetShopSize(showIllegal);//priceList.size();
+
+        int pages = (int) Math.ceil((double) pricelistsize / pageSize);
+        
         int pageStart;
         if (pageNum <= 0) {
             //pageNum = 1;

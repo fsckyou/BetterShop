@@ -47,7 +47,6 @@ public class MySQL {
         connect(database, username, "");
     }
 
-
     /**
      * Connect to a database
      * @param database MySQL database to use
@@ -203,6 +202,7 @@ public class MySQL {
             DBconnection = DriverManager.getConnection(
                     String.format("jdbc:mysql://%s:%s/%s?create=true,autoReconnect=true", sql_hostName, sql_portNum, sql_database),
                     sql_username, sql_password);
+
             // or append "user=%s&password=%s", sql_username, sql_password);
             // create=true: create database if not already exist
             // autoReconnect=true: should fix errors that occur if the connection times out
@@ -289,9 +289,18 @@ public class MySQL {
 
     /**
      * check if is currently connected to a server
+     * preforms a pre-check, and if not & connection info exists, will attempt reconnect
      */
     public boolean IsConnected() {
         try {
+            if (DBconnection != null && DBconnection.isClosed()) {
+                try {
+                    connect();
+                } catch (Exception ex) {
+                    // should not reach here, since is only thrown if creating a new connection
+                    // (while connecting to the mysql lib)
+                }
+            }
             return DBconnection != null && !DBconnection.isClosed();
         } catch (SQLException ex) {
             Logger.getLogger(MySQL.class.getName()).log(Level.SEVERE, "Error checking MySQL connection status", ex);
@@ -316,16 +325,19 @@ public class MySQL {
         return false;
     }
 
-    public String GetUserName(){
+    public String GetUserName() {
         return sql_username;
     }
-    public String GetDatabaseName(){
+
+    public String GetDatabaseName() {
         return sql_database;
     }
-    public String GetHostName(){
+
+    public String GetHostName() {
         return sql_hostName;
     }
-    public String GetPortNum(){
+
+    public String GetPortNum() {
         return sql_portNum;
     }
 } // end class BSMySQL

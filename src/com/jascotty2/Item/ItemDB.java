@@ -240,4 +240,17 @@ public class ItemDB extends Item {
     public static int size(){
         return items.size();
     }
+
+    /**
+     * can really only be run once...
+     * assigns a color to items that don't have one assigned
+     * @param col
+     */
+    public static void setDefaultColor(String col){
+        for(Item i : items.values()){
+            if(i.color==null || i.color.length()==0){
+                i.SetColor(col);
+            }
+        }
+    }
 }

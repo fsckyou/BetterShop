@@ -29,7 +29,7 @@ import java.util.ArrayList;
  * @author jjfs85
  */
 public class BetterShop extends JavaPlugin {
-    public final static String lastUpdatedStr = "3/19/11 21:20 -0500"; // "MM/dd/yy HH:mm Z"
+    public final static String lastUpdatedStr = "3/20/11 23:00 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";

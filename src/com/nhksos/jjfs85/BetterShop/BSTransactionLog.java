@@ -52,6 +52,15 @@ public class BSTransactionLog {
                 if (BetterShop.config.logTotalTransactions) {
                     if (!MySQLconnection.tableExists(BetterShop.config.recordTablename)) {
                         BetterShop.config.logTotalTransactions = createTransactionRecordTable();
+                    } else {
+                        //load into memory
+                        //for(Result)
+                        ResultSet tb = MySQLconnection.GetTable(BetterShop.config.recordTablename);
+                        for (tb.beforeFirst(); tb.next();) {
+                            totalTransactions.add(new TotalTransaction(
+                                    tb.getLong("LAST"), tb.getInt("ID"), tb.getInt("SUB"),
+                                    tb.getString("NAME"), tb.getLong("SOLD"), tb.getLong("BOUGHT")));
+                        }
                     }
                 }
             } catch (SQLException ex) {
@@ -88,10 +97,12 @@ public class BSTransactionLog {
                     }
                     //System.out.println("loaded " + transactions.size());
                 } else {
+                    // if also loading totals, postpone save
+                    if(!BetterShop.config.logTotalTransactions)
                     save();
                 }
             }
-            if (BetterShop.config.logUserTransactions) {
+            if (BetterShop.config.logTotalTransactions) {
                 totalsFlatFile = new File(BSConfig.pluginFolder.getAbsolutePath() + File.separatorChar + BetterShop.config.recordTablename + ".csv");
                 if (totalsFlatFile.exists()) {
                     try {
@@ -145,17 +156,37 @@ public class BSTransactionLog {
             if (BetterShop.config.useMySQL()) {
                 try {
                     MySQLconnection.RunUpdate("INSERT INTO " + BetterShop.config.sql_database + "." + BetterShop.config.transLogTablename
-                            + String.format(" VALUES(UNIX_TIMESTAMP(), '%s', %d, %d, '%s', %d, %d);", rec.user, rec.itemNum, rec.itemSub, rec.name, rec.amount, rec.sold ? 1 : 0));
+                            + String.format(" VALUES(UNIX_TIMESTAMP(), '%s', %d, %d, '%s', %d, %d, %.2f);",
+                            rec.user, rec.itemNum, rec.itemSub, rec.name, rec.amount, rec.sold ? 1 : 0, rec.price));
                 } catch (SQLException e) {
                     BetterShop.Log(Level.SEVERE, "Error inserting transaction data");
                     BetterShop.Log(Level.SEVERE, e);
                 }
             } else {
                 // append to transaction list & save
+                // if going to update Total Transactions as well, postpone save
+                if(!BetterShop.config.logTotalTransactions)
                 save();
             }
         }
         if (BetterShop.config.logTotalTransactions) {
+            
+            boolean exst=false;
+            for(TotalTransaction t : totalTransactions){
+                if(t.itemNum==rec.itemNum && t.itemSub==rec.itemSub){
+                    exst=true;
+                    if(rec.sold){
+                        t.sold+=rec.amount;
+                    }else{
+                        t.bought+=rec.amount;
+                    }
+                    break;
+                }
+            }
+            if(!exst){
+                totalTransactions.add(new TotalTransaction(rec));
+            }
+
             if (BetterShop.config.useMySQL()) {// && MySQLconnection.IsConnected()
                 try {
                     if (MySQLconnection.GetQuery(
@@ -184,6 +215,8 @@ public class BSTransactionLog {
                     BetterShop.Log(Level.SEVERE, "Error running MySQL Query/Update/Insert while updating transaction totals");
                     BetterShop.Log(Level.SEVERE, ex);
                 }
+            }else{
+                save();
             }
         }
     }
@@ -224,29 +257,33 @@ public class BSTransactionLog {
         }
     }
 
-    protected boolean updateCache() {
-        transactions.clear();
+    protected void updateCache() {
         if (BetterShop.config.useMySQL()) {
-            if (MySQLconnection.IsConnected()) {
-                try {
-                    ResultSet table = MySQLconnection.GetQuery(
-                            "SELECT * FROM " + BetterShop.config.transLogTablename + "  ORDER BY DATE ASC;");
+            if (BetterShop.config.logUserTransactions) {
+                transactions.clear();
+                if (MySQLconnection.IsConnected()) {
+                    try {
+                        ResultSet table = MySQLconnection.GetQuery(
+                                "SELECT * FROM " + BetterShop.config.transLogTablename + "  ORDER BY DATE ASC;");
 
-                    for (table.beforeFirst(); table.next();) {
-                        transactions.add(new UserTransaction(table.getInt(1), table.getString(2),
-                                table.getInt(3), table.getInt(4), table.getString(5),
-                                table.getInt(6), table.getByte(7) != 0, table.getDouble(8)));
+                        for (table.beforeFirst(); table.next();) {
+                            transactions.add(new UserTransaction(table.getInt(1), table.getString(2),
+                                    table.getInt(3), table.getInt(4), table.getString(5),
+                                    table.getInt(6), table.getByte(7) != 0, table.getDouble(8)));
+                        }
+                    } catch (SQLException ex) {
+                        BetterShop.Log(Level.SEVERE, "Error executing SELECT on " + BetterShop.config.transLogTablename, ex);
                     }
-                } catch (SQLException ex) {
-                    BetterShop.Log(Level.SEVERE, "Error executing SELECT on " + BetterShop.config.transLogTablename, ex);
+                } else {
+                    BetterShop.Log(Level.SEVERE, "Error: MySQL DB not connected");
                 }
-            } else {
-                BetterShop.Log(Level.SEVERE, "Error: MySQL DB not connected");
             }
+            // totals shouldn't need to be updated
+            //if (BetterShop.config.logTotalTransactions){ }
         } else {
-            return load();
+            load();
         }
-        return false;
+
     }
 
     protected final boolean createTransactionLogTable() {
@@ -261,7 +298,7 @@ public class BSTransactionLog {
                     + "SUB   INTEGER  NOT NULL,"
                     + "NAME  VARCHAR(25) NOT NULL,"
                     + "AMT   INTEGER   NOT NULL,"
-                    + "SOLD  BIT NOT NULL,"
+                    + "SOLD  TINYINT NOT NULL,"
                     + "PRICE DECIMAL(11,2),"
                     + "PRIMARY KEY (DATE, USER, ID));");
         } catch (SQLException e) {
@@ -314,11 +351,15 @@ public class BSTransactionLog {
                                 + i.amount + "," + (i.sold ? "1" : "0") + "," + i.price);
                     }
                     try {
-                        CSV.saveFile(flatFile, lines);
+                        if(!CSV.saveFile(flatFile, lines)){
+                            BetterShop.Log(Level.SEVERE, "Error writing to " + flatFile.getName());
+                        }
                     } catch (IOException ex) {
                         BetterShop.Log(Level.SEVERE, "Error opening " + flatFile.getName() + " for writing", ex);
                     }
 
+                }else{
+                    BetterShop.Log("Error saving activity log: undefined or is directory");
                 }
             }
 
@@ -332,11 +373,15 @@ public class BSTransactionLog {
                                 + i.sold + "," + i.bought);
                     }
                     try {
-                        CSV.saveFile(totalsFlatFile, lines);
+                        if(!CSV.saveFile(totalsFlatFile, lines)){
+                            BetterShop.Log(Level.SEVERE, "Error writing to " + totalsFlatFile.getName());
+                        }
                     } catch (IOException ex) {
                         BetterShop.Log(Level.SEVERE, "Error opening " + totalsFlatFile.getName() + " for writing", ex);
                     }
 
+                }else{
+                    BetterShop.Log("Error saving totals log: undefined or is directory");
                 }
             }
         }

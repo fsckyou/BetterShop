@@ -445,11 +445,13 @@ public class BSCommand {
                 // drop in front of player?
                 //World w = player.getServer().getWorld(""); w.dropItem(player.getServer().getPlayer("").getLocation(), leftover.values());//.dropItem(
 
-                BSutils.sendMessage(player, String.format(
-                        BetterShop.config.getString("buymsg").replace(
-                        "<item>", "%1$s").replace("<amt>", "%2$d").replace("<priceper>", "%3$01.2f").replace(
-                        "<total>", "%4$01.2f").replace(
-                        "<curr>", "%5$s").replace("<totcur>", "%6$s"),
+                BSutils.sendMessage(player, String.format(BetterShop.config.getString("buymsg").
+                        replace("<item>", "%1$s").
+                        replace("<amt>", "%2$d").
+                        replace("<priceper>", "%3$01.2f").
+                        replace("<total>", "%4$01.2f").
+                        replace("<curr>", "%5$s").
+                        replace("<totcur>", "%6$s"),
                         toBuy.coloredName(), amtbought, price, cost,
                         BetterShop.config.currency, BetterShop.iConomy.getBank().format(cost)));
 
@@ -472,12 +474,13 @@ public class BSCommand {
 
                 return true;
             } else {
-                BSutils.sendMessage(player, String.format(
-                        BetterShop.config.getString("insuffunds").replace("<item>", "%1$s").replace("<amt>",
-                        "%2$d").replace("<total>",
-                        "%3$01.2f").replace("<curr>",
-                        "%5$s").replace("<priceper>",
-                        "%4$01.2f").replace("<totcur>", "%6$s"), toBuy.coloredName(),
+                BSutils.sendMessage(player, String.format(BetterShop.config.getString("insuffunds").
+                        replace("<item>", "%1$s").
+                        replace("<amt>", "%2$d").
+                        replace("<total>", "%3$01.2f").
+                        replace("<curr>", "%5$s").
+                        replace("<priceper>", "%4$01.2f").
+                        replace("<totcur>", "%6$s"), toBuy.coloredName(),
                         amtbought, cost, price, BetterShop.config.currency,
                         BetterShop.iConomy.getBank().format(price)));
                 return true;
@@ -518,7 +521,8 @@ public class BSCommand {
 
             Item toBuy = Item.findItem(s[0]);
             if (toBuy == null) {
-                BSutils.sendMessage(player, String.format(BetterShop.config.getString("unkitem").replace("<item>", "%1$s"), s[0]));
+                BSutils.sendMessage(player, String.format(BetterShop.config.getString("unkitem").
+                        replace("<item>", "%1$s"), s[0]));
                 return true;
             } else if (!BetterShop.config.allowbuyillegal && !toBuy.IsLegal() && !BSutils.hasPermission(player, "BetterShop.admin.illegal", false)) {
                 BSutils.sendMessage(player, String.format(BetterShop.config.getString("illegalbuy").
@@ -531,7 +535,8 @@ public class BSCommand {
             for (String is : s) {
                 Item toBuy = Item.findItem(is);
                 if (toBuy == null) {
-                    BSutils.sendMessage(player, String.format(BetterShop.config.getString("unkitem").replace("<item>", "%1$s"), is));
+                    BSutils.sendMessage(player, String.format(BetterShop.config.getString("unkitem").
+                            replace("<item>", "%1$s"), is));
                     return true;
                 } else if (!BetterShop.config.allowbuyillegal && !toBuy.IsLegal() && !BSutils.hasPermission(player, "BetterShop.admin.illegal", false)) {
                     BSutils.sendMessage(player, String.format(BetterShop.config.getString("illegalbuy").
@@ -561,7 +566,8 @@ public class BSCommand {
 
         Item toBuy = Item.findItem(s[0]);
         if (toBuy == null) {
-            BSutils.sendMessage(player, String.format(BetterShop.config.getString("unkitem").replace("<item>", "%1$s"), s[0]));
+            BSutils.sendMessage(player, String.format(BetterShop.config.getString("unkitem").
+                    replace("<item>", "%1$s"), s[0]));
             return true;
         } else if (!BetterShop.config.allowbuyillegal && !toBuy.IsLegal() && !BSutils.hasPermission(player, "BetterShop.admin.illegal", false)) {
             BSutils.sendMessage(player, String.format(BetterShop.config.getString("illegalbuy").
@@ -657,9 +663,12 @@ public class BSCommand {
         }
         if (numToBuy > maxBuy) {
             BSutils.sendMessage(player, String.format(BetterShop.config.getString("outofroom").
-                    replace("<item>", "%1$s").replace("<amt>", "%2$d").
-                    replace("<priceper>", "%3$01.2f").replace("<leftover>", "%4$d").
-                    replace("<curr>", "%5$s").replace("<free>", "%6$d"), toBuy.coloredName(),
+                    replace("<item>", "%1$s").
+                    replace("<amt>", "%2$d").
+                    replace("<priceper>", "%3$01.2f").
+                    replace("<leftover>", "%4$d").
+                    replace("<curr>", "%5$s").
+                    replace("<free>", "%6$d"), toBuy.coloredName(),
                     numToBuy, price, numToBuy - maxBuy, BetterShop.config.currency, maxBuy));
             if (maxBuy == 0) {
                 return true;
@@ -701,10 +710,13 @@ public class BSCommand {
                 }
 
                 BSutils.sendMessage(player, String.format(
-                        BetterShop.config.getString("buymsg").replace(
-                        "<item>", "%1$s").replace("<amt>", "%2$d").replace("<priceper>", "%3$01.2f").replace(
-                        "<total>", "%4$01.2f").replace(
-                        "<curr>", "%5$s").replace("<totcur>", "%6$s"),
+                        BetterShop.config.getString("buymsg").
+                        replace("<item>", "%1$s").
+                        replace("<amt>", "%2$d").
+                        replace("<priceper>", "%3$01.2f").
+                        replace("<total>", "%4$01.2f").
+                        replace("<curr>", "%5$s").
+                        replace("<totcur>", "%6$s"),
                         toBuy.coloredName(), numToBuy, price, cost,
                         BetterShop.config.currency, BetterShop.iConomy.getBank().format(cost)));
 
@@ -728,11 +740,13 @@ public class BSCommand {
                 return true;
             } else {
                 BSutils.sendMessage(player, String.format(
-                        BetterShop.config.getString("insuffunds").replace("<item>", "%1$s").replace("<amt>",
-                        "%2$d").replace("<total>",
-                        "%3$01.2f").replace("<curr>",
-                        "%5$s").replace("<priceper>",
-                        "%4$01.2f").replace("<totcur>", "%6$s"), toBuy.coloredName(),
+                        BetterShop.config.getString("insuffunds").
+                        replace("<item>", "%1$s").
+                        replace("<amt>", "%2$d").
+                        replace("<total>", "%3$01.2f").
+                        replace("<curr>", "%5$s").
+                        replace("<priceper>", "%4$01.2f").
+                        replace("<totcur>", "%6$s"), toBuy.coloredName(),
                         numToBuy, cost, price, BetterShop.config.currency,
                         BetterShop.iConomy.getBank().format(price)));
                 return true;

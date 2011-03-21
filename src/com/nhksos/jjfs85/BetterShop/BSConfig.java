@@ -1,10 +1,9 @@
-/**
- * 
- */
+
 package com.nhksos.jjfs85.BetterShop;
 
 import com.jascotty2.CheckInput;
 import com.jascotty2.Item.Item;
+import com.jascotty2.Item.ItemDB;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -17,10 +16,7 @@ import java.util.logging.Level;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
 
-/**
- * @author jjfs85
- * 
- */
+
 public class BSConfig {
 
     // chat messages
@@ -28,6 +24,7 @@ public class BSConfig {
     public String currency = "Coin";
     public int pagesize = 9;
     public boolean publicmarket = false;
+    public String defColor = "white";
     // files used by plugin
     public final static String configname = "config.yml";
     public final static File pluginFolder = new File("plugins", BetterShop.name);
@@ -109,6 +106,9 @@ public class BSConfig {
 
             tableName = config.getString("tablename", tableName);
             databaseType = config.getBoolean("useMySQLPricelist", false) ? DBType.MYSQL : DBType.FLATFILE;
+            
+            defColor = config.getString("defaultItemColor", defColor);
+            ItemDB.setDefaultColor(defColor);
             
             String customsort = config.getString("customsort");
             if (customsort != null) {

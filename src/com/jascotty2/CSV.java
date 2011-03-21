@@ -40,7 +40,10 @@ public class CSV {
     }
 
     public static boolean saveFile(File toSave, String[] lines) throws IOException {
-        if (toSave.exists() && toSave.isFile() && toSave.canWrite()) {
+        if (!toSave.exists() && !toSave.createNewFile()) {
+            return false;
+        }
+        if (toSave.canWrite()) { // toSave.exists() && toSave.isFile() && 
             FileWriter fstream = null;
             fstream = new FileWriter(toSave.getAbsolutePath());
             //System.out.println("writing to " + tosave.getAbsolutePath());
@@ -55,8 +58,12 @@ public class CSV {
         }
         return false;
     }
+
     public static boolean saveFile(File toSave, ArrayList<String> lines) throws IOException {
-         if (toSave.exists() && toSave.isFile() && toSave.canWrite()) {
+        if (!toSave.exists() && !toSave.createNewFile()) {
+            return false;
+        }
+        if (toSave.canWrite()) { // toSave.exists() && toSave.isFile() &&
             FileWriter fstream = null;
             fstream = new FileWriter(toSave.getAbsolutePath());
             //System.out.println("writing to " + tosave.getAbsolutePath());
@@ -70,18 +77,21 @@ public class CSV {
             return true;
         }
         return false;
-    }   
-    
+    }
+
     public static boolean saveCSVFile(File toSave, ArrayList<String[]> lines) throws IOException {
-         if (toSave.exists() && toSave.isFile() && toSave.canWrite()) {
+        if (!toSave.exists() && !toSave.createNewFile()) {
+            return false;
+        }
+        if (toSave.canWrite()) { // toSave.exists() && toSave.isFile() &&
             FileWriter fstream = null;
             fstream = new FileWriter(toSave.getAbsolutePath());
             //System.out.println("writing to " + tosave.getAbsolutePath());
             BufferedWriter out = new BufferedWriter(fstream);
             for (String line[] : lines) {
-                for(int i = 0; i<line.length; ++i){
+                for (int i = 0; i < line.length; ++i) {
                     out.write(line[i]);
-                    if(i+1<line.length){
+                    if (i + 1 < line.length) {
                         out.write(",");
                     }
                 }
@@ -92,7 +102,6 @@ public class CSV {
             return true;
         }
         return false;
-    }   
-        
+    }
 } // end class CSV
 

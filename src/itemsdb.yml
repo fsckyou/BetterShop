@@ -30,14 +30,14 @@ items:
         craft: 17=4
     item6:
         name: Sapling
-        aliases:
+        aliases: 
     item7:
         name: Bedrock
         aliases: adminium
         legal: false
     item8:
         name: Water
-        aliases:
+        aliases: waterblock
         legal: false
     item9:
         name: StationaryWater
@@ -45,7 +45,7 @@ items:
         legal: false
     item10:
         name: Lava
-        aliases:
+        aliases: lavablock
         legal: false
     item11:
         name: StationaryLava
@@ -82,15 +82,15 @@ items:
         legal: false
     item18sub1:
         name: RedwoodLeaves
-        aliases: redleaves, rleaves, redleaf, rleaf, rleafs
+        aliases: redleaves, rleaves, redleaf, rleaf
         legal: false
     item18sub2:
         name: BirchLeaves
-        aliases: bleaves, bleaf, bleafs
+        aliases: bleaves, bleaf
         legal: false
     item19:
         name: Sponge
-        aliases:
+        aliases: sponges
         legal: false
     item20:
         name: Glass
@@ -219,7 +219,7 @@ items:
         color: black
     item37:
         name: YellowFlower
-        aliases: yflower, flower
+        aliases: yflower, flower, flowers, dandelion
         color: yellow
     item38:
         name: RedRose
@@ -227,7 +227,7 @@ items:
         color: red
     item39:
         name: BrownMushroom
-        aliases: brownmush, bmushroom, bmush
+        aliases: brownmush, bmushroom, bmush, mushroom
     item40:
         name: RedMushroom
         aliases: redmush, rmushroom, rmush
@@ -640,7 +640,7 @@ items:
         aliases: rope
     item288:
         name: Feather
-        aliases:
+        aliases: feathers
     item289:
         name: Gunpowder
         aliases: sulpher
@@ -822,7 +822,7 @@ items:
         maxstack: 1
     item323:
         name: Sign
-        aliases:
+        aliases: 
         craft: 280+5@6
         maxstack: 1
     item324:
@@ -832,7 +832,7 @@ items:
         maxstack: 1
     item325:
         name: Bucket
-        aliases:
+        aliases: 
         craft: 265@3
         maxstack: 1
     item326:
@@ -850,7 +850,7 @@ items:
         maxstack: 1
     item329:
         name: Saddle
-        aliases:
+        aliases: 
         maxstack: 1
     item330:
         name: IronDoor
@@ -862,11 +862,11 @@ items:
         aliases: redstonedust, reddust, rdust, rstone
     item332:
         name: Snowball
-        aliases: sb, snowballs
+        aliases: sb
         maxstack: 16
     item333:
         name: Boat
-        aliases:
+        aliases: 
         craft: 5@5
         maxstack: 1
     item334:
@@ -885,18 +885,18 @@ items:
         aliases: clayball, clay
     item338:
         name: SugarCane
-        aliases: reed, reeds, scane
+        aliases: reed, scane
     item339:
         name: Paper
         aliases: papyrus
         craft: 338@3=3
     item340:
         name: Book
-        aliases:
+        aliases: 
         craft: 339@3
     item341:
         name: Slimeball
-        aliases: sball
+        aliases: sball, slimeballs
     item342:
         name: StorageMinecart
         aliases: chestminecart, storagecart, chestcart, sminecart, cminecart, scart, ccart
@@ -909,7 +909,7 @@ items:
         maxstack: 1
     item344:
         name: Egg
-        aliases:
+        aliases: 
         maxstack: 16
     item345:
         name: Compass
@@ -920,6 +920,7 @@ items:
         aliases: rod
         craft: 280@3+287@2
         maxstack: 1
+        maxdamage: 33
     item347:
         name: Clock
         aliases: watch
@@ -1042,7 +1043,7 @@ items:
         color: white
     item352:
         name: Bone
-        aliases:
+        aliases: 
     item353:
         name: Sugar
         aliases:
@@ -1054,7 +1055,7 @@ items:
         maxstack: 1
     item355:
         name: Bed
-        aliases: cot
+        aliases: cot, beds
         craft: 5@3+35@3
         maxstack: 1
     item356:
@@ -1090,4 +1091,7 @@ kits:
         name: rareitems
         aliases:
         items: diamond@10, lapis@20
-
+    kit4:
+        name: cobblestonestack
+        aliases: cobblestack, stackcobble, stackcobblestone
+        items: cobble@64

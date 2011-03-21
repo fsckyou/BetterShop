@@ -149,7 +149,7 @@ public class Item {
             this.name = copy.name;
             this.isLegal = copy.isLegal;
             this.maxStack = copy.maxStack;
-            this.color=copy.color;
+            this.color = copy.color;
         }
     }
 
@@ -285,13 +285,30 @@ public class Item {
                 }
             }
         } else {
-            Item searchitem = new Item(search);
-            for (Item i : items.values()) {
-                //if(i.equals(search)) return i;
-                if (i.equals(searchitem)) {
-                    return i;
+            //Item searchitem = new Item(search);
+            // if no imediate result: check plurality
+            for (String ss : new String[]{
+                        search,
+                        (search.endsWith("s") ? search.substring(0, search.length() - 1) : null),
+                        (search.endsWith("es") ? search.substring(0, search.length() - 2) : null)}) {
+                if (ss == null) {
+                    break;
+                }
+                //System.out.println("searching " + ss);
+                for (Item i : items.values()) {
+                    //if (i.equals(searchitem)) {
+                    if (i.name.equalsIgnoreCase(ss)) {
+                        return i;
+                    } else {
+                        for (String suba : i.itemAliases) {
+                            if (suba.equalsIgnoreCase(ss)) {
+                                return i;
+                            }
+                        }
+                    }
                 }
             }
+
         }
         return null;
     }
@@ -310,14 +327,22 @@ public class Item {
         ArrayList<Item> found = new ArrayList<Item>();
         search = search.toLowerCase();
         // run a name search
-        for (Item i : items.values()) {
-            if (i.name.toLowerCase().contains(search)) {
-                found.add(i);
-            } else {
-                for (String suba : i.itemAliases) {
-                    if (suba.contains(search)) {
-                        found.add(i);
-                        break;
+        for (String ss : new String[]{
+                    search,
+                    (search.endsWith("s") ? search.substring(0, search.length() - 1) : null),
+                    (search.endsWith("es") ? search.substring(0, search.length() - 2) : null)}) {
+            if (ss == null) {
+                break;
+            }
+            for (Item i : items.values()) {
+                if (i.name.toLowerCase().contains(search)) {
+                    found.add(i);
+                } else {
+                    for (String suba : i.itemAliases) {
+                        if (suba.contains(search) && !found.contains(i)) {
+                            found.add(i);
+                            break;
+                        }
                     }
                 }
             }
