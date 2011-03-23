@@ -1,5 +1,7 @@
 package com.nhksos.jjfs85.BetterShop;
 
+import com.jascotty2.CSV;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -12,6 +14,7 @@ import com.jascotty2.Item.Kit.KitItem;
 import com.jascotty2.Item.PriceListItem;
 import com.jascotty2.Shop.UserTransaction;
 import com.jascotty2.Shop.PriceList;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -456,10 +459,8 @@ public class BSCommand {
             return buyKit(player, s);
         }
 
-
         // initial check complete: set as last action
-        usersellHistory.put(((Player) player).getDisplayName(), "shopbuy " + argStr(s));
-
+        userbuyHistory.put(((Player) player).getDisplayName(), "shopbuy " + argStr(s));
 
         double price = Double.NEGATIVE_INFINITY;
 
@@ -669,7 +670,7 @@ public class BSCommand {
                 buy(player, new String[]{toBuy.IdDatStr(), String.valueOf(BetterShop.config.usemaxstack ? toBuy.getMaxStackSize() : 64)});
             }
         }// overwrite history that buy wrote
-        usersellHistory.put(((Player) player).getDisplayName(), "shopbuystack " + argStr(s));
+        userbuyHistory.put(((Player) player).getDisplayName(), "shopbuystack " + argStr(s));
         return true;
     }
 
@@ -783,7 +784,7 @@ public class BSCommand {
                 }
             }
         }
-        
+
         if (numToBuy > maxBuy) {
             BSutils.sendMessage(player, String.format(BetterShop.config.getString("outofroom").
                     replace("<item>", "%1$s").
@@ -913,6 +914,49 @@ public class BSCommand {
             return true;
         }
 
+    }
+
+    public boolean sellstack(CommandSender player, String[] s) {
+        if (!BSutils.hasPermission(player, "BetterShop.user.sell", true)) {
+            return true;
+        } else if (s.length == 0) {
+            BSutils.sendMessage(player, "What?");
+            return false;
+        } else if (BSutils.anonymousCheck(player)) {
+            return true;
+        }
+        if (s.length == 2 && CheckInput.IsInt(s[1])) {
+
+            Item toSell = Item.findItem(s[0]);
+            if (toSell == null) {
+                BSutils.sendMessage(player, String.format(BetterShop.config.getString("unkitem").
+                        replace("<item>", "%1$s"), s[0]));
+                return true;
+            } else if (!BetterShop.config.allowbuyillegal && !toSell.IsLegal() && !BSutils.hasPermission(player, "BetterShop.admin.illegal", false)) {
+                BSutils.sendMessage(player, String.format(BetterShop.config.getString("illegalbuy").
+                        replace("<item>", "%1$s"), toSell.coloredName()));
+                return true;
+            }
+            // sell max. stackable
+            sell(player, new String[]{toSell.IdDatStr(), String.valueOf((BetterShop.config.usemaxstack ? toSell.getMaxStackSize() : 64) * CheckInput.GetInt(s[1], 1))});
+        } else {
+            for (String is : s) {
+                Item toSell = Item.findItem(is);
+                if (toSell == null) {
+                    BSutils.sendMessage(player, String.format(BetterShop.config.getString("unkitem").
+                            replace("<item>", "%1$s"), is));
+                    return true;
+                } else if (!BetterShop.config.allowbuyillegal && !toSell.IsLegal() && !BSutils.hasPermission(player, "BetterShop.admin.illegal", false)) {
+                    BSutils.sendMessage(player, String.format(BetterShop.config.getString("illegalbuy").
+                            replace("<item>", "%1$s"), toSell.coloredName()));
+                    return true;
+                }
+                // sell max. stackable
+                sell(player, new String[]{toSell.IdDatStr(), String.valueOf(BetterShop.config.usemaxstack ? toSell.getMaxStackSize() : 64)});
+            }
+        }// overwrite history that selll wrote
+        usersellHistory.put(((Player) player).getDisplayName(), "shopsellstack " + argStr(s));
+        return true;
     }
 
     public boolean sell(CommandSender player, String[] s) {
@@ -1344,6 +1388,66 @@ public class BSCommand {
             BSutils.sendMessage(player, "Error looking up an item");
         }
         return credit;
+    }
+
+    public boolean importDB(CommandSender player, String[] s) {
+        if ((!BSutils.hasPermission(player, "BetterShop.admin.backup", true))) {
+            return true;
+        }
+        String fname = argStr(s);
+        if (fname.length() > 6 && fname.substring(0, 7).equalsIgnoreCase("import ")) {
+            fname = fname.substring(7);
+        }
+        if (fname.length() == 0) {
+            BSutils.sendMessage(player, "Need a file to import");
+            return true;
+        }
+
+        File toImport = new File(BSConfig.pluginFolder.getPath() + File.separatorChar + fname);
+        if (!toImport.exists() && !fname.toLowerCase().endsWith(".csv")) {
+            fname += ".csv";
+            toImport = new File(BSConfig.pluginFolder.getPath() + File.separatorChar + fname);
+        }
+        if (!toImport.exists()) {
+            BSutils.sendMessage(player, fname + " does not exist");
+            return true;
+        }
+        if (BetterShop.pricelist.importDB(toImport)) {
+            BSutils.sendMessage(player, "Database Imported");
+        } else {
+            BSutils.sendMessage(player, "\u00A74 An Error Occured while importing database");
+        }
+        return true;
+    }
+
+    public boolean restoreDB(CommandSender player, String[] s) {
+        if ((!BSutils.hasPermission(player, "BetterShop.admin.backup", true))) {
+            return true;
+        }
+        String fname = argStr(s);
+        if (fname.length() > 7 && fname.substring(0, 8).equalsIgnoreCase("restore ")) {
+            fname = fname.substring(8);
+        }
+        if (fname.length() == 0) {
+            BSutils.sendMessage(player, "Need a file to import");
+            return true;
+        }
+
+        File toImport = new File(BSConfig.pluginFolder.getPath() + File.separatorChar + fname);
+        if (!toImport.exists() && !fname.toLowerCase().endsWith(".csv")) {
+            fname += ".csv";
+            toImport = new File(BSConfig.pluginFolder.getPath() + File.separatorChar + fname);
+        }
+        if (!toImport.exists()) {
+            BSutils.sendMessage(player, fname + " does not exist");
+            return true;
+        }
+        if (BetterShop.pricelist.restoreDB(toImport)) {
+            BSutils.sendMessage(player, "Database Imported");
+        } else {
+            BSutils.sendMessage(player, "\u00A74 An Error Occured while importing database");
+        }
+        return true;
     }
 
     public static String argStr(String[] s) {

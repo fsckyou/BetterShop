@@ -243,6 +243,17 @@ public class MySQLPriceList {
         return false;
     }
 
+    public void RemoveAll() throws SQLException{
+        if (MySQLdatabase.IsConnected()) {
+            try {
+                MySQLdatabase.RunUpdate(String.format(
+                        "DELETE FROM %s;", sql_tableName));
+            } catch (SQLException ex) {
+                throw new SQLException("Error executing DELETE on " + sql_tableName, ex);
+            }
+        }
+    }
+
     public LinkedList<PriceListItem> GetFullList() throws SQLException, Exception {
         LinkedList<PriceListItem> tableDat = new LinkedList<PriceListItem>();
         if (MySQLdatabase.IsConnected()) {

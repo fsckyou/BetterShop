@@ -342,7 +342,7 @@ public class Item {
                 break;
             }
             for (Item i : items.values()) {
-                if (i.name.toLowerCase().contains(search)) {
+                if (i.name.toLowerCase().contains(search) && !found.contains(i)) {
                     found.add(i);
                 } else {
                     for (String suba : i.itemAliases) {

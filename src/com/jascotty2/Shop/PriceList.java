@@ -514,6 +514,16 @@ public class PriceList {
         return false;
     }
 
+    public void removeAll() throws IOException, SQLException{
+        tempCache = null;
+        if (databaseType == DBType.MYSQL) {
+            MySQLpricelist.RemoveAll();
+        } else {
+            priceList.clear();
+            save();
+        }
+    }
+
     public LinkedList<String> GetItemList(boolean showIllegal) throws SQLException, Exception {
         LinkedList<String> items = new LinkedList<String>();
 

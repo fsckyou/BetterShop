@@ -29,12 +29,10 @@ import org.bukkit.plugin.Plugin;
 
 /*
  * BetterShop for Bukkit
- * 
- * @author jjfs85
  */
 public class BetterShop extends JavaPlugin {
 
-    public final static String lastUpdatedStr = "3/23/11 00:45 -0500"; // "MM/dd/yy HH:mm Z"
+    public final static String lastUpdatedStr = "3/23/11 09:30 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
@@ -86,6 +84,7 @@ public class BetterShop extends JavaPlugin {
             helpPlugin.registerCommand("shopbuystack [item] <amount>", "Buy stacks of items", this, "BetterShop.user.buy");
             helpPlugin.registerCommand("shopbuyagain", "repeat last purchase action", this, "BetterShop.user.buy");
             helpPlugin.registerCommand("shopsell [item] <amount>", "Sell items to the shop", this, true, "BetterShop.user.sell");
+            helpPlugin.registerCommand("shopsellstack [item] <amount>", "Sell stacks of items", this, "BetterShop.user.sell");
             helpPlugin.registerCommand("shopsellall <inv> <item..>", "Sell all of your items", this, "BetterShop.user.sell");
             helpPlugin.registerCommand("shopsellagain", "Repeat last sell action", this, "BetterShop.user.sell");
             helpPlugin.registerCommand("shopcheck [item]", "Check prices of item[s]", this, true, "BetterShop.user.check");
@@ -93,6 +92,13 @@ public class BetterShop extends JavaPlugin {
             helpPlugin.registerCommand("shopadd [item] [$buy] <$sell>", "Add/Update an item", this, true, "BetterShop.admin.add");
             helpPlugin.registerCommand("shopremove [item]", "Remove an item from the shop", this, true, "BetterShop.admin.remove");
             helpPlugin.registerCommand("shopload", "Reload the Configuration & PriceList DB", this, true, "BetterShop.admin.load");
+            
+            helpPlugin.registerCommand("shop restock", "manually restock (if enabled)", this, "BetterShop.admin.restock");
+            helpPlugin.registerCommand("shop ver[sion]", "Show Version # and if is current", this, "BetterShop.admin.info");
+            helpPlugin.registerCommand("shop backup", "backup current pricelist", this, "BetterShop.admin.backup");
+            helpPlugin.registerCommand("shop import [file]", "import a file into the pricelist", this, "BetterShop.admin.backup");
+            helpPlugin.registerCommand("shop restore [file]", "restore pricelist from backup", this, "BetterShop.admin.backup");
+            
             
             Log("'Help' support enabled.");
         } //else Log("Help not yet found.");
@@ -162,6 +168,7 @@ public class BetterShop extends JavaPlugin {
             //return;
         } else if (config.useItemStock && !stock.load()){
             Log(Level.SEVERE, "cannot load stock database");
+            stock=null;
         }
 
         hookDepends();
@@ -228,6 +235,8 @@ public class BetterShop extends JavaPlugin {
                     commandName = "shopcheck";
                 } else if (args[0].equalsIgnoreCase("sellall")) {
                     commandName = "shopsellall";
+                } else if (args[0].equalsIgnoreCase("sellstack")) {
+                    commandName = "shopsellstack";
                 } else if (args[0].equalsIgnoreCase("buystack")) {
                     commandName = "shopbuystack";
                 } else if (args[0].equalsIgnoreCase("buyall")) {
@@ -258,6 +267,10 @@ public class BetterShop extends JavaPlugin {
                         }
                     }
                     return true;
+                } else if (args[0].equalsIgnoreCase("import")){
+                    return bscommand.importDB(sender, args);
+                } else if (args[0].equalsIgnoreCase("restore")){
+                    return bscommand.restoreDB(sender, args);
                 } else if (args[0].equalsIgnoreCase("ver") || args[0].equalsIgnoreCase("version")) {
                     // allow admin.info or developers access to plugin status (so if i find a bug i can see if it's current)
                     if (BSutils.hasPermission(sender, "BetterShop.admin.info", false)
@@ -298,7 +311,8 @@ public class BetterShop extends JavaPlugin {
             if (commandName.equals("shopbuyagain")) {
                 String action = bscommand.userbuyHistory.get(((Player) sender).getDisplayName());
                 if (action == null) {
-                    BSutils.sendMessage(sender, "You have no recent sell history");
+                    BSutils.sendMessage(sender, "You have no recent buying history");
+                    return true;
                 } else {
                     // trim command & put into args
                     String cm[] = action.split(" ");
@@ -312,6 +326,7 @@ public class BetterShop extends JavaPlugin {
                 String action = bscommand.usersellHistory.get(((Player) sender).getDisplayName());
                 if (action == null) {
                     BSutils.sendMessage(sender, "You have no recent sell history");
+                    return true;
                 } else {
                     // trim command & put into args
                     String cm[] = action.split(" ");
@@ -345,6 +360,8 @@ public class BetterShop extends JavaPlugin {
             return bscommand.sell(sender, args);
         } else if (commandName.equals("shopsellall")) {
             return bscommand.sellall(sender, args);
+        } else if (commandName.equals("shopsellstack")) {
+            return bscommand.sellstack(sender, args);
         } else if (commandName.equals("shopadd")) {
             return bscommand.add(sender, args);
         } else if (commandName.equals("shopremove")) {

@@ -15,8 +15,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.bukkit.inventory.ItemStack;
 
 public class BSItemStock extends ItemStock {
 
@@ -34,13 +32,13 @@ public class BSItemStock extends ItemStock {
                 MySQLstockList = new MySQLItemStock(
                         BetterShop.pricelist.getMySQLconnection(),
                         BetterShop.config.stockTablename);
+                databaseType = DBType.MYSQL;
                 if (MySQLstockList != null && MySQLstockList.IsConnected()) {
                     return checkMissingStock();
                 }
             } catch (SQLException ex) {
                 BetterShop.Log(Level.SEVERE, "Failed to connect to MySQL database connection...", ex);
             }
-
         } else {
             try {
                 //System.out.println("attempting FlatFile: " + BSConfig.pluginFolder.getPath() + File.separatorChar + BetterShop.config.tableName + ".csv");

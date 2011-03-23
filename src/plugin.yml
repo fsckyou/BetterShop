@@ -1,6 +1,6 @@
 name: BetterShop
 main: com.nhksos.jjfs85.BetterShop.BetterShop
-version: 1.6.2
+version: 1.6.2.1
 website: http://github.com/BetterShop/BetterShop
 author: jjfs85, lologarithm, and jascotty2
 description: >
@@ -43,6 +43,10 @@ commands:
     description: Sell all of item from your inventory
     usage: /<command> [item]
     aliases: [sellall]
+  shopstack:
+    description: Sell a stack of an item to the shop
+    usage: /<command> [item] <amount>
+    aliases: [sell,ssell]
   shopadd:
     description: Add an item to or update an item in the price list
     usage: /<command> [item] [buy-price] [sell-price]

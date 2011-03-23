@@ -44,11 +44,11 @@ public class ItemStock {
     protected Date lastCacheUpdate = null;
     protected ArrayList<ItemStockEntry> stockList = new ArrayList<ItemStockEntry>();
     private boolean isLoaded = false;
-    private DBType databaseType = DBType.FLATFILE;
+    protected DBType databaseType = DBType.FLATFILE;
     //  current db connection, if using MySQL
     protected MySQLItemStock MySQLstockList = null;
     // file, if flatfile
-    File flatFile = null;
+    protected File flatFile = null;
 
     /*
     public static <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
@@ -230,9 +230,9 @@ public class ItemStock {
                 return saveFile(flatFile);
             } catch (IOException ex) {
                 if (!log_nothrow) {
-                    throw new IOException("Error Saving " + (flatFile == null ? "flatfile price database" : flatFile.getName()), ex);
+                    throw new IOException("Error Saving " + (flatFile == null ? "flatfile stock database" : flatFile.getName()), ex);
                 }
-                logger.log(Level.SEVERE, "Error Saving " + (flatFile == null ? "flatfile price database" : flatFile.getName()), ex);
+                logger.log(Level.SEVERE, "Error Saving " + (flatFile == null ? "flatfile stock database" : flatFile.getName()), ex);
                 return false;
             }
         }
