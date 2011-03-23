@@ -5,9 +5,11 @@ active developers: jascotty2 & jjfs85
 In-Game Commands:
 ===============================================================================
 
-/shop							for those used to a plugin having one command, this is another way to get to the following (also used for some admin commands)
+/shop 				<command>		for those used to a plugin having one command, this is another way to get to the following (also used for some admin commands)
 /shop ver[sion] 					shows version # and if is up-to-date
 /shop backup						backup the database to a csv file
+/shop import 			<file> 			insert values from file in plugin folder
+/shop restore 			<file> 			clear shop & load from saved backup file
 /shop restock						manually update stock (if enabled)
 /shophelp (shelp)		[command]		shows you all the commands you can use, or more help on [command]
 /shoplist (sl,slist)		[pagenum]		shows a listing of items for sale (if -1, all, or full given, will show full list. (for console use))
@@ -75,8 +77,11 @@ Downloads mysql-bin.jar dependency automatically
 buy/sell cap in program set to 999,999,999 (not that you'd be using that much, but the cap is to prevent other errors)
 if encounters errors while editing a player's account, will attempt to reload iConomy (i've had issuses with it before)
 can backup the current pricelist: /shop backup
+can restore from backup: /shop restore <file>
+can import new prices in a batch from a csv (or old yml format) : /shop import <file>
 on start, can check the download page to see if there is an update avaliable
 shop can be given a finite stock from which to buy & sell
+/shop ver[sion] to check the current version & see if there's an update
 
 
 There are two ways to add things to the shop:
@@ -145,8 +150,9 @@ Cookies	integration  http://forums.bukkit.org/threads/inactive-econ-cookies-v0-5
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
-Version 1.6.2.2 - ? - jascotty2
+Version 1.6.2.2 - 3/23/11 - jascotty2
 more commands added to register with help
+fixed a MySQL update syntax error for stock
 
 
 Version 1.6.2.1 - 3/23/11 - jascotty2

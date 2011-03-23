@@ -174,7 +174,7 @@ public class MySQLItemStock {
             try {
                 //logger.log(Level.INFO, String.format("UPDATE %s SET BUY=%1.2f, SELL=%1.2f WHERE ID='%d' AND SUB='%d';", sql_tableName, buy, sell, item.itemId, (int) item.itemData));
                 MySQLdatabase.RunUpdate(
-                        String.format("UPDATE %s SET AMT='%d WHERE ID='%d' AND SUB='%d';", sql_tableName,
+                        String.format("UPDATE %s SET AMT=%d WHERE ID='%d' AND SUB='%d';", sql_tableName,
                         amt, item.ID(), (int) item.Data()));
                 //return true;
             } catch (SQLException ex) {
@@ -186,7 +186,7 @@ public class MySQLItemStock {
             try {
                 //logger.log(Level.INFO, String.format("INSERT INTO %s VALUES(%d, %d, '%s', %1.2f, %1.2f);", sql_tableName, item.itemId, (int)item.itemData, item.name, buy, sell)
                 MySQLdatabase.RunUpdate(
-                        String.format("INSERT INTO %s VALUES(%d, %d, '%s', '%d');", sql_tableName,
+                        String.format("INSERT INTO %s VALUES(%d, %d, '%s', %d);", sql_tableName,
                         item.ID(), (int) item.Data(), item.name, amt));
                 //return true;
             } catch (SQLException ex) {
