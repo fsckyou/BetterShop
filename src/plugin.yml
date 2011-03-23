@@ -1,6 +1,6 @@
 name: BetterShop
 main: com.nhksos.jjfs85.BetterShop.BetterShop
-version: 1.6.1.3
+version: 1.6.2
 website: http://github.com/BetterShop/BetterShop
 author: jjfs85, lologarithm, and jascotty2
 description: >
@@ -8,9 +8,9 @@ description: >
              for the economic backbone and requires Permissions.
 commands:
   shop:
-    description: Check prices for an item
+    description: Command Alias / Admin Command
     usage: /<command> [check|list|buy|sell|add|remove|[re]load|help]
-    aliases: [bettershop]
+    aliases: [bettershop,bshop]
   shopcheck:
     description: Check prices for an item
     usage: /<command> [item]

@@ -27,7 +27,6 @@ import org.bukkit.inventory.ItemStack;
 
 public class PriceList {
     // set this to true to catch & log exceptions instead of throwing them
-
     public static boolean log_nothrow = false;
     // what to write to if logging
     protected final static Logger logger = Logger.getLogger("Minecraft");
@@ -40,10 +39,10 @@ public class PriceList {
     // if using caching, how long before cache is considered outdated (seconds)
     public long dbCacheTTL = 0;
     // if false, will disconnect from db when now using it (use if have a high dbCacheTTL)
-    public boolean persistentMySQL = true;
+    //public boolean persistentMySQL = true;
     // last time the pricelist was updated
     protected Date lastCacheUpdate = null;
-    ArrayList<PriceListItem> priceList = new ArrayList<PriceListItem>();
+    protected ArrayList<PriceListItem> priceList = new ArrayList<PriceListItem>();
     private boolean isLoaded = false;
     private DBType databaseType = DBType.FLATFILE;
     //  current db connection, if using MySQL
@@ -341,6 +340,10 @@ public class PriceList {
         //else cache up-to-date, or disabled
     }
 
+    public boolean ItemExists(ItemStockEntry i) throws SQLException, Exception{
+        return ItemExists(Item.findItem(i.itemNum, (byte)i.itemSub));
+    }
+    
     public boolean ItemExists(String check) throws SQLException, Exception {
         return ItemExists(Item.findItem(check));
     }
@@ -397,6 +400,15 @@ public class PriceList {
         return ItemExists(i) && tempCache.sell >= 0;//getSellPrice(i) >= 0;
     }
 
+    public boolean isForSale(ItemStockEntry i) throws SQLException, Exception{
+        if (tempCache != null && tempCache.ID()==i.itemNum && tempCache.Data()==i.itemSub) {
+            // has been retrieved recently
+            return tempCache.sell >= 0;
+        }
+        //if ItemExists, tempCache will contain the item
+        return ItemExists(i) && tempCache.sell >= 0;//getSellPrice(i) >= 0;
+    }
+    
     public double getSellPrice(ItemStack i) throws SQLException, Exception {
         return getSellPrice(Item.findItem(i));
     }
@@ -405,6 +417,9 @@ public class PriceList {
         return getSellPrice(Item.findItem(s));
     }
 
+    public double getSellPrice(ItemStockEntry it) throws SQLException, Exception {
+        return getSellPrice(Item.findItem(it));
+    }
     public double getSellPrice(Item it) throws SQLException, Exception {
         if (it == null) {
             return -1;
@@ -590,7 +605,6 @@ public class PriceList {
     public LinkedList<String> GetShopListPage(int pageNum, boolean isPlayer, int pageSize, String listing, String header, String footer) throws SQLException, Exception {
         return GetShopListPage(pageNum, isPlayer, pageSize, listing, header, footer, false);
     }
-
     /**
      * returns a page of prices
      * @param pageNum page to lookup (-1 will print all pages)
@@ -605,6 +619,25 @@ public class PriceList {
      * @throws Exception some serious error occurred (details in message)
      */
     public LinkedList<String> GetShopListPage(int pageNum, boolean isPlayer, int pageSize, String listing, String header, String footer, boolean showIllegal) throws SQLException, Exception {
+        return GetShopListPage(pageNum, isPlayer, pageSize, listing, header, footer, showIllegal, null);
+    }
+    
+
+    /**
+     * returns a page of prices
+     * @param pageNum page to lookup (-1 will print all pages)
+     * @param isPlayer if should use minecraft font spacing
+     * @param pageSize how many on a page
+     * @param listing format to output listing with
+     * @param header page header (<page> of <pages>)
+     * @param footer page footer
+     * @param showIllegal whether illegal items should be included in the listing
+     * @param stock what to use for stock, if applicable
+     * @return a list of formatted lines
+     * @throws SQLException if using MySQL database & there was some database connection error
+     * @throws Exception some serious error occurred (details in message)
+     */
+    public LinkedList<String> GetShopListPage(int pageNum, boolean isPlayer, int pageSize, String listing, String header, String footer, boolean showIllegal, ItemStock stock) throws SQLException, Exception {
         LinkedList<String> ret = new LinkedList<String>();
         if (databaseType == DBType.MYSQL && !useCache) {
             updateCache(false);// manually update
@@ -634,7 +667,7 @@ public class PriceList {
             if (listhead.length() > 0) {
                 ret.add(String.format(listhead, pageNum, pages));
             }
-            listing = listing.replace("<item>", "%1$s").replace("<buyprice>", "%2$s").replace("<sellprice>", "%3$s");
+            listing = listing.replace("<item>", "%1$s").replace("<buyprice>", "%2$s").replace("<sellprice>", "%3$s").replace("<avail>", "%4$s");
             ///for (int i = pageSize * (pageNum - 1), n = 0; n < pageSize && i < priceList.size(); ++i, ++n) {
             for (int i = pageStart, n = 0; n < pageSize && i < priceList.size(); ++i, ++n) {
                 if ((!showIllegal && !priceList.get(i).IsLegal())
@@ -644,7 +677,8 @@ public class PriceList {
                 }
                 ret.add(String.format(listing, priceList.get(i).coloredName(),
                         String.format("%5s", priceList.get(i).buy <= 0 ? " No " : String.format("%01.2f", priceList.get(i).buy)),
-                        String.format("%5s", priceList.get(i).sell <= 0 ? " No " : String.format("%01.2f", priceList.get(i).sell))));
+                        String.format("%5s", priceList.get(i).sell <= 0 ? " No " : String.format("%01.2f", priceList.get(i).sell)),
+                        (stock==null ? "INF" : stock.getItemAmount(priceList.get(i))).toString()));
             }
             if (footer != null && footer.length() > 0) {
                 ret.add(footer);

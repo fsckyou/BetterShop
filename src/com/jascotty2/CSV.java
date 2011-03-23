@@ -43,7 +43,7 @@ public class CSV {
         if (!toSave.exists() && !toSave.createNewFile()) {
             return false;
         }
-        if (toSave.canWrite()) { // toSave.exists() && toSave.isFile() && 
+        if (toSave.canWrite()) {
             FileWriter fstream = null;
             fstream = new FileWriter(toSave.getAbsolutePath());
             //System.out.println("writing to " + tosave.getAbsolutePath());
@@ -63,7 +63,7 @@ public class CSV {
         if (!toSave.exists() && !toSave.createNewFile()) {
             return false;
         }
-        if (toSave.canWrite()) { // toSave.exists() && toSave.isFile() &&
+        if (toSave.canWrite()) { 
             FileWriter fstream = null;
             fstream = new FileWriter(toSave.getAbsolutePath());
             //System.out.println("writing to " + tosave.getAbsolutePath());
@@ -83,7 +83,7 @@ public class CSV {
         if (!toSave.exists() && !toSave.createNewFile()) {
             return false;
         }
-        if (toSave.canWrite()) { // toSave.exists() && toSave.isFile() &&
+        if (toSave.canWrite()) { 
             FileWriter fstream = null;
             fstream = new FileWriter(toSave.getAbsolutePath());
             //System.out.println("writing to " + tosave.getAbsolutePath());

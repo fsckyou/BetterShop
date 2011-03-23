@@ -68,7 +68,7 @@ public class BSConfig {
     // stock items
     public boolean useItemStock = false;
     // table/file name to use
-    public String stockTablename = "BetterShopStock";
+    public String stockTablename = "BetterShopItemStock";
     //  how much an added item has to start with
     public long startStock = 200;
     // max stock to carry (stock is increased with sales)
@@ -105,7 +105,7 @@ public class BSConfig {
             buybacktools = config.getBoolean("buybacktools", buybacktools);
 
             tableName = config.getString("tablename", tableName);
-            databaseType = config.getBoolean("useMySQLPricelist", false) ? DBType.MYSQL : DBType.FLATFILE;
+            databaseType = config.getBoolean("useMySQL", config.getBoolean("useMySQLPricelist", false)) ? DBType.MYSQL : DBType.FLATFILE;
             
             defColor = config.getString("defaultItemColor", defColor);
             ItemDB.setDefaultColor(defColor);
@@ -140,7 +140,7 @@ public class BSConfig {
                     lifespan = n.getString("cacheUpdate");
                     if (lifespan != null) {
                         try {
-                            priceListLifespan = CheckInput.GetBigInt_TimeSpanInSec(lifespan).longValue();
+                            priceListLifespan = CheckInput.GetBigInt_TimeSpanInSec(lifespan, 'h').longValue();
                         } catch (Exception ex) {
                             BetterShop.Log(Level.WARNING, "cacheUpdate has an illegal value");
                             BetterShop.Log(Level.WARNING, ex);
@@ -189,15 +189,15 @@ public class BSConfig {
                 noOverStock = n.getBoolean("noOverStock", noOverStock);
                 String num = n.getString("startStock");
                 if(num!=null){
-                    startStock = CheckInput.GetBigInt(num, startStock).longValue();
+                    startStock = CheckInput.GetLong(num, startStock);//CheckInput.GetBigInt(num, startStock).longValue();
                 }
                 num = n.getString("maxStock");
                 if(num!=null){
-                    maxStock = CheckInput.GetBigInt(num, maxStock).longValue();
+                    maxStock = CheckInput.GetLong(num, maxStock);//CheckInput.GetBigInt(num, maxStock).longValue();
                 }
                 num = n.getString("restock");
                 if(num!=null){
-                    restock = CheckInput.GetBigInt(num, restock).longValue();
+                    restock = CheckInput.GetBigInt_TimeSpanInSec(num, 'h').longValue();
                 }
             }
             

@@ -1,10 +1,12 @@
 package com.nhksos.jjfs85.BetterShop;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 import com.jascotty2.CheckInput;
 import com.jascotty2.Item.Item;
 import com.jascotty2.Item.ItemDB;
+import com.jascotty2.Item.ItemStockEntry;
 import com.jascotty2.Item.Kit;
 import com.jascotty2.Item.Kit.KitItem;
 import com.jascotty2.Item.PriceListItem;
@@ -19,8 +21,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
 
 public class BSCommand {
 
@@ -30,22 +30,121 @@ public class BSCommand {
     public BSCommand() {
     }
 
-    public boolean help(CommandSender player) {
+    public boolean help(CommandSender player, String[] s) {
         if (!BSutils.hasPermission(player, "BetterShop.user.help", true)) {
             return true;
         }
+        if (s.length > 0) {
+            // more help
+            if (isCommand(s[0], "shop")) {
+                BSutils.sendMessage(player, "/shop   command alias to other commands");
+                BSutils.sendMessage(player, "      ");
+                if (BSutils.hasPermission(player, "BetterShop.admin.backup", false)) {
+                    BSutils.sendMessage(player, "/shop backup   to backup current pricelist");
+                }
+                if (BSutils.hasPermission(player, "BetterShop.admin.info", false)) {
+                    BSutils.sendMessage(player, "/shop ver[sion]   show the currently installed version");
+                    BSutils.sendMessage(player, "        also shows if this is the most current avaliable");
+                }
+            } else if (isCommand(s[0], "shopcheck, scheck, sc")) {
+                BSutils.sendMessage(player, "/shopcheck <item>  Check prices for an item");
+                BSutils.sendMessage(player, " aliases: scheck, sc");
+                BSutils.sendMessage(player, "-- will also run a name match search");
+            } else if (isCommand(s[0], "shoplist, slist, sl")) {
+                BSutils.sendMessage(player, "/shoplist [page]   Lists prices for the shop");
+                BSutils.sendMessage(player, " aliases: slist, sl");
+            } else if (isCommand(s[0], "shopitems, sitems")) {
+                BSutils.sendMessage(player, "/shopitems  show listing of items in shop, without prices");
+                BSutils.sendMessage(player, " aliases: sitems");
+                BSutils.sendMessage(player, "-- coming soon: pages");
+            } else if (isCommand(s[0], "shopbuy, sbuy, buy")) {
+                BSutils.sendMessage(player, "/shopbuy <item> [amount] Buy an item for the price in the shop");
+                BSutils.sendMessage(player, " aliases: sbuy, buy");
+                BSutils.sendMessage(player, "-- \"all\" is a valid amount: will buy all you can hold/afford");
+            } else if (isCommand(s[0], "shopbuyall, sbuyall, buyall")) {
+                BSutils.sendMessage(player, "/shopbuyall <item>  buy all you can hold/afford");
+                BSutils.sendMessage(player, " aliases: sbuyall, buyall");
+            } else if (isCommand(s[0], "shopbuystack, buystack, sbuystack, sbuys, buys")) {
+                BSutils.sendMessage(player, "/shopbuystack <item> [amount] buy items in stacks");
+                BSutils.sendMessage(player, " aliases: buystack, sbuystack, sbuys, buys");
+                BSutils.sendMessage(player, "-- can list multiple items, or give how many stacks to buy");
+            } else if (isCommand(s[0], "shopsell, ssell, sell")) {
+                BSutils.sendMessage(player, "/shopsell <item> [amount]");
+                BSutils.sendMessage(player, " aliases: ssell, sell");
+                BSutils.sendMessage(player, "-- \"all\" is a valid amount: will sell all you have");
+            } else if (isCommand(s[0], "shopsellall, sellall, sell all")) {
+                BSutils.sendMessage(player, "/shopsellall [inv] [item [item [...]]] ");
+                BSutils.sendMessage(player, "-- Sell all of item from your inventory");
+                BSutils.sendMessage(player, " aliases: sellall, sell all");
+                BSutils.sendMessage(player, "-- inv will only sell from your inventory, not the lower 9");
+                BSutils.sendMessage(player, "-- multiple items can be listed, or none for all sellable");
+            } else if (isCommand(s[0], "shopadd, sadd")) {
+                BSutils.sendMessage(player, "/shopadd <item> <buyprice> [sellprice]");
+                BSutils.sendMessage(player, "--  Add an item to or update an item in the price list");
+                BSutils.sendMessage(player, " aliases: sadd");
+                BSutils.sendMessage(player, "-- price of -1 disables that action");
+                BSutils.sendMessage(player, "-- if no sellprice is given, item will not be sellable");
+            } else if (isCommand(s[0], "shopremove, sremove")) {
+                BSutils.sendMessage(player, "/shopremove <item>  Remove an item from the price list");
+                BSutils.sendMessage(player, " aliases: sremove");
+            } else if (isCommand(s[0], "shopload, sload, shop load, shop reload")) {
+                BSutils.sendMessage(player, "/shopload   reload prices from pricelist database");
+                BSutils.sendMessage(player, " aliases: sload, shop [re]load");
+            } else if (isCommand(s[0], "shophelp, shelp")) {
+                BSutils.sendMessage(player, "/shophelp [command] Lists available commands");
+                BSutils.sendMessage(player, " aliases: shelp");
+                BSutils.sendMessage(player, "-- providing a command shows specific help for that command");
+            } else if (isCommand(s[0], "shoplistkits, shopkits, skits")) {
+                BSutils.sendMessage(player, "/shoplistkits [page] Lists available kits");
+                BSutils.sendMessage(player, " aliases: shopkits, skits");
+                BSutils.sendMessage(player, "-- toadd: show what each kit contains");
+            } else if (isCommand(s[0], "shopbuyagain, sbuyagain, buyagain, sba")) {
+                BSutils.sendMessage(player, "/shopbuyagain  repeat last purchase");
+                BSutils.sendMessage(player, " aliases: sbuyagain, buyagain, sba");
+            } else if (isCommand(s[0], "shopsellagain, ssellagain, sellagain, ssa")) {
+                BSutils.sendMessage(player, "/shopsellagain  repeat last sale");
+                BSutils.sendMessage(player, " aliases: ssellagain, sellagain, ssa");
+            } /*else if (s[0].equalsIgnoreCase("")) {
+            BSutils.sendMessage(player, "/");
+            BSutils.sendMessage(player, " aliases: ");
+            BSutils.sendMessage(player, "-- ");
+            } */ else {
+                BSutils.sendMessage(player, "Unknown Help Topic");
+            }
+            return true;
+        }
         BSutils.sendMessage(player, "--------- Better Shop Usage --------");
-        BSutils.sendMessage(player, "/shoplist <page> - List shop prices");
-        BSutils.sendMessage(player, "/shopbuy [item] <amount> - Buy items");
-        BSutils.sendMessage(player, "/shopsell [item] <amount> - Sell items (\"all\" can sell all of your items)");
-        BSutils.sendMessage(player, "/shopcheck [item] - Check prices of item");
-        BSutils.sendMessage(player, "/shopitems  - show listing of items in shop, without prices");
-
+        if (BSutils.hasPermission(player, "BetterShop.user.list", false)) {
+            BSutils.sendMessage(player, "/shoplist [page] - List shop prices");
+            BSutils.sendMessage(player, "/shopitems - show listing of items in shop, without prices");
+            BSutils.sendMessage(player, "/shopkits [page] - show listing of kits in shop");
+        }
+        if (BSutils.hasPermission(player, "BetterShop.user.buy", false)) {
+            BSutils.sendMessage(player, "/shopbuy <item> [amount] - Buy items");
+            BSutils.sendMessage(player, "/shopbuyall <item> - Buy all that you can hold/afford");
+            BSutils.sendMessage(player, "/shopbuystack <item> [amount] - Buy stacks of items");
+            BSutils.sendMessage(player, "/shopbuyagain - repeat last purchase action");
+        }
+        if (BSutils.hasPermission(player, "BetterShop.user.sell", false)) {
+            BSutils.sendMessage(player, "/shopsell <item> [amount] - Sell items ");
+            BSutils.sendMessage(player, "/shopsellall <item> - Sell all of your items");
+            BSutils.sendMessage(player, "/shopsellagain - Repeat last sell action");
+        }
+        if (BSutils.hasPermission(player, "BetterShop.user.check", false)) {
+            BSutils.sendMessage(player, "/shopcheck <item> - Check prices of item");
+        }
+        BSutils.sendMessage(player, "/shophelp [command] - show help on commands");
         if (BSutils.hasPermission(player, "BetterShop.admin", false)) {
             BSutils.sendMessage(player, "**-------- Admin commands --------**");
-            BSutils.sendMessage(player, "/shopadd [item] [$buy] [$sell] - Add/Update an item in the shop");
-            BSutils.sendMessage(player, "/shopremove [item] - Remove an item from the shop");
-            BSutils.sendMessage(player, "/shopload - Reload the PriceList.yml file");
+            if (BSutils.hasPermission(player, "BetterShop.admin.add", false)) {
+                BSutils.sendMessage(player, "/shopadd <item> <$buy> [$sell] - Add/Update an item");
+            }
+            if (BSutils.hasPermission(player, "BetterShop.admin.remove", false)) {
+                BSutils.sendMessage(player, "/shopremove <item> - Remove an item from the shop");
+            }
+            if (BSutils.hasPermission(player, "BetterShop.admin.load", false)) {
+                BSutils.sendMessage(player, "/shopload - Reload the Configuration & PriceList DB");
+            }
         }
         BSutils.sendMessage(player, "----------------------------------");
         return true;
@@ -78,13 +177,16 @@ public class BSCommand {
                             replace("<item>", "%3$s").
                             replace("<curr>", "%4$s").
                             replace("<buycur>", "%5$s").
-                            replace("<sellcur>", "%6$s"),
+                            replace("<sellcur>", "%6$s").
+                            replace("<avail>", "%7$s"),
                             (price.IsLegal() || canBuyIllegal) && price.buy >= 0 ? price.buy : "No",
                             price.sell >= 0 ? price.sell : "No",
-                            i.coloredName(), BetterShop.config.currency,
+                            i.coloredName(),
+                            BetterShop.config.currency,
                             (price.IsLegal() || canBuyIllegal) && price.buy >= 0
                             ? BetterShop.iConomy.getBank().format(price.buy) : "No",
-                            price.sell >= 0 ? BetterShop.iConomy.getBank().format(price.sell) : "No"));
+                            price.sell >= 0 ? BetterShop.iConomy.getBank().format(price.sell) : "No",
+                            BetterShop.stock == null ? "INF" : BetterShop.stock.getItemAmount(i)));
                 } else if (lookup.length <= 5) { // only show nolisting if result page is 5 or less lines
                     BSutils.sendMessage(player,
                             String.format(BetterShop.config.getString("nolisting").
@@ -261,6 +363,9 @@ public class BSCommand {
                                 BetterShop.iConomy.getBank().format(BetterShop.pricelist.getSellPrice(toAdd))),
                                 BetterShop.config.publicmarket);
                     } else {
+                        if (BetterShop.stock != null) {
+                            BetterShop.stock.setItemAmount(toAdd, BetterShop.config.startStock);
+                        }
                         BSutils.sendMessage(player,
                                 String.format(BetterShop.config.getString("addmsg").
                                 replace("<item>", "%1$s").
@@ -303,6 +408,9 @@ public class BSCommand {
         if (toRem != null) {
             try {
                 BetterShop.pricelist.remove(toRem);
+                if (BetterShop.stock != null) {
+                    BetterShop.stock.remove(toRem);
+                }
                 BSutils.sendMessage(player, String.format(BetterShop.config.getString("removemsg").
                         replace("<item>", "%1$s"), toRem.name), BetterShop.config.publicmarket);
 
@@ -422,7 +530,27 @@ public class BSCommand {
                 }
             }
         }
-
+        // now check if there are items avaliable for purchase
+        long avail = -1;
+        if (BetterShop.stock != null && BetterShop.config.useItemStock) {
+            try {
+                avail = BetterShop.stock.getItemAmount(toBuy);
+            } catch (SQLException ex) {
+                BetterShop.Log(Level.SEVERE, ex);
+            } catch (Exception ex) {
+                BetterShop.Log(Level.SEVERE, ex);
+            }
+            if (avail == -1) {
+                BSutils.sendMessage(player, "\u00A74Failed to lookup an item stock listing");
+                return true;
+            } else if (avail == 0) {
+                BSutils.sendMessage(player, "this item is currently out of stock");
+                return true;
+            } else if (amtbought > avail) {
+                BSutils.sendMessage(player, String.format("only %d avaliable for purchase", avail));
+                amtbought = (int) avail;
+            }
+        }
         double cost = amtbought * price;
         try {
             if (BSutils.debit(player, cost)) {
@@ -466,7 +594,10 @@ public class BSCommand {
                             replace("<player>", "%7$s"),
                             toBuy.coloredName(), amtbought, price, cost,
                             BetterShop.config.currency, BetterShop.iConomy.getBank().format(cost), ((Player) player).getDisplayName()), false);
+                }
 
+                if (BetterShop.stock != null && BetterShop.config.useItemStock) {
+                    BetterShop.stock.changeItemAmount(toBuy, -amtbought);
                 }
 
                 BetterShop.transactions.addRecord(new UserTransaction(
@@ -490,18 +621,9 @@ public class BSCommand {
             BetterShop.Log(Level.SEVERE, e);
             BSutils.sendMessage(player, "Error while debiting player.. possible iConomy crash? ");
             BSutils.sendMessage(player, "Attempting reload.. ");
-            try {
-                PluginManager m = player.getServer().getPluginManager();
-                Plugin icon = m.getPlugin("iConomy");
-
-                m.disablePlugin(icon);
-                m.enablePlugin(icon);
-
+            if (BSutils.reloadIConomy(player.getServer())) {
                 BSutils.sendMessage(player, "Success! Please try again.. ");
                 return true;
-            } catch (Exception ex) {
-                BetterShop.Log(Level.SEVERE, "Error");
-                BetterShop.Log(Level.SEVERE, ex);
             }
             BSutils.sendMessage(player, "Failed.");
             return true;
@@ -661,6 +783,7 @@ public class BSCommand {
                 }
             }
         }
+        
         if (numToBuy > maxBuy) {
             BSutils.sendMessage(player, String.format(BetterShop.config.getString("outofroom").
                     replace("<item>", "%1$s").
@@ -674,6 +797,28 @@ public class BSCommand {
                 return true;
             }
             numToBuy = maxBuy;
+        }
+
+        // now check if there are items avaliable for purchase
+        long avail = -1;
+        if (BetterShop.stock != null && BetterShop.config.useItemStock) {
+            try {
+                avail = BetterShop.stock.getItemAmount(toBuy);
+            } catch (SQLException ex) {
+                BetterShop.Log(Level.SEVERE, ex);
+            } catch (Exception ex) {
+                BetterShop.Log(Level.SEVERE, ex);
+            }
+            if (avail == -1) {
+                BSutils.sendMessage(player, "\u00A74Failed to lookup an item stock listing");
+                return true;
+            } else if (avail == 0) {
+                BSutils.sendMessage(player, "this item is currently out of stock");
+                return true;
+            } else if (numToBuy > avail) {
+                BSutils.sendMessage(player, String.format("only %d avaliable for purchase", avail));
+                numToBuy = (int) avail;
+            }
         }
 
         double cost = numToBuy * price;
@@ -707,6 +852,10 @@ public class BSCommand {
                         BSutils.broadcastMessage(player, "An Error occurred.. contact an admin to resolve this issue");
                         break;
                     }
+                }
+
+                if (BetterShop.stock != null && BetterShop.config.useItemStock) {
+                    BetterShop.stock.changeItemAmount(toBuy, -numToBuy);
                 }
 
                 BSutils.sendMessage(player, String.format(
@@ -756,18 +905,9 @@ public class BSCommand {
             BetterShop.Log(Level.SEVERE, e);
             BSutils.sendMessage(player, "Error while debiting player.. possible iConomy crash? ");
             BSutils.sendMessage(player, "Attempting reload.. ");
-            try {
-                PluginManager m = player.getServer().getPluginManager();
-                Plugin icon = m.getPlugin("iConomy");
-
-                m.disablePlugin(icon);
-                m.enablePlugin(icon);
-
+            if (BSutils.reloadIConomy(player.getServer())) {
                 BSutils.sendMessage(player, "Success! Please try again.. ");
                 return true;
-            } catch (Exception ex) {
-                BetterShop.Log(Level.SEVERE, "Error");
-                BetterShop.Log(Level.SEVERE, ex);
             }
             BSutils.sendMessage(player, "Failed.");
             return true;
@@ -837,7 +977,7 @@ public class BSCommand {
             if (toSell.equals(i)) {
                 //System.out.println("found: " + i);
                 if (!toSell.IsTool() || (toSell.IsTool()
-                        && (i.getDurability() == 0 || (i.getDurability() > 0 && BetterShop.config.buybacktools)))) {
+                        && (i.getDurability() == 0 || BetterShop.config.buybacktools))) {
                     amtHas += i.getAmount();
                 }
             }
@@ -867,6 +1007,23 @@ public class BSCommand {
                 BSutils.sendMessage(player, s[1] + " is definitely not a number.");
             }
         } // else  amtSold = 1
+
+
+        // now check the remaining stock can sell back
+        long avail = -1;
+        if (BetterShop.config.useItemStock && BetterShop.stock != null) {
+            avail = BetterShop.stock.freeStockRemaining(toSell);
+            if (avail == -1) {
+                BSutils.sendMessage(player, "\u00A74Failed to lookup an item stock listing");
+                return true;
+            } else if (avail == 0 && BetterShop.config.noOverStock) {
+                BSutils.sendMessage(player, "this item is currently at max stock");
+                return true;
+            } else if (amtSold > avail && BetterShop.config.noOverStock) {
+                BSutils.sendMessage(player, String.format("only %d can be sold back", avail));
+                amtSold = (int) avail;
+            }
+        }
 
         double total = 0;//amtSold * price;
 
@@ -909,21 +1066,23 @@ public class BSCommand {
             BetterShop.Log(Level.SEVERE, e);
             BSutils.sendMessage(player, "Error while crediting player.. possible iConomy crash? ");
             BSutils.sendMessage(player, "Attempting reload.. ");
-            try {
-                PluginManager m = player.getServer().getPluginManager();
-                Plugin icon = m.getPlugin("iConomy");
-
-                m.disablePlugin(icon);
-                m.enablePlugin(icon);
-
+            if (BSutils.reloadIConomy(player.getServer())) {
                 BSutils.sendMessage(player, "Success! Please try again.. ");
                 return true;
-            } catch (Exception ex) {
-                BetterShop.Log(Level.SEVERE, "Error");
-                BetterShop.Log(Level.SEVERE, ex);
             }
             BSutils.sendMessage(player, "Failed.");
             return true;
+        }
+        if (BetterShop.stock != null && BetterShop.config.useItemStock) {
+            try {
+                BetterShop.stock.setItemAmount(toSell, avail - amtSold);
+            } catch (SQLException ex) {
+                BetterShop.Log(Level.SEVERE, ex);
+            } catch (IOException ex) {
+                BetterShop.Log(Level.SEVERE, ex);
+            } catch (Exception ex) {
+                BetterShop.Log(Level.SEVERE, ex);
+            }
         }
         BSutils.sendMessage(player, String.format(BetterShop.config.getString("sellmsg").
                 replace("<item>", "%1$s").
@@ -978,60 +1137,48 @@ public class BSCommand {
                                 BetterShop.config.getString("unkitem").
                                 replace("<item>", "%1$s"), s[0]));
                         return false;
+                    } else if (toSell[i - st].isKit()) {
+                        BSutils.sendMessage(player, "Kits cannot be sold");
+                        return true;
                     }
                 }
             } // "[All Sellable]"
         }// initial check complete: set as last action
         usersellHistory.put(((Player) player).getDisplayName(), "shopsellall " + argStr(s));
 
-        boolean err = false;
-        PlayerInventory inv = ((Player) player).getInventory();
-        ItemStack[] its = inv.getContents();
+        boolean err = false, overstock = false;
+        //PlayerInventory inv = ((Player) player).getInventory();
+        //ItemStack[] its = inv.getContents();
+        ArrayList<ItemStockEntry> playerInv = BSutils.getTotalInventory((Player) player, onlyInv, toSell);
         int amtHas = 0;
         double total = 0;
-
+        ArrayList<String> notwant = new ArrayList<String>();
         try {
-            if (toSell != null && toSell.length > 0) {
-                // check items not for sale
-                ArrayList<String> notwant = new ArrayList<String>();
-                boolean sendkitmsg = false; // if has already sent kit notification
-                for (Item it : toSell) {
-                    if (!BetterShop.pricelist.isForSale(it)) {
-                        notwant.add(it.coloredName());
-                        it = null;
-                    } else if (it.isKit()) {
-                        notwant.add(it.coloredName());
-                        if (!sendkitmsg) {
-                            BSutils.sendMessage(player, "Kits cannot be sold");
-                            sendkitmsg = true;
-                        }
-                        return true;
+            for (int i = 0; i < playerInv.size(); ++i) {
+                Item check = Item.findItem(playerInv.get(i));
+                if (!BetterShop.pricelist.isForSale(check)
+                        || (check.IsTool() && !BetterShop.config.buybacktools && playerInv.get(i).itemSub > 0)) {
+                    if (toSell != null && toSell.length > 0) {
+                        notwant.add(check.coloredName());
                     }
-                }
-                if (notwant.size() > 0) {
-                    BSutils.sendMessage(player, String.format(
-                            BetterShop.config.getString("donotwant").
-                            replace("<item>", "%1$s"), "(" + argStr(notwant.toArray(new String[0]), ", ") + ")"));
-                    if (notwant.size() == toSell.length) {
-                        return true;
-                    }
-                }
-            }
-            // go through inventory & find how much user has
-            if (toSell == null || toSell.length == 0) {
-                for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
-                    if (BetterShop.pricelist.isForSale(its[i])) {
-                        amtHas += its[i].getAmount();
-                    }
-                }
-            } else {
-                for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
-                    for (Item it : toSell) {
-                        if (it != null && it.equals(its[i])) {//  && BetterShop.pricelist.isForSale(it)) {
-                            amtHas += its[i].getAmount();
-                            break; // stop checking items toSell & continue to next inventory slot
+                    playerInv.remove(i);
+                    --i;
+                } else {
+                    if (BetterShop.config.useItemStock && BetterShop.stock != null) {
+                        // check if avaliable stock
+                        long free = BetterShop.stock.freeStockRemaining(check);
+                        if (free == -1) {
+                            err = true;
+                        } else if (free == 0 && BetterShop.config.noOverStock) {
+                            BSutils.sendMessage(player, String.format("%s is currently at max stock", check.coloredName()));
+                            playerInv.get(i).amount = 0;
+                            overstock = true;
+                        } else if (playerInv.get(i).amount > free && BetterShop.config.noOverStock) {
+                            BSutils.sendMessage(player, String.format("only %d %s can be sold back", free, check.coloredName()));
+                            playerInv.get(i).amount = (int) free;
                         }
                     }
+                    amtHas += playerInv.get(i).amount;
                 }
             }
         } catch (SQLException ex) {
@@ -1050,102 +1197,38 @@ public class BSCommand {
                 BSutils.sendMessage(player, "\u00A74Failed! Please let an OP know of this error");
             }
             return true;
+        } else if (notwant.size() > 0) {
+            BSutils.sendMessage(player, String.format(
+                    BetterShop.config.getString("donotwant").
+                    replace("<item>", "%1$s"), "(" + argStr(notwant.toArray(new String[0]), ", ") + ")"));
+            if (notwant.size() == toSell.length) {
+                return true;
+            }
         }
-
         if (amtHas <= 0) {
-            BSutils.sendMessage(player, "You Don't have any " + (toSell == null || toSell.length == 0 ? "Sellable Items"
-                    : (toSell.length == 1 ? toSell[0].coloredName() : "of those items")));
+            if (!overstock) {
+                BSutils.sendMessage(player, "You Don't have any " + (toSell == null || toSell.length == 0 ? "Sellable Items"
+                        : (toSell.length == 1 ? toSell[0].coloredName() : "of those items")));
+            }
             return true;
         }
-
-        int amtSold = 0;
+        // make list of transactions made (or should make)
         LinkedList<UserTransaction> transactions = new LinkedList<UserTransaction>();
-        // now scan through & remove the items
-        /*
-        if (toSell != null && toSell.length == 1) {
-        transactions.add(new UserTransaction(toSell[0], true, amtHas, ((Player) player).getDisplayName()));
-        //amtSold = amtHas;
-        }*/
         try {
-            if (toSell == null || toSell.length == 0) {
-                for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
-                    Item it = Item.findItem(its[i]);
-                    if (it != null) {
-                        if (BetterShop.pricelist.isForSale(it) && (!it.IsTool()
-                                || (its[i].getDurability() == 0 || BetterShop.config.buybacktools))) {
-                            int amt = its[i].getAmount();
-
-                            if (it.IsTool()) {
-                                total += (BetterShop.pricelist.getSellPrice(it) * (1 - ((double) its[i].getDurability() / it.MaxDamage()))) * amt;
-                            } else {
-                                total += BetterShop.pricelist.getSellPrice(it) * amt;
-                            }
-                            amtSold += amt;
-                            boolean in = false;
-                            for (UserTransaction t : transactions) {
-                                if (t.equals(its[i])) {
-                                    in = true;
-                                    t.amount += its[i].getAmount();
-                                    break;
-                                }
-                            }
-                            if (!in) {
-                                transactions.add(new UserTransaction(it, true, its[i].getAmount(),
-                                        BetterShop.pricelist.getSellPrice(it),
-                                        ((Player) player).getDisplayName()));
-                            }
-                            inv.setItem(i, null);
-                        }
-                    }//else //null usually == AIR x -1
-                    //    BetterShop.Log("Error: searching for an item that should exist, but isn't in db\n" + its[i]);
-                }
-            } else {
-                for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
-                    for (Item it : toSell) {
-                        if (it != null && it.equals(its[i])) {
-                            if (!it.IsTool() || (its[i].getDurability() == 0 || BetterShop.config.buybacktools)) {
-                                int amt = its[i].getAmount();
-
-                                if (it.IsTool()) {
-                                    total += (BetterShop.pricelist.getSellPrice(it) * (1 - ((double) its[i].getDurability() / it.MaxDamage()))) * amt;
-                                } else {
-                                    total += BetterShop.pricelist.getSellPrice(it) * amt;
-                                }
-                                amtSold += amt;
-                                boolean in = false;
-                                for (UserTransaction t : transactions) {
-                                    if (t.equals(it)) {
-                                        in = true;
-                                        t.amount += its[i].getAmount();
-                                        break;
-                                    }
-                                }
-                                if (!in) {
-                                    transactions.add(new UserTransaction(it, true, its[i].getAmount(),
-                                            BetterShop.pricelist.getSellPrice(it),
-                                            ((Player) player).getDisplayName()));
-                                }
-                                inv.setItem(i, null);
-
-                            }
-                            break;// stop checking against item list & continue to next inventory slot
-                        }
-                    }
-                }
+            for (ItemStockEntry ite : playerInv) {
+                transactions.add(new UserTransaction(ite, true,
+                        BetterShop.pricelist.getSellPrice(ite),
+                        ((Player) player).getDisplayName()));
             }
         } catch (SQLException ex) {
             BetterShop.Log(Level.SEVERE, ex);
-            BSutils.sendMessage(player, "Error looking up an item");
-            BSutils.credit(player, total); // credit anything that could be sold
-            return true;
         } catch (Exception ex) {
             BetterShop.Log(Level.SEVERE, ex);
-            BSutils.sendMessage(player, "Error looking up an item");
-            BSutils.credit(player, total); // credit anything that could be sold
-            return true;
         }
-
+        // now scan through & remove the items
+        total = sellItems((Player) player, onlyInv, playerInv);
         BSutils.credit(player, total);
+
         String itemN = ""; // "(All Sellable)"
         if (toSell != null && toSell.length == 1) {
             itemN = toSell[0].coloredName();
@@ -1164,7 +1247,7 @@ public class BSCommand {
                 replace("<total>", "%4$01.2f").
                 replace("<curr>", "%5$s").
                 replace("<totcur>", "%6$s"),
-                itemN, amtSold, total / amtSold, total, BetterShop.config.currency, BetterShop.iConomy.getBank().format(total)));
+                itemN, amtHas, total / amtHas, total, BetterShop.config.currency, BetterShop.iConomy.getBank().format(total)));
 
         if (BetterShop.config.publicmarket && BetterShop.config.hasString("publicsellmsg")) {
             BSutils.broadcastMessage(player, String.format(BetterShop.config.getString("publicsellmsg").
@@ -1175,7 +1258,7 @@ public class BSCommand {
                     replace("<curr>", "%5$s").
                     replace("<totcur>", "%6$s").
                     replace("<player>", "%7$s"),
-                    itemN, amtSold, total / amtSold, total,
+                    itemN, amtHas, total / amtHas, total,
                     BetterShop.config.currency, BetterShop.iConomy.getBank().format(total), ((Player) player).getDisplayName()), false);
 
         }
@@ -1215,6 +1298,54 @@ public class BSCommand {
         return true;
     }
 
+    protected static double sellItems(Player player, boolean onlyInv, ArrayList<ItemStockEntry> items) {
+        double credit = 0;
+        PlayerInventory inv = ((Player) player).getInventory();
+        ItemStack[] its = inv.getContents();
+        try {
+            for (ItemStockEntry ite : items) {
+                Item toSell = Item.findItem(ite);
+                if (toSell != null) {
+                    int amtLeft = (int) ite.amount;
+                    for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
+                        Item it = Item.findItem(its[i]);
+                        if (it != null && it.equals(toSell)) {
+                            if (BetterShop.pricelist.isForSale(it) && (!it.IsTool()
+                                    || (its[i].getDurability() == 0 || BetterShop.config.buybacktools))) {
+                                int amt = its[i].getAmount();
+                                if (amtLeft < amt) {
+                                    inv.setItem(i, it.toItemStack(amt - amtLeft));
+                                    amt = amtLeft;
+                                } else {
+                                    inv.setItem(i, null);
+                                }
+                                if (it.IsTool()) {
+                                    credit += (BetterShop.pricelist.getSellPrice(it) * (1 - ((double) its[i].getDurability() / it.MaxDamage()))) * amt;
+                                } else {
+                                    credit += BetterShop.pricelist.getSellPrice(it) * amt;
+                                }
+                                amtLeft -= amt;
+                                if (amtLeft <= 0) {
+                                    if (BetterShop.config.useItemStock && BetterShop.stock != null) {
+                                        BetterShop.stock.changeItemAmount(it, ite.amount);
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            BetterShop.Log(Level.SEVERE, ex);
+            BSutils.sendMessage(player, "Error looking up an item");
+        } catch (Exception ex) {
+            BetterShop.Log(Level.SEVERE, ex);
+            BSutils.sendMessage(player, "Error looking up an item");
+        }
+        return credit;
+    }
+
     public static String argStr(String[] s) {
         return argStr(s, " ");
     }
@@ -1230,5 +1361,16 @@ public class BSCommand {
             }
         }
         return ret;
+    }
+
+    public boolean isCommand(String input, String check) {
+        String comms[] = check.split(",");
+        input = input.trim();
+        for (String c : comms) {
+            if (input.equalsIgnoreCase(c.trim())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

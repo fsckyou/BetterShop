@@ -77,7 +77,7 @@ public class BSTransactionLog {
                         ArrayList<String[]> actFile = CSV.loadFile(flatFile);
                         for (int n = 0; n < actFile.size(); ++n) {//String[] line : actFile) {
                             String[] line = actFile.get(n);
-                            if (line.length > 3) {
+                            if (line.length >=8) {
                                 Item plItem = Item.findItem(line[2] + ":" + (line[3].equals(" ") ? "0" : line[3]));
                                 if (plItem != null) {
                                     //priceList.add(new PriceListItem(plItem, fields[2].length() == 0 ? -1 : CheckInput.GetDouble(fields[2], -1), fields[3].length() == 0 ? -1 : CheckInput.GetDouble(fields[3], -1)));
@@ -109,17 +109,17 @@ public class BSTransactionLog {
                         ArrayList<String[]> actFile = CSV.loadFile(totalsFlatFile);
                         for (int n = 0; n < actFile.size(); ++n) {//String[] line : actFile) {
                             String[] line = actFile.get(n);
-                            if (line.length > 3) {
-                                Item plItem = Item.findItem(line[2] + ":" + (line[3].equals(" ") ? "0" : line[3]));
+                            if (line.length >=6) {
+                                Item plItem = Item.findItem(line[1] + ":" + (line[2].equals(" ") ? "0" : line[2]));
                                 if (plItem != null) {
                                     //priceList.add(new PriceListItem(plItem, fields[2].length() == 0 ? -1 : CheckInput.GetDouble(fields[2], -1), fields[3].length() == 0 ? -1 : CheckInput.GetDouble(fields[3], -1)));
                                     totalTransactions.add(new TotalTransaction(CheckInput.GetLong(line[0], 0), plItem,
-                                            CheckInput.GetLong(line[5], 0), CheckInput.GetLong(line[6], 0)));
+                                            CheckInput.GetLong(line[4], 0), CheckInput.GetLong(line[5], 0)));
                                 } else if (n > 0) { // first line is expected invalid: is title
-                                    BetterShop.Log(Level.WARNING, String.format("Invalid item on line %d in %s", (n + 1), flatFile.getName()));
+                                    BetterShop.Log(Level.WARNING, String.format("Invalid item on line %d in %s", (n + 1), totalsFlatFile.getName()));
                                 }
                             } else {
-                                BetterShop.Log(Level.WARNING, String.format("unexpected pricelist line at %d in %s", (n + 1), flatFile.getName()));
+                                BetterShop.Log(Level.WARNING, String.format("unexpected pricelist line at %d in %s", (n + 1), totalsFlatFile.getName()));
                             }
                         }
                     } catch (FileNotFoundException ex) {

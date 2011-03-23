@@ -9,6 +9,7 @@ package com.jascotty2.Shop;
 
 import com.jascotty2.Item.Item;
 import com.jascotty2.Item.ItemDB;
+import com.jascotty2.Item.ItemStockEntry;
 import java.util.Date;
 import org.bukkit.inventory.ItemStack;
 
@@ -39,6 +40,7 @@ public class UserTransaction {
         this.price=price;
         time=(new Date()).getTime()/1000;
     }
+
     public UserTransaction(Item item, boolean isSold, int amount, double price,  String username) {
         itemNum=item.ID();
         itemSub=item.Data();
@@ -59,6 +61,18 @@ public class UserTransaction {
         this.price=price;
         time=(new Date()).getTime()/1000;
     }
+
+    public UserTransaction(ItemStockEntry item, boolean isSold, double price, String username) {
+        itemNum=item.itemNum;
+        itemSub=item.itemSub;
+        this.name=item.name;
+        sold=isSold;
+        user=username;
+        this.amount=(int)item.amount;
+        this.price=price;
+        time=(new Date()).getTime()/1000;
+    }
+
     public UserTransaction(long time, String username, int num, int sub, String itemname, int amt, boolean isSold, double unitprice) {
         this.time=time;
         itemNum=num;

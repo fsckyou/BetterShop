@@ -77,6 +77,7 @@ public class CheckInput {
     }
 
     public static long GetLong(String input, long onError) {
+        if(input==null)return onError;
         try {
             return Pattern.matches(IntPattern, input) ? Long.parseLong(input) : onError;
         } catch (NumberFormatException e) {
@@ -86,6 +87,7 @@ public class CheckInput {
     }
 
     public static int GetInt(String input, int onError) {
+        if(input==null)return onError;
         try {
             return Pattern.matches(IntPattern, input) ? Integer.parseInt(input) : onError;
         } catch (NumberFormatException e) {
@@ -95,6 +97,7 @@ public class CheckInput {
     }
 
     public static double GetDouble(String input, double onError) {
+        if(input==null)return onError;
         try {
             return Pattern.matches(fpRegex, input) ? Double.parseDouble(input) : onError;
         } catch (NumberFormatException e) {
@@ -103,6 +106,7 @@ public class CheckInput {
     }
 
     public static byte GetByte(String input, byte onError) {
+        if(input==null)return onError;
         // not fully sure how to catch a byte with an expression, so checking int instead
         try {
             return Pattern.matches(IntPattern, input) ? Byte.parseByte(input) : onError;

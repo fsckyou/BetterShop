@@ -1,38 +1,45 @@
 /**
  * Programmer: Jacob Scott
  * Email: jascottytechie at gmail.com
- * Program Name: MySQLPriceList
+ * Program Name: MySQLItemStock
  * Description: class for working with a MySQL server
  * Date: Mar 8, 2011
  */
 package com.jascotty2.MySQL;
 
 import com.jascotty2.Item.Item;
-import com.jascotty2.Item.PriceListItem;
+import com.jascotty2.Item.ItemStockEntry;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import java.util.LinkedList;
 
-public class MySQLPriceList {
+public class MySQLItemStock {
 
     // local copy of current connection info
-    private String sql_database = "minecraft", sql_tableName = "PriceList";
+    private String sql_database = "minecraft", sql_tableName = "ItemStock";
     // DB connection
     public MySQL MySQLdatabase = new MySQL();
     
-    public MySQLPriceList(String database, String tableName, String username, String password, String hostName, String portNum) throws SQLException, Exception {
+    public MySQLItemStock(String database, String tableName, String username, String password, String hostName, String portNum) throws SQLException, Exception {
 
         MySQLdatabase.connect(database, username, password, hostName, portNum);
         sql_database = database;
         sql_tableName = tableName;
         // now check & create table
         if(!MySQLdatabase.tableExists(tableName)){
-            createPricelistTable(tableName);
+            createItemStockTable(tableName);
         }
     } // end default constructor
-
+    public MySQLItemStock(MySQL database, String tableName) throws SQLException {
+        MySQLdatabase = database;
+        sql_tableName = tableName;
+        // now check & create table
+        if(!MySQLdatabase.tableExists(tableName)){
+            createItemStockTable(tableName);
+        }
+    }
     public MySQL getMySQLconnection(){
         return MySQLdatabase;
     }
@@ -65,7 +72,7 @@ public class MySQLPriceList {
         }
         if (!exst) {
             // table does not exist, so create it
-            createPricelistTable(tableName);
+            createItemStockTable(tableName);
         }
         return true;
     }
@@ -85,19 +92,18 @@ public class MySQLPriceList {
         }
     }
 
-    public PriceListItem GetItem(String name) throws SQLException, Exception {
+    public ItemStockEntry GetItem(String name) throws SQLException, Exception {
         if (MySQLdatabase.IsConnected()) {
             try {
                 //BetterShop.Log(Level.INFO, String.format("SELECT * FROM %s WHERE NAME='%s';", BetterShop.config.sql_tableName, name));
                 ResultSet table = MySQLdatabase.GetQuery(String.format(
                         "SELECT * FROM %s WHERE NAME='%s';", sql_tableName, name));
                 if (table.first()) {
-                    PriceListItem ret = new PriceListItem();
-                    ret.setID(table.getInt(1));
-                    ret.setData(table.getByte(2));
+                    ItemStockEntry ret = new ItemStockEntry();
+                    ret.itemNum=table.getInt(1);
+                    ret.itemSub=table.getByte(2);
                     ret.name = table.getString(3);
-                    ret.buy = table.getDouble(4);
-                    ret.SetSellPrice(table.getDouble(5));
+                    ret.amount = table.getLong(4);
                     return ret;
                 }
             } catch (SQLException ex) {
@@ -109,7 +115,7 @@ public class MySQLPriceList {
         return null;
     }
 
-    public PriceListItem GetItem(Item item) throws SQLException, Exception {
+    public ItemStockEntry GetItem(Item item) throws SQLException, Exception {
         if (MySQLdatabase.IsConnected()) {
             try {
                 //BetterShop.Log(Level.INFO, String.format("SELECT * FROM %s WHERE ID='%d' AND SUB='%d';", BetterShop.config.sql_tableName, (int)Math.floor(item), (int) Math.round((item - Math.floor(item)) * 100.)));
@@ -117,12 +123,11 @@ public class MySQLPriceList {
                         String.format("SELECT * FROM %s WHERE ID='%d' AND SUB='%d';", sql_tableName,
                         item.ID(), (int) item.Data()));
                 if (table.first()) {
-                    PriceListItem ret = new PriceListItem();
-                    ret.setID(table.getInt(1));
-                    ret.setData(table.getByte(2));
+                    ItemStockEntry ret = new ItemStockEntry();
+                    ret.itemNum=table.getInt(1);
+                    ret.itemSub=table.getByte(2);
                     ret.name = table.getString(3);
-                    ret.buy = table.getDouble(4);
-                    ret.SetSellPrice(table.getDouble(5));
+                    ret.amount = table.getLong(4);
                     return ret;
                 }
             } catch (SQLException ex) {
@@ -134,12 +139,12 @@ public class MySQLPriceList {
         return null;
     }
 
-    public boolean SetPrice(String itemName, double buy, double sell) throws SQLException {
+    public boolean SetAmount(String itemName, long amt) throws SQLException {
         if (ItemExists(itemName)) {
             try {
                 MySQLdatabase.RunUpdate(
-                        String.format("UPDATE %s SET BUY='%1.2f', SELL='%1.2f' WHERE NAME='%s';", sql_tableName,
-                        buy, sell, itemName));
+                        String.format("UPDATE %s SET AMT='%d' WHERE NAME='%s';", 
+                        sql_tableName, amt, itemName));
                 /* or:
                 String.format("UPDATE %s SET BUY=%f1.2, SELL=%f1.2 WHERE ID='%d' AND SUB='%d';",
                 buy, sell, itemInfo.getItemTypeId(), itemInfo.getData())).executeUpdate();
@@ -153,8 +158,8 @@ public class MySQLPriceList {
             if (toAdd != null) {
                 try {
                     MySQLdatabase.RunUpdate(
-                            String.format("INSERT INTO %s VALUES(%d, %d, '%s', '%1.2f', '%1.2f');", sql_tableName,
-                            toAdd.ID(), toAdd.Data(), toAdd.name, buy, sell));
+                            String.format("INSERT INTO %s VALUES(%d, %d, '%s', '%d');", sql_tableName,
+                            toAdd.ID(), toAdd.Data(), toAdd.name, amt));
                     return true;
                 } catch (SQLException ex) {
                     throw new SQLException("Error executing INSERT on " + sql_tableName, ex);
@@ -164,13 +169,13 @@ public class MySQLPriceList {
         return false;
     }
 
-    public void SetPrice(Item item, double buy, double sell) throws SQLException { //
+    public void SetAmount(Item item, long amt) throws SQLException { //
         if (ItemExists(item)) {
             try {
                 //logger.log(Level.INFO, String.format("UPDATE %s SET BUY=%1.2f, SELL=%1.2f WHERE ID='%d' AND SUB='%d';", sql_tableName, buy, sell, item.itemId, (int) item.itemData));
                 MySQLdatabase.RunUpdate(
-                        String.format("UPDATE %s SET BUY='%1.2f', SELL='%1.2f' WHERE ID='%d' AND SUB='%d';", sql_tableName,
-                        buy, sell, item.ID(), (int) item.Data()));
+                        String.format("UPDATE %s SET AMT='%d WHERE ID='%d' AND SUB='%d';", sql_tableName,
+                        amt, item.ID(), (int) item.Data()));
                 //return true;
             } catch (SQLException ex) {
                 throw new SQLException("Error executing UPDATE on " + sql_tableName, ex);
@@ -181,8 +186,8 @@ public class MySQLPriceList {
             try {
                 //logger.log(Level.INFO, String.format("INSERT INTO %s VALUES(%d, %d, '%s', %1.2f, %1.2f);", sql_tableName, item.itemId, (int)item.itemData, item.name, buy, sell)
                 MySQLdatabase.RunUpdate(
-                        String.format("INSERT INTO %s VALUES(%d, %d, '%s', '%1.2f', '%1.2f');", sql_tableName,
-                        item.ID(), (int) item.Data(), item.name, buy, sell));
+                        String.format("INSERT INTO %s VALUES(%d, %d, '%s', '%d');", sql_tableName,
+                        item.ID(), (int) item.Data(), item.name, amt));
                 //return true;
             } catch (SQLException ex) {
                 throw new SQLException("Error executing INSERT on " + sql_tableName, ex);
@@ -243,8 +248,8 @@ public class MySQLPriceList {
         return false;
     }
 
-    public LinkedList<PriceListItem> GetFullList() throws SQLException, Exception {
-        LinkedList<PriceListItem> tableDat = new LinkedList<PriceListItem>();
+    public LinkedList<ItemStockEntry> GetFullList() throws SQLException, Exception {
+        LinkedList<ItemStockEntry> tableDat = new LinkedList<ItemStockEntry>();
         if (MySQLdatabase.IsConnected()) {
             try {
                 // Statement to use to issue SQL queries
@@ -257,8 +262,8 @@ public class MySQLPriceList {
                 //BetterShop.Log(Level.INFO, "Table selected: ");
                 for (table.beforeFirst(); table.next();) {
                     //BetterShop.Log(Level.INFO, table.getString(3));//
-                    tableDat.add(new PriceListItem(table.getInt(1), table.getByte(2),
-                            table.getString(3), table.getDouble(4), table.getDouble(5)));
+                    tableDat.add(new ItemStockEntry(table.getInt(1), table.getByte(2),
+                            table.getString(3), table.getLong(4)));
                 }
             } catch (SQLException ex) {
                 throw new SQLException("Error executing SELECT on " + sql_tableName, ex);
@@ -273,17 +278,16 @@ public class MySQLPriceList {
         return MySQLdatabase.IsConnected();
     }
 
-    private boolean createPricelistTable(String tableName) throws SQLException {
+    private boolean createItemStockTable(String tableName) throws SQLException {
         if (!MySQLdatabase.IsConnected() || tableName.contains(" ")) {
             return false;
         }
         try {
-            MySQLdatabase.RunUpdate("CREATE TABLE " + sql_database + "." + tableName
+            MySQLdatabase.RunUpdate("CREATE TABLE " + tableName
                     + "(ID    INTEGER  NOT NULL,"
                     + "SUB   TINYINT  NOT NULL,"
                     + "NAME  VARCHAR(25) NOT NULL,"
-                    + "BUY   DECIMAL(11,2),"
-                    + "SELL  DECIMAL(11,2),"
+                    + "AMT   BIGINT NOT NULL,"
                     + "PRIMARY KEY (ID, SUB));");
         } catch (SQLException e) {
             throw new SQLException("Error while creating table", e);

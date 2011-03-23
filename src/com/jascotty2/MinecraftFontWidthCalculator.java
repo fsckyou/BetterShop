@@ -71,6 +71,7 @@ public class MinecraftFontWidthCalculator {
         len -= getStringWidth(str);
         return unformattedStrRepeat(pad, len / getCharWidth(pad, 6)) + str;
     }
+
     /**
      * pads str on the left & right with pad (center-align)
      * @param str string to format
@@ -84,7 +85,7 @@ public class MinecraftFontWidthCalculator {
         len -= getStringWidth(str);
         int padwid = getCharWidth(pad, 6);
         int prepad = (len / padwid) / 2;
-        len-=prepad *padwid;
+        len -= prepad * padwid;
         return unformattedStrRepeat(pad, prepad) + str + unformattedStrRepeat(pad, len / padwid);
     }
 
@@ -98,10 +99,11 @@ public class MinecraftFontWidthCalculator {
     public static String unformattedPadLeft(String str, int len, char pad) {
         return unformattedStrRepeat(pad, len - str.length()) + str;
     }
+
     public static String unformattedPadCenter(String str, int len, char pad) {
-        len -=str.length();
+        len -= str.length();
         int prepad = len / 2;
-        return unformattedStrRepeat(pad, prepad) + str + unformattedStrRepeat(pad, len-prepad);
+        return unformattedStrRepeat(pad, prepad) + str + unformattedStrRepeat(pad, len - prepad);
     }
 
     public static String unformattedStrRepeat(char ch, int len) {
@@ -117,7 +119,7 @@ public class MinecraftFontWidthCalculator {
             while (input.get(1).contains("<" + fm)) {
                 char repl = ' ';
                 if (input.get(1).matches("^.*<" + fm + ".>.*$")) {// || input.get(1).matches("^.*<r.>.*$")) {
-                    repl = input.get(1).substring(input.get(1).indexOf("<" + fm)+2, input.get(1).indexOf(">")).charAt(0);
+                    repl = input.get(1).substring(input.get(1).indexOf("<" + fm) + 2).charAt(0); //, input.get(1).indexOf(">")
                     for (int i = 0; i < input.size(); ++i) {
                         input.set(i, input.get(i).replaceFirst("<" + fm + ".>", "<" + fm + ">"));
                     }
@@ -140,7 +142,7 @@ public class MinecraftFontWidthCalculator {
                             } else {
                                 newinput.add(MinecraftFontWidthCalculator.unformattedPadRight(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl) + line.substring(line.indexOf("<" + fm + ">") + 3));
                             }
-                        } else if(fm.equals("c")) {
+                        } else if (fm.equals("c")) {
                             if (minecraftChatFormat) {
                                 newinput.add(MinecraftFontWidthCalculator.strPadCenter(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl) + line.substring(line.indexOf("<" + fm + ">") + 3));
                             } else {

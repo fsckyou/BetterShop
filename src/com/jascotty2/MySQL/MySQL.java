@@ -247,6 +247,10 @@ public class MySQL {
                 return DBconnection.createStatement().executeQuery(qry);
 
             } catch (SQLException ex) {
+                // if lost connection & successfully reconnected, try again
+                if(IsConnected(false) && IsConnected(true)){
+                     return DBconnection.createStatement().executeQuery(qry);   
+                }
                 //disconnect();
                 throw ex;
             }
@@ -260,6 +264,10 @@ public class MySQL {
             try {
                 return DBconnection.prepareStatement(qry).executeUpdate();
             } catch (SQLException ex) {
+                // if lost connection & successfully reconnected, try again
+                if(IsConnected(false) && IsConnected(true)){
+                    return DBconnection.prepareStatement(qry).executeUpdate();
+                }
                 //disconnect();
                 throw ex;
             }
@@ -279,6 +287,10 @@ public class MySQL {
                 return DBconnection.createStatement().executeQuery("SELECT * FROM " + tablename + ";");
 
             } catch (SQLException ex) {
+                // if lost connection & successfully reconnected, try again
+                if(IsConnected(false) && IsConnected(true)){
+                  return DBconnection.createStatement().executeQuery("SELECT * FROM " + tablename + ";");  
+                }
                 //disconnect();
                 throw ex;
             }
@@ -291,7 +303,10 @@ public class MySQL {
      * check if is currently connected to a server
      * preforms a pre-check, and if not & connection info exists, will attempt reconnect
      */
-    public boolean IsConnected() {
+    public boolean IsConnected(){
+        return IsConnected(true);
+    }
+    public boolean IsConnected(boolean reconnect) {
         try {
             if (DBconnection != null && DBconnection.isClosed()) {
                 try {

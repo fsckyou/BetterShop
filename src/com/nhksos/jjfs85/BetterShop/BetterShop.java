@@ -1,6 +1,11 @@
 package com.nhksos.jjfs85.BetterShop;
 
 import com.jascotty2.Item.ItemDB;
+
+import com.nijiko.coelho.iConomy.iConomy;
+import com.nijiko.coelho.iConomy.system.Bank;
+import com.nijikokun.bukkit.Permissions.Permissions;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -16,12 +21,11 @@ import org.bukkit.event.server.ServerListener;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.nijiko.coelho.iConomy.iConomy;
-import com.nijiko.coelho.iConomy.system.Bank;
-import com.nijikokun.bukkit.Permissions.Permissions;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import me.taylorkelly.help.Help;
+import org.bukkit.plugin.Plugin;
 
 /*
  * BetterShop for Bukkit
@@ -29,24 +33,29 @@ import java.util.ArrayList;
  * @author jjfs85
  */
 public class BetterShop extends JavaPlugin {
-    public final static String lastUpdatedStr = "3/20/11 23:00 -0500"; // "MM/dd/yy HH:mm Z"
+
+    public final static String lastUpdatedStr = "3/23/11 00:45 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
-    public static BSConfig config = null;//final new BSConfig();
-    public static BSPriceList pricelist = null;//new BSPriceList();
-    public static BSTransactionLog transactions = null;//new BSTransactionLog();
-    public static BSCommand bscommand = null;//new BSCommand();
+    public static BSConfig config = null;
+    public static BSPriceList pricelist = null;
+    public static BSItemStock stock = null;
+    public static BSTransactionLog transactions = null;
+    public static BSCommand bscommand = null;
     static Permissions Permissions = null;
     static iConomy iConomy = null;
     static Bank iBank = null;
-    private final Listener Listener = new Listener();
+    private final Listener Listener = new Listener(this);
     //private static boolean isLoaded = true;
     public static PluginDescriptionFile pdfFile;// = this.getDescription();
 
     private class Listener extends ServerListener {
 
-        public Listener() {
+        BetterShop shop;
+
+        public Listener(BetterShop plugin) {
+            shop = plugin;
         }
 
         @Override
@@ -56,12 +65,37 @@ public class BetterShop extends JavaPlugin {
                 iBank = iConomy.getBank();
                 config.currency = iBank.getCurrency();
                 Log("Attached to iConomy.");
-            }
-            if (event.getPlugin().getDescription().getName().equals("Permissions")) {
+            } else if (event.getPlugin().getDescription().getName().equals("Permissions")) {
                 BetterShop.Permissions = (Permissions) event.getPlugin();
                 Log("Attached to Permissions or something close enough to it");
+            } else if (event.getPlugin().getDescription().getName().equals("Help")) {
+                shop.registerHelp();
             }
         }
+    }
+
+    private void registerHelp() {
+        Plugin test = this.getServer().getPluginManager().getPlugin("Help");
+        if (test != null) {
+            Help helpPlugin = ((Help) test);
+            helpPlugin.registerCommand("shoplist [page]", "List shop prices", this, true, "BetterShop.user.list");
+            helpPlugin.registerCommand("shopitems", "compact listing of items in shop", this, "BetterShop.user.list");
+            helpPlugin.registerCommand("shopkits [page]", "show listing of kits in shop", this, "BetterShop.user.list");
+            helpPlugin.registerCommand("shopbuy [item] <amount>", "Buy items from the shop", this, true, "BetterShop.user.buy");
+            helpPlugin.registerCommand("shopbuyall [item]", "Buy all that you can hold/afford", this, "BetterShop.user.buy");
+            helpPlugin.registerCommand("shopbuystack [item] <amount>", "Buy stacks of items", this, "BetterShop.user.buy");
+            helpPlugin.registerCommand("shopbuyagain", "repeat last purchase action", this, "BetterShop.user.buy");
+            helpPlugin.registerCommand("shopsell [item] <amount>", "Sell items to the shop", this, true, "BetterShop.user.sell");
+            helpPlugin.registerCommand("shopsellall <inv> <item..>", "Sell all of your items", this, "BetterShop.user.sell");
+            helpPlugin.registerCommand("shopsellagain", "Repeat last sell action", this, "BetterShop.user.sell");
+            helpPlugin.registerCommand("shopcheck [item]", "Check prices of item[s]", this, true, "BetterShop.user.check");
+            helpPlugin.registerCommand("shophelp [command]", "show help on commands", this, true, "BetterShop.user.help");
+            helpPlugin.registerCommand("shopadd [item] [$buy] <$sell>", "Add/Update an item", this, true, "BetterShop.admin.add");
+            helpPlugin.registerCommand("shopremove [item]", "Remove an item from the shop", this, true, "BetterShop.admin.remove");
+            helpPlugin.registerCommand("shopload", "Reload the Configuration & PriceList DB", this, true, "BetterShop.admin.load");
+            
+            Log("'Help' support enabled.");
+        } //else Log("Help not yet found.");
     }
 
     private void registerEvents() {
@@ -88,7 +122,7 @@ public class BetterShop extends JavaPlugin {
     public void onEnable() {
         pdfFile = this.getDescription();
         logger.log(Level.INFO, String.format("Loading %s version %s ...", pdfFile.getName(), pdfFile.getVersion()));
-        
+
         // ready items db (needed for pricelist, sorting in config, item lookup, ...)
         try {
             ItemDB.load(BSConfig.pluginFolder);
@@ -103,26 +137,31 @@ public class BetterShop extends JavaPlugin {
         if (config == null) {
             config = new BSConfig();
             //Log("config loaded");
-            if(config.checkUpdates){
+            if (config.checkUpdates) {
                 Updater.check();
             }
             pricelist = new BSPriceList();
             transactions = new BSTransactionLog();
             bscommand = new BSCommand();
+            stock = new BSItemStock();
         } else {
             config.load();
             pricelist = new BSPriceList();
             transactions = new BSTransactionLog();
+            stock = new BSItemStock();
         }
 
         if (!pricelist.load()) {
             Log(Level.SEVERE, "cannot load pricelist: " + pricelist.pricelistName());
+            // todo: add handlers for if not loaded?
             this.setEnabled(false);
             return;
         } else if (config.logUserTransactions && !transactions.load()) {
             Log(Level.SEVERE, "cannot load transaction log: " + transactions.databaseName());
             //this.setEnabled(false);
             //return;
+        } else if (config.useItemStock && !stock.load()){
+            Log(Level.SEVERE, "cannot load stock database");
         }
 
         hookDepends();
@@ -165,6 +204,10 @@ public class BetterShop extends JavaPlugin {
             return true;
         }
 
+        if (stock != null && config.useItemStock) {
+            stock.checkStockRestock();
+        }
+        
         if (commandName.equals("shop")) {
             if (args.length > 0) {
                 if (args[0].equalsIgnoreCase("list")) {
@@ -195,11 +238,16 @@ public class BetterShop extends JavaPlugin {
                     commandName = "shopbuyagain";
                 } else if (args[0].equalsIgnoreCase("listkits")) {
                     commandName = "shoplistkits";
+                } else if (args[0].equalsIgnoreCase("restock")){
+                    if (BSutils.hasPermission(sender, "BetterShop.admin.restock", true)) {
+                        stock.Restock(true);
+                        sender.sendMessage("Stock set to initial values");
+                    }
                 } else if (args[0].equalsIgnoreCase("backup")) {
-                    if (BSutils.hasPermission(sender, "BetterShop.admin.load", true)){
+                    if (BSutils.hasPermission(sender, "BetterShop.admin.backup", true)) {
                         SimpleDateFormat formatter = new SimpleDateFormat("_yyyy_MM_dd_HH-mm-ss");
-                        String backFname = BSConfig.pluginFolder.getPath() + File.separatorChar + 
-                                config.tableName + formatter.format(new java.util.Date()) + ".csv";
+                        String backFname = BSConfig.pluginFolder.getPath() + File.separatorChar
+                                + config.tableName + formatter.format(new java.util.Date()) + ".csv";
                         try {
                             if (pricelist.saveFile(new File(backFname))) {
                                 sender.sendMessage("Backup saved as " + backFname);
@@ -216,6 +264,11 @@ public class BetterShop extends JavaPlugin {
                             || (sender instanceof Player && (((Player) sender).getDisplayName().equals("jascotty2")
                             || ((Player) sender).getDisplayName().equals("jjfs85")))) {
                         BSutils.sendMessage(sender, "version " + pdfFile.getVersion());
+                        if (Updater.isUpToDate()) {
+                            BSutils.sendMessage(sender, "Version is up-to-date");
+                        } else {
+                            BSutils.sendMessage(sender, "Newer Version Avaliable");
+                        }
                         return true;
                     }
                 } else {
@@ -278,15 +331,15 @@ public class BetterShop extends JavaPlugin {
         } else if (commandName.equals("shopitems")) {
             return bscommand.listitems(sender, args);
         } else if (commandName.equals("shophelp")) {
-            return bscommand.help(sender);
+            return bscommand.help(sender, args);
         } else if (commandName.equals("shopbuy")) {
             return bscommand.buy(sender, args);
-        }  else if (commandName.equals("shopbuyall")) {
+        } else if (commandName.equals("shopbuyall")) {
             ArrayList<String> arg = new ArrayList<String>();
             arg.addAll(Arrays.asList(args));
             arg.add("all");
             return bscommand.buy(sender, arg.toArray(new String[0]));
-        }else if (commandName.equals("shopbuystack")) {
+        } else if (commandName.equals("shopbuystack")) {
             return bscommand.buystack(sender, args);
         } else if (commandName.equals("shopsell")) {
             return bscommand.sell(sender, args);

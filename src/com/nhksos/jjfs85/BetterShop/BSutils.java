@@ -1,9 +1,17 @@
 package com.nhksos.jjfs85.BetterShop;
 
+import com.jascotty2.Item.Item;
+import com.jascotty2.Item.ItemStockEntry;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.nijiko.coelho.iConomy.system.*;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import org.bukkit.Server;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 
 public class BSutils {
 
@@ -17,21 +25,66 @@ public class BSutils {
     }
 
     static boolean credit(CommandSender player, double amount) {
+        if (amount <= 0) {
+            return amount == 0;
+        }
         Account account = BetterShop.iConomy.getBank().getAccount(((Player) player).getName());
+        double preAmt = account.getBalance();
         account.add(amount);
-        account.save();
+        if (account.getBalance() == preAmt) {
+            // something seems to be wrong with iConomy: reload it
+            BetterShop.Log(Level.SEVERE, "Failed to credit player: attempting iConomy reload");
+            if (reloadIConomy(player.getServer())) {
+                account.add(amount);
+                if (account.getBalance() != preAmt) {
+                    return true;
+                }
+            }
+            BetterShop.Log(Level.SEVERE, "Failed.");
+        }
         return true;
     }
 
     static boolean debit(CommandSender player, double amount) {
+        if (amount <= 0) {
+            return amount == 0;
+        }
         Account account = BetterShop.iConomy.getBank().getAccount(((Player) player).getName());
+        double preAmt = account.getBalance();
         // don't allow account to go negative
-        if (account.getBalance() < amount) {
+        if (preAmt < amount) {
             return false;
         }
         account.subtract(amount);
-        account.save();
+        if (account.getBalance() == preAmt) {
+            // something seems to be wrong with iConomy: reload it
+            BetterShop.Log(Level.SEVERE, "Failed to debit player: attempting iConomy reload");
+            if (reloadIConomy(player.getServer())) {
+                account.subtract(amount);
+                if (account.getBalance() != preAmt) {
+                    return true;
+                }
+            }
+            BetterShop.Log(Level.SEVERE, "Failed.");
+        }
         return true;
+    }
+
+    static boolean reloadIConomy(Server serv) {
+        try {
+            PluginManager m = serv.getPluginManager();
+            Plugin icon = m.getPlugin("iConomy");
+            if (icon != null) {
+                m.disablePlugin(icon);
+                m.enablePlugin(icon);
+
+                return true;
+            }
+        } catch (Exception ex) {
+            BetterShop.Log(Level.SEVERE, "Error");
+            BetterShop.Log(Level.SEVERE, ex);
+        }
+        return false;
     }
 
     static boolean hasPermission(CommandSender player, String node) {
@@ -72,7 +125,7 @@ public class BSutils {
         if (player != null) {
             if (isPublic) {
                 broadcastMessage(player, s);
-            }else{
+            } else {
                 player.sendMessage(BetterShop.config.getString("prefix") + s);
             }
         }
@@ -101,4 +154,61 @@ public class BSutils {
             }
         }
     }
+
+    /*
+     * all items in the user's inventory
+     * does not run check for tools, so tools with damage are returned seperately
+     */
+    public static ArrayList<ItemStockEntry> getTotalInventory(Player player, boolean onlyInv) {
+        ArrayList<ItemStockEntry> inv = new ArrayList<ItemStockEntry>();
+
+        ItemStack[] its = player.getInventory().getContents();
+        for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
+            if (its[i].getAmount() > 0) {
+                ItemStockEntry find = new ItemStockEntry(its[i]);
+                int pos = inv.indexOf(find);
+                if (pos >= 0) {
+                    inv.get(pos).AddAmount(its[i].getAmount());
+                } else {
+                    inv.add(find);
+                }
+            }
+        }
+
+        return inv;
+    }
+
+    public static ArrayList<ItemStockEntry> getTotalInventory(Player player, boolean onlyInv, Item toFind) {
+        if(toFind==null){
+            return getTotalInventory(player, onlyInv);
+        }// else
+        return getTotalInventory(player, onlyInv, new Item[]{toFind});
+    }
+
+    public static ArrayList<ItemStockEntry> getTotalInventory(Player player, boolean onlyInv, Item[] toFind) {
+        if(toFind==null || toFind.length==0){
+            return getTotalInventory(player, onlyInv);
+        }
+        ArrayList<ItemStockEntry> inv = new ArrayList<ItemStockEntry>();
+
+        ItemStack[] its = player.getInventory().getContents();
+        for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
+            if (its[i].getAmount() > 0) {
+                for (Item it : toFind) {
+                    if (it != null && it.equals(its[i])) {
+                        ItemStockEntry find = new ItemStockEntry(its[i]);
+                        int pos = inv.indexOf(find);
+                        if (pos >= 0) {
+                            inv.get(pos).AddAmount(its[i].getAmount());
+                        } else {
+                            inv.add(find);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return inv;
+    }
+    
 }

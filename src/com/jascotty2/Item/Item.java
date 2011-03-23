@@ -220,6 +220,13 @@ public class Item {
         return findItem(search.getTypeId() + ":" + search.getDurability());//(search.getDurability()<MAX_DATA?search.getDurability():0));
     }
 
+    public static Item findItem(ItemStockEntry search) {
+        if (search == null) {
+            return null;
+        }
+        return findItem(search.itemNum + ":" + search.itemSub);
+    }
+
     public static Item findItem(Item search) {
         if (search == null) {
             return null;
@@ -356,6 +363,13 @@ public class Item {
         }
         return (i.ID() == itemId && ((IsTool() && i.IsTool()) || i.Data() == itemData)) || i.equals(name) || equals(i.name);
     }
+    
+    public boolean equals(ItemStockEntry i){
+        if (i == null) {
+            return false;
+        }
+        return itemId == i.itemNum && itemData==i.itemSub;
+    }
 
     public boolean equals(String s) {
         if (s == null) {
@@ -459,6 +473,8 @@ public class Item {
             return equals((String) obj);
         } else if (obj instanceof ItemStack) {
             return equals((ItemStack) obj);
+        } else if(obj instanceof ItemStockEntry){
+            return equals((ItemStockEntry) obj);
         }
         return false;
     }
