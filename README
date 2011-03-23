@@ -5,7 +5,7 @@ active developers: jascotty2 & jjfs85
 In-Game Commands:
 ===============================================================================
 
-/shop							for those used to a plugin having one command, this is another way to get to the following
+/shop							for those used to a plugin having one command, this is another way to get to the following (also used for some admin commands)
 /shophelp (shelp)		[command]		shows you all the commands you can use, or more help on [command]
 /shoplist (sl,slist)		[pagenum]		shows a listing of items for sale (if -1, all, or full given, will show full list. (for console use))
 /shopitems (sitems)					show full listing of items in shop, without prices
@@ -73,7 +73,7 @@ buy/sell cap in program set to 999,999,999 (not that you'd be using that much, b
 if encounters errors while editing a player's account, will attempt to reload iConomy (i've had issuses with it before)
 can backup the current pricelist: /shop backup (right now, requires "BetterShop.admin.load")
 on start, can check the download page to see if there is an update avaliable
-
+shop can be given a finite stock from which to buy & sell
 
 
 There are two ways to add things to the shop:
@@ -105,6 +105,7 @@ BetterShop.admin.load		reload configuration & pricelist
 BetterShop.admin.info		show shop stats (only version number right now)
 BetterShop.admin.illegal	gives the ability to purchase 'illegal' items
 BetterShop.admin.backup		backing up (and eventually restoring) pricelist
+BetterShop.admin.restock	manually restock (if item stock is enabled)
 
 ===============================================================================
 TODO (items are removed as they're added)
@@ -116,10 +117,8 @@ discount system: users or groups can be charged less/more for an item or all ite
 more descriptive kit listing, similar to shoplist... also show items in each kit?
 dynamic market pricing, based off of logged market activity
 region shops (items added while in a region defined as a shop are only added to that shop)
-stock option
-	- selling to the shop increases the stock
 add option for amount in stock for surplus descreases how much item is worth to the shop (not influenced by market activity)
-BetterShop.admin.restock	manually updating stock to restock values
+add stock messages to config
 /shop import <file> - insert values from file in plugin folder
 /shop restore <file> - clear shop & load from saved backup file
 /shop alias <item> - show the itemname, with a list of aliases
