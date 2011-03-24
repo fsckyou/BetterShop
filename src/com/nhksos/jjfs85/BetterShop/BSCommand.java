@@ -1,7 +1,5 @@
 package com.nhksos.jjfs85.BetterShop;
 
-import com.jascotty2.CSV;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -284,33 +282,53 @@ public class BSCommand {
         if (player != null && !BSutils.hasPermission(player, "BetterShop.admin.load", true)) {
             return true;
         }
+        boolean ok = true;
         if (ItemDB.load(BSConfig.pluginFolder)) {
             BSutils.sendMessage(player, ItemDB.size() + " items loaded.");
         } else {
             BetterShop.Log(Level.SEVERE, "Cannot Load Items db!");
-            if (player == null) {
-                return false;
-            } else {
+            if (player != null) {
                 BSutils.sendMessage(player, "\u00A74Item Database Load Error.");
             }
+            // itemDB load error is pretty serious
+            return player != null;
         }
-        if (player == null && !BetterShop.config.load()) {
-            return false;
+        if (!BetterShop.config.load()) {
+            if (player != null) {
+                BSutils.sendMessage(player, "\u00A74Config loading error.");
+            }
         } else {
-            BetterShop.config.load();
+            BSutils.sendMessage(player, "Config.yml loaded.");
+            ok = false;
         }
-        BSutils.sendMessage(player, "Config.yml loaded.");
         if (BetterShop.pricelist.load()) {
-            BetterShop.transactions.load();
-            BSutils.sendMessage(player, "Price Database loaded.");
+            BSutils.sendMessage(player, "Price Database " + BetterShop.pricelist.pricelistName() + " loaded.");
         } else {
-            if (player == null) {
-                return false;
-            } else {
+            if (player != null) {
                 BSutils.sendMessage(player, "\u00A74Price Database Load Error.");
+                ok = false;
             }
         }
-        return true;
+        if (BetterShop.config.logTotalTransactions || BetterShop.config.logUserTransactions) {
+            if (BetterShop.transactions.load()) {
+                BSutils.sendMessage(player, "Transactions Log Database loaded");
+            } else {
+                BSutils.sendMessage(player, "\u00A74Price Database Load Error.");
+                ok = false;
+            }
+        }
+        if (BetterShop.config.useItemStock) {
+            if (BetterShop.stock == null) {
+                BetterShop.stock = new BSItemStock();
+            }
+            if (BetterShop.stock.load()) {
+                BSutils.sendMessage(player, "Stock Database loaded");
+            } else {
+                BSutils.sendMessage(player, "\u00A74Stock Database Load Error.");
+                ok = false;
+            }
+        }
+        return player != null || ok;
     }
 
     public boolean add(CommandSender player, String[] s) {
@@ -1119,7 +1137,8 @@ public class BSCommand {
         }
         if (BetterShop.stock != null && BetterShop.config.useItemStock) {
             try {
-                BetterShop.stock.setItemAmount(toSell, avail - amtSold);
+                //BetterShop.stock.setItemAmount(toSell, avail - amtSold);
+                BetterShop.stock.changeItemAmount(toSell, amtSold);
             } catch (SQLException ex) {
                 BetterShop.Log(Level.SEVERE, ex);
             } catch (IOException ex) {

@@ -127,8 +127,6 @@ dynamic market pricing, based off of logged market activity
 region shops (items added while in a region defined as a shop are only added to that shop)
 add option for amount in stock for surplus decreases how much item is worth to the shop (not influenced by market activity)
 add stock messages to config
-/shop import <file> - insert values from file in plugin folder
-/shop restore <file> - clear shop & load from saved backup file
 /shop alias <item> - show the itemname, with a list of aliases
 add pages for /shopitems
 SQLite support?
@@ -149,6 +147,12 @@ Cookies	integration  http://forums.bukkit.org/threads/inactive-econ-cookies-v0-5
 ===============================================================================
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
+
+Version 1.6.2.3 - 3/23/11 - jascotty2
+added stock db to reload
+fixed a stock update on sell
+updated plugin commands to include sellstack
+
 
 Version 1.6.2.2 - 3/23/11 - jascotty2
 more commands added to register with help
