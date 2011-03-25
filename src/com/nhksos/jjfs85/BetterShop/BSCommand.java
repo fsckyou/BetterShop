@@ -1137,7 +1137,6 @@ public class BSCommand {
         }
         if (BetterShop.stock != null && BetterShop.config.useItemStock) {
             try {
-                //BetterShop.stock.setItemAmount(toSell, avail - amtSold);
                 BetterShop.stock.changeItemAmount(toSell, amtSold);
             } catch (SQLException ex) {
                 BetterShop.Log(Level.SEVERE, ex);

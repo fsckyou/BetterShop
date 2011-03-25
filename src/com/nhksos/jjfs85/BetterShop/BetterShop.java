@@ -1,6 +1,8 @@
 package com.nhksos.jjfs85.BetterShop;
 
 import com.jascotty2.Item.ItemDB;
+//import com.jascotty2.MinecraftIM.ChatMessageHandler;
+import com.jascotty2.MinecraftIM.MinecraftIM;
 
 import com.nijiko.coelho.iConomy.iConomy;
 import com.nijiko.coelho.iConomy.system.Bank;
@@ -30,7 +32,7 @@ import org.bukkit.plugin.Plugin;
 /*
  * BetterShop for Bukkit
  */
-public class BetterShop extends JavaPlugin {
+public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
 
     public final static String lastUpdatedStr = "3/23/11 21:10 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
@@ -47,7 +49,12 @@ public class BetterShop extends JavaPlugin {
     private final Listener Listener = new Listener(this);
     //private static boolean isLoaded = true;
     public static PluginDescriptionFile pdfFile;// = this.getDescription();
+    static MinecraftIM messenger = null;
 
+    //public boolean messageHandled(String message) {
+    //    Log("Message intercepted: " + message);
+    //    return true;
+    //}
     private class Listener extends ServerListener {
 
         BetterShop shop;
@@ -68,6 +75,10 @@ public class BetterShop extends JavaPlugin {
                 Log("Attached to Permissions or something close enough to it");
             } else if (event.getPlugin().getDescription().getName().equals("Help")) {
                 shop.registerHelp();
+            } else if (event.getPlugin().getDescription().getName().equals("MinecraftIM")) {
+                messenger = (MinecraftIM) event.getPlugin();
+                //messenger.registerMessageHandler(shop);
+                Log("linked to MinecraftIM");
             }
         }
     }
@@ -92,14 +103,14 @@ public class BetterShop extends JavaPlugin {
             helpPlugin.registerCommand("shopadd [item] [$buy] <$sell>", "Add/Update an item", this, true, "BetterShop.admin.add");
             helpPlugin.registerCommand("shopremove [item]", "Remove an item from the shop", this, true, "BetterShop.admin.remove");
             helpPlugin.registerCommand("shopload", "Reload the Configuration & PriceList DB", this, true, "BetterShop.admin.load");
-            
+
             helpPlugin.registerCommand("shop restock", "manually restock (if enabled)", this, "BetterShop.admin.restock");
             helpPlugin.registerCommand("shop ver[sion]", "Show Version # and if is current", this, "BetterShop.admin.info");
             helpPlugin.registerCommand("shop backup", "backup current pricelist", this, "BetterShop.admin.backup");
             helpPlugin.registerCommand("shop import [file]", "import a file into the pricelist", this, "BetterShop.admin.backup");
             helpPlugin.registerCommand("shop restore [file]", "restore pricelist from backup", this, "BetterShop.admin.backup");
-            
-            
+
+
             Log("'Help' support enabled.");
         } //else Log("Help not yet found.");
     }
@@ -121,6 +132,11 @@ public class BetterShop extends JavaPlugin {
         if (this.getServer().getPluginManager().isPluginEnabled("Permissions")) {
             Permissions = (Permissions) this.getServer().getPluginManager().getPlugin("Permissions");
             Log("Attached to Permissions.");
+        }
+        if (this.getServer().getPluginManager().isPluginEnabled("MinecraftIM")) {
+            messenger = (MinecraftIM) this.getServer().getPluginManager().getPlugin("MinecraftIM");
+            //messenger.registerMessageHandler(this);
+            Log("linked to MinecraftIM");
         }
         //Log(Level.INFO, "Permissions not yet found...");
     }
@@ -166,9 +182,9 @@ public class BetterShop extends JavaPlugin {
             Log(Level.SEVERE, "cannot load transaction log: " + transactions.databaseName());
             //this.setEnabled(false);
             //return;
-        } else if (config.useItemStock && !stock.load()){
+        } else if (config.useItemStock && !stock.load()) {
             Log(Level.SEVERE, "cannot load stock database");
-            stock=null;
+            stock = null;
         }
 
         hookDepends();
@@ -214,7 +230,7 @@ public class BetterShop extends JavaPlugin {
         if (stock != null && config.useItemStock) {
             stock.checkStockRestock();
         }
-        
+
         if (commandName.equals("shop")) {
             if (args.length > 0) {
                 if (args[0].equalsIgnoreCase("list")) {
@@ -247,7 +263,7 @@ public class BetterShop extends JavaPlugin {
                     commandName = "shopbuyagain";
                 } else if (args[0].equalsIgnoreCase("listkits")) {
                     commandName = "shoplistkits";
-                } else if (args[0].equalsIgnoreCase("restock")){
+                } else if (args[0].equalsIgnoreCase("restock")) {
                     if (BSutils.hasPermission(sender, "BetterShop.admin.restock", true)) {
                         stock.Restock(true);
                         sender.sendMessage("Stock set to initial values");
@@ -267,9 +283,9 @@ public class BetterShop extends JavaPlugin {
                         }
                     }
                     return true;
-                } else if (args[0].equalsIgnoreCase("import")){
+                } else if (args[0].equalsIgnoreCase("import")) {
                     return bscommand.importDB(sender, args);
-                } else if (args[0].equalsIgnoreCase("restore")){
+                } else if (args[0].equalsIgnoreCase("restore")) {
                     return bscommand.restoreDB(sender, args);
                 } else if (args[0].equalsIgnoreCase("ver") || args[0].equalsIgnoreCase("version")) {
                     // allow admin.info or developers access to plugin status (so if i find a bug i can see if it's current)
@@ -378,18 +394,30 @@ public class BetterShop extends JavaPlugin {
     }
 
     public static void Log(String txt) {
+        if (messenger != null && config.sendAllLog) {
+            messenger.sendNotify(String.format("[%s] %s", name, txt));
+        }
         logger.log(Level.INFO, String.format("[%s] %s", name, txt));
     }
 
     public static void Log(String txt, Object params) {
+        if (messenger != null && config.sendAllLog) {
+            messenger.sendNotify(String.format("[%s] %s", name, txt));
+        }
         logger.log(Level.INFO, String.format("[%s] %s", name, txt == null ? "" : txt), params);
     }
 
     public static void Log(Level loglevel, String txt) {
+        if (messenger != null && (config.sendAllLog || loglevel.intValue() > Level.INFO.intValue()) && config.sendLogOnError) {
+            messenger.sendNotify(String.format("[%s] %s", name, txt == null ? "" : txt));
+        }
         logger.log(loglevel, String.format("[%s] %s", name, txt == null ? "" : txt));
     }
 
     public static void Log(Level loglevel, String txt, Object params) {
+        if (messenger != null && (config.sendAllLog || loglevel.intValue() > Level.INFO.intValue()) && config.sendLogOnError) {
+            messenger.sendNotify(String.format("[%s] %s", name, txt == null ? "" : txt));
+        }
         logger.log(loglevel, String.format("[%s] %s", name, txt == null ? "" : txt), params);
     }
 
@@ -397,15 +425,36 @@ public class BetterShop extends JavaPlugin {
         if (txt == null) {
             Log(loglevel, params);
         } else {
+            if (messenger != null && (config.sendAllLog || loglevel.intValue() > Level.INFO.intValue()) && config.sendLogOnError) {
+                messenger.sendNotify(String.format("[%s] %s%n%s%n%s", name, txt, params.getMessage(), getStackStr(params)));
+            }
             logger.log(loglevel, String.format("[%s] %s", name, txt == null ? "" : txt), (Exception) params);
         }
     }
 
     public static void Log(Level loglevel, String txt, Object[] params) {
+        if (messenger != null && (config.sendAllLog || loglevel.intValue() > Level.INFO.intValue()) && config.sendLogOnError) {
+            messenger.sendNotify(String.format("[%s] %s", name, txt == null ? "" : txt));
+        }
         logger.log(loglevel, String.format("[%s] %s", name, txt == null ? "" : txt), params);
     }
 
     public static void Log(Level loglevel, Exception err) {
+        if (messenger != null && (config.sendAllLog || loglevel.intValue() > Level.INFO.intValue()) && config.sendLogOnError) {
+            messenger.sendNotify(String.format("[%s] %s%n%s", name, err == null ? "? unknown exception ?" : err.getMessage(), getStackStr(err)));
+        }
         logger.log(loglevel, String.format("[%s] %s", name, err == null ? "? unknown exception ?" : err.getMessage()), err);
+    }
+
+    public static String getStackStr(Exception err) {
+        if (err == null) {
+            return "";
+        }
+        String stack = "";
+        StackTraceElement[] st = err.getCause().getStackTrace();
+        for (StackTraceElement e : st) {
+            stack += e.toString() + "\n";
+        }
+        return stack;
     }
 }

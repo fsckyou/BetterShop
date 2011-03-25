@@ -82,6 +82,7 @@ can import new prices in a batch from a csv (or old yml format) : /shop import <
 on start, can check the download page to see if there is an update avaliable
 shop can be given a finite stock from which to buy & sell
 /shop ver[sion] to check the current version & see if there's an update
+MinecraftIM support: forward errors or all messages
 
 
 There are two ways to add things to the shop:
@@ -147,6 +148,12 @@ Cookies	integration  http://forums.bukkit.org/threads/inactive-econ-cookies-v0-5
 ===============================================================================
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
+
+Version 1.6.2.4 - 3/25/11 - jascotty2
+Added support for my new plugin: MinecraftIM :)
+removed a stock debugging line i forgot to remove
+manually set locale for updating date format.. should fix non-us countries?
+
 
 Version 1.6.2.3 - 3/23/11 - jascotty2
 added stock db to reload

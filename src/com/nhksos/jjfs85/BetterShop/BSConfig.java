@@ -31,6 +31,7 @@ public class BSConfig {
     public final static File configfile = new File(pluginFolder, configname);
     // plugin settings
     public boolean checkUpdates = true;
+    public boolean sendLogOnError = true, sendAllLog = false;
     // database information
     public String tableName = "BetterShop";
     public String sql_username = "root", sql_password = "root", sql_database = "minecraft", sql_hostName = "localhost", sql_portNum = "3306";
@@ -109,6 +110,9 @@ public class BSConfig {
             
             defColor = config.getString("defaultItemColor", defColor);
             ItemDB.setDefaultColor(defColor);
+            
+            sendLogOnError = config.getBoolean("sendLogOnError", sendLogOnError);
+            sendAllLog = config.getBoolean("sendAllLog", sendAllLog);
             
             String customsort = config.getString("customsort");
             if (customsort != null) {

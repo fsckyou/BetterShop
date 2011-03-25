@@ -131,7 +131,7 @@ public class BSItemStock extends ItemStock {
             } else if (delta <= 0) {
                 setItemAmount(it, 0);
             } else {
-                System.out.println("new amount: " + delta);
+                //System.out.println("new amount: " + delta);
                 setItemAmount(it, delta);//itp.amount + delta);
             }
         }

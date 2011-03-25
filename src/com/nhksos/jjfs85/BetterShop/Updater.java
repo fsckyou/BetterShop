@@ -15,6 +15,7 @@ import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.logging.Level;
 
 /**
@@ -109,11 +110,11 @@ public class Updater extends InstallDependency {
                             }
 
                             // date this plugin has set
-                            DateFormat formatter = new SimpleDateFormat("MM/dd/yy HH:mm Z");
+                            DateFormat formatter = new SimpleDateFormat("MM/dd/yy HH:mm Z", Locale.US);
                             Date pluginDate = (Date) formatter.parse(BetterShop.lastUpdatedStr);
 
                             // date just obtained
-                            formatter = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
+                            formatter = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy", Locale.US);
                             Date uploadDate = (Date) formatter.parse(dateUploaded);
 
                             // now check the two dates & comment

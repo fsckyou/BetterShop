@@ -58,6 +58,16 @@ public class MinecraftFontWidthCalculator {
         return str + unformattedStrRepeat(pad, len / getCharWidth(pad, 6));
     }
 
+    public static String strPadRightChat(String str, int abslen, char pad) {
+        // int width = 325;
+        abslen -= getStringWidth(str);
+        return str + unformattedStrRepeat(pad, abslen / getCharWidth(pad, 6));
+    }
+
+    public static String strPadRightChat(String str, char pad) {
+        int width = 325 - getStringWidth(str);
+        return str + unformattedStrRepeat(pad, width / getCharWidth(pad, 6));
+    }
     /**
      * pads str on the left with pad (right-align)
      * @param str string to format
@@ -72,6 +82,17 @@ public class MinecraftFontWidthCalculator {
         return unformattedStrRepeat(pad, len / getCharWidth(pad, 6)) + str;
     }
 
+
+    public static String strPadLeftChat(String str, int abslen, char pad) {
+        // int width = 325;
+        abslen -= getStringWidth(str);
+        return  unformattedStrRepeat(pad, abslen / getCharWidth(pad, 6))+str ;
+    }
+
+    public static String strPadLeftChat(String str, char pad) {
+        int width = 325 - getStringWidth(str);
+        return unformattedStrRepeat(pad, width / getCharWidth(pad, 6)) +str ;
+    }
     /**
      * pads str on the left & right with pad (center-align)
      * @param str string to format
@@ -87,6 +108,23 @@ public class MinecraftFontWidthCalculator {
         int prepad = (len / padwid) / 2;
         len -= prepad * padwid;
         return unformattedStrRepeat(pad, prepad) + str + unformattedStrRepeat(pad, len / padwid);
+    }
+
+    public static String strPadCenterChat(String str, int abslen, char pad) {
+        // int width = 325;
+        abslen -= getStringWidth(str);
+        int padwid = getCharWidth(pad, 6);
+        int prepad = (abslen / padwid) / 2;
+        abslen -= prepad * padwid;
+        return unformattedStrRepeat(pad, prepad) + str + unformattedStrRepeat(pad, abslen / padwid);
+    }
+
+    public static String strPadCenterChat(String str, char pad) {
+        int width = 325 - getStringWidth(str);
+        int padwid = getCharWidth(pad, 6);
+        int prepad = (width / padwid) / 2;
+        width -= prepad * padwid;
+        return unformattedStrRepeat(pad, prepad) + str + unformattedStrRepeat(pad, width / padwid);
     }
 
     public static String unformattedPadRight(String str, int len, char pad) {

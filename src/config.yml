@@ -109,6 +109,11 @@ itemStock:
 #   dark grey, medium blue, light green, cyan, orange-red, pink, yellow, white
 defaultItemColor: white
 
+#if you're using my MinecraftIM plugin, should errors be sent to you?
+sendLogOnError: true
+#send everything logged? (not just exceptions)
+sendAllLog: false
+
 ##########################################
 # strings section: Text used in messages #
 ##########################################
