@@ -64,7 +64,7 @@ public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
         }
 
         @Override
-        public void onPluginEnabled(PluginEvent event) {
+        public void onPluginEnable(PluginEvent event) {
             if (event.getPlugin().getDescription().getName().equals("iConomy")) {
                 BetterShop.iConomy = (iConomy) event.getPlugin();
                 iBank = iConomy.getBank();
