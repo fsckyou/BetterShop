@@ -19,13 +19,14 @@ In-Game Commands:
 /shopbuyall (buyall,sbuyall) 	<item> 			buy all of an item that you can hold
 /shopsell (sell,ssell)   	<item> [amount]		sell an item for the price in the shop
 /shopadd (sadd): 		<item> <buy> [sell]	add an item to or update an item in the price list
-/shopremove (sremove): 		<item>			remove an item from the price list
-/shopload (sload): 					reload prices from pricelist database
-/shopsellall (sellall):		[inv] [item [...]]	Sell all of item from your inventory (alias to command /shop sell all) (inv will not search lower 9 slots)
-/shopbuystack (buystack): 	<item> [item | amount]	buy a stack of an item (usually 64)
-/shopbuyagain (buyagain,sba): 				repeat last buy action
-/shopsellagain (sellagain,ssa): 			repeat last sell action
-/shopkits (skits):					show a listing of avalliable kits (will be elaborated later)
+/shopremove (sremove)		<item>			remove an item from the price list
+/shopload (sload)					reload prices from pricelist database
+/shopsellall (sellall)		[inv] [item [...]]	Sell all of item from your inventory (alias to command /shop sell all) (inv will not search lower 9 slots)
+/shopbuystack (buystack)	<item> [item | amount]	buy a stack of an item (usually 64)
+/shopsellstack (sellstack)  	<item> [item | amount]	sell a stack of an item (usually 64)
+/shopbuyagain (buyagain,sba) 				repeat last buy action
+/shopsellagain (sellagain,ssa) 				repeat last sell action
+/shopkits (skits)					show a listing of avalliable kits (will be elaborated later)
 
 
 ===============================================================================
@@ -148,6 +149,11 @@ Cookies	integration  http://forums.bukkit.org/threads/inactive-econ-cookies-v0-5
 ===============================================================================
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
+
+Version 1.6.2.5 - 3/28/11 - jascotty2
+forgot to update the date in the last release, so a false 'newer release' was showing up
+fixed help support when help loaded before bettershop
+
 
 Version 1.6.2.4 - 3/25/11 - jascotty2
 Added support for my new plugin: MinecraftIM :)

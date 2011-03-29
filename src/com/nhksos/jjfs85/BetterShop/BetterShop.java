@@ -34,7 +34,7 @@ import org.bukkit.plugin.Plugin;
  */
 public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
 
-    public final static String lastUpdatedStr = "3/23/11 21:10 -0500"; // "MM/dd/yy HH:mm Z"
+    public final static String lastUpdatedStr = "3/28/11 23:55 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
@@ -189,6 +189,7 @@ public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
 
         hookDepends();
         registerEvents();
+        registerHelp();
         //isLoaded = true;
 
         // Just output some info so we can check

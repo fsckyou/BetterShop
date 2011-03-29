@@ -201,7 +201,12 @@ public class BSConfig {
                 }
                 num = n.getString("restock");
                 if(num!=null){
-                    restock = CheckInput.GetBigInt_TimeSpanInSec(num, 'h').longValue();
+                    try {
+                        restock = CheckInput.GetBigInt_TimeSpanInSec(num, 'h').longValue();
+                    } catch (Exception ex) {
+                        BetterShop.Log(Level.WARNING, "restock has an illegal value", ex);
+                    }
+                    
                 }
             }
             
