@@ -1,8 +1,5 @@
 package com.nhksos.jjfs85.BetterShop;
 
-import java.io.IOException;
-import java.sql.SQLException;
-
 import com.jascotty2.CheckInput;
 import com.jascotty2.Item.Item;
 import com.jascotty2.Item.ItemDB;
@@ -183,7 +180,7 @@ public class BSCommand {
                             (price.IsLegal() || canBuyIllegal) && price.buy >= 0 ? price.buy : "No",
                             price.sell >= 0 ? price.sell : "No",
                             i.coloredName(),
-                            BetterShop.config.currency,
+                            BetterShop.config.currency(),
                             (price.IsLegal() || canBuyIllegal) && price.buy >= 0
                             ? BetterShop.iConomy.getBank().format(price.buy) : "No",
                             price.sell >= 0 ? BetterShop.iConomy.getBank().format(price.sell) : "No",
@@ -198,8 +195,6 @@ public class BSCommand {
                 BSutils.sendMessage(player, String.format("No Sellable items found under \"%s\"", s[0]));
             }
             return true;
-        } catch (SQLException ex) {
-            BetterShop.Log(Level.SEVERE, ex);
         } catch (Exception ex) {
             BetterShop.Log(Level.SEVERE, ex);
         }
@@ -262,8 +257,6 @@ public class BSCommand {
             }
             BSutils.sendMessage(player, output);
             return true;
-        } catch (SQLException ex) {
-            BetterShop.Log(Level.SEVERE, ex);
         } catch (Exception ex) {
             BetterShop.Log(Level.SEVERE, ex);
         }
@@ -379,7 +372,7 @@ public class BSCommand {
                                 toAdd.name,
                                 BetterShop.pricelist.getBuyPrice(toAdd),
                                 BetterShop.pricelist.getSellPrice(toAdd),
-                                BetterShop.config.currency,
+                                BetterShop.config.currency(),
                                 BetterShop.iConomy.getBank().format(BetterShop.pricelist.getBuyPrice(toAdd)),
                                 BetterShop.iConomy.getBank().format(BetterShop.pricelist.getSellPrice(toAdd))),
                                 BetterShop.config.publicmarket);
@@ -398,15 +391,13 @@ public class BSCommand {
                                 toAdd.name,
                                 BetterShop.pricelist.getBuyPrice(toAdd),
                                 BetterShop.pricelist.getSellPrice(toAdd),
-                                BetterShop.config.currency,
+                                BetterShop.config.currency(),
                                 BetterShop.iConomy.getBank().format(BetterShop.pricelist.getBuyPrice(toAdd)),
                                 BetterShop.iConomy.getBank().format(BetterShop.pricelist.getSellPrice(toAdd))),
                                 BetterShop.config.publicmarket);
                     }
                     return true;
                 }
-            } catch (SQLException ex) {
-                BetterShop.Log(Level.SEVERE, ex);
             } catch (Exception ex) {
                 BetterShop.Log(Level.SEVERE, ex);
             }
@@ -436,8 +427,6 @@ public class BSCommand {
                         replace("<item>", "%1$s"), toRem.name), BetterShop.config.publicmarket);
 
                 return true;
-            } catch (SQLException ex) {
-                BetterShop.Log(Level.SEVERE, ex);
             } catch (Exception ex) {
                 BetterShop.Log(Level.SEVERE, ex);
             }
@@ -484,8 +473,6 @@ public class BSCommand {
 
         try {
             price = BetterShop.pricelist.getBuyPrice(toBuy);
-        } catch (SQLException ex) {
-            BetterShop.Log(Level.SEVERE, ex);
         } catch (Exception ex) {
             BetterShop.Log(Level.SEVERE, ex);
         }
@@ -538,7 +525,7 @@ public class BSCommand {
                             replace("<item>", "%1$s").replace("<amt>", "%2$d").
                             replace("<priceper>", "%3$01.2f").replace("<leftover>", "%4$d").
                             replace("<curr>", "%5$s").replace("<free>", "%6$d"), toBuy.coloredName(),
-                            amtbought, price, amtbought - canHold, BetterShop.config.currency, canHold));
+                            amtbought, price, amtbought - canHold, BetterShop.config.currency(), canHold));
                     if (canHold == 0) {
                         return true;
                     }
@@ -554,8 +541,6 @@ public class BSCommand {
         if (BetterShop.stock != null && BetterShop.config.useItemStock) {
             try {
                 avail = BetterShop.stock.getItemAmount(toBuy);
-            } catch (SQLException ex) {
-                BetterShop.Log(Level.SEVERE, ex);
             } catch (Exception ex) {
                 BetterShop.Log(Level.SEVERE, ex);
             }
@@ -600,7 +585,7 @@ public class BSCommand {
                         replace("<curr>", "%5$s").
                         replace("<totcur>", "%6$s"),
                         toBuy.coloredName(), amtbought, price, cost,
-                        BetterShop.config.currency, BetterShop.iConomy.getBank().format(cost)));
+                        BetterShop.config.currency(), BetterShop.iConomy.getBank().format(cost)));
 
                 if (BetterShop.config.publicmarket && BetterShop.config.hasString("publicbuymsg")) {
                     BSutils.broadcastMessage(player, String.format(BetterShop.config.getString("publicbuymsg").
@@ -612,7 +597,7 @@ public class BSCommand {
                             replace("<totcur>", "%6$s").
                             replace("<player>", "%7$s"),
                             toBuy.coloredName(), amtbought, price, cost,
-                            BetterShop.config.currency, BetterShop.iConomy.getBank().format(cost), ((Player) player).getDisplayName()), false);
+                            BetterShop.config.currency(), BetterShop.iConomy.getBank().format(cost), ((Player) player).getDisplayName()), false);
                 }
 
                 if (BetterShop.stock != null && BetterShop.config.useItemStock) {
@@ -631,7 +616,7 @@ public class BSCommand {
                         replace("<curr>", "%5$s").
                         replace("<priceper>", "%4$01.2f").
                         replace("<totcur>", "%6$s"), toBuy.coloredName(),
-                        amtbought, cost, price, BetterShop.config.currency,
+                        amtbought, cost, price, BetterShop.config.currency(),
                         BetterShop.iConomy.getBank().format(price)));
                 return true;
             }
@@ -724,8 +709,6 @@ public class BSCommand {
 
         try {
             price = BetterShop.pricelist.getBuyPrice(toBuy);
-        } catch (SQLException ex) {
-            BetterShop.Log(Level.SEVERE, ex);
         } catch (Exception ex) {
             BetterShop.Log(Level.SEVERE, ex);
         }
@@ -811,7 +794,7 @@ public class BSCommand {
                     replace("<leftover>", "%4$d").
                     replace("<curr>", "%5$s").
                     replace("<free>", "%6$d"), toBuy.coloredName(),
-                    numToBuy, price, numToBuy - maxBuy, BetterShop.config.currency, maxBuy));
+                    numToBuy, price, numToBuy - maxBuy, BetterShop.config.currency(), maxBuy));
             if (maxBuy == 0) {
                 return true;
             }
@@ -823,8 +806,6 @@ public class BSCommand {
         if (BetterShop.stock != null && BetterShop.config.useItemStock) {
             try {
                 avail = BetterShop.stock.getItemAmount(toBuy);
-            } catch (SQLException ex) {
-                BetterShop.Log(Level.SEVERE, ex);
             } catch (Exception ex) {
                 BetterShop.Log(Level.SEVERE, ex);
             }
@@ -886,7 +867,7 @@ public class BSCommand {
                         replace("<curr>", "%5$s").
                         replace("<totcur>", "%6$s"),
                         toBuy.coloredName(), numToBuy, price, cost,
-                        BetterShop.config.currency, BetterShop.iConomy.getBank().format(cost)));
+                        BetterShop.config.currency(), BetterShop.iConomy.getBank().format(cost)));
 
                 if (BetterShop.config.publicmarket && BetterShop.config.hasString("publicbuymsg")) {
                     BSutils.broadcastMessage(player, String.format(BetterShop.config.getString("publicbuymsg").
@@ -898,7 +879,7 @@ public class BSCommand {
                             replace("<totcur>", "%6$s").
                             replace("<player>", "%7$s"),
                             toBuy.coloredName(), numToBuy, price, cost,
-                            BetterShop.config.currency, BetterShop.iConomy.getBank().format(cost), ((Player) player).getDisplayName()), false);
+                            BetterShop.config.currency(), BetterShop.iConomy.getBank().format(cost), ((Player) player).getDisplayName()), false);
 
                 }
 
@@ -915,7 +896,7 @@ public class BSCommand {
                         replace("<curr>", "%5$s").
                         replace("<priceper>", "%4$01.2f").
                         replace("<totcur>", "%6$s"), toBuy.coloredName(),
-                        numToBuy, cost, price, BetterShop.config.currency,
+                        numToBuy, cost, price, BetterShop.config.currency(),
                         BetterShop.iConomy.getBank().format(price)));
                 return true;
             }
@@ -1008,8 +989,6 @@ public class BSCommand {
         double price = Double.NEGATIVE_INFINITY;
         try {
             price = BetterShop.pricelist.getSellPrice(toSell);
-        } catch (SQLException ex) {
-            BetterShop.Log(Level.SEVERE, ex);
         } catch (Exception ex) {
             BetterShop.Log(Level.SEVERE, ex);
         }
@@ -1138,10 +1117,6 @@ public class BSCommand {
         if (BetterShop.stock != null && BetterShop.config.useItemStock) {
             try {
                 BetterShop.stock.changeItemAmount(toSell, amtSold);
-            } catch (SQLException ex) {
-                BetterShop.Log(Level.SEVERE, ex);
-            } catch (IOException ex) {
-                BetterShop.Log(Level.SEVERE, ex);
             } catch (Exception ex) {
                 BetterShop.Log(Level.SEVERE, ex);
             }
@@ -1153,7 +1128,7 @@ public class BSCommand {
                 replace("<total>", "%4$01.2f").
                 replace("<curr>", "%5$s").
                 replace("<totcur>", "%6$s"),
-                toSell.coloredName(), amtSold, total / amtSold, total, BetterShop.config.currency, BetterShop.iConomy.getBank().format(total)));
+                toSell.coloredName(), amtSold, total / amtSold, total, BetterShop.config.currency(), BetterShop.iConomy.getBank().format(total)));
         //price
         if (BetterShop.config.publicmarket && BetterShop.config.hasString("publicsellmsg")) {
             BSutils.broadcastMessage(player, String.format(BetterShop.config.getString("publicsellmsg").
@@ -1165,12 +1140,14 @@ public class BSCommand {
                     replace("<totcur>", "%6$s").
                     replace("<player>", "%7$s"),
                     toSell.coloredName(), amtSold, total / amtSold, total,
-                    BetterShop.config.currency, BetterShop.iConomy.getBank().format(total), ((Player) player).getDisplayName()), false);
+                    BetterShop.config.currency(), BetterShop.iConomy.getBank().format(total), ((Player) player).getDisplayName()), false);
 
         }
-
-        BetterShop.transactions.addRecord(new UserTransaction(
-                toSell, true, amtSold, total / amtSold, ((Player) player).getDisplayName()));
+        try {
+            BetterShop.transactions.addRecord(new UserTransaction(toSell, true, amtSold, total / amtSold, ((Player) player).getDisplayName()));
+        } catch (Exception ex) {
+            BetterShop.Log(Level.SEVERE, ex);
+        }
 
         return true;
     }
@@ -1243,9 +1220,6 @@ public class BSCommand {
                     amtHas += playerInv.get(i).amount;
                 }
             }
-        } catch (SQLException ex) {
-            BetterShop.Log(Level.SEVERE, ex);
-            err = true;
         } catch (Exception ex) {
             BetterShop.Log(Level.SEVERE, ex);
             err = true;
@@ -1282,8 +1256,6 @@ public class BSCommand {
                         BetterShop.pricelist.getSellPrice(ite),
                         ((Player) player).getDisplayName()));
             }
-        } catch (SQLException ex) {
-            BetterShop.Log(Level.SEVERE, ex);
         } catch (Exception ex) {
             BetterShop.Log(Level.SEVERE, ex);
         }
@@ -1309,7 +1281,7 @@ public class BSCommand {
                 replace("<total>", "%4$01.2f").
                 replace("<curr>", "%5$s").
                 replace("<totcur>", "%6$s"),
-                itemN, amtHas, total / amtHas, total, BetterShop.config.currency, BetterShop.iConomy.getBank().format(total)));
+                itemN, amtHas, total / amtHas, total, BetterShop.config.currency(), BetterShop.iConomy.getBank().format(total)));
 
         if (BetterShop.config.publicmarket && BetterShop.config.hasString("publicsellmsg")) {
             BSutils.broadcastMessage(player, String.format(BetterShop.config.getString("publicsellmsg").
@@ -1321,12 +1293,16 @@ public class BSCommand {
                     replace("<totcur>", "%6$s").
                     replace("<player>", "%7$s"),
                     itemN, amtHas, total / amtHas, total,
-                    BetterShop.config.currency, BetterShop.iConomy.getBank().format(total), ((Player) player).getDisplayName()), false);
+                    BetterShop.config.currency(), BetterShop.iConomy.getBank().format(total), ((Player) player).getDisplayName()), false);
 
         }
 
-        for (UserTransaction t : transactions) {
-            BetterShop.transactions.addRecord(t);
+        try {
+            for (UserTransaction t : transactions) {
+                BetterShop.transactions.addRecord(t);
+            }
+        } catch (Exception ex) {
+            BetterShop.Log(Level.SEVERE, ex);
         }
         return true;
     }
@@ -1345,8 +1321,6 @@ public class BSCommand {
             }
             BSutils.sendMessage(player, kitNames);
             return true;
-        } catch (SQLException ex) {
-            BetterShop.Log(Level.SEVERE, ex);
         } catch (Exception ex) {
             BetterShop.Log(Level.SEVERE, ex);
         }
@@ -1398,9 +1372,6 @@ public class BSCommand {
                     }
                 }
             }
-        } catch (SQLException ex) {
-            BetterShop.Log(Level.SEVERE, ex);
-            BSutils.sendMessage(player, "Error looking up an item");
         } catch (Exception ex) {
             BetterShop.Log(Level.SEVERE, ex);
             BSutils.sendMessage(player, "Error looking up an item");

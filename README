@@ -84,7 +84,10 @@ on start, can check the download page to see if there is an update avaliable
 shop can be given a finite stock from which to buy & sell
 /shop ver[sion] to check the current version & see if there's an update
 MinecraftIM support: forward errors or all messages
-
+checks for missing & unused configuration nodes
+strings have default values if missing
+auto error reporting added (can be disabled)
+help main page integration can be disabled
 
 There are two ways to add things to the shop:
 Recommended, but slow: use /shopadd [item] [buy-price] [sell-price]
@@ -149,6 +152,15 @@ Cookies	integration  http://forums.bukkit.org/threads/inactive-econ-cookies-v0-5
 ===============================================================================
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
+
+Version 1.6.2.6 - 3/30/11 - jascotty2
+now checks for missing & unused configuration nodes
+strings have default values if missing
+auto error reporting added (can be disabled)
+now compatible with bukkit 602
+help main page integration can be disabled
+hidden changes to get one step closer to dynamic dricing
+
 
 Version 1.6.2.5 - 3/28/11 - jascotty2
 forgot to update the date in the last release, so a false 'newer release' was showing up

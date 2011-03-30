@@ -7,6 +7,9 @@
 package com.nhksos.jjfs85.BetterShop;
 
 import com.jascotty2.MySQL.InstallDependency;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -17,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author jacob
@@ -193,5 +197,39 @@ public class Updater extends InstallDependency {
         //*/
         return false;
     }
+
+
+
+
+    // reads the server log for this info
+    public static String getBukkitVersion(){
+        File slog = new File("server.log");
+        if(slog.exists() && slog.canRead()){
+            FileReader fstream = null;
+            try {
+                String ver = "";
+                fstream = new FileReader(slog.getAbsolutePath());
+                BufferedReader in = new BufferedReader(fstream);
+
+                String line = "";
+                while((line = in.readLine()) != null){
+                    if(line.contains("This server is running Craftbukkit version git-Bukkit-")){
+                        ver = line.substring(line.indexOf("git-Bukkit-"));
+                    }
+                }
+                return ver;
+            } catch (Exception ex) {
+                Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                try {
+                    fstream.close();
+                } catch (IOException ex) {
+                }
+            }
+
+        }
+        return "?";
+    }
+
 } // end class Updater
 

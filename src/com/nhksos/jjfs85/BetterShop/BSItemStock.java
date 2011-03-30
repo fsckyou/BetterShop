@@ -41,6 +41,7 @@ public class BSItemStock extends ItemStock {
             }
         } else {
             try {
+                databaseType=DBType.FLATFILE;
                 //System.out.println("attempting FlatFile: " + BSConfig.pluginFolder.getPath() + File.separatorChar + BetterShop.config.tableName + ".csv");
                 if (loadFile(new File(BSConfig.pluginFolder.getPath() + File.separatorChar
                         + BetterShop.config.stockTablename + ".csv"))) {

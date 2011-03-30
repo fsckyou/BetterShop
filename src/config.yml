@@ -3,6 +3,14 @@
 
 # at start, will tell you if this plugin is the current version
 CheckForUpdates: true
+# as an attempt to stay on top of any bugs, error reports can be sent to notify me of a potential bug
+# (all information is confidential, and no private information is sent)
+# an error id is generated & outputted to the log, and can be viewed at ftp://nas.boldlygoingnowhere.org/youridhere
+#note: this helps, but is not self-explanitory when trying to track down a bug
+#     if you're having problems, please post at http://forums.bukkit.org/threads/3359/
+#     with the id & the steps you used to get there
+AutoErrorReporting: true
+
 
 # number of lines outputted in shop list
 ItemsPerPage: 9
@@ -21,6 +29,8 @@ allowbuyillegal: false
 usemaxstack: true
 #used tools can be bought back?
 buybacktools: true
+#should the shop buy items from users?
+buybackenabled: true
 
 # what to use for table/file name (files are saved as .csv)
 tablename: BetterShop
@@ -52,7 +62,6 @@ MySQL:
     #   use this to change how long it is considered current (seconds)
     tempCacheTTL: 10
 # section for logging transactions (future can be used to make a dynamic market)
-#todo: add flatfile compatability
 transactionLog:
     enabled: false
     # what to use for transaction log tablename (or flatfile flename)
@@ -70,9 +79,9 @@ totalsTransactionLog:
 dynamicMarket:
     # dynamic pricing not yet implemented..
     # when it is, will require transactionLog.enabled: true
-    enabled: false
+    dynamicPricing: false
 
-    # the following are not influenced if dynamicMarket is disabled
+    # the following are not influenced if dynamicPricing is disabled
     
     #if a price is not set on a craftable item, can still sell if the materials to make are for sale
     sellcraftables: true
@@ -109,10 +118,17 @@ itemStock:
 #   dark grey, medium blue, light green, cyan, orange-red, pink, yellow, white
 defaultItemColor: white
 
+#other plugin options:
+
+
 #if you're using my MinecraftIM plugin, should errors be sent to you?
 sendLogOnError: true
 #send everything logged? (not just exceptions)
 sendAllLog: false
+
+#Help: should main commands not be listed on the main page?
+hideHelp: false
+
 
 ##########################################
 # strings section: Text used in messages #
