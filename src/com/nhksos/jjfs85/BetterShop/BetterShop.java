@@ -36,7 +36,7 @@ import org.bukkit.plugin.Plugin;
  */
 public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
 
-    public final static String lastUpdatedStr = "3/30/11 09:30 -0500"; // "MM/dd/yy HH:mm Z"
+    public final static String lastUpdatedStr = "3/30/11 13:55 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
@@ -496,13 +496,14 @@ public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
 
             String fname = FTPErrorReporter.SendNewText(
                     "BetterShop Error Report at " + (new Date()).toString() + "\n"
+                    + "SUID: " + Updater.serverUID() + "\n"
                     + "Bukkit: " + Updater.getBukkitVersion() + "\n"
                     + "Version: " + pdfFile.getVersion() + "  (" + lastUpdatedStr + ")\n"
                     + "iConomy: " + (iConomy != null ? ((Plugin) iConomy).getDescription().getVersion() : "none") + "\n"
                     + "Permissions: " + (Permissions != null ? "true" : "false") + "\n"
                     + "Last executed command: " + lastCommand + "\n"
                     + (config != null ? config.condensedSettings() : "-") + "," + (pcount >= 0 ? pcount : "-") + "\n"
-                    + "Message: " + (txt != null ? txt : "") + "\n"
+                    + "Message: " + (txt != null ? txt : err != null ? err.getMessage() : "" ) + "\n"
                     + (err != null ? getStackStr(err) : "") + "\n");
             if (fname.length() > 0) {
                 System.out.println("report sent. id: " + fname);

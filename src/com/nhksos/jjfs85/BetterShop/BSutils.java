@@ -33,14 +33,14 @@ public class BSutils {
         account.add(amount);
         if (account.getBalance() == preAmt) {
             // something seems to be wrong with iConomy: reload it
-            BetterShop.Log(Level.SEVERE, "Failed to credit player: attempting iConomy reload");
+            BetterShop.Log(Level.SEVERE, "Failed to credit player: attempting iConomy reload", false);
             if (reloadIConomy(player.getServer())) {
                 account.add(amount);
                 if (account.getBalance() != preAmt) {
                     return true;
                 }
             }
-            BetterShop.Log(Level.SEVERE, "Failed.");
+            BetterShop.Log(Level.SEVERE, "Failed.", false);
         }
         return true;
     }
@@ -58,14 +58,14 @@ public class BSutils {
         account.subtract(amount);
         if (account.getBalance() == preAmt) {
             // something seems to be wrong with iConomy: reload it
-            BetterShop.Log(Level.SEVERE, "Failed to debit player: attempting iConomy reload");
+            BetterShop.Log(Level.SEVERE, "Failed to debit player: attempting iConomy reload", false);
             if (reloadIConomy(player.getServer())) {
                 account.subtract(amount);
                 if (account.getBalance() != preAmt) {
                     return true;
                 }
             }
-            BetterShop.Log(Level.SEVERE, "Failed.");
+            BetterShop.Log(Level.SEVERE, "Failed.", false);
         }
         return true;
     }
@@ -81,8 +81,7 @@ public class BSutils {
                 return true;
             }
         } catch (Exception ex) {
-            BetterShop.Log(Level.SEVERE, "Error");
-            BetterShop.Log(Level.SEVERE, ex);
+            BetterShop.Log(Level.SEVERE, "Error reloading iConomy", ex);
         }
         return false;
     }

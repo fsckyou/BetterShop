@@ -279,7 +279,7 @@ public class BSCommand {
         if (ItemDB.load(BSConfig.pluginFolder)) {
             BSutils.sendMessage(player, ItemDB.size() + " items loaded.");
         } else {
-            BetterShop.Log(Level.SEVERE, "Cannot Load Items db!");
+            BetterShop.Log(Level.SEVERE, "Cannot Load Items db!", false);
             if (player != null) {
                 BSutils.sendMessage(player, "\u00A74Item Database Load Error.");
             }

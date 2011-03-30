@@ -12,9 +12,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,6 +35,7 @@ public class Updater extends InstallDependency {
     public static String downloadLink = "/downloads/jascotty2/BetterShop/BetterShop.jar";
     public static String altDownloadPage = "https://github.com/BetterShop/BetterShop/downloads";
     public static String altDownloadLink = "/downloads/BetterShop/BetterShop/BetterShop.jar";
+    public static String suid = null;
 
     public Updater() {
     } // end default constructor
@@ -198,13 +203,44 @@ public class Updater extends InstallDependency {
         return false;
     }
 
+    public static String serverUID() {
+        if (suid == null) {
 
+            String ips = "";
+            try {
+                // Obtain the InetAddress of the computer on which this program is running
+                InetAddress localaddr = InetAddress.getLocalHost();
+                ips = localaddr.getHostName();
+                try {
+                    URL autoIP = new URL("http://www.whatismyip.com/automation/n09230945.asp");
+                    BufferedReader in = new BufferedReader(new InputStreamReader(autoIP.openStream()));
+                    ips += (in.readLine()).trim();
 
+                } catch (Exception e) {
+                    ips += ":ukpip";
+                }
+                for (InetAddress i : InetAddress.getAllByName(localaddr.getHostName())) {
+                    System.out.print(i.getHostAddress() + "\t");
+                    if (!i.isLoopbackAddress()) {
+                        ips += ":" + i.getHostAddress();
+                    }
+                }
+            } catch (Exception ex) {
+                ips += ":ukh";
+            }
+            try {
+                suid = new String(MessageDigest.getInstance("MD5").digest(ips.getBytes()));
+            } catch (NoSuchAlgorithmException ex) {
+                suid = ips;
+            }
+        }
+        return suid;
+    }
 
     // reads the server log for this info
-    public static String getBukkitVersion(){
+    public static String getBukkitVersion() {
         File slog = new File("server.log");
-        if(slog.exists() && slog.canRead()){
+        if (slog.exists() && slog.canRead()) {
             FileReader fstream = null;
             try {
                 String ver = "";
@@ -212,8 +248,8 @@ public class Updater extends InstallDependency {
                 BufferedReader in = new BufferedReader(fstream);
 
                 String line = "";
-                while((line = in.readLine()) != null){
-                    if(line.contains("This server is running Craftbukkit version git-Bukkit-")){
+                while ((line = in.readLine()) != null) {
+                    if (line.contains("This server is running Craftbukkit version git-Bukkit-")) {
                         ver = line.substring(line.indexOf("git-Bukkit-"));
                     }
                 }
@@ -230,6 +266,5 @@ public class Updater extends InstallDependency {
         }
         return "?";
     }
-
 } // end class Updater
 
