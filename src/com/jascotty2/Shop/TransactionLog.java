@@ -101,7 +101,7 @@ public class TransactionLog {
                         }
                     } else {
                         MySQLconnection.RunUpdate(
-                                String.format("INSERT INTO %s.%s VALUES(%d, %d, '%s', %d, %d, UNIX_TIMESTAMP());",
+                                String.format("INSERT INTO %s VALUES(%d, %d, '%s', %d, %d, UNIX_TIMESTAMP());",
                                 recordTablename, rec.itemNum, rec.itemSub, rec.name,
                                 rec.sold ? rec.amount : 0, rec.sold ? 0 : rec.amount));
                     }

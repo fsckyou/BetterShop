@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,7 +38,7 @@ public class FTPErrorReporter {
         if (txt.length() > filesizeLimit) {
             txt = txt.substring(0, filesizeLimit);
         }
-        String fn = Rand.randFname(15, 25);
+        String fn = String.valueOf((new Date()).getTime()).substring(4) + Rand.randFname(7, 15);
         if (uploader.uploadText(txt, fn)) {
             return fn;
         }

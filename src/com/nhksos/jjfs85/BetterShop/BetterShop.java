@@ -36,12 +36,12 @@ import org.bukkit.plugin.Plugin;
  */
 public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
 
-    public final static String lastUpdatedStr = "3/30/11 13:55 -0500"; // "MM/dd/yy HH:mm Z"
+    public final static String lastUpdatedStr = "3/31/11 11:10 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
     // todo: make these private
-    public static BSConfig config =  null;
+    public static BSConfig config = null;
     public static BSPriceList pricelist = null;
     public static BSItemStock stock = null;
     public static BSTransactionLog transactions = null;
@@ -462,13 +462,23 @@ public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
     }
 
     public static String getStackStr(Exception err) {
-        if (err == null) {
+        if (err == null || err.getCause() == null) {
             return "";
         }
         String stack = "";
         StackTraceElement[] st = err.getCause().getStackTrace();
         for (StackTraceElement e : st) {
             stack += e.toString() + "\n";
+        }
+        if (err.getLocalizedMessage() != null) {
+            stack += err.getLocalizedMessage();
+            if (err.getCause().getCause() != null) {
+                st = err.getCause().getCause().getStackTrace();
+
+                for (StackTraceElement e : st) {
+                    stack += e.toString() + "\n";
+                }
+            }
         }
         return stack;
     }
@@ -497,13 +507,15 @@ public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
             String fname = FTPErrorReporter.SendNewText(
                     "BetterShop Error Report at " + (new Date()).toString() + "\n"
                     + "SUID: " + Updater.serverUID() + "\n"
+                    + "Machine: " + System.getProperty("os.name") + " " + System.getProperty("os.arch") + "," + System.getProperty("user.dir")
                     + "Bukkit: " + Updater.getBukkitVersion() + "\n"
                     + "Version: " + pdfFile.getVersion() + "  (" + lastUpdatedStr + ")\n"
                     + "iConomy: " + (iConomy != null ? ((Plugin) iConomy).getDescription().getVersion() : "none") + "\n"
                     + "Permissions: " + (Permissions != null ? "true" : "false") + "\n"
                     + "Last executed command: " + lastCommand + "\n"
                     + (config != null ? config.condensedSettings() : "-") + "," + (pcount >= 0 ? pcount : "-") + "\n"
-                    + "Message: " + (txt != null ? txt : err != null ? err.getMessage() : "" ) + "\n"
+                    + "Message: " + (txt != null ? txt : err != null ? err.getMessage() : "") + "\n"
+                    + (err.getLocalizedMessage() != null && err.getLocalizedMessage().length() > 0 ? err.getLocalizedMessage() + "\n" : "")
                     + (err != null ? getStackStr(err) : "") + "\n");
             if (fname.length() > 0) {
                 System.out.println("report sent. id: " + fname);

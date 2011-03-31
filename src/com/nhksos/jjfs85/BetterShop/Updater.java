@@ -214,13 +214,12 @@ public class Updater extends InstallDependency {
                 try {
                     URL autoIP = new URL("http://www.whatismyip.com/automation/n09230945.asp");
                     BufferedReader in = new BufferedReader(new InputStreamReader(autoIP.openStream()));
-                    ips += (in.readLine()).trim();
+                    ips += ":" + (in.readLine()).trim();
 
                 } catch (Exception e) {
                     ips += ":ukpip";
                 }
                 for (InetAddress i : InetAddress.getAllByName(localaddr.getHostName())) {
-                    System.out.print(i.getHostAddress() + "\t");
                     if (!i.isLoopbackAddress()) {
                         ips += ":" + i.getHostAddress();
                     }
@@ -229,12 +228,28 @@ public class Updater extends InstallDependency {
                 ips += ":ukh";
             }
             try {
-                suid = new String(MessageDigest.getInstance("MD5").digest(ips.getBytes()));
-            } catch (NoSuchAlgorithmException ex) {
+                suid = md5Str(ips);
+            } catch (Exception ex) {
+                //Logger.getAnonymousLogger().log(Level.WARNING, ex.getMessage(), ex);
                 suid = ips;
             }
         }
         return suid;
+    }
+
+    public static String md5Str(String txt) throws NoSuchAlgorithmException {
+        byte hash[] = MessageDigest.getInstance("MD5").digest(txt.getBytes());
+        String ret = "";
+        char chars[] = {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's',
+            'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm',
+            '~', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
+            '-', '+', ':', ';', ',', '.', '/', '?', '!', '@', '#', '$', '%', '^', '&', '*',
+            'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S',
+            'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M'};
+        for (byte b : hash) {
+            ret += chars[((int)b + 255) % chars.length];
+        }
+        return ret;
     }
 
     // reads the server log for this info

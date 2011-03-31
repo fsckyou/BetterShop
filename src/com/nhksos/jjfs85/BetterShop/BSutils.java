@@ -91,7 +91,7 @@ public class BSutils {
     }
 
     static boolean hasPermission(CommandSender player, String node, boolean notify) {
-        if (BetterShop.Permissions == null) {
+        if (BetterShop.Permissions == null || BetterShop.Permissions.Security==null) {
             // only ops have access to .admin
             if ((node == null || node.length() < 16)
                     || (!node.substring(0, 16).equalsIgnoreCase("BetterShop.admin") || player.isOp())) {

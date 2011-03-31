@@ -153,6 +153,15 @@ Cookies	integration  http://forums.bukkit.org/threads/inactive-econ-cookies-v0-5
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
+Version 1.6.2.8 - 3/31/11 - jascotty2
+nullpointer fixed if running 602 with old groupmanager
+other misc. null fixes
+removed redundant reload points for iConomy
+repaired a mysql totalTransactionLog format error
+error reporting now begins with a portion of the date, so i can see them listed in order
+more info added to error reports.. still can't figure out the stock flatfile save bug
+
+
 Version 1.6.2.7 - 3/30/11 - jascotty2
 improved error reporting format & removed a few unnecessary send triggers
 
