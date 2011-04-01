@@ -1,6 +1,7 @@
 package com.nhksos.jjfs85.BetterShop;
 
 import com.jascotty2.CheckInput;
+import com.jascotty2.Item.CreatureItem;
 import com.jascotty2.Item.Item;
 import com.jascotty2.Item.ItemDB;
 import com.jascotty2.Item.ItemStockEntry;
@@ -9,6 +10,7 @@ import com.jascotty2.Item.Kit.KitItem;
 import com.jascotty2.Item.PriceListItem;
 import com.jascotty2.Shop.UserTransaction;
 import com.jascotty2.Shop.PriceList;
+import com.jascotty2.Str;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +36,7 @@ public class BSCommand {
         }
         if (s.length > 0) {
             // more help
-            if (isCommand(s[0], "shop")) {
+            if (Str.isIn(s[0], "shop")) {
                 BSutils.sendMessage(player, "/shop   command alias to other commands");
                 BSutils.sendMessage(player, "      ");
                 if (BSutils.hasPermission(player, "BetterShop.admin.backup", false)) {
@@ -44,62 +46,62 @@ public class BSCommand {
                     BSutils.sendMessage(player, "/shop ver[sion]   show the currently installed version");
                     BSutils.sendMessage(player, "        also shows if this is the most current avaliable");
                 }
-            } else if (isCommand(s[0], "shopcheck, scheck, sc")) {
+            } else if (Str.isIn(s[0], "shopcheck, scheck, sc")) {
                 BSutils.sendMessage(player, "/shopcheck <item>  Check prices for an item");
                 BSutils.sendMessage(player, " aliases: scheck, sc");
                 BSutils.sendMessage(player, "-- will also run a name match search");
-            } else if (isCommand(s[0], "shoplist, slist, sl")) {
+            } else if (Str.isIn(s[0], "shoplist, slist, sl")) {
                 BSutils.sendMessage(player, "/shoplist [page]   Lists prices for the shop");
                 BSutils.sendMessage(player, " aliases: slist, sl");
-            } else if (isCommand(s[0], "shopitems, sitems")) {
+            } else if (Str.isIn(s[0], "shopitems, sitems")) {
                 BSutils.sendMessage(player, "/shopitems  show listing of items in shop, without prices");
                 BSutils.sendMessage(player, " aliases: sitems");
                 BSutils.sendMessage(player, "-- coming soon: pages");
-            } else if (isCommand(s[0], "shopbuy, sbuy, buy")) {
+            } else if (Str.isIn(s[0], "shopbuy, sbuy, buy")) {
                 BSutils.sendMessage(player, "/shopbuy <item> [amount] Buy an item for the price in the shop");
                 BSutils.sendMessage(player, " aliases: sbuy, buy");
                 BSutils.sendMessage(player, "-- \"all\" is a valid amount: will buy all you can hold/afford");
-            } else if (isCommand(s[0], "shopbuyall, sbuyall, buyall")) {
+            } else if (Str.isIn(s[0], "shopbuyall, sbuyall, buyall")) {
                 BSutils.sendMessage(player, "/shopbuyall <item>  buy all you can hold/afford");
                 BSutils.sendMessage(player, " aliases: sbuyall, buyall");
-            } else if (isCommand(s[0], "shopbuystack, buystack, sbuystack, sbuys, buys")) {
+            } else if (Str.isIn(s[0], "shopbuystack, buystack, sbuystack, sbuys, buys")) {
                 BSutils.sendMessage(player, "/shopbuystack <item> [amount] buy items in stacks");
                 BSutils.sendMessage(player, " aliases: buystack, sbuystack, sbuys, buys");
                 BSutils.sendMessage(player, "-- can list multiple items, or give how many stacks to buy");
-            } else if (isCommand(s[0], "shopsell, ssell, sell")) {
+            } else if (Str.isIn(s[0], "shopsell, ssell, sell")) {
                 BSutils.sendMessage(player, "/shopsell <item> [amount]");
                 BSutils.sendMessage(player, " aliases: ssell, sell");
                 BSutils.sendMessage(player, "-- \"all\" is a valid amount: will sell all you have");
-            } else if (isCommand(s[0], "shopsellall, sellall, sell all")) {
+            } else if (Str.isIn(s[0], "shopsellall, sellall, sell all")) {
                 BSutils.sendMessage(player, "/shopsellall [inv] [item [item [...]]] ");
                 BSutils.sendMessage(player, "-- Sell all of item from your inventory");
                 BSutils.sendMessage(player, " aliases: sellall, sell all");
                 BSutils.sendMessage(player, "-- inv will only sell from your inventory, not the lower 9");
                 BSutils.sendMessage(player, "-- multiple items can be listed, or none for all sellable");
-            } else if (isCommand(s[0], "shopadd, sadd")) {
+            } else if (Str.isIn(s[0], "shopadd, sadd")) {
                 BSutils.sendMessage(player, "/shopadd <item> <buyprice> [sellprice]");
                 BSutils.sendMessage(player, "--  Add an item to or update an item in the price list");
                 BSutils.sendMessage(player, " aliases: sadd");
                 BSutils.sendMessage(player, "-- price of -1 disables that action");
                 BSutils.sendMessage(player, "-- if no sellprice is given, item will not be sellable");
-            } else if (isCommand(s[0], "shopremove, sremove")) {
+            } else if (Str.isIn(s[0], "shopremove, sremove")) {
                 BSutils.sendMessage(player, "/shopremove <item>  Remove an item from the price list");
                 BSutils.sendMessage(player, " aliases: sremove");
-            } else if (isCommand(s[0], "shopload, sload, shop load, shop reload")) {
+            } else if (Str.isIn(s[0], "shopload, sload, shop load, shop reload")) {
                 BSutils.sendMessage(player, "/shopload   reload prices from pricelist database");
                 BSutils.sendMessage(player, " aliases: sload, shop [re]load");
-            } else if (isCommand(s[0], "shophelp, shelp")) {
+            } else if (Str.isIn(s[0], "shophelp, shelp")) {
                 BSutils.sendMessage(player, "/shophelp [command] Lists available commands");
                 BSutils.sendMessage(player, " aliases: shelp");
                 BSutils.sendMessage(player, "-- providing a command shows specific help for that command");
-            } else if (isCommand(s[0], "shoplistkits, shopkits, skits")) {
+            } else if (Str.isIn(s[0], "shoplistkits, shopkits, skits")) {
                 BSutils.sendMessage(player, "/shoplistkits [page] Lists available kits");
                 BSutils.sendMessage(player, " aliases: shopkits, skits");
                 BSutils.sendMessage(player, "-- toadd: show what each kit contains");
-            } else if (isCommand(s[0], "shopbuyagain, sbuyagain, buyagain, sba")) {
+            } else if (Str.isIn(s[0], "shopbuyagain, sbuyagain, buyagain, sba")) {
                 BSutils.sendMessage(player, "/shopbuyagain  repeat last purchase");
                 BSutils.sendMessage(player, " aliases: sbuyagain, buyagain, sba");
-            } else if (isCommand(s[0], "shopsellagain, ssellagain, sellagain, ssa")) {
+            } else if (Str.isIn(s[0], "shopsellagain, ssellagain, sellagain, ssa")) {
                 BSutils.sendMessage(player, "/shopsellagain  repeat last sale");
                 BSutils.sendMessage(player, " aliases: ssellagain, sellagain, ssa");
             } /*else if (s[0].equalsIgnoreCase("")) {
@@ -356,6 +358,9 @@ public class BSCommand {
             } else if (toAdd.isKit() && CheckInput.GetDouble(s[2], -1) >= 0) {
                 BSutils.sendMessage(player, "Note: Kits cannot be sold");
                 s[2] = "-1";
+            } else if (toAdd.isEntity() && CheckInput.GetDouble(s[2], -1) >= 0) {
+                BSutils.sendMessage(player, "Note: Entities cannot be sold");
+                s[2] = "-1";
             }
             try {
                 boolean isChanged = BetterShop.pricelist.isForSale(toAdd);
@@ -467,7 +472,7 @@ public class BSCommand {
         }
 
         // initial check complete: set as last action
-        userbuyHistory.put(((Player) player).getDisplayName(), "shopbuy " + argStr(s));
+        userbuyHistory.put(((Player) player).getDisplayName(), "shopbuy " + Str.argStr(s));
 
         double price = Double.NEGATIVE_INFINITY;
 
@@ -498,12 +503,16 @@ public class BSCommand {
 
         PlayerInventory inv = ((Player) player).getInventory();
 
-        // don't search armor slots
-        for (int i = 0; i <= 35; ++i) {
-            ItemStack it = inv.getItem(i);
-            if ((toBuy.equals(it) && it.getAmount() < maxStack) || it.getAmount() == 0) {
-                canHold += maxStack - it.getAmount();
+        if (!toBuy.isEntity()) {
+            // don't search armor slots
+            for (int i = 0; i <= 35; ++i) {
+                ItemStack it = inv.getItem(i);
+                if ((toBuy.equals(it) && it.getAmount() < maxStack) || it.getAmount() == 0) {
+                    canHold += maxStack - it.getAmount();
+                }
             }
+        } else {
+            canHold = BetterShop.config.maxEntityPurchase;
         }
         /*
         for (int i = 0; i <= 35; ++i) {
@@ -558,25 +567,27 @@ public class BSCommand {
         double cost = amtbought * price;
         try {
             if (cost == 0 || BSutils.debit(player, cost)) {
-                if (maxStack == 64) { //((Player) player).getInventory().addItem(toBuy.toItemStack(amtbought));
-                    inv.addItem(toBuy.toItemStack(amtbought));
-                } else {
-                    int amtLeft = amtbought;
-                    for (int i = 0; i <= 35; ++i) {
-                        ItemStack it = inv.getItem(i);
-                        if (it.getAmount() == 0 || (toBuy.equals(it) && it.getAmount() < maxStack)) {
-                            inv.setItem(i, toBuy.toItemStack((maxStack < amtLeft ? maxStack : amtLeft) + it.getAmount()));
-                            amtLeft -= maxStack;
-                        }
-                        if (amtLeft <= 0) {
-                            break;
+                if (!toBuy.isEntity()) {
+                    if (maxStack == 64) { //((Player) player).getInventory().addItem(toBuy.toItemStack(amtbought));
+                        inv.addItem(toBuy.toItemStack(amtbought));
+                    } else {
+                        int amtLeft = amtbought;
+                        for (int i = 0; i <= 35; ++i) {
+                            ItemStack it = inv.getItem(i);
+                            if (it.getAmount() == 0 || (toBuy.equals(it) && it.getAmount() < maxStack)) {
+                                inv.setItem(i, toBuy.toItemStack((maxStack < amtLeft ? maxStack : amtLeft) + it.getAmount()));
+                                amtLeft -= maxStack;
+                            }
+                            if (amtLeft <= 0) {
+                                break;
+                            }
                         }
                     }
+                    // drop in front of player?
+                    //World w = player.getServer().getWorld(""); w.dropItem(player.getServer().getPlayer("").getLocation(), leftover.values());//.dropItem(
+                } else {
+                    CreatureItem.spawnNewWithOwner((Player) player, CreatureItem.getCreature(toBuy.ID()));
                 }
-
-                // drop in front of player?
-                //World w = player.getServer().getWorld(""); w.dropItem(player.getServer().getPlayer("").getLocation(), leftover.values());//.dropItem(
-
                 BSutils.sendMessage(player, String.format(BetterShop.config.getString("buymsg").
                         replace("<item>", "%1$s").
                         replace("<amt>", "%2$d").
@@ -673,7 +684,7 @@ public class BSCommand {
                 buy(player, new String[]{toBuy.IdDatStr(), String.valueOf(BetterShop.config.usemaxstack ? toBuy.getMaxStackSize() : 64)});
             }
         }// overwrite history that buy wrote
-        userbuyHistory.put(((Player) player).getDisplayName(), "shopbuystack " + argStr(s));
+        userbuyHistory.put(((Player) player).getDisplayName(), "shopbuystack " + Str.argStr(s));
         return true;
     }
 
@@ -703,7 +714,7 @@ public class BSCommand {
             BSutils.sendMessage(player, toBuy.coloredName() + " is not a kit");
             return true;
         }// initial check complete: set as last action
-        usersellHistory.put(((Player) player).getDisplayName(), "shopbuy " + argStr(s));
+        usersellHistory.put(((Player) player).getDisplayName(), "shopbuy " + Str.argStr(s));
 
         double price = Double.NEGATIVE_INFINITY;
 
@@ -917,7 +928,7 @@ public class BSCommand {
                 sell(player, new String[]{toSell.IdDatStr(), String.valueOf(BetterShop.config.usemaxstack ? toSell.getMaxStackSize() : 64)});
             }
         }// overwrite history that selll wrote
-        usersellHistory.put(((Player) player).getDisplayName(), "shopsellstack " + argStr(s));
+        usersellHistory.put(((Player) player).getDisplayName(), "shopsellstack " + Str.argStr(s));
         return true;
     }
 
@@ -936,7 +947,7 @@ public class BSCommand {
         } else if (s.length == 0 || s.length > 2) {
             return false;
         }// initial check complete: set as last action
-        usersellHistory.put(((Player) player).getDisplayName(), "shopsell " + argStr(s));
+        usersellHistory.put(((Player) player).getDisplayName(), "shopsell " + Str.argStr(s));
         // expected syntax: item [amount]
 
         Item toSell = Item.findItem(s[0]);
@@ -947,6 +958,9 @@ public class BSCommand {
             return false;
         } else if (toSell.isKit()) {
             BSutils.sendMessage(player, "Kits cannot be sold");
+            return true;
+        } else if (toSell.isEntity()) {
+            BSutils.sendMessage(player, "Entities cannot be sold");
             return true;
         }
         double price = Double.NEGATIVE_INFINITY;
@@ -1129,11 +1143,14 @@ public class BSCommand {
                     } else if (toSell[i - st].isKit()) {
                         BSutils.sendMessage(player, "Kits cannot be sold");
                         return true;
+                    } else if (toSell[i - st].isEntity()) {
+                        BSutils.sendMessage(player, "Entities cannot be sold");
+                        return true;
                     }
                 }
             } // "[All Sellable]"
         }// initial check complete: set as last action
-        usersellHistory.put(((Player) player).getDisplayName(), "shopsellall " + argStr(s));
+        usersellHistory.put(((Player) player).getDisplayName(), "shopsellall " + Str.argStr(s));
 
         boolean err = false, overstock = false;
         //PlayerInventory inv = ((Player) player).getInventory();
@@ -1186,7 +1203,7 @@ public class BSCommand {
         } else if (notwant.size() > 0) {
             BSutils.sendMessage(player, String.format(
                     BetterShop.config.getString("donotwant").
-                    replace("<item>", "%1$s"), "(" + argStr(notwant.toArray(new String[0]), ", ") + ")"));
+                    replace("<item>", "%1$s"), "(" + Str.argStr(notwant.toArray(new String[0]), ", ") + ")"));
             if (notwant.size() == toSell.length) {
                 return true;
             }
@@ -1333,7 +1350,7 @@ public class BSCommand {
         if ((!BSutils.hasPermission(player, "BetterShop.admin.backup", true))) {
             return true;
         }
-        String fname = argStr(s);
+        String fname = Str.argStr(s);
         if (fname.length() > 6 && fname.substring(0, 7).equalsIgnoreCase("import ")) {
             fname = fname.substring(7);
         }
@@ -1363,7 +1380,7 @@ public class BSCommand {
         if ((!BSutils.hasPermission(player, "BetterShop.admin.backup", true))) {
             return true;
         }
-        String fname = argStr(s);
+        String fname = Str.argStr(s);
         if (fname.length() > 7 && fname.substring(0, 8).equalsIgnoreCase("restore ")) {
             fname = fname.substring(8);
         }
@@ -1387,33 +1404,5 @@ public class BSCommand {
             BSutils.sendMessage(player, "\u00A74 An Error Occured while importing database");
         }
         return true;
-    }
-
-    public static String argStr(String[] s) {
-        return argStr(s, " ");
-    }
-
-    public static String argStr(String[] s, String sep) {
-        String ret = "";
-        if (s != null) {
-            for (int i = 0; i < s.length; ++i) {
-                ret += s[i];
-                if (i + 1 < s.length) {
-                    ret += sep;
-                }
-            }
-        }
-        return ret;
-    }
-
-    public boolean isCommand(String input, String check) {
-        String comms[] = check.split(",");
-        input = input.trim();
-        for (String c : comms) {
-            if (input.equalsIgnoreCase(c.trim())) {
-                return true;
-            }
-        }
-        return false;
     }
 }

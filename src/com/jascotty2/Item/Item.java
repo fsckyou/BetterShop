@@ -513,11 +513,16 @@ public class Item {
         return new ItemStack(itemId, amount, (short) 0, itemData);
     }
 
+    // creatures are numbered starting at 4000
+    public boolean isEntity() {
+        return itemId >= 4000 && itemId<5000;
+    }
+
     // kits are numbered at 5000+
     public boolean isKit() {
         return itemId >= 5000;
     }
-
+    
     public int getMaxStackSize() {
         return maxStack;
     }

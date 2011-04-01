@@ -1,14 +1,5 @@
 package com.nhksos.jjfs85.BetterShop;
 
-import com.jascotty2.FTPErrorReporter;
-import com.jascotty2.Item.ItemDB;
-//import com.jascotty2.MinecraftIM.ChatMessageHandler;
-import com.jascotty2.MinecraftIM.MinecraftIM;
-
-import com.nijiko.coelho.iConomy.iConomy;
-import com.nijiko.coelho.iConomy.system.Bank;
-import com.nijikokun.bukkit.Permissions.Permissions;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -19,42 +10,55 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
-import org.bukkit.event.server.PluginEvent;
 import org.bukkit.event.server.ServerListener;
+import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+
+import com.jascotty2.FTPErrorReporter;
+import com.jascotty2.Item.ItemDB;
+import com.jascotty2.Str;
+import com.fullwall.MonsterTamer.EntityListen;
+
+import com.nijiko.coelho.iConomy.iConomy;
+import com.nijiko.coelho.iConomy.system.Bank;
+import com.nijikokun.bukkit.Permissions.Permissions;
 import me.taylorkelly.help.Help;
-import org.bukkit.plugin.Plugin;
+import com.jascotty2.MinecraftIM.MinecraftIM;
 
 /*
  * BetterShop for Bukkit
  */
-public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
+public class BetterShop extends JavaPlugin {
 
-    public final static String lastUpdatedStr = "3/31/11 11:10 -0500"; // "MM/dd/yy HH:mm Z"
+    public final static String lastUpdatedStr = "4/01/11 12:00 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
-    // todo: make these private
-    public static BSConfig config = null;
-    public static BSPriceList pricelist = null;
-    public static BSItemStock stock = null;
-    public static BSTransactionLog transactions = null;
-    public static BSCommand bscommand = new BSCommand();
-    static Permissions Permissions = null;
-    static iConomy iConomy = null;
-    static Bank iBank = null;
+    protected static BSConfig config = null;
+    protected static BSPriceList pricelist = null;
+    protected static BSItemStock stock = null;
+    protected static BSTransactionLog transactions = null;
+    protected static BSCommand bscommand = new BSCommand();
+    protected static Permissions Permissions = null;
+    protected static iConomy iConomy = null;
+    protected static Bank iBank = null;
     private final Listener Listener = new Listener(this);
     //private static boolean isLoaded = true;
     public static PluginDescriptionFile pdfFile;// = this.getDescription();
-    static MinecraftIM messenger = null;
-    static String lastCommand = "";
+    protected static MinecraftIM messenger = null;
+    protected static String lastCommand = "";
+    // for animal/monster purchases
+    public final EntityListen entityListener = new EntityListen();
 
+    // no longer needed as of #600
     private class Listener extends ServerListener {
 
         BetterShop shop;
@@ -64,7 +68,7 @@ public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
         }
 
         @Override
-        public void onPluginEnabled(PluginEvent event) {
+        public void onPluginEnable(PluginEnableEvent event) {
             //Log(event.getPlugin().getDescription().getName());
             if (event.getPlugin().getDescription().getName().equals("iConomy")) {
                 BetterShop.iConomy = (iConomy) event.getPlugin();
@@ -190,6 +194,11 @@ public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
         registerHelp();
         //isLoaded = true;
 
+        // for monster purchasing
+        PluginManager pm = getServer().getPluginManager();
+        pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Priority.Normal, this);
+        pm.registerEvent(Event.Type.ENTITY_TARGET, entityListener, Priority.Normal, this);
+
         // Just output some info so we can check all is well
         logger.log(Level.INFO, pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!",
                 new Object[]{pdfFile.getName(), pdfFile.getVersion()});
@@ -218,7 +227,7 @@ public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
             String commandLabel, String[] args) {
         String commandName = command.getName().toLowerCase();
         lastCommand = (sender instanceof Player ? "game:" : "console:")
-                + commandName + " " + BSCommand.argStr(args);
+                + commandName + " " + Str.argStr(args);
 
         // i don't like seeing these messages all the time..
         //Log(((Player) sender).getName() + " used command " + command.getName());
@@ -366,6 +375,11 @@ public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
         } else if (commandName.equals("shophelp")) {
             return bscommand.help(sender, args);
         } else if (commandName.equals("shopbuy")) {
+            /*if (args.length == 1
+                    && CreatureItem.creatureExists(args[0])
+                    && sender instanceof Player) {
+                CreatureItem.spawnNewWithOwner((Player) sender, CreatureItem.getCreature(args[0]));
+            }*/
             return bscommand.buy(sender, args);
         } else if (commandName.equals("shopbuyall")) {
             ArrayList<String> arg = new ArrayList<String>();

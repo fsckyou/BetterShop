@@ -55,7 +55,7 @@ public class ItemDB extends Item {
 
             Configuration itemdb = new Configuration(file);
             itemdb.load();
-            
+
             ConfigurationNode n = itemdb.getNode("items");
             if (n == null) {
                 logger.log(Level.SEVERE, "\'items\' not found in itemsdb.yml");
@@ -71,7 +71,7 @@ public class ItemDB extends Item {
                             item.SetColor(n.getString("color"));
                             item.SetMaxStack(n.getInt("maxstack", 64));
                             item.isLegal = n.getBoolean("legal", true);
-                            item.maxdamage=(short)n.getInt("maxdamage", 0);
+                            item.maxdamage = (short) n.getInt("maxdamage", 0);
                             String itemidd = "0";
                             if (k.indexOf("sub") > 0) {
                                 itemidd = k.substring(4, k.indexOf("sub")) + ":" + k.substring(k.indexOf("sub") + 3);
@@ -168,6 +168,41 @@ public class ItemDB extends Item {
                     }
                 }
             }
+            n = itemdb.getNode("entities");
+            if (n == null) {
+                logger.log(Level.WARNING, "\'entities\' not found in itemsdb.yml");
+            } else {
+                CreatureItem.creatureAliases.clear();
+                for (String k : itemdb.getKeys("entities")) {
+                    if (k.length() >= 7 && k.substring(0, 6).equalsIgnoreCase("entity")) {
+                        n = itemdb.getNode("entities." + k);
+                        if (n != null) {
+                            int eid = CheckInput.GetInt(k.substring(6), -1);
+                            if (eid >= 1) {
+                                CreatureItem citem = new CreatureItem(eid);
+                                Item item = new Item(eid + 4000);
+                                item.name = n.getString("name", "null");
+                                item.SetColor(n.getString("color"));
+                                item.isLegal = n.getBoolean("legal", true);
+                                //item.maxdamage=(short)n.getInt("maxdamage", 0);
+
+                                // now add aliases
+                                String a = n.getString("aliases");
+                                if (a != null) {
+                                    String all[] = a.split(",");
+                                    for (String i : all) {
+                                        item.AddAlias(i.trim().toLowerCase());
+                                        citem.AddAlias(i.trim().toLowerCase());
+                                    }
+                                }
+                                items.put(String.format("%d:0", item.ID()), item);
+                                //System.out.println("Added: " + item);
+                            }
+                        }
+                    }
+
+                }
+            }
             //logger.log(Level.INFO, "Items loaded: " + items.size() + " + " + kits.size() + " kits");
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Error loading itemsdb.yml", ex);
@@ -195,7 +230,7 @@ public class ItemDB extends Item {
         return searchi == null ? "" : searchi.IdDatStr(); // searchi.toString(); // 
     }
 
-    public static String GetItemName(ItemStack search){
+    public static String GetItemName(ItemStack search) {
         if (!dbLoaded) {
             load();
         }
@@ -210,7 +245,7 @@ public class ItemDB extends Item {
 
     public static Kit getKit(String search) {
         /*if (kits.containsKey(search)) {
-            return kits.get(search);
+        return kits.get(search);
         }*/
         for (Kit k : kits.values()) {
             if (k.equals(search)) {
@@ -228,7 +263,7 @@ public class ItemDB extends Item {
 
     public static Kit getKit(Item search) {
         /*if (!search.isKit()) {
-            return null;
+        return null;
         }*/
         return kits.get(search.itemId);
     }
@@ -237,7 +272,7 @@ public class ItemDB extends Item {
         return getKit(search) != null;
     }
 
-    public static int size(){
+    public static int size() {
         return items.size();
     }
 
@@ -246,9 +281,9 @@ public class ItemDB extends Item {
      * assigns a color to items that don't have one assigned
      * @param col
      */
-    public static void setDefaultColor(String col){
-        for(Item i : items.values()){
-            if(i.color==null || i.color.length()==0){
+    public static void setDefaultColor(String col) {
+        for (Item i : items.values()) {
+            if (i.color == null || i.color.length() == 0) {
                 i.SetColor(col);
             }
         }

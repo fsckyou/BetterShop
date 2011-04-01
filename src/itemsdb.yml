@@ -1072,6 +1072,55 @@ items:
         aliases: greendisk, grrecord, grdisk
         color: green
         maxstack: 1
+#entities :)
+# can't add more than what i have, or you'll get a chicken
+entities:
+    entity0:
+        name: Chicken
+        aliases: 
+    entity1:
+        name: Cow 
+        aliases: 
+    entity2:
+        name: Creeper
+        aliases: 
+    entity3:
+        name: Ghast
+        aliases: 
+    entity4:
+        name: Giant
+        aliases: giantzombie
+    entity5:
+        name: Monster
+        aliases: human, slave, bodyguard, dummy
+    entity6:
+        name: Pig
+        aliases: 
+    entity7:
+        name: PigZombie
+        aliases: 
+    entity8:
+        name: Sheep
+        aliases: 
+    entity9:
+        name: Skeleton
+        aliases: 
+    entity10:
+        name: Slime
+        aliases: 
+    entity11:
+        name: Spider
+        aliases: 
+    entity12:
+        name: Squid
+        aliases: 
+    entity13:
+        name: Zombie
+        aliases: 
+    entity14:
+        name: Wolf
+        aliases: dog
+          
 
 #kits can be added here (must be numbered, stating at 1)
 # kits can be bought, not sold

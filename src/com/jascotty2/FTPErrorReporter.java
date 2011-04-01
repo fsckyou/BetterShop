@@ -39,6 +39,7 @@ public class FTPErrorReporter {
             txt = txt.substring(0, filesizeLimit);
         }
         String fn = String.valueOf((new Date()).getTime()).substring(4) + Rand.randFname(7, 15);
+        //String fn = Rand.randFname(15, 25);
         if (uploader.uploadText(txt, fn)) {
             return fn;
         }

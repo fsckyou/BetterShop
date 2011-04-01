@@ -31,6 +31,9 @@ usemaxstack: true
 buybacktools: true
 #should the shop buy items from users?
 buybackenabled: true
+#if there are LivingEntities for sale, what's the max that can be bought at once?
+# (does not limit total, if buy repeatedly)
+maxEntityPurchase: 3
 
 # what to use for table/file name (files are saved as .csv)
 tablename: BetterShop

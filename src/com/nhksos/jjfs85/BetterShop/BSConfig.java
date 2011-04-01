@@ -52,6 +52,7 @@ public class BSConfig {
             usemaxstack = true, //whether maxstack should be honored
             buybacktools = true, //used tools can be bought back?
             buybackenabled = true; //shop buys items from users?
+    public int maxEntityPurchase = 3; // max can purchase at a time
     // global or region shops
     public boolean useRegionShops = false;
     // dynamic pricing options
@@ -105,6 +106,7 @@ public class BSConfig {
                             "usemaxstack",
                             "buybacktools",
                             "buybackenabled",
+                            "maxEntityPurchase",
                             "tablename",
                             "useMySQL",
                             "defaultItemColor",
@@ -215,6 +217,7 @@ public class BSConfig {
             usemaxstack = config.getBoolean("usemaxstack", usemaxstack);
             buybacktools = config.getBoolean("buybacktools", buybacktools);
             buybackenabled = config.getBoolean("buybackenabled", buybackenabled);
+            maxEntityPurchase = config.getInt("maxEntityPurchase", maxEntityPurchase);
 
             tableName = config.getString("tablename", tableName);
             databaseType = config.getBoolean("useMySQL", config.getBoolean("useMySQLPricelist", false)) ? DBType.MYSQL : DBType.FLATFILE;

@@ -65,6 +65,7 @@ damaged tools can be resold for an adjusted value of sellprice*(1-(damage/maxdam
 buystack can be given multiple items, or number of stacks: "/buystack wool 5" or "/buystack wool blackdye reddye"
 shopsellall can be given multiple items (/sell all cobble gravel flint dirt)
 plural-insensitive items: if not found, will check if plural & remove "s"
+not just items can be bought anymore: can now buy LivingEntities, like dogs (wolf)
 
 === administration
 Every item and subtype can be priced differently
@@ -136,9 +137,11 @@ add stock messages to config
 add pages for /shopitems
 SQLite support?
 tie item prices to stock quotes?
+craftables' stock is tied to source material stock (if using sell craftables)
+make LivingEntities follow the owner around?
 
 integrate with other economy plugins?
-BOSeconomy  	http://forums.bukkit.org/threads/econ-boseconomy-v0-6-1-simple-server-economy-531.4874/
+BOSeconomy  	http://forums.bukkit.org/threads/4874/
 
 
 === Removed (not going to implement)
@@ -146,12 +149,21 @@ persistentMySQL: if false, will disconnect from db when now using it (use if hav
 		(the MySQL connection is now shared with other features, so disonnecting could cause more performance issues)
 dynamicDiscount: if a user has an applicable discount, will also discount items crafted using discount
 		(if i do implement discounts, this will be automatic)
-Cookies	integration  http://forums.bukkit.org/threads/inactive-econ-cookies-v0-5-economic-system-w-api-424.5327/
+Cookies	integration:  http://forums.bukkit.org/threads/5327/
 		(might implement if becomes active again)
 
 ===============================================================================
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
+
+Version 1.6.3 - ? - jascotty2
+fixed buy/sell == 0 ? no (in shoplist, 0 incorrectly showed as no)
+updated for 612 (and 600+ .. had accidently been using the wrong libary)
+LivingEntities can now be purchased! :D
+- special thanks to fullwall for the MonsterTamer plugin, from which this ability comes from (1.3)
+- if capable, will attack the anything attacking the purchaser (if nearby)
+-- todo? make them follow the purchaser around?
+
 
 Version 1.6.2.8 - 3/31/11 - jascotty2
 nullpointer fixed if running 602 with old groupmanager

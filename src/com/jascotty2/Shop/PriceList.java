@@ -686,8 +686,8 @@ public class PriceList {
                     continue;
                 }
                 ret.add(String.format(listing, priceList.get(i).coloredName(),
-                        String.format("%5s", priceList.get(i).buy <= 0 ? " No " : String.format("%01.2f", priceList.get(i).buy)),
-                        String.format("%5s", priceList.get(i).sell <= 0 ? " No " : String.format("%01.2f", priceList.get(i).sell)),
+                        String.format("%5s", priceList.get(i).buy < 0 ? " No " : String.format("%01.2f", priceList.get(i).buy)),
+                        String.format("%5s", priceList.get(i).sell < 0 ? " No " : String.format("%01.2f", priceList.get(i).sell)),
                         (stock==null ? "INF" : stock.getItemAmount(priceList.get(i))).toString()));
             }
             if (footer != null && footer.length() > 0) {
@@ -701,62 +701,7 @@ public class PriceList {
         return ret;
     }
 
-    /**
-     * returns a page of prices, with discounts (if applicable)
-     * @param pageNum page to lookup (-1 will print all pages)
-     * @param playerName player to use for discount pricing
-     * @param pageSize how many on a page
-     * @param listing format to output listing with
-     * @param header page header (<page> of <pages>)
-     * @param footer page footer
-     * @param showIllegal whether illegal items should be included in the listing
-     * @return a list of formatted lines
-     * @throws SQLException if using MySQL database & there was some database connection error
-     * @throws Exception some serious error occurred (details in message)
-     */
-    /*public LinkedList<String> GetShopListPage(int pageNum, String playerName, int pageSize, String listing, String header, String footer, boolean showIllegal) throws SQLException, Exception {
-    LinkedList<String> ret = new LinkedList<String>();
-    if (databaseType == DBType.MYSQL && !useCache) {
-    updateCache(false);// manually update
-    } else {
-    updateCache();
-    }
-    int pricelistsize = GetShopSize(showIllegal);//priceList.size();
-
-    int pages = (int) Math.ceil((double) pricelistsize / pageSize);
-    String listhead = header == null || header.length() == 0 ? ""
-    : header.replace("<page>", pageNum < 0 ? "(All)" : String.valueOf(pageNum)).
-    replace("<pages>", String.valueOf(pages));
-    if (pageNum > pages) {
-    ret.add("There is no page " + pageNum + ". (" + pages + " pages total)");
-    } else {
-    if (listhead.length() > 0) {
-    ret.add(String.format(listhead, pageNum, pages));
-    }
-    listing = listing.replace("<item>", "%1$s").replace("<buyprice>", "%2$s").replace("<sellprice>", "%3$s");
-    if (pageNum <= 0) {
-    pageNum = 1;
-    pageSize = priceList.size();
-    }
-    for (int i = pageSize * (pageNum - 1), n = 0; n < pageSize && i < priceList.size(); ++i, ++n) {
-    if (!showIllegal && !priceList.get(i).IsLegal()) {
-    --n;
-    continue;
-    }
-    ret.add(String.format(listing, priceList.get(i).coloredName(),
-    String.format("%5s", priceList.get(i).buy <= 0 ? " No " : String.format("%01.2f", priceList.get(i).buy)),
-    String.format("%5s", priceList.get(i).sell <= 0 ? " No " : String.format("%01.2f", priceList.get(i).sell))));
-    }
-    if (footer != null && footer.length() > 0) {
-    ret.add(footer);
-    }
-    }
-    if (ret.size() > 2) {
-    // format spaces
-    return MinecraftFontWidthCalculator.alignTags(ret, true);
-    }
-    return ret;
-    }//*/
+    
     public Item[] getItems() throws SQLException, Exception {
         return (Item[]) getPricelistItems();
     }
