@@ -156,7 +156,13 @@ Cookies	integration:  http://forums.bukkit.org/threads/5327/
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
-Version 1.6.3 - ? - jascotty2
+Version 1.6.3.1 - 4/1/11 - jascotty2
+fixed chickens & buying more than one animal
+updated error reporting(again)
+rand libary update for my version of CookieMonster
+
+
+Version 1.6.3 - 4/1/11 - jascotty2
 fixed buy/sell == 0 ? no (in shoplist, 0 incorrectly showed as no)
 updated for 612 (and 600+ .. had accidently been using the wrong libary)
 LivingEntities can now be purchased! :D
@@ -184,7 +190,7 @@ strings have default values if missing
 auto error reporting added (can be disabled)
 now compatible with bukkit 602
 help main page integration can be disabled
-hidden changes to get one step closer to dynamic dricing
+hidden changes to get one step closer to dynamic pricing
 
 
 Version 1.6.2.5 - 3/28/11 - jascotty2

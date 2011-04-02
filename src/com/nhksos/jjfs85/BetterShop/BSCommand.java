@@ -586,7 +586,9 @@ public class BSCommand {
                     // drop in front of player?
                     //World w = player.getServer().getWorld(""); w.dropItem(player.getServer().getPlayer("").getLocation(), leftover.values());//.dropItem(
                 } else {
-                    CreatureItem.spawnNewWithOwner((Player) player, CreatureItem.getCreature(toBuy.ID()));
+                    for (int i = 0; i < amtbought; ++i) {
+                        CreatureItem.spawnNewWithOwner((Player) player, CreatureItem.getCreature(toBuy.ID()));
+                    }
                 }
                 BSutils.sendMessage(player, String.format(BetterShop.config.getString("buymsg").
                         replace("<item>", "%1$s").

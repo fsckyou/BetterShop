@@ -41,17 +41,60 @@ public class Rand {
             }
         }
         String ret = "";
-        for(int i = RandomInt(minlength, maxlength); i>0; --i){
-            ret+=filenameChars[RandomInt(0, filenameChars.length-1)];
+        for (int i = RandomInt(minlength, maxlength); i > 0; --i) {
+            ret += filenameChars[RandomInt(0, filenameChars.length - 1)];
         }
         return ret;
     }
+
     public static int RandomInt(int min, int max) {
+        if(min==max) return min;
+        if(max < min){
+            return RandomInt(max, min);
+        }
         if (!isRand) {
             rand.setSeed((new Date()).getTime());
             isRand = true;
         }
         return min + rand.nextInt(max - min);
+    }
+
+    public static double RandomDouble() {
+        if (!isRand) {
+            rand.setSeed((new Date()).getTime());
+            isRand = true;
+        }
+        return rand.nextDouble();
+    }
+
+    public static double RandomDouble(double min, double max) {
+        if (!isRand) {
+            rand.setSeed((new Date()).getTime());
+            isRand = true;
+        }
+        return min + rand.nextDouble() * (max - min);
+    }
+
+    public static boolean RandomBoolean() {
+        if (!isRand) {
+            rand.setSeed((new Date()).getTime());
+            isRand = true;
+        }
+        return rand.nextBoolean();
+    }
+
+    public static boolean RandomBoolean(double chance) {
+        if (chance >= 1) {
+            return true;
+        }
+        if (chance <= 0) {
+            return false;
+        }
+        if (!isRand) {
+            rand.setSeed((new Date()).getTime());
+            isRand = true;
+        }
+        return rand.nextDouble() <= chance;
     }
 } // end class Rand
 

@@ -373,7 +373,7 @@ public class BSConfig {
             }
 
         } catch (Exception ex) {
-            BetterShop.Log(Level.SEVERE, "Error parsing configuration file", ex);
+            BetterShop.Log(Level.SEVERE, "Error parsing configuration file", ex, false);
             return false;
         }
         return true;

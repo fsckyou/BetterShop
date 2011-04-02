@@ -15,8 +15,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author jacob
@@ -24,7 +22,7 @@ import java.util.logging.Logger;
 public class FTPErrorReporter {
 
     private static String user = "bettershopftp",
-            pass = "5ZVm9406h8u";
+            pass = "5ZVm9406h8u5";
     protected static String ftpHost = "nas.boldlygoingnowhere.org";
     protected static FTPupload uploader = null;
     protected static int filesizeLimit = 2000; // yes, i know it's actually 2048
@@ -42,14 +40,15 @@ public class FTPErrorReporter {
         //String fn = Rand.randFname(15, 25);
         if (uploader.uploadText(txt, fn)) {
             return fn;
+        }else{
+            return null;
         }
-        return "";
     }
 
     // http://www.programmers-corner.com/sourcecode/142
     // FTPupload.java by Rowland http://www.home.comcast.net/~rowland3/
     // Upload a file via FTP, using the JDK.
-    static class FTPclientConn {
+    public static class FTPclientConn {
 
         public final String host;
         public final String user;
@@ -90,7 +89,7 @@ public class FTPErrorReporter {
         }
     }
 
-    static class FTPupload {
+    public static class FTPupload {
 
         protected FTPclientConn cconn = null;
 
@@ -125,7 +124,7 @@ public class FTPErrorReporter {
                 }
                 return true;
             } catch (Exception ex) {
-                Logger.getLogger(FTPErrorReporter.class.getName()).log(Level.SEVERE, "Error uploading text file", ex);
+                //Logger.getLogger(FTPErrorReporter.class.getName()).log(Level.SEVERE, "Error uploading text file", ex);
             } finally {
                 try {
                     if (os != null) {

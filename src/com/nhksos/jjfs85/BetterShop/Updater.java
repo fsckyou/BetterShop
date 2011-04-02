@@ -151,11 +151,11 @@ public class Updater extends InstallDependency {
             }
         } catch (MalformedURLException ex) {
             if (log) {
-                BetterShop.Log(Level.WARNING, "unexpected invalid url", ex);
+                BetterShop.Log(Level.WARNING, "unexpected invalid url");//, ex);
             }
         } catch (IOException ex) {
             if (log) {
-                BetterShop.Log(Level.WARNING, "failed to check for updates", ex);
+                BetterShop.Log(Level.WARNING, "failed to check for updates");//, ex);
             }
         } catch (Exception ex) {
             if (log) {

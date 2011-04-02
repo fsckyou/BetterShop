@@ -50,4 +50,34 @@ public class Str {
         }
         return false;
     }
+
+    public static int count(String str, String find) {
+        int c = 0;
+        for (int i = 0; i < str.length() - find.length(); ++i) {
+            if (str.substring(i, i + find.length()).equals(find)) {
+                ++c;
+            }
+        }
+        return c;
+    }
+
+    public static int count(String str, char find) {
+        int c = 0;
+        for (int i = 0; i < str.length(); ++i) {
+            if (str.charAt(i) == find) {
+                ++c;
+            }
+        }
+        return c;
+    }
+
+    public static int countIgnoreCase(String str, String find) {
+        int c = 0;
+        for (int i = 0; i < str.length() - find.length(); ++i) {
+            if (str.substring(i, i + find.length()).equalsIgnoreCase(find)) {
+                ++c;
+            }
+        }
+        return c;
+    }
 } // end class Str

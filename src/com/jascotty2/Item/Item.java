@@ -134,6 +134,26 @@ public class Item {
         return itemId >= 0;
     }
 
+    public static Item fromIDD(String idd) {
+        if (idd.contains(":")) {
+            if (idd.length() > idd.indexOf(":")
+                    && CheckInput.IsInt(idd.substring(0, idd.indexOf(":")))
+                    && CheckInput.IsByte(idd.substring(idd.indexOf(":") + 1))) {
+                int itemId = CheckInput.GetInt(idd.substring(0, idd.indexOf(":")), -1);
+                byte itemData = CheckInput.GetByte(idd.substring(idd.indexOf(":") + 1), (byte) -1);
+                if (itemId >= 0 && itemData >= 0) {
+                    return new Item(itemId, itemData);
+                }
+            }
+        } else {
+            int itemId = CheckInput.GetInt(idd, -1);
+            if (itemId >= 0) {
+                return new Item(itemId);
+            }
+        }
+        return null;
+    }
+
     public final void SetItem(Item copy) {
         itemAliases.clear();
         subAliases.clear();

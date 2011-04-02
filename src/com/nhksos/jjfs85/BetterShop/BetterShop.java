@@ -38,7 +38,7 @@ import com.jascotty2.MinecraftIM.MinecraftIM;
  */
 public class BetterShop extends JavaPlugin {
 
-    public final static String lastUpdatedStr = "4/01/11 12:00 -0500"; // "MM/dd/yy HH:mm Z"
+    public final static String lastUpdatedStr = "4/01/11 19:30 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
@@ -376,9 +376,9 @@ public class BetterShop extends JavaPlugin {
             return bscommand.help(sender, args);
         } else if (commandName.equals("shopbuy")) {
             /*if (args.length == 1
-                    && CreatureItem.creatureExists(args[0])
-                    && sender instanceof Player) {
-                CreatureItem.spawnNewWithOwner((Player) sender, CreatureItem.getCreature(args[0]));
+            && CreatureItem.creatureExists(args[0])
+            && sender instanceof Player) {
+            CreatureItem.spawnNewWithOwner((Player) sender, CreatureItem.getCreature(args[0]));
             }*/
             return bscommand.buy(sender, args);
         } else if (commandName.equals("shopbuyall")) {
@@ -480,20 +480,27 @@ public class BetterShop extends JavaPlugin {
             return "";
         }
         String stack = "";
-        StackTraceElement[] st = err.getCause().getStackTrace();
+        StackTraceElement[] st = null;
+        if (err.getCause().getCause() != null) {
+            st = err.getCause().getCause().getStackTrace();
+        }
+        if (st == null || st.length == 0) {
+            st = err.getCause().getStackTrace();
+        }
         for (StackTraceElement e : st) {
             stack += e.toString() + "\n";
         }
+        /*
         if (err.getLocalizedMessage() != null) {
-            stack += err.getLocalizedMessage();
-            if (err.getCause().getCause() != null) {
-                st = err.getCause().getCause().getStackTrace();
+        stack += err.getLocalizedMessage();
+        if (err.getCause().getCause() != null) {
+        st = err.getCause().getCause().getStackTrace();
 
-                for (StackTraceElement e : st) {
-                    stack += e.toString() + "\n";
-                }
-            }
+        for (StackTraceElement e : st) {
+        stack += e.toString() + "\n";
         }
+        }
+        }*/
         return stack;
     }
     static Date sentErrors[] = new Date[5];
@@ -528,9 +535,10 @@ public class BetterShop extends JavaPlugin {
                     + "Permissions: " + (Permissions != null ? "true" : "false") + "\n"
                     + "Last executed command: " + lastCommand + "\n"
                     + (config != null ? config.condensedSettings() : "-") + "," + (pcount >= 0 ? pcount : "-") + "\n"
-                    + "Message: " + (txt != null ? txt : err != null ? err.getMessage() : "") + "\n"
+                    + "Message: " + (txt != null ? txt : "") + "\n"
+                    + (err.getMessage() != null && err.getMessage().length() > 0 ? err.getMessage() + "\n" : "")
                     + (err.getLocalizedMessage() != null && err.getLocalizedMessage().length() > 0 ? err.getLocalizedMessage() + "\n" : "")
-                    + (err != null ? getStackStr(err) : "") + "\n");
+                    + getStackStr(err) + "\n");
             if (fname.length() > 0) {
                 System.out.println("report sent. id: " + fname);
             }

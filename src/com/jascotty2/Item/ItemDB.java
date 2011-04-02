@@ -178,7 +178,7 @@ public class ItemDB extends Item {
                         n = itemdb.getNode("entities." + k);
                         if (n != null) {
                             int eid = CheckInput.GetInt(k.substring(6), -1);
-                            if (eid >= 1) {
+                            if (eid >= 0) {
                                 CreatureItem citem = new CreatureItem(eid);
                                 Item item = new Item(eid + 4000);
                                 item.name = n.getString("name", "null");
