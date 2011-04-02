@@ -20,6 +20,7 @@ import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -35,7 +36,7 @@ public class Updater extends InstallDependency {
     public static String downloadLink = "/downloads/jascotty2/BetterShop/BetterShop.jar";
     public static String altDownloadPage = "https://github.com/BetterShop/BetterShop/downloads";
     public static String altDownloadLink = "/downloads/BetterShop/BetterShop/BetterShop.jar";
-    public static String suid = null;
+    public static String suid = null, sip = null;
 
     public Updater() {
     } // end default constructor
@@ -202,8 +203,12 @@ public class Updater extends InstallDependency {
         //*/
         return false;
     }
-
+    
     public static String serverUID() {
+        return serverUID(true);
+    }
+
+    public static String serverUID(boolean useMask) {
         if (suid == null) {
 
             String ips = "";
@@ -227,6 +232,7 @@ public class Updater extends InstallDependency {
             } catch (Exception ex) {
                 ips += ":ukh";
             }
+            sip = ips;
             try {
                 suid = md5Str(ips);
             } catch (Exception ex) {
@@ -234,7 +240,7 @@ public class Updater extends InstallDependency {
                 suid = ips;
             }
         }
-        return suid;
+        return useMask ? suid : sip;
     }
 
     public static String md5Str(String txt) throws NoSuchAlgorithmException {
@@ -247,13 +253,17 @@ public class Updater extends InstallDependency {
             'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S',
             'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M'};
         for (byte b : hash) {
-            ret += chars[((int)b + 255) % chars.length];
+            ret += chars[((int) b + 255) % chars.length];
         }
         return ret;
     }
 
-    // reads the server log for this info
     public static String getBukkitVersion() {
+        return getBukkitVersion(false);
+    }
+
+    // reads the server log for this info
+    public static String getBukkitVersion(boolean includeStart) {
         File slog = new File("server.log");
         if (slog.exists() && slog.canRead()) {
             FileReader fstream = null;
@@ -265,10 +275,16 @@ public class Updater extends InstallDependency {
                 String line = "";
                 while ((line = in.readLine()) != null) {
                     if (line.contains("This server is running Craftbukkit version git-Bukkit-")) {
-                        ver = line.substring(line.indexOf("git-Bukkit-"));
+                        ver = line;
                     }
                 }
-                return ver;
+                if (ver.length() > 0) {
+                    return !includeStart ? ver.substring(ver.indexOf("git-Bukkit-")) :
+                        ver.substring(ver.indexOf("git-Bukkit-")) + "\nStartTime: " + ver.substring(0, 19)
+                            + "  (" + serverRunTimeSpan(ver.substring(0, 19)) + ")";
+                } else {
+                    return "?";
+                }
             } catch (Exception ex) {
                 Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
@@ -280,6 +296,45 @@ public class Updater extends InstallDependency {
 
         }
         return "?";
+    }
+
+    public static String serverRunTimeSpan(String startTime) {
+        Date uploadDate = null;
+        try {
+            // 2011-04-01 21:35:22
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
+            uploadDate = formatter.parse(startTime.trim());
+        } catch (ParseException ex) {
+            Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, "Error parsing log start date", ex);
+            return ex.getMessage();
+        }
+        long sec = ((new Date()).getTime() - uploadDate.getTime()) / 1000;
+        int mon = (int) (sec / 2592000);
+        sec -= mon * 2592000;
+
+        int day = (int) (sec / 86400);
+        sec -= day * 86400;
+
+        int hr = (int) (sec / 3600);
+        sec -= hr * 3600;
+
+        int min = (int) (sec / 60);
+        sec = sec % 60;
+
+        String timeSpan = "";
+        if (mon > 0) {
+            timeSpan += mon + " Months, ";
+        }
+        if (day > 0) {
+            timeSpan += day + " Days, ";
+        }
+        if (hr > 0) {
+            timeSpan += hr + " Hours, ";
+        }
+        if (min > 0) {
+            timeSpan += min + " Minutes, ";
+        }
+        return timeSpan + sec + " Sec";
     }
 } // end class Updater
 

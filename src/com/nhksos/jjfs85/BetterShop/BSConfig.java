@@ -28,7 +28,7 @@ public class BSConfig {
     public final static File pluginFolder = new File("plugins", BetterShop.name);
     public final static File configfile = new File(pluginFolder, configname);
     // plugin settings
-    public boolean checkUpdates = true, sendErrorReports = true;
+    public boolean checkUpdates = true, sendErrorReports = true, unMaskErrorID = false;
     public boolean sendLogOnError = true, sendAllLog = false;
     public boolean hideHelp = false;
     // database information
@@ -99,6 +99,7 @@ public class BSConfig {
                 allKeys.put("", new String[]{
                             "CheckForUpdates",
                             "AutoErrorReporting",
+                            "UnMaskErrorID",
                             "ItemsPerPage",
                             "publicmarket",
                             "customsort",
@@ -168,7 +169,11 @@ public class BSConfig {
                             "donthave",
                             "donotwant",
                             "sellmsg",
-                            "publicsellmsg"
+                            "publicsellmsg",
+                            "outofstock",
+                            "lowstock",
+                            "maxstock",
+                            "highstock"
                         });
                 String allowNull[] = new String[]{"customsort", "strings.listhead", "strings.listtail"};
                 //ArrayList<String> missing = new ArrayList<String>();
@@ -209,6 +214,7 @@ public class BSConfig {
 
             checkUpdates = config.getBoolean("CheckForUpdates", checkUpdates);
             sendErrorReports = config.getBoolean("AutoErrorReporting", sendErrorReports);
+            unMaskErrorID = config.getBoolean("UnMaskErrorID", unMaskErrorID);
 
             pagesize = config.getInt("ItemsPerPage", pagesize);
             publicmarket = config.getBoolean("publicmarket", publicmarket);

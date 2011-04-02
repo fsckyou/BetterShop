@@ -132,7 +132,6 @@ more descriptive kit listing, similar to shoplist... also show items in each kit
 dynamic market pricing, based off of logged market activity
 region shops (items added while in a region defined as a shop are only added to that shop)
 add option for amount in stock for surplus decreases how much item is worth to the shop (not influenced by market activity)
-add stock messages to config
 /shop alias <item> - show the itemname, with a list of aliases
 add pages for /shopitems
 SQLite support?
@@ -155,6 +154,11 @@ Cookies	integration:  http://forums.bukkit.org/threads/5327/
 ===============================================================================
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
+
+Version 1.6.3.2 - 4/2/11 - jascotty2
+fixed more error reporting bugs (still can't find one stupid stock flatfile bug)
+added stock messages to config
+
 
 Version 1.6.3.1 - 4/1/11 - jascotty2
 fixed chickens & buying more than one animal

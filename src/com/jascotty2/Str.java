@@ -4,14 +4,17 @@
  * Description:
  * Date: Mar 31, 2011
  */
-
 package com.jascotty2;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * @author jacob
  */
-public class Str {
+public class Str extends OutputStream {
 
+    public String text = "";
 
     public static String argStr(String[] s) {
         return argStr(s, " ");
@@ -80,4 +83,10 @@ public class Str {
         }
         return c;
     }
+
+    @Override
+    public void write(int b) throws IOException {
+        text += (char) b;
+    }
 } // end class Str
+

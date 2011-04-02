@@ -32,6 +32,7 @@ import com.nijiko.coelho.iConomy.system.Bank;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import me.taylorkelly.help.Help;
 import com.jascotty2.MinecraftIM.MinecraftIM;
+import java.io.PrintWriter;
 
 /*
  * BetterShop for Bukkit
@@ -429,8 +430,8 @@ public class BetterShop extends JavaPlugin {
 
     public static void Log(Level loglevel, String txt, boolean sendReport) {
         logger.log(loglevel, String.format("[%s] %s", name, txt == null ? "" : txt));
-        if (sendReport && config != null) {
-            if (loglevel.intValue() > Level.WARNING.intValue() && config.sendErrorReports) {
+        if (config != null) {
+            if (sendReport && loglevel.intValue() > Level.WARNING.intValue() && config.sendErrorReports) {
                 sendErrorReport(txt, null);
             }
             if (messenger != null && loglevel.intValue() > Level.INFO.intValue() && config.sendLogOnError) {
@@ -448,8 +449,8 @@ public class BetterShop extends JavaPlugin {
             Log(loglevel, params);
         } else {
             logger.log(loglevel, String.format("[%s] %s", name, txt == null ? "" : txt), (Exception) params);
-            if (sendReport && config != null) {
-                if (loglevel.intValue() > Level.WARNING.intValue() && config.sendErrorReports) {
+            if (config != null) {
+                if (sendReport && loglevel.intValue() > Level.WARNING.intValue() && config.sendErrorReports) {
                     sendErrorReport(txt, params);
                 }
                 if (messenger != null && loglevel.intValue() > Level.INFO.intValue() && config.sendLogOnError) {
@@ -465,8 +466,8 @@ public class BetterShop extends JavaPlugin {
 
     public static void Log(Level loglevel, Exception err, boolean sendReport) {
         logger.log(loglevel, String.format("[%s] %s", name, err == null ? "? unknown exception ?" : err.getMessage()), err);
-        if (sendReport && config != null) {
-            if (loglevel.intValue() > Level.WARNING.intValue() && config.sendErrorReports) {
+        if (config != null) {
+            if (sendReport && loglevel.intValue() > Level.WARNING.intValue() && config.sendErrorReports) {
                 sendErrorReport(null, err);
             }
             if (messenger != null && loglevel.intValue() > Level.INFO.intValue() && config.sendLogOnError) {
@@ -476,35 +477,19 @@ public class BetterShop extends JavaPlugin {
     }
 
     public static String getStackStr(Exception err) {
-        if (err == null || err.getCause() == null) {
+        if (err == null) {// || err.getCause() == null) {
             return "";
         }
-        String stack = "";
-        StackTraceElement[] st = null;
-        if (err.getCause().getCause() != null) {
-            st = err.getCause().getCause().getStackTrace();
-        }
-        if (st == null || st.length == 0) {
-            st = err.getCause().getStackTrace();
-        }
-        for (StackTraceElement e : st) {
-            stack += e.toString() + "\n";
-        }
-        /*
-        if (err.getLocalizedMessage() != null) {
-        stack += err.getLocalizedMessage();
-        if (err.getCause().getCause() != null) {
-        st = err.getCause().getCause().getStackTrace();
-
-        for (StackTraceElement e : st) {
-        stack += e.toString() + "\n";
-        }
-        }
-        }*/
-        return stack;
+        Str stackoutstream = new Str();
+        PrintWriter stackstream = new PrintWriter(stackoutstream);
+        err.printStackTrace(stackstream);
+        stackstream.flush();
+        stackstream.close();
+        return stackoutstream.text;
+        
     }
     static Date sentErrors[] = new Date[5];
-    static long minSendWait = 600; // min time before a send expires
+    static final long minSendWait = 600; // min time before a send expires
 
     static void sendErrorReport(String txt, Exception err) {
         boolean allow = false;
@@ -527,20 +512,23 @@ public class BetterShop extends JavaPlugin {
 
             String fname = FTPErrorReporter.SendNewText(
                     "BetterShop Error Report at " + (new Date()).toString() + "\n"
-                    + "SUID: " + Updater.serverUID() + "\n"
-                    + "Machine: " + System.getProperty("os.name") + " " + System.getProperty("os.arch") + "," + System.getProperty("user.dir")
-                    + "Bukkit: " + Updater.getBukkitVersion() + "\n"
+                    + "SUID: " + Updater.serverUID(!config.unMaskErrorID) + "\n"
+                    + "Machine: " + System.getProperty("os.name") + " " + System.getProperty("os.arch") + "," + System.getProperty("user.dir") + "\n"
+                    + "Bukkit: " + Updater.getBukkitVersion(true) + "\n"
                     + "Version: " + pdfFile.getVersion() + "  (" + lastUpdatedStr + ")\n"
                     + "iConomy: " + (iConomy != null ? ((Plugin) iConomy).getDescription().getVersion() : "none") + "\n"
                     + "Permissions: " + (Permissions != null ? "true" : "false") + "\n"
                     + "Last executed command: " + lastCommand + "\n"
                     + (config != null ? config.condensedSettings() : "-") + "," + (pcount >= 0 ? pcount : "-") + "\n"
-                    + "Message: " + (txt != null ? txt : "") + "\n"
-                    + (err.getMessage() != null && err.getMessage().length() > 0 ? err.getMessage() + "\n" : "")
-                    + (err.getLocalizedMessage() != null && err.getLocalizedMessage().length() > 0 ? err.getLocalizedMessage() + "\n" : "")
+                    + "Message: " + (txt != null ? txt : err.getMessage() != null && err.getMessage().length() > 0 ? err.getMessage() : "") + "\n"
+                    + (err.getLocalizedMessage() != null && err.getLocalizedMessage().length() > 0
+                    && (err.getMessage() == null || !err.getMessage().equals(err.getLocalizedMessage())) ? err.getLocalizedMessage() + "\n" : "")
                     + getStackStr(err) + "\n");
-            if (fname.length() > 0) {
+            if (fname != null && fname.length() > 0) {
                 System.out.println("report sent. id: " + fname);
+            } else {
+                System.out.println("Error report unable to send.. is the server online & BetterShop up-to-date?");
+                System.out.println("(if yes, then the error tracker is likely temporarily offline)");
             }
         } //else {  System.out.println("sending too fast.."); }
     }
