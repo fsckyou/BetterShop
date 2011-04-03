@@ -8,6 +8,7 @@ package com.jascotty2;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 
 /**
  * @author jacob
@@ -82,6 +83,20 @@ public class Str extends OutputStream {
             }
         }
         return c;
+    }
+
+
+    public static String getStackStr(Exception err) {
+        if (err == null) {// || err.getCause() == null) {
+            return "";
+        }
+        Str stackoutstream = new Str();
+        PrintWriter stackstream = new PrintWriter(stackoutstream);
+        err.printStackTrace(stackstream);
+        stackstream.flush();
+        stackstream.close();
+        return stackoutstream.text;
+
     }
 
     @Override

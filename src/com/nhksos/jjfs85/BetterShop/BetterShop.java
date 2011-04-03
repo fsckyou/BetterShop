@@ -25,21 +25,20 @@ import java.util.Date;
 import com.jascotty2.FTPErrorReporter;
 import com.jascotty2.Item.ItemDB;
 import com.jascotty2.Str;
-import com.fullwall.MonsterTamer.EntityListen;
+import com.fullwall.MonsterTamer_1_3.EntityListen;
 
 import com.nijiko.coelho.iConomy.iConomy;
 import com.nijiko.coelho.iConomy.system.Bank;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import me.taylorkelly.help.Help;
 import com.jascotty2.MinecraftIM.MinecraftIM;
-import java.io.PrintWriter;
 
 /*
  * BetterShop for Bukkit
  */
 public class BetterShop extends JavaPlugin {
 
-    public final static String lastUpdatedStr = "4/01/11 19:30 -0500"; // "MM/dd/yy HH:mm Z"
+    public final static String lastUpdatedStr = "4/03/11 17:00 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
@@ -454,7 +453,7 @@ public class BetterShop extends JavaPlugin {
                     sendErrorReport(txt, params);
                 }
                 if (messenger != null && loglevel.intValue() > Level.INFO.intValue() && config.sendLogOnError) {
-                    messenger.sendNotify(String.format("[%s] %s%n%s%n%s", name, txt, params.getMessage(), getStackStr(params)));
+                    messenger.sendNotify(String.format("[%s] %s%n%s%n%s", name, txt, params.getMessage(), Str.getStackStr(params)));
                 }
             }
         }
@@ -471,22 +470,9 @@ public class BetterShop extends JavaPlugin {
                 sendErrorReport(null, err);
             }
             if (messenger != null && loglevel.intValue() > Level.INFO.intValue() && config.sendLogOnError) {
-                messenger.sendNotify(String.format("[%s] %s%n%s%n%s", name, err == null ? "? unknown exception ?" : err.getMessage(), getStackStr(err)));
+                messenger.sendNotify(String.format("[%s] %s%n%s%n%s", name, err == null ? "? unknown exception ?" : err.getMessage(), Str.getStackStr(err)));
             }
         }
-    }
-
-    public static String getStackStr(Exception err) {
-        if (err == null) {// || err.getCause() == null) {
-            return "";
-        }
-        Str stackoutstream = new Str();
-        PrintWriter stackstream = new PrintWriter(stackoutstream);
-        err.printStackTrace(stackstream);
-        stackstream.flush();
-        stackstream.close();
-        return stackoutstream.text;
-        
     }
     static Date sentErrors[] = new Date[5];
     static final long minSendWait = 600; // min time before a send expires
@@ -513,6 +499,7 @@ public class BetterShop extends JavaPlugin {
             String fname = FTPErrorReporter.SendNewText(
                     "BetterShop Error Report at " + (new Date()).toString() + "\n"
                     + "SUID: " + Updater.serverUID(!config.unMaskErrorID) + "\n"
+                    + (config.customErrorMessage.length() > 0 ? config.customErrorMessage + "\n" : "")
                     + "Machine: " + System.getProperty("os.name") + " " + System.getProperty("os.arch") + "," + System.getProperty("user.dir") + "\n"
                     + "Bukkit: " + Updater.getBukkitVersion(true) + "\n"
                     + "Version: " + pdfFile.getVersion() + "  (" + lastUpdatedStr + ")\n"
@@ -523,7 +510,7 @@ public class BetterShop extends JavaPlugin {
                     + "Message: " + (txt != null ? txt : err.getMessage() != null && err.getMessage().length() > 0 ? err.getMessage() : "") + "\n"
                     + (err.getLocalizedMessage() != null && err.getLocalizedMessage().length() > 0
                     && (err.getMessage() == null || !err.getMessage().equals(err.getLocalizedMessage())) ? err.getLocalizedMessage() + "\n" : "")
-                    + getStackStr(err) + "\n");
+                    + Str.getStackStr(err) + "\n");
             if (fname != null && fname.length() > 0) {
                 System.out.println("report sent. id: " + fname);
             } else {

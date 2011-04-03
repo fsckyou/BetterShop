@@ -466,6 +466,10 @@ items:
         name: RepeaterBlockOn
         aliases:
         legal: false
+    item95:
+        name: LockedChest
+        aliases:
+        legal: false
 # items
     item256:
         name: IronShovel
@@ -919,7 +923,7 @@ items:
         name: FishingRod
         aliases: rod
         craft: 280@3+287@2
-        maxstack: 1
+        #maxstack: 1
         maxdamage: 33
     item347:
         name: Clock

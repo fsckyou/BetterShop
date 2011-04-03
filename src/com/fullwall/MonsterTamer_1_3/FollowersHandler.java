@@ -1,4 +1,4 @@
-package com.fullwall.MonsterTamer;
+package com.fullwall.MonsterTamer_1_3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ import org.bukkit.entity.Creature;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
-import com.fullwall.MonsterTamer.DirectionUtils.CompassDirection;
+import com.fullwall.MonsterTamer_1_3.DirectionUtils.CompassDirection;
 import org.bukkit.Server;
 
 public class FollowersHandler implements Runnable {

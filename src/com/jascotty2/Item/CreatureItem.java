@@ -6,7 +6,7 @@
  */
 package com.jascotty2.Item;
 
-import com.fullwall.MonsterTamer.MonsterTamer;
+import com.fullwall.MonsterTamer_1_3.MonsterTamer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.bukkit.Location;

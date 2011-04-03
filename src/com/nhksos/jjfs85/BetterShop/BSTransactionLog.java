@@ -63,6 +63,7 @@ public class BSTransactionLog extends TransactionLog{
                 return isLoaded = false;
             }
         }else{
+            MySQLconnection = null;
             flatFile = new File(BSConfig.pluginFolder.getAbsolutePath() + File.separatorChar + BetterShop.config.transLogTablename + ".csv");
             totalsFlatFile = new File(BSConfig.pluginFolder.getAbsolutePath() + File.separatorChar + BetterShop.config.recordTablename + ".csv");
         }

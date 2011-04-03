@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -184,8 +185,8 @@ public class BSCommand {
                             i.coloredName(),
                             BetterShop.config.currency(),
                             (price.IsLegal() || canBuyIllegal) && price.buy >= 0
-                            ? BetterShop.iConomy.getBank().format(price.buy) : "No",
-                            price.sell >= 0 ? BetterShop.iConomy.getBank().format(price.sell) : "No",
+                            ? BSutils.formatCurrency(price.buy) : "No",
+                            price.sell >= 0 ? BSutils.formatCurrency(price.sell) : "No",
                             BetterShop.stock == null ? "INF" : BetterShop.stock.getItemAmount(i)));
                 } else if (lookup.length <= 5) { // only show nolisting if result page is 5 or less lines
                     BSutils.sendMessage(player,
@@ -345,15 +346,15 @@ public class BSCommand {
 
         Item toAdd = Item.findItem(s[0]);
         if (toAdd == null) {
-            BSutils.sendMessage(player, String.format(BetterShop.config.getString("unkitem").
-                    replace("<item>", "%s"), s[0]));
+            BSutils.sendMessage(player,
+                    BetterShop.config.getString("unkitem").replaceAll("<item>", s[0]));
             return false;
         }
 
         if (CheckInput.IsDouble(s[1]) && CheckInput.IsDouble(s[2])) {
             if (CheckInput.GetDouble(s[1], -1) > PriceList.MAX_PRICE
                     || CheckInput.GetDouble(s[2], -1) > PriceList.MAX_PRICE) {
-                BSutils.sendMessage(player, "Price set too high. Max = " + BetterShop.iConomy.getBank().format(PriceList.MAX_PRICE));
+                BSutils.sendMessage(player, "Price set too high. Max = " + BSutils.formatCurrency(PriceList.MAX_PRICE));
                 return true;
             } else if (toAdd.isKit() && CheckInput.GetDouble(s[2], -1) >= 0) {
                 BSutils.sendMessage(player, "Note: Kits cannot be sold");
@@ -378,8 +379,8 @@ public class BSCommand {
                                 BetterShop.pricelist.getBuyPrice(toAdd),
                                 BetterShop.pricelist.getSellPrice(toAdd),
                                 BetterShop.config.currency(),
-                                BetterShop.iConomy.getBank().format(BetterShop.pricelist.getBuyPrice(toAdd)),
-                                BetterShop.iConomy.getBank().format(BetterShop.pricelist.getSellPrice(toAdd))),
+                                BSutils.formatCurrency(BetterShop.pricelist.getBuyPrice(toAdd)),
+                                BSutils.formatCurrency(BetterShop.pricelist.getSellPrice(toAdd))),
                                 BetterShop.config.publicmarket);
                     } else {
                         if (BetterShop.config.useItemStock && BetterShop.stock != null) {
@@ -397,8 +398,8 @@ public class BSCommand {
                                 BetterShop.pricelist.getBuyPrice(toAdd),
                                 BetterShop.pricelist.getSellPrice(toAdd),
                                 BetterShop.config.currency(),
-                                BetterShop.iConomy.getBank().format(BetterShop.pricelist.getBuyPrice(toAdd)),
-                                BetterShop.iConomy.getBank().format(BetterShop.pricelist.getSellPrice(toAdd))),
+                                BSutils.formatCurrency(BetterShop.pricelist.getBuyPrice(toAdd)),
+                                BSutils.formatCurrency(BetterShop.pricelist.getSellPrice(toAdd))),
                                 BetterShop.config.publicmarket);
                     }
                     return true;
@@ -463,6 +464,9 @@ public class BSCommand {
         if (toBuy == null) {
             BSutils.sendMessage(player, String.format(BetterShop.config.getString("unkitem").replace("<item>", "%1$s"), s[0]));
             return true;
+        } else if (toBuy.ID() <= 0) {
+            BSutils.sendMessage(player, toBuy.name + " Cannot be Bought");//, toBuy.coloredName());
+            return true;
         } else if (!BetterShop.config.allowbuyillegal && !toBuy.IsLegal() && !BSutils.hasPermission(player, "BetterShop.admin.illegal", false)) {
             BSutils.sendMessage(player, String.format(BetterShop.config.getString("illegalbuy").
                     replace("<item>", "%1$s"), toBuy.coloredName()));
@@ -514,13 +518,7 @@ public class BSCommand {
         } else {
             canHold = BetterShop.config.maxEntityPurchase;
         }
-        /*
-        for (int i = 0; i <= 35; ++i) {
-        ItemStack it = inv.getItem(i);
-        if (toBuy.equals(it) || it.getAmount() == 0) {
-        canHold += maxStack - it.getAmount();
-        }
-        }//*/
+
         if (s.length == 2) {
             if (s[1].equalsIgnoreCase("all")) {
                 amtbought = canHold;
@@ -568,54 +566,55 @@ public class BSCommand {
             }
         }
         double cost = amtbought * price;
-        try {
-            if (cost == 0 || BSutils.debit(player, cost)) {
-                if (!toBuy.isEntity()) {
-                    if (maxStack == 64) { //((Player) player).getInventory().addItem(toBuy.toItemStack(amtbought));
-                        inv.addItem(toBuy.toItemStack(amtbought));
-                    } else {
-                        int amtLeft = amtbought;
-                        for (int i = 0; i <= 35; ++i) {
-                            ItemStack it = inv.getItem(i);
-                            if (it.getAmount() == 0 || (toBuy.equals(it) && it.getAmount() < maxStack)) {
-                                inv.setItem(i, toBuy.toItemStack((maxStack < amtLeft ? maxStack : amtLeft) + it.getAmount()));
-                                amtLeft -= maxStack;
-                            }
-                            if (amtLeft <= 0) {
-                                break;
-                            }
-                        }
+
+        if (cost == 0 || BSutils.debit(player, cost)) {
+            if (!toBuy.isEntity()) {
+                //if (maxStack == 64) { //((Player) player).getInventory().addItem(toBuy.toItemStack(amtbought));
+                //    inv.addItem(toBuy.toItemStack(amtbought));
+                //} else {
+                int amtLeft = amtbought;
+                for (int i = 0; i <= 35; ++i) {
+                    ItemStack it = inv.getItem(i);
+                    if (it.getAmount() == 0 || (toBuy.equals(it) && it.getAmount() < maxStack)) {
+                        inv.setItem(i, toBuy.toItemStack((maxStack < amtLeft ? maxStack : amtLeft) + it.getAmount()));
+                        amtLeft -= maxStack;
                     }
-                    // drop in front of player?
-                    //World w = player.getServer().getWorld(""); w.dropItem(player.getServer().getPlayer("").getLocation(), leftover.values());//.dropItem(
-                } else {
-                    for (int i = 0; i < amtbought; ++i) {
-                        CreatureItem.spawnNewWithOwner((Player) player, CreatureItem.getCreature(toBuy.ID()));
+                    if (amtLeft <= 0) {
+                        break;
                     }
                 }
-                BSutils.sendMessage(player, String.format(BetterShop.config.getString("buymsg").
+                //}
+                // drop in front of player?
+                //World w = player.getServer().getWorld(""); w.dropItem(player.getServer().getPlayer("").getLocation(), leftover.values());//.dropItem(
+            } else {
+                for (int i = 0; i < amtbought; ++i) {
+                    CreatureItem.spawnNewWithOwner((Player) player, CreatureItem.getCreature(toBuy.ID()));
+                }
+            }
+            BSutils.sendMessage(player, String.format(BetterShop.config.getString("buymsg").
+                    replace("<item>", "%1$s").
+                    replace("<amt>", "%2$d").
+                    replace("<priceper>", "%3$01.2f").
+                    replace("<total>", "%4$01.2f").
+                    replace("<curr>", "%5$s").
+                    replace("<totcur>", "%6$s"),
+                    toBuy.coloredName(), amtbought, price, cost,
+                    BetterShop.config.currency(), BSutils.formatCurrency(cost)));
+
+            if (BetterShop.config.publicmarket && BetterShop.config.hasString("publicbuymsg")) {
+                BSutils.broadcastMessage(player, String.format(BetterShop.config.getString("publicbuymsg").
                         replace("<item>", "%1$s").
                         replace("<amt>", "%2$d").
                         replace("<priceper>", "%3$01.2f").
                         replace("<total>", "%4$01.2f").
                         replace("<curr>", "%5$s").
-                        replace("<totcur>", "%6$s"),
+                        replace("<totcur>", "%6$s").
+                        replace("<player>", "%7$s"),
                         toBuy.coloredName(), amtbought, price, cost,
-                        BetterShop.config.currency(), BetterShop.iConomy.getBank().format(cost)));
+                        BetterShop.config.currency(), BSutils.formatCurrency(cost), ((Player) player).getDisplayName()), false);
+            }
 
-                if (BetterShop.config.publicmarket && BetterShop.config.hasString("publicbuymsg")) {
-                    BSutils.broadcastMessage(player, String.format(BetterShop.config.getString("publicbuymsg").
-                            replace("<item>", "%1$s").
-                            replace("<amt>", "%2$d").
-                            replace("<priceper>", "%3$01.2f").
-                            replace("<total>", "%4$01.2f").
-                            replace("<curr>", "%5$s").
-                            replace("<totcur>", "%6$s").
-                            replace("<player>", "%7$s"),
-                            toBuy.coloredName(), amtbought, price, cost,
-                            BetterShop.config.currency(), BetterShop.iConomy.getBank().format(cost), ((Player) player).getDisplayName()), false);
-                }
-
+            try {
                 if (BetterShop.stock != null && BetterShop.config.useItemStock) {
                     BetterShop.stock.changeItemAmount(toBuy, -amtbought);
                 }
@@ -623,31 +622,23 @@ public class BSCommand {
                 BetterShop.transactions.addRecord(new UserTransaction(
                         toBuy, false, amtbought, price, ((Player) player).getDisplayName()));
 
-                return true;
-            } else {
-                BSutils.sendMessage(player, String.format(BetterShop.config.getString("insuffunds").
-                        replace("<item>", "%1$s").
-                        replace("<amt>", "%2$d").
-                        replace("<total>", "%3$01.2f").
-                        replace("<curr>", "%5$s").
-                        replace("<priceper>", "%4$01.2f").
-                        replace("<totcur>", "%6$s"), toBuy.coloredName(),
-                        amtbought, cost, price, BetterShop.config.currency(),
-                        BetterShop.iConomy.getBank().format(price)));
-                return true;
+            } catch (Exception ex) {
+                Logger.getLogger(BSCommand.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (Exception e) {
-            BetterShop.Log("Error while debiting player.. possible iConomy crash? (attempting to reload iConomy)");
-            BetterShop.Log(Level.SEVERE, e);
-            BSutils.sendMessage(player, "Error while debiting player.. possible iConomy crash? ");
-            BSutils.sendMessage(player, "Attempting reload.. ");
-            if (BSutils.reloadIConomy(player.getServer())) {
-                BSutils.sendMessage(player, "Success! Please try again.. ");
-                return true;
-            }
-            BSutils.sendMessage(player, "Failed.");
+            return true;
+        } else {
+            BSutils.sendMessage(player, String.format(BetterShop.config.getString("insuffunds").
+                    replace("<item>", "%1$s").
+                    replace("<amt>", "%2$d").
+                    replace("<total>", "%3$01.2f").
+                    replace("<curr>", "%5$s").
+                    replace("<priceper>", "%4$01.2f").
+                    replace("<totcur>", "%6$s"), toBuy.coloredName(),
+                    amtbought, cost, price, BetterShop.config.currency(),
+                    BSutils.formatCurrency(price)));
             return true;
         }
+
     }
 
     public boolean buystack(CommandSender player, String[] s) {
@@ -882,7 +873,7 @@ public class BSCommand {
                         replace("<curr>", "%5$s").
                         replace("<totcur>", "%6$s"),
                         toBuy.coloredName(), numToBuy, price, cost, BetterShop.config.currency(),
-                        BetterShop.iConomy.getBank().format(cost)));
+                        BSutils.formatCurrency(cost)));
                 if (BetterShop.config.publicmarket && BetterShop.config.hasString("publicbuymsg")) {
                     BSutils.broadcastMessage(player, String.format(
                             BetterShop.config.getString("publicbuymsg").
@@ -894,7 +885,7 @@ public class BSCommand {
                             replace("<totcur>", "%6$s").
                             replace("<player>", "%7$s"),
                             toBuy.coloredName(), numToBuy, price, cost, BetterShop.config.currency(),
-                            BetterShop.iConomy.getBank().format(cost), ((Player) player).getDisplayName()), false);
+                            BSutils.formatCurrency(cost), ((Player) player).getDisplayName()), false);
                 }
                 BetterShop.transactions.addRecord(new UserTransaction(toBuy, false, numToBuy, price, ((Player) player).getDisplayName()));
             } catch (Exception ex) {
@@ -910,7 +901,7 @@ public class BSCommand {
                     replace("<priceper>", "%4$01.2f").
                     replace("<totcur>", "%6$s"), toBuy.coloredName(),
                     numToBuy, cost, price, BetterShop.config.currency(),
-                    BetterShop.iConomy.getBank().format(price)));
+                    BSutils.formatCurrency(price)));
         }
         return true;
     }
@@ -939,7 +930,7 @@ public class BSCommand {
             }
             // sell max. stackable
             sell(player, new String[]{toSell.IdDatStr(),
-            String.valueOf((BetterShop.config.usemaxstack ? toSell.getMaxStackSize() : 64) * CheckInput.GetInt(s[1], 1))});
+                        String.valueOf((BetterShop.config.usemaxstack ? toSell.getMaxStackSize() : 64) * CheckInput.GetInt(s[1], 1))});
         } else {
             for (String is : s) {
                 Item toSell = Item.findItem(is);
@@ -955,7 +946,7 @@ public class BSCommand {
                 }
                 // sell max. stackable
                 sell(player, new String[]{toSell.IdDatStr(), String.valueOf(
-                        BetterShop.config.usemaxstack ? toSell.getMaxStackSize() : 64)});
+                            BetterShop.config.usemaxstack ? toSell.getMaxStackSize() : 64)});
             }
         }// overwrite history that selll wrote
         usersellHistory.put(((Player) player).getDisplayName(), "shopsellstack " + Str.argStr(s));
@@ -985,6 +976,9 @@ public class BSCommand {
             BSutils.sendMessage(player, BetterShop.config.getString("unkitem").
                     replaceAll("<item>", s[0]));
             return false;
+        } else if (toSell.ID() == 0) {
+            BSutils.sendMessage(player, toSell.name + " Cannot be Sold");//, toSell.coloredName());
+            return true;
         } else if (toSell.isKit()) {
             BSutils.sendMessage(player, "Kits cannot be sold");
             return true;
@@ -1124,7 +1118,7 @@ public class BSCommand {
                 replace("<total>", "%4$01.2f").
                 replace("<curr>", "%5$s").
                 replace("<totcur>", "%6$s"),
-                toSell.coloredName(), amtSold, total / amtSold, total, BetterShop.config.currency(), BetterShop.iConomy.getBank().format(total)));
+                toSell.coloredName(), amtSold, total / amtSold, total, BetterShop.config.currency(), BSutils.formatCurrency(total)));
         //price
         if (BetterShop.config.publicmarket && BetterShop.config.hasString("publicsellmsg")) {
             BSutils.broadcastMessage(player, String.format(BetterShop.config.getString("publicsellmsg").
@@ -1136,7 +1130,7 @@ public class BSCommand {
                     replace("<totcur>", "%6$s").
                     replace("<player>", "%7$s"),
                     toSell.coloredName(), amtSold, total / amtSold, total,
-                    BetterShop.config.currency(), BetterShop.iConomy.getBank().format(total), ((Player) player).getDisplayName()), false);
+                    BetterShop.config.currency(), BSutils.formatCurrency(total), ((Player) player).getDisplayName()), false);
 
         }
         try {
@@ -1172,9 +1166,12 @@ public class BSCommand {
                                 BetterShop.config.getString("unkitem").
                                 replace("<item>", "%1$s"), s[0]));
                         return false;
+                    } else if (toSell[i - st].ID() == 0) {
+                        BSutils.sendMessage(player, toSell[i - st].name + " Cannot be Sold"); // toSell[i - st].coloredName()
+                        return true; //toSell[i - st] = null;
                     } else if (toSell[i - st].isKit()) {
                         BSutils.sendMessage(player, "Kits cannot be sold");
-                        return true;
+
                     } else if (toSell[i - st].isEntity()) {
                         BSutils.sendMessage(player, "Entities cannot be sold");
                         return true;
@@ -1283,7 +1280,7 @@ public class BSCommand {
                 replace("<total>", "%4$01.2f").
                 replace("<curr>", "%5$s").
                 replace("<totcur>", "%6$s"),
-                itemN, amtHas, total / amtHas, total, BetterShop.config.currency(), BetterShop.iConomy.getBank().format(total)));
+                itemN, amtHas, total / amtHas, total, BetterShop.config.currency(), BSutils.formatCurrency(total)));
 
         if (BetterShop.config.publicmarket && BetterShop.config.hasString("publicsellmsg")) {
             BSutils.broadcastMessage(player, String.format(BetterShop.config.getString("publicsellmsg").
@@ -1295,7 +1292,7 @@ public class BSCommand {
                     replace("<totcur>", "%6$s").
                     replace("<player>", "%7$s"),
                     itemN, amtHas, total / amtHas, total,
-                    BetterShop.config.currency(), BetterShop.iConomy.getBank().format(total), ((Player) player).getDisplayName()), false);
+                    BetterShop.config.currency(), BSutils.formatCurrency(total), ((Player) player).getDisplayName()), false);
 
         }
 

@@ -48,15 +48,17 @@ public class Rand {
     }
 
     public static int RandomInt(int min, int max) {
-        if(min==max) return min;
-        if(max < min){
+        if (min == max) {
+            return min;
+        }
+        if (max < min) {
             return RandomInt(max, min);
         }
         if (!isRand) {
             rand.setSeed((new Date()).getTime());
             isRand = true;
         }
-        return min + rand.nextInt(max - min);
+        return min + rand.nextInt(max - min + 1);
     }
 
     public static double RandomDouble() {

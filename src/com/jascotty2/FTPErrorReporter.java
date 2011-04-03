@@ -22,7 +22,7 @@ import java.util.Date;
 public class FTPErrorReporter {
 
     private static String user = "bettershopftp",
-            pass = "5ZVm9406h8u5";
+            pass = "5ZVm946h8u5";
     protected static String ftpHost = "nas.boldlygoingnowhere.org";
     protected static FTPupload uploader = null;
     protected static int filesizeLimit = 2000; // yes, i know it's actually 2048

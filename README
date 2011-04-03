@@ -139,6 +139,8 @@ tie item prices to stock quotes?
 craftables' stock is tied to source material stock (if using sell craftables)
 make LivingEntities follow the owner around?
 
+-------- custom auto error report message 
+
 integrate with other economy plugins?
 BOSeconomy  	http://forums.bukkit.org/threads/4874/
 
@@ -154,6 +156,18 @@ Cookies	integration:  http://forums.bukkit.org/threads/5327/
 ===============================================================================
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
+
+Version 1.6.3.4 - 4/3/11 - jascotty2
+fixed a rare invalid function signature error
+fixed if a player tries to buy/sell air
+OPs now completely bypass security checks
+more changes to error reporting format: added a custom message
+
+
+Version 1.6.3.3 - 4/2/11 - jascotty2
+renamed monstertamer package, to avoid conflicts if you're using the monstertamer plugin
+should have a reported bug in integrety check taken care of.. not sure of the cause, though
+
 
 Version 1.6.3.2 - 4/2/11 - jascotty2
 fixed more error reporting bugs (still can't find one stupid stock flatfile bug)

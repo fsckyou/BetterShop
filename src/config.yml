@@ -13,6 +13,11 @@ AutoErrorReporting: true
 # share your server ip (unhashed) with the devs?
 #   (if true, means you don't mind us coming over for a visit)
 UnMaskErrorID: false
+# if you want to send a custom message with your error report
+#   ex: email for me to contact you for more info about an error
+#       info about your server (installed plugins?)
+# note: message cannot be longer than 90 characters
+CustomErrorMessage: ""
 
 
 # number of lines outputted in shop list

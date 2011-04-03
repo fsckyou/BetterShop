@@ -25,23 +25,33 @@ public class BSutils {
     }
 
     static boolean credit(CommandSender player, double amount) {
-        if (amount <= 0) {
+        if (amount <= 0 && BetterShop.iConomy != null) {
             return amount == 0;
         }
-        Account account = BetterShop.iConomy.getBank().getAccount(((Player) player).getName());
-        double preAmt = account.getBalance();
-        account.add(amount);
-        if (account.getBalance() == preAmt) {
-            // something seems to be wrong with iConomy: reload it
-            BetterShop.Log(Level.SEVERE, "Failed to credit player: attempting iConomy reload", false);
-            if (reloadIConomy(player.getServer())) {
+        try {
+            Account account = BetterShop.iConomy.getBank().getAccount(((Player) player).getName());
+            double preAmt = account.getBalance();
+            account.add(amount);
+            if (account.getBalance() != preAmt) {
+                return true;
+            }
+        } catch (Exception ex) {
+        }
+        // something seems to be wrong with iConomy: reload it
+        BetterShop.Log(Level.SEVERE, "Failed to credit player: attempting iConomy reload", false);
+        if (reloadIConomy(player.getServer())) {
+
+            try {
+                Account account = BetterShop.iConomy.getBank().getAccount(((Player) player).getName());
+                double preAmt = account.getBalance();
                 account.add(amount);
                 if (account.getBalance() != preAmt) {
                     return true;
                 }
+            } catch (Exception ex) {
             }
-            BetterShop.Log(Level.SEVERE, "Failed.", false);
         }
+        BetterShop.Log(Level.SEVERE, "Failed.", false);
         return true;
     }
 
@@ -49,25 +59,54 @@ public class BSutils {
         if (amount <= 0) {
             return amount == 0;
         }
-        Account account = BetterShop.iConomy.getBank().getAccount(((Player) player).getName());
-        double preAmt = account.getBalance();
-        // don't allow account to go negative
-        if (preAmt < amount) {
-            return false;
+        try {
+            Account account = BetterShop.iConomy.getBank().getAccount(((Player) player).getName());
+            double preAmt = account.getBalance();
+            // don't allow account to go negative
+            if (preAmt < amount) {
+                return false;
+            }
+            account.subtract(amount);
+            if (account.getBalance() != preAmt) {
+                return true;
+            }
+        } catch (Exception ex) {
         }
-        account.subtract(amount);
-        if (account.getBalance() == preAmt) {
-            // something seems to be wrong with iConomy: reload it
-            BetterShop.Log(Level.SEVERE, "Failed to debit player: attempting iConomy reload", false);
-            if (reloadIConomy(player.getServer())) {
+        // something seems to be wrong with iConomy: reload it
+        BetterShop.Log(Level.SEVERE, "Failed to debit player: attempting iConomy reload", false);
+        if (reloadIConomy(player.getServer())) {
+            try {
+                Account account = BetterShop.iConomy.getBank().getAccount(((Player) player).getName());
+                double preAmt = account.getBalance();
+                // don't allow account to go negative
+                if (preAmt < amount) {
+                    return false;
+                }
                 account.subtract(amount);
                 if (account.getBalance() != preAmt) {
                     return true;
                 }
+            } catch (Exception ex) {
             }
-            BetterShop.Log(Level.SEVERE, "Failed.", false);
         }
+
+        BetterShop.Log(Level.SEVERE, "Failed.", false);
+
         return true;
+    }
+
+    public static String formatCurrency(double amt) {
+        if (BetterShop.iConomy != null && BetterShop.iConomy.getBank() != null) {
+            try {
+                return BetterShop.iConomy.getBank().format(amt);
+            } catch (Exception ex) {
+                try {
+                    return String.format("%.2f", amt) + " " + BetterShop.iConomy.getBank().getCurrency();
+                } catch (Exception ex2) {
+                }
+            }
+        }
+        return String.format("%.2f", amt) + " Coins";
     }
 
     static boolean reloadIConomy(Server serv) {
@@ -91,28 +130,29 @@ public class BSutils {
     }
 
     static boolean hasPermission(CommandSender player, String node, boolean notify) {
-        if (BetterShop.Permissions == null || BetterShop.Permissions.Security==null) {
+        if (player.isOp() || !(player instanceof Player)){ // ops override permission check (double-check is a Player)
+            return true;
+       }else if (BetterShop.Permissions == null || BetterShop.Permissions.Security == null) {
             // only ops have access to .admin
-            if ((node == null || node.length() < 16)
-                    || (!node.substring(0, 16).equalsIgnoreCase("BetterShop.admin") || player.isOp())) {
+            if ((node == null || node.length() < 16) // if invalid node, assume true
+                    || !node.substring(0, 16).equalsIgnoreCase("BetterShop.admin")) {
                 return true;
             }
-        } else if (player instanceof Player) {
+        } else {//if (player instanceof Player) {
             if (BetterShop.Permissions.Security.has((Player) player, node)) {
                 return true;
             }
-        } else { // is ConsoleSender
-            return true;
         }
-        if (notify == true) {
-            PermDeny(player, node);
+        if (notify) {
+            //PermDeny(player, node);
+BSutils.sendMessage(player, String.format(BetterShop.config.getString("permdeny").replace("<perm>", "%1$s"), node));
         }
         return false;
     }
 
-    static void PermDeny(CommandSender player, String node) {
-        BSutils.sendMessage(player, String.format(BetterShop.config.getString("permdeny").replace("<perm>", "%1$s"), node));
-    }
+    //static void PermDeny(CommandSender player, String node) {
+    //    BSutils.sendMessage(player, String.format(BetterShop.config.getString("permdeny").replace("<perm>", "%1$s"), node));
+    //}
 
     static void sendMessage(CommandSender player, String s) {
         if (player != null) {
@@ -178,14 +218,14 @@ public class BSutils {
     }
 
     public static ArrayList<ItemStockEntry> getTotalInventory(Player player, boolean onlyInv, Item toFind) {
-        if(toFind==null){
+        if (toFind == null) {
             return getTotalInventory(player, onlyInv);
         }// else
         return getTotalInventory(player, onlyInv, new Item[]{toFind});
     }
 
     public static ArrayList<ItemStockEntry> getTotalInventory(Player player, boolean onlyInv, Item[] toFind) {
-        if(toFind==null || toFind.length==0){
+        if (toFind == null || toFind.length == 0) {
             return getTotalInventory(player, onlyInv);
         }
         ArrayList<ItemStockEntry> inv = new ArrayList<ItemStockEntry>();
@@ -209,5 +249,4 @@ public class BSutils {
         }
         return inv;
     }
-    
 }

@@ -1,4 +1,4 @@
-package com.fullwall.MonsterTamer;
+package com.fullwall.MonsterTamer_1_3;
 
 import com.nijikokun.bukkit.Permissions.Permissions;
 import java.util.logging.Level;

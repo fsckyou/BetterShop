@@ -319,7 +319,7 @@ public class TransactionLog {
             }
         } else {
             if (logUserTransactions) {
-                if (flatFile != null && !flatFile.isDirectory()) {
+                if (flatFile != null){// && !flatFile.isDirectory()) {
                     ArrayList<String> lines = new ArrayList<String>();
                     lines.add("date,user,id,sub,name,amt,sold,price");
                     for (UserTransaction i : transactions) {
@@ -337,12 +337,12 @@ public class TransactionLog {
                     }
 
                 } else {
-                    logger.log(Level.WARNING, "Error saving activity log: undefined or is directory");
+                    logger.log(Level.SEVERE, "Error saving activity log: undefined");
                 }
             }
 
             if (logTotalTransactions) {
-                if (totalsFlatFile != null && !totalsFlatFile.isDirectory()) {
+                if (totalsFlatFile != null) {
                     ArrayList<String> lines = new ArrayList<String>();
                     lines.add("date,id,sub,name,sold,bought");
                     for (TotalTransaction i : totalTransactions) {
@@ -359,7 +359,7 @@ public class TransactionLog {
                     }
 
                 } else {
-                    logger.log(Level.WARNING, "Error saving totals log: undefined or is directory");
+                    logger.log(Level.SEVERE, "Error saving totals log: undefined");
                 }
             }
         }

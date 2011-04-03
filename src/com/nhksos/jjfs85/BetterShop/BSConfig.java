@@ -23,6 +23,7 @@ public class BSConfig {
     public int pagesize = 9;
     public boolean publicmarket = false;
     public String defColor = "white";
+    protected String customErrorMessage = "";
     // files used by plugin
     public final static String configname = "config.yml";
     public final static File pluginFolder = new File("plugins", BetterShop.name);
@@ -88,18 +89,59 @@ public class BSConfig {
     }
 
     public final boolean load() {
+        // in case load errors out, ensure strings are present
+
+        stringMap.clear();
+        // default strings
+        // # general messages
+        stringMap.put("prefix", "&fSHOP: &2");
+        stringMap.put("permdeny", "OI! You don't have permission to do that!");
+        stringMap.put("unkitem", "What is &f<item>&2?");
+        stringMap.put("nicetry", "...Nice try!");
+        // # shopadd messages
+        stringMap.put("paramerror", "Oops... something wasn't right there.");
+        stringMap.put("addmsg", "&f[<item>&f]&2 added to the shop. Buy: &f<buyprice>&2 Sell: &f<sellprice>");
+        stringMap.put("chgmsg", "&f[<item>&f]&2 updated. Buy: &f<buyprice>&2 Sell: &f<sellprice>");
+        // # shopremove messages
+        stringMap.put("removemsg", "&f[<item>&f]&2 removed from the shop");
+        // # shopcheck messages
+        stringMap.put("pricecheck", "Price check! &f[<item>&f]&2 Buy: &f<buyprice> &2Sell: &f<sellprice>" + (useItemStock ? " (stock: <avail>)" : ""));
+        stringMap.put("nolisting", "&f[<item>&f] &2cannot be bought or sold.");
+        // # shoplist messages
+        stringMap.put("listhead", "-------- Price-List Page: &f<page> &2of &f<pages> &2--------");
+        stringMap.put("listing", "&f[<item>&f]&2 <l> Buy: &f<buyprice>&2  Sell: &f<sellprice>" + (useItemStock ? " <l>(stock: <avail>)" : ""));
+        stringMap.put("listtail", "-----------------------------------------");
+        // # shopbuy messages
+        stringMap.put("buymsg", "Buying &f<amt> &2<item>&2 at &f<priceper> &2<curr> each... &f<total> &2<curr> total!");
+        stringMap.put("publicbuymsg", "<player> bought &f<amt> &2<item>&2 for &f<totcur>");
+        stringMap.put("outofroom", "You tried to buy &f<leftover>&2 too many.. you can only hold <free> <item>&2 more");
+        stringMap.put("insuffunds", "&4You don't have enough <curr>! &f<amt> &2<item> at &f<priceper> &2<curr> each = &c<total>");
+        stringMap.put("notforsale", "&f[<item>&f] &2cannot be bought");
+        stringMap.put("illegalbuy", "&4you don't have permissions to buy &f[<item>&f]");
+        // # shopsell messages
+        stringMap.put("donthave", "You only have <hasamt>, not <amt>");
+        stringMap.put("donotwant", "&f[<item>&f] &2has no value to me. No thanks.");
+        stringMap.put("sellmsg", "Selling &f<amt> &2<item>&2 at &f<priceper> &2<curr> each... &f<total> &2<curr> total!");
+        stringMap.put("publicsellmsg", "<player> sold &f<amt> &2<item>&2 for &f<totcur>");
+        // # stock messages
+        stringMap.put("outofstock", "This item is currently out of stock");
+        stringMap.put("lowstock", "Only <amt> avaliable for purchase");
+        stringMap.put("maxstock", "This item is currently at max stock");
+        stringMap.put("highstock", "Only <amt> can be sold back");
+
         try {
             Configuration config = new Configuration(configfile);
             config.load();
             ConfigurationNode n;
 
             // check for completedness
-            {
+            try {
                 HashMap<String, String[]> allKeys = new HashMap<String, String[]>();
                 allKeys.put("", new String[]{
                             "CheckForUpdates",
                             "AutoErrorReporting",
                             "UnMaskErrorID",
+                            "CustomErrorMessage",
                             "ItemsPerPage",
                             "publicmarket",
                             "customsort",
@@ -176,7 +218,7 @@ public class BSConfig {
                             "highstock"
                         });
                 String allowNull[] = new String[]{"customsort", "strings.listhead", "strings.listtail"};
-                //ArrayList<String> missing = new ArrayList<String>();
+
                 String missing = "", unused = "";
                 for (String k : allKeys.keySet()) {
                     String key = "";
@@ -210,11 +252,18 @@ public class BSConfig {
                 if (missing.length() > 0) {
                     BetterShop.Log(Level.WARNING, "Missing Configuration Nodes: \n" + missing);
                 }
+            } catch (Exception ex){
+                BetterShop.Log(Level.SEVERE, "Unexpected Error during config integrety check", ex, false);
+                // this should'nt be happening: send error report
+                if(config.getBoolean("AutoErrorReporting", sendErrorReports)){
+                    BetterShop.sendErrorReport("Unexpected Error during config integrety check", ex);
+                }
             }
 
             checkUpdates = config.getBoolean("CheckForUpdates", checkUpdates);
             sendErrorReports = config.getBoolean("AutoErrorReporting", sendErrorReports);
             unMaskErrorID = config.getBoolean("UnMaskErrorID", unMaskErrorID);
+            customErrorMessage = config.getString("CustomErrorMessage", customErrorMessage).trim();
 
             pagesize = config.getInt("ItemsPerPage", pagesize);
             publicmarket = config.getBoolean("publicmarket", publicmarket);
@@ -233,7 +282,7 @@ public class BSConfig {
 
             sendLogOnError = config.getBoolean("sendLogOnError", sendLogOnError);
             sendAllLog = config.getBoolean("sendAllLog", sendAllLog);
-            
+
             hideHelp = config.getBoolean("hideHelp", hideHelp);
 
             String customsort = config.getString("customsort");
@@ -331,39 +380,6 @@ public class BSConfig {
 
                 }
             }
-            stringMap.clear();
-            // default strings
-            // # general messages
-            stringMap.put("prefix", "&fSHOP: &2");
-            stringMap.put("permdeny", "OI! You don't have permission to do that!");
-            stringMap.put("unkitem", "What is &f<item>&2?");
-            stringMap.put("nicetry", "...Nice try!");
-            // # shopadd messages
-            stringMap.put("paramerror", "Oops... something wasn't right there.");
-            stringMap.put("addmsg", "&f[<item>&f]&2 added to the shop. Buy: &f<buyprice>&2 Sell: &f<sellprice>");
-            stringMap.put("chgmsg", "&f[<item>&f]&2 updated. Buy: &f<buyprice>&2 Sell: &f<sellprice>");
-            // # shopremove messages
-            stringMap.put("removemsg", "&f[<item>&f]&2 removed from the shop");
-            // # shopcheck messages
-            stringMap.put("pricecheck", "Price check! &f[<item>&f]&2 Buy: &f<buyprice> &2Sell: &f<sellprice>" + (useItemStock ? " (stock: <avail>)" : ""));
-            stringMap.put("nolisting", "&f[<item>&f] &2cannot be bought or sold.");
-            // # shoplist messages
-            stringMap.put("listhead", "-------- Price-List Page: &f<page> &2of &f<pages> &2--------");
-            stringMap.put("listing", "&f[<item>&f]&2 <l> Buy: &f<buyprice>&2  Sell: &f<sellprice>" + (useItemStock ? " <l>(stock: <avail>)" : ""));
-            stringMap.put("listtail", "-----------------------------------------");
-            // # shopbuy messages
-            stringMap.put("buymsg", "Buying &f<amt> &2<item>&2 at &f<priceper> &2<curr> each... &f<total> &2<curr> total!");
-            stringMap.put("publicbuymsg", "<player> bought &f<amt> &2<item>&2 for &f<totcur>");
-            stringMap.put("outofroom", "You tried to buy &f<leftover>&2 too many.. you can only hold <free> <item>&2 more");
-            stringMap.put("insuffunds", "&4You don't have enough <curr>! &f<amt> &2<item> at &f<priceper> &2<curr> each = &c<total>");
-            stringMap.put("notforsale", "&f[<item>&f] &2cannot be bought");
-            stringMap.put("illegalbuy", "&4you don't have permissions to buy &f[<item>&f]");
-            // # shopsell messages
-            stringMap.put("donthave", "You only have <hasamt>, not <amt>");
-            stringMap.put("donotwant", "&f[<item>&f] &2has no value to me. No thanks.");
-            stringMap.put("sellmsg", "Selling &f<amt> &2<item>&2 at &f<priceper> &2<curr> each... &f<total> &2<curr> total!");
-            stringMap.put("publicsellmsg", "<player> sold &f<amt> &2<item>&2 for &f<totcur>");
-
             n = config.getNode("strings");
             if (n != null) {
                 for (String k : config.getKeys("strings")) {
@@ -415,7 +431,7 @@ public class BSConfig {
         pluginFolder.mkdirs();
         if (!configfile.exists()) {
             try {
-                BetterShop.Log(Level.WARNING, configname + " not found. Creating new file.");
+                BetterShop.Log(configname + " not found. Creating new file.");
                 configfile.createNewFile();
                 InputStream res = BetterShop.class.getResourceAsStream("/config.yml");
                 FileWriter tx = new FileWriter(configfile);
@@ -434,36 +450,41 @@ public class BSConfig {
         }
         //else logger.log(Level.INFO, configname + " found!");
     }
-    
-    public String currency(){
-        if(BetterShop.iBank !=null) return BetterShop.iBank.getCurrency();
+
+    public String currency() {
+        if (BetterShop.iBank != null) {
+            return BetterShop.iBank.getCurrency();
+        }
         return "Coin";
     }
 
     String b(boolean b) {
         return b ? "1" : "0";
     }
-    
-    public String condensedSettings (){
-        return b(checkUpdates) + "," + b(sendErrorReports) + ","
+
+    public String condensedSettings() {
+        return b(checkUpdates) + ","
                 + pagesize + "," + b(publicmarket) + "," + b(allowbuyillegal) + ","
                 + b(usemaxstack) + "," + b(buybacktools) + "," + b(buybackenabled) + ","
-                + defColor + "," + b(sendLogOnError) + "," + b(sendAllLog) + ","
+                + b(hideHelp) + "," + b(sendLogOnError) + "," + b(sendAllLog) + ","
                 + sortOrder.size() + ",'" + tableName + "'," + databaseType + ","
                 + tempCacheTTL + "," + useDBCache + "," + priceListLifespan + ","
-                + logUserTransactions + "," + b(logUserTransactions)
-                + ",'" + transLogTablename + "'," + userTansactionLifespan + ","
+                + logUserTransactions + userTansactionLifespan + "," 
+                + ",'" + transLogTablename + "',"
                 + logTotalTransactions + ",'" + recordTablename + "',"
-                + b(useDynamicPricing) + "," + b(sellcraftables) + "',"
-                + String.format("%2.3f", sellcraftableMarkup) + "," + b(woolsellweight) + ","
                 + useItemStock + ",'" + stockTablename + "'," + b(noOverStock) + ","
-                + startStock + "," + maxStock + "," + restock + "," + b(hideHelp);
+                + startStock + "," + maxStock + "," + restock + ","
+                + useDynamicPricing + "," + sellcraftables + "',"
+                + String.format("%2.3f", sellcraftableMarkup) + ","
+                + b(woolsellweight);
     }
 
     public static int indexOf(String array[], String search) {
-        for (int i = array.length - 1; i >= 0; --i) {
-            if (array[i].equals(search)) {
-                return i;
+        if (array != null && array.length > 0) {
+            for (int i = array.length - 1; i >= 0; --i) {
+                if (array[i].equals(search)) {
+                    return i;
+                }
             }
         }
         return -1;
