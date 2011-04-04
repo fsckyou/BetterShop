@@ -960,8 +960,8 @@ items:
         craft: 81@8+263=8, 81@3+5@2=3
         color: green
     item351sub3:
-        name: BrownDye
-        aliases:
+        name: CocoaBean
+        aliases: browndye, cocoa, coco, cocobean
         sub: brown
         color: gray
     item351sub4:
@@ -1066,6 +1066,11 @@ items:
         name: RedstoneRepeater
         aliases: repeater, redstoneextender, extender
         craft: 1@3+76@2+331
+    item357:
+        name: Cookie
+        aliases: 
+        craft: 296@2+351:3
+        maxstack: 8
     item2256:
         name: GoldRecord
         aliases: golddisk, grecord, gdisk
@@ -1078,6 +1083,7 @@ items:
         maxstack: 1
 #entities :)
 # can't add more than what i have, or you'll get a chicken
+#   note: if adding to the csv, add 4000 to the entity number
 entities:
     entity0:
         name: Chicken
