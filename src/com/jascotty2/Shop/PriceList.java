@@ -694,10 +694,11 @@ public class PriceList {
                     --n;
                     continue;
                 }
+                long st = stock.getItemAmount(priceList.get(i));
                 ret.add(String.format(listing, priceList.get(i).coloredName(),
                         String.format("%5s", priceList.get(i).buy < 0 ? " No " : String.format("%01.2f", priceList.get(i).buy)),
                         String.format("%5s", priceList.get(i).sell < 0 ? " No " : String.format("%01.2f", priceList.get(i).sell)),
-                        (stock == null ? "INF" : stock.getItemAmount(priceList.get(i))).toString()));
+                        (stock == null || st < 0 ? "INF" : String.valueOf(st))));
             }
             if (footer != null && footer.length() > 0) {
                 ret.add(footer);

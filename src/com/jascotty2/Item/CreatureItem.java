@@ -14,6 +14,7 @@ import org.bukkit.entity.Creature;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Wolf;
 
 /**
  * @author jacob
@@ -173,7 +174,11 @@ public class CreatureItem {
 
         Creature creature = (Creature) owner.getWorld().spawnCreature(loc, itemId);
 
+        //if(creature instanceof Wolf){
+        //    ((Wolf)creature)
+        //}else{
         addFriends(owner, creature);
+        //}
 
         //MonsterTamer.writeUsers();
     }

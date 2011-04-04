@@ -88,7 +88,9 @@ MinecraftIM support: forward errors or all messages
 checks for missing & unused configuration nodes
 strings have default values if missing
 auto error reporting added (can be disabled)
+custom message you can send with the error report
 help main page integration can be disabled
+
 
 There are two ways to add things to the shop:
 Recommended, but slow: use /shopadd [item] [buy-price] [sell-price]
@@ -138,9 +140,8 @@ SQLite support?
 tie item prices to stock quotes?
 craftables' stock is tied to source material stock (if using sell craftables)
 make LivingEntities follow the owner around?
-
--------- custom auto error report message 
-
+change buystock if itemStock is enabled so that if trying to buy multiple stacks (buystack item 20) and stock runs out to stop buying (stop showing "out of stock")
+individually-customizable restock stock values per-item
 integrate with other economy plugins?
 BOSeconomy  	http://forums.bukkit.org/threads/4874/
 
@@ -156,6 +157,12 @@ Cookies	integration:  http://forums.bukkit.org/threads/5327/
 ===============================================================================
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
+
+Version 1.6.3.5 - 4/4/11 - jascotty2
+fixed a rare null exception in integretycheck?
+fixed saving errors when transaction logging disabled
+implemented infinite stock (setting stock to -1 makes infinite)
+
 
 Version 1.6.3.4 - 4/3/11 - jascotty2
 fixed a rare invalid function signature error

@@ -32,6 +32,7 @@ public class BSConfig {
     public boolean checkUpdates = true, sendErrorReports = true, unMaskErrorID = false;
     public boolean sendLogOnError = true, sendAllLog = false;
     public boolean hideHelp = false;
+    public static final int MAX_CUSTMSG_LEN = 90;
     // database information
     public String tableName = "BetterShop";
     public String sql_username = "root", sql_password = "root", sql_database = "minecraft", sql_hostName = "localhost", sql_portNum = "3306";
@@ -221,6 +222,10 @@ public class BSConfig {
 
                 String missing = "", unused = "";
                 for (String k : allKeys.keySet()) {
+                    if (k == null) {
+                        //k = "";
+                        continue;
+                    }
                     String key = "";
                     if (k.length() > 0) {
                         key = k + ".";
@@ -252,10 +257,10 @@ public class BSConfig {
                 if (missing.length() > 0) {
                     BetterShop.Log(Level.WARNING, "Missing Configuration Nodes: \n" + missing);
                 }
-            } catch (Exception ex){
+            } catch (Exception ex) {
                 BetterShop.Log(Level.SEVERE, "Unexpected Error during config integrety check", ex, false);
-                // this should'nt be happening: send error report
-                if(config.getBoolean("AutoErrorReporting", sendErrorReports)){
+                // this shouldn't be happening: send error report
+                if (config.getBoolean("AutoErrorReporting", sendErrorReports)) {
                     BetterShop.sendErrorReport("Unexpected Error during config integrety check", ex);
                 }
             }
@@ -264,6 +269,10 @@ public class BSConfig {
             sendErrorReports = config.getBoolean("AutoErrorReporting", sendErrorReports);
             unMaskErrorID = config.getBoolean("UnMaskErrorID", unMaskErrorID);
             customErrorMessage = config.getString("CustomErrorMessage", customErrorMessage).trim();
+            if (customErrorMessage.length() > MAX_CUSTMSG_LEN) {
+                BetterShop.Log("Notice: CustomErrorMessage is too long. (will be truncated)");
+                customErrorMessage = customErrorMessage.substring(0, MAX_CUSTMSG_LEN);
+            }
 
             pagesize = config.getInt("ItemsPerPage", pagesize);
             publicmarket = config.getBoolean("publicmarket", publicmarket);
@@ -413,7 +422,7 @@ public class BSConfig {
         String ret = stringMap.get(key);
         if (ret == null) {
             BetterShop.Log(Level.WARNING, String.format("%s missing from configuration file", key));
-            ret = "(Error: Message is Missing)";
+            ret = "(\"" + key + "\" is Missing)";
         }
         return ret;
     }
@@ -469,7 +478,7 @@ public class BSConfig {
                 + b(hideHelp) + "," + b(sendLogOnError) + "," + b(sendAllLog) + ","
                 + sortOrder.size() + ",'" + tableName + "'," + databaseType + ","
                 + tempCacheTTL + "," + useDBCache + "," + priceListLifespan + ","
-                + logUserTransactions + userTansactionLifespan + "," 
+                + logUserTransactions + userTansactionLifespan + ","
                 + ",'" + transLogTablename + "',"
                 + logTotalTransactions + ",'" + recordTablename + "',"
                 + useItemStock + ",'" + stockTablename + "'," + b(noOverStock) + ","

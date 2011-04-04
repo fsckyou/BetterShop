@@ -11,7 +11,6 @@ import com.jascotty2.Item.ItemStock;
 import com.jascotty2.Item.ItemStockEntry;
 import com.jascotty2.MySQL.MySQLItemStock;
 import java.io.File;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.logging.Level;
@@ -41,20 +40,18 @@ public class BSItemStock extends ItemStock {
             }
         } else {
             try {
-                databaseType=DBType.FLATFILE;
+                databaseType = DBType.FLATFILE;
                 //System.out.println("attempting FlatFile: " + BSConfig.pluginFolder.getPath() + File.separatorChar + BetterShop.config.tableName + ".csv");
                 if (loadFile(new File(BSConfig.pluginFolder.getPath() + File.separatorChar
                         + BetterShop.config.stockTablename + ".csv"))) {
                     BetterShop.Log(Level.INFO, BetterShop.config.stockTablename + ".csv loaded.");
                     return checkMissingStock();
                 }
-            } catch (IOException ex) {
-                BetterShop.Log(Level.SEVERE, ex);
             } catch (Exception ex) {
                 BetterShop.Log(Level.SEVERE, ex);
             }
             BetterShop.Log(Level.SEVERE, "Failed to load pricelist database " + BetterShop.config.tableName + ".csv "
-                    + BetterShop.config.sql_database);
+                    + BetterShop.config.sql_database, false);
         }
         return false;
     }
@@ -71,10 +68,8 @@ public class BSItemStock extends ItemStock {
                 }
             }
             return true;
-        } catch (SQLException ex) {
-            BetterShop.Log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
-            BetterShop.Log(Level.SEVERE, null, ex);
+            BetterShop.Log(Level.SEVERE, ex);
         }
         return false;
     }
@@ -89,8 +84,6 @@ public class BSItemStock extends ItemStock {
                 for (Item i : prices) {
                     setItemAmount(i, BetterShop.config.startStock);
                 }
-            } catch (SQLException ex) {
-                BetterShop.Log(Level.SEVERE, ex);
             } catch (Exception ex) {
                 BetterShop.Log(Level.SEVERE, ex);
             }
@@ -98,30 +91,33 @@ public class BSItemStock extends ItemStock {
     }
 
     public void checkStockRestock() {
-        if (BetterShop.config.restock > 0
+        if (BetterShop.config.useItemStock && BetterShop.config.restock > 0
                 && ((new Date()).getTime() - lastStock.getTime()) / 1000 > BetterShop.config.restock) {
             Restock(true);
         }
     }
 
     public long freeStockRemaining(Item check) {
-        try {
-            if (BetterShop.config.noOverStock) {
-                return BetterShop.config.maxStock - BetterShop.stock.getItemAmount(check);
-            } else {
-                return Long.MAX_VALUE - BetterShop.stock.getItemAmount(check);
+        if (BetterShop.config.useItemStock) {
+            try {
+                long st = BetterShop.stock.getItemAmount(check);
+                if(st<0){
+                    return -1;
+                }else if (BetterShop.config.noOverStock) {
+                    return BetterShop.config.maxStock - st;
+                } else {
+                    return Long.MAX_VALUE - st;
+                }
+            } catch (Exception ex) {
+                BetterShop.Log(Level.SEVERE, ex);
             }
-        } catch (SQLException ex) {
-            BetterShop.Log(Level.SEVERE, ex);
-        } catch (Exception ex) {
-            BetterShop.Log(Level.SEVERE, ex);
         }
         return -1;
     }
 
     @Override
     public void changeItemAmount(Item it, long delta) throws SQLException, Exception {
-        if (it == null) {
+        if (it == null || !BetterShop.config.useItemStock || BetterShop.stock.getItemAmount(it) < 0) {
             return;
         }
         ItemStockEntry itp = getItemEntry(it);

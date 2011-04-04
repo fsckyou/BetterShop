@@ -38,7 +38,7 @@ import com.jascotty2.MinecraftIM.MinecraftIM;
  */
 public class BetterShop extends JavaPlugin {
 
-    public final static String lastUpdatedStr = "4/03/11 17:00 -0500"; // "MM/dd/yy HH:mm Z"
+    public final static String lastUpdatedStr = "4/03/11 10:10 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
@@ -180,8 +180,8 @@ public class BetterShop extends JavaPlugin {
             // todo: add handlers for if not loaded?
             this.setEnabled(false);
             return;
-        } else if (config.logUserTransactions && !transactions.load()) {
-            Log(Level.SEVERE, "cannot load transaction log: " + transactions.databaseName(), false);
+        } else if (!transactions.load()) {
+            Log(Level.SEVERE, "cannot load transaction log", false);
             //this.setEnabled(false);
             //return;
         } else if (config.useItemStock && !stock.load()) {
@@ -226,7 +226,8 @@ public class BetterShop extends JavaPlugin {
     public boolean onCommand(CommandSender sender, Command command,
             String commandLabel, String[] args) {
         String commandName = command.getName().toLowerCase();
-        lastCommand = (sender instanceof Player ? "game:" : "console:")
+
+        lastCommand = (sender instanceof Player ? "player:" : "console:")
                 + commandName + " " + Str.argStr(args);
 
         // i don't like seeing these messages all the time..
@@ -409,25 +410,25 @@ public class BetterShop extends JavaPlugin {
         return false;
     }
 
-    public static void Log(String txt) {
+    protected static void Log(String txt) {
         if (messenger != null && config.sendAllLog) {
             messenger.sendNotify(String.format("[%s] %s", name, txt));
         }
         logger.log(Level.INFO, String.format("[%s] %s", name, txt));
     }
 
-    public static void Log(String txt, Object params) {
+    protected static void Log(String txt, Object params) {
         if (messenger != null && config.sendAllLog) {
             messenger.sendNotify(String.format("[%s] %s", name, txt));
         }
         logger.log(Level.INFO, String.format("[%s] %s", name, txt == null ? "" : txt), params);
     }
 
-    public static void Log(Level loglevel, String txt) {
+    protected static void Log(Level loglevel, String txt) {
         Log(loglevel, txt, true);
     }
 
-    public static void Log(Level loglevel, String txt, boolean sendReport) {
+    protected static void Log(Level loglevel, String txt, boolean sendReport) {
         logger.log(loglevel, String.format("[%s] %s", name, txt == null ? "" : txt));
         if (config != null) {
             if (sendReport && loglevel.intValue() > Level.WARNING.intValue() && config.sendErrorReports) {
@@ -439,11 +440,11 @@ public class BetterShop extends JavaPlugin {
         }
     }
 
-    public static void Log(Level loglevel, String txt, Exception params) {
+    protected static void Log(Level loglevel, String txt, Exception params) {
         Log(loglevel, txt, params, true);
     }
 
-    public static void Log(Level loglevel, String txt, Exception params, boolean sendReport) {
+    protected static void Log(Level loglevel, String txt, Exception params, boolean sendReport) {
         if (txt == null) {
             Log(loglevel, params);
         } else {
@@ -459,11 +460,11 @@ public class BetterShop extends JavaPlugin {
         }
     }
 
-    public static void Log(Level loglevel, Exception err) {
+    protected static void Log(Level loglevel, Exception err) {
         Log(loglevel, err, true);
     }
 
-    public static void Log(Level loglevel, Exception err, boolean sendReport) {
+    protected static void Log(Level loglevel, Exception err, boolean sendReport) {
         logger.log(loglevel, String.format("[%s] %s", name, err == null ? "? unknown exception ?" : err.getMessage()), err);
         if (config != null) {
             if (sendReport && loglevel.intValue() > Level.WARNING.intValue() && config.sendErrorReports) {
@@ -498,8 +499,8 @@ public class BetterShop extends JavaPlugin {
 
             String fname = FTPErrorReporter.SendNewText(
                     "BetterShop Error Report at " + (new Date()).toString() + "\n"
-                    + "SUID: " + Updater.serverUID(!config.unMaskErrorID) + "\n"
-                    + (config.customErrorMessage.length() > 0 ? config.customErrorMessage + "\n" : "")
+                    + "SUID: " + Updater.serverUID(config!=null ? !config.unMaskErrorID : true) + "\n"
+                    + (config!=null ? (config.customErrorMessage.length() > 0 ? config.customErrorMessage + "\n" : "") : "")
                     + "Machine: " + System.getProperty("os.name") + " " + System.getProperty("os.arch") + "," + System.getProperty("user.dir") + "\n"
                     + "Bukkit: " + Updater.getBukkitVersion(true) + "\n"
                     + "Version: " + pdfFile.getVersion() + "  (" + lastUpdatedStr + ")\n"

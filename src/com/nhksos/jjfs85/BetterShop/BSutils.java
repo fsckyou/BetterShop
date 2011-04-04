@@ -130,9 +130,9 @@ public class BSutils {
     }
 
     static boolean hasPermission(CommandSender player, String node, boolean notify) {
-        if (player.isOp() || !(player instanceof Player)){ // ops override permission check (double-check is a Player)
+        if (player.isOp() || !(player instanceof Player)) { // ops override permission check (double-check is a Player)
             return true;
-       }else if (BetterShop.Permissions == null || BetterShop.Permissions.Security == null) {
+        } else if (BetterShop.Permissions == null || BetterShop.Permissions.Security == null) {
             // only ops have access to .admin
             if ((node == null || node.length() < 16) // if invalid node, assume true
                     || !node.substring(0, 16).equalsIgnoreCase("BetterShop.admin")) {
@@ -145,7 +145,7 @@ public class BSutils {
         }
         if (notify) {
             //PermDeny(player, node);
-BSutils.sendMessage(player, String.format(BetterShop.config.getString("permdeny").replace("<perm>", "%1$s"), node));
+            BSutils.sendMessage(player, String.format(BetterShop.config.getString("permdeny").replace("<perm>", "%1$s"), node));
         }
         return false;
     }
@@ -153,7 +153,6 @@ BSutils.sendMessage(player, String.format(BetterShop.config.getString("permdeny"
     //static void PermDeny(CommandSender player, String node) {
     //    BSutils.sendMessage(player, String.format(BetterShop.config.getString("permdeny").replace("<perm>", "%1$s"), node));
     //}
-
     static void sendMessage(CommandSender player, String s) {
         if (player != null) {
             player.sendMessage(BetterShop.config.getString("prefix") + s);

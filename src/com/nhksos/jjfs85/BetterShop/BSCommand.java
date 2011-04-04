@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -187,7 +186,7 @@ public class BSCommand {
                             (price.IsLegal() || canBuyIllegal) && price.buy >= 0
                             ? BSutils.formatCurrency(price.buy) : "No",
                             price.sell >= 0 ? BSutils.formatCurrency(price.sell) : "No",
-                            BetterShop.stock == null ? "INF" : BetterShop.stock.getItemAmount(i)));
+                            BetterShop.stock == null || BetterShop.stock.getItemAmount(i) < 0 ? "INF" : BetterShop.stock.getItemAmount(i)));
                 } else if (lookup.length <= 5) { // only show nolisting if result page is 5 or less lines
                     BSutils.sendMessage(player,
                             String.format(BetterShop.config.getString("nolisting").
@@ -551,10 +550,10 @@ public class BSCommand {
             } catch (Exception ex) {
                 BetterShop.Log(Level.SEVERE, ex);
             }
-            if (avail == -1) {
-                BSutils.sendMessage(player, "\u00A74Failed to lookup an item stock listing");
-                return true;
-            } else if (avail == 0) {
+            /*if (avail == -1) {
+            BSutils.sendMessage(player, "\u00A74Failed to lookup an item stock listing");
+            return true;
+            } else */ if (avail == 0) {
                 BSutils.sendMessage(player, BetterShop.config.getString("outofstock").
                         replaceAll("<item>", toBuy.coloredName()));
                 return true;
@@ -623,7 +622,7 @@ public class BSCommand {
                         toBuy, false, amtbought, price, ((Player) player).getDisplayName()));
 
             } catch (Exception ex) {
-                Logger.getLogger(BSCommand.class.getName()).log(Level.SEVERE, null, ex);
+                BetterShop.Log(Level.SEVERE, ex);
             }
             return true;
         } else {
@@ -816,10 +815,10 @@ public class BSCommand {
             } catch (Exception ex) {
                 BetterShop.Log(Level.SEVERE, ex);
             }
-            if (avail == -1) {
-                BSutils.sendMessage(player, "\u00A74Failed to lookup an item stock listing");
-                return true;
-            } else if (avail == 0) {
+            /*if (avail == -1) {
+            BSutils.sendMessage(player, "\u00A74Failed to lookup an item stock listing");
+            return true;
+            } else */ if (avail == 0) {
                 BSutils.sendMessage(player, BetterShop.config.getString("outofstock").
                         replaceAll("<item>", toBuy.coloredName()));
                 return true;
@@ -1054,10 +1053,10 @@ public class BSCommand {
         long avail = -1;
         if (BetterShop.config.useItemStock && BetterShop.stock != null) {
             avail = BetterShop.stock.freeStockRemaining(toSell);
-            if (avail == -1) {
-                BSutils.sendMessage(player, "\u00A74Failed to lookup an item stock listing");
-                return true;
-            } else if (avail == 0 && BetterShop.config.noOverStock) {
+            /*if (avail == -1) {
+            BSutils.sendMessage(player, "\u00A74Failed to lookup an item stock listing");
+            return true;
+            } else */ if (avail == 0 && BetterShop.config.noOverStock) {
                 BSutils.sendMessage(player, BetterShop.config.getString("maxstock").
                         replaceAll("<item>", toSell.coloredName()));
                 return true;
@@ -1181,7 +1180,7 @@ public class BSCommand {
         }// initial check complete: set as last action
         usersellHistory.put(((Player) player).getDisplayName(), "shopsellall " + Str.argStr(s));
 
-        boolean err = false, overstock = false;
+        boolean overstock = false;
         //PlayerInventory inv = ((Player) player).getInventory();
         //ItemStack[] its = inv.getContents();
         ArrayList<ItemStockEntry> playerInv = BSutils.getTotalInventory((Player) player, onlyInv, toSell);
@@ -1202,9 +1201,9 @@ public class BSCommand {
                     if (BetterShop.config.useItemStock && BetterShop.stock != null) {
                         // check if avaliable stock
                         long free = BetterShop.stock.freeStockRemaining(check);
-                        if (free == -1) {
-                            err = true;
-                        } else if (free == 0 && BetterShop.config.noOverStock) {
+                        /*if (free == -1) {
+                        err = true;
+                        } else */ if (free == 0 && BetterShop.config.noOverStock) {
                             BSutils.sendMessage(player, BetterShop.config.getString("maxstock").
                                     replaceAll("<item>", check.coloredName()));
                             playerInv.get(i).amount = 0;
@@ -1221,9 +1220,6 @@ public class BSCommand {
             }
         } catch (Exception ex) {
             BetterShop.Log(Level.SEVERE, ex);
-            err = true;
-        }
-        if (err) {
             BSutils.sendMessage(player, "Error looking up an item.. Attempting DB reload..");
             if (load(null)) {
                 // ask to try command again.. don't want accidental infinite recursion & don't want to plan for recursion right now
@@ -1232,7 +1228,8 @@ public class BSCommand {
                 BSutils.sendMessage(player, "\u00A74Failed! Please let an OP know of this error");
             }
             return true;
-        } else if (notwant.size() > 0) {
+        }
+        if (notwant.size() > 0) {
             BSutils.sendMessage(player, String.format(
                     BetterShop.config.getString("donotwant").
                     replace("<item>", "%1$s"), "(" + Str.argStr(notwant.toArray(new String[0]), ", ") + ")"));
@@ -1322,15 +1319,15 @@ public class BSCommand {
             return true;
         } catch (Exception ex) {
             BetterShop.Log(Level.SEVERE, ex);
+            BSutils.sendMessage(player, "Error looking up an item.. Attempting DB reload..");
+            if (load(null)) {
+                // ask to try command again.. don't want accidental infinite recursion & don't want to plan for recursion right now
+                BSutils.sendMessage(player, "Success! Please try again.. ");
+            } else {
+                BSutils.sendMessage(player, "\u00A74Failed! Please let an OP know of this error");
+            }
+            return true;
         }
-        BSutils.sendMessage(player, "Error looking up an item.. Attempting DB reload..");
-        if (load(null)) {
-            // ask to try command again.. don't want accidental infinite recursion & don't want to plan for recursion right now
-            BSutils.sendMessage(player, "Success! Please try again.. ");
-        } else {
-            BSutils.sendMessage(player, "\u00A74Failed! Please let an OP know of this error");
-        }
-        return true;
     }
 
     protected static double sellItems(Player player, boolean onlyInv, ArrayList<ItemStockEntry> items) {
