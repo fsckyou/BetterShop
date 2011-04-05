@@ -19,13 +19,14 @@ In-Game Commands:
 /shopbuyall (buyall,sbuyall) 	<item> 			buy all of an item that you can hold
 /shopsell (sell,ssell)   	<item> [amount]		sell an item for the price in the shop
 /shopadd (sadd): 		<item> <buy> [sell]	add an item to or update an item in the price list
-/shopremove (sremove): 		<item>			remove an item from the price list
-/shopload (sload): 					reload prices from pricelist database
-/shopsellall (sellall):		[inv] [item [...]]	Sell all of item from your inventory (alias to command /shop sell all) (inv will not search lower 9 slots)
-/shopbuystack (buystack): 	<item> [item | amount]	buy a stack of an item (usually 64)
-/shopbuyagain (buyagain,sba): 				repeat last buy action
-/shopsellagain (sellagain,ssa): 			repeat last sell action
-/shopkits (skits):					show a listing of avalliable kits (will be elaborated later)
+/shopremove (sremove)		<item>			remove an item from the price list
+/shopload (sload)					reload prices from pricelist database
+/shopsellall (sellall)		[inv] [item [...]]	Sell all of item from your inventory (alias to command /shop sell all) (inv will not search lower 9 slots)
+/shopbuystack (buystack)	<item> [item | amount]	buy a stack of an item (usually 64)
+/shopsellstack (sellstack)  	<item> [item | amount]	sell a stack of an item (usually 64)
+/shopbuyagain (buyagain,sba) 				repeat last buy action
+/shopsellagain (sellagain,ssa) 				repeat last sell action
+/shopkits (skits)					show a listing of avalliable kits (will be elaborated later)
 
 
 ===============================================================================
@@ -64,6 +65,7 @@ damaged tools can be resold for an adjusted value of sellprice*(1-(damage/maxdam
 buystack can be given multiple items, or number of stacks: "/buystack wool 5" or "/buystack wool blackdye reddye"
 shopsellall can be given multiple items (/sell all cobble gravel flint dirt)
 plural-insensitive items: if not found, will check if plural & remove "s"
+not just items can be bought anymore: can now buy LivingEntities, like dogs (wolf)
 
 === administration
 Every item and subtype can be priced differently
@@ -83,6 +85,11 @@ on start, can check the download page to see if there is an update avaliable
 shop can be given a finite stock from which to buy & sell
 /shop ver[sion] to check the current version & see if there's an update
 MinecraftIM support: forward errors or all messages
+checks for missing & unused configuration nodes
+strings have default values if missing
+auto error reporting added (can be disabled)
+custom message you can send with the error report
+help main page integration can be disabled
 
 
 There are two ways to add things to the shop:
@@ -127,14 +134,16 @@ more descriptive kit listing, similar to shoplist... also show items in each kit
 dynamic market pricing, based off of logged market activity
 region shops (items added while in a region defined as a shop are only added to that shop)
 add option for amount in stock for surplus decreases how much item is worth to the shop (not influenced by market activity)
-add stock messages to config
 /shop alias <item> - show the itemname, with a list of aliases
 add pages for /shopitems
 SQLite support?
 tie item prices to stock quotes?
-
+craftables' stock is tied to source material stock (if using sell craftables)
+make LivingEntities follow the owner around?
+change buystock if itemStock is enabled so that if trying to buy multiple stacks (buystack item 20) and stock runs out to stop buying (stop showing "out of stock")
+individually-customizable restock stock values per-item
 integrate with other economy plugins?
-BOSeconomy  	http://forums.bukkit.org/threads/econ-boseconomy-v0-6-1-simple-server-economy-531.4874/
+BOSeconomy  	http://forums.bukkit.org/threads/4874/
 
 
 === Removed (not going to implement)
@@ -142,12 +151,77 @@ persistentMySQL: if false, will disconnect from db when now using it (use if hav
 		(the MySQL connection is now shared with other features, so disonnecting could cause more performance issues)
 dynamicDiscount: if a user has an applicable discount, will also discount items crafted using discount
 		(if i do implement discounts, this will be automatic)
-Cookies	integration  http://forums.bukkit.org/threads/inactive-econ-cookies-v0-5-economic-system-w-api-424.5327/
+Cookies	integration:  http://forums.bukkit.org/threads/5327/
 		(might implement if becomes active again)
 
 ===============================================================================
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
+
+Version 1.6.3.5 - 4/4/11 - jascotty2
+fixed a rare null exception in integretycheck?
+fixed saving errors when transaction logging disabled
+implemented infinite stock (setting stock to -1 makes infinite)
+
+
+Version 1.6.3.4 - 4/3/11 - jascotty2
+fixed a rare invalid function signature error
+fixed if a player tries to buy/sell air
+OPs now completely bypass security checks
+more changes to error reporting format: added a custom message
+
+
+Version 1.6.3.3 - 4/2/11 - jascotty2
+renamed monstertamer package, to avoid conflicts if you're using the monstertamer plugin
+should have a reported bug in integrety check taken care of.. not sure of the cause, though
+
+
+Version 1.6.3.2 - 4/2/11 - jascotty2
+fixed more error reporting bugs (still can't find one stupid stock flatfile bug)
+added stock messages to config
+
+
+Version 1.6.3.1 - 4/1/11 - jascotty2
+fixed chickens & buying more than one animal
+updated error reporting(again)
+rand libary update for my version of CookieMonster
+
+
+Version 1.6.3 - 4/1/11 - jascotty2
+fixed buy/sell == 0 ? no (in shoplist, 0 incorrectly showed as no)
+updated for 612 (and 600+ .. had accidently been using the wrong libary)
+LivingEntities can now be purchased! :D
+- special thanks to fullwall for the MonsterTamer plugin, from which this ability comes from (1.3)
+- if capable, will attack the anything attacking the purchaser (if nearby)
+-- todo? make them follow the purchaser around?
+
+
+Version 1.6.2.8 - 3/31/11 - jascotty2
+nullpointer fixed if running 602 with old groupmanager
+other misc. null fixes
+removed redundant reload points for iConomy
+repaired a mysql totalTransactionLog format error
+error reporting now begins with a portion of the date, so i can see them listed in order
+more info added to error reports.. still can't figure out the stock flatfile save bug
+
+
+Version 1.6.2.7 - 3/30/11 - jascotty2
+improved error reporting format & removed a few unnecessary send triggers
+
+
+Version 1.6.2.6 - 3/30/11 - jascotty2
+now checks for missing & unused configuration nodes
+strings have default values if missing
+auto error reporting added (can be disabled)
+now compatible with bukkit 602
+help main page integration can be disabled
+hidden changes to get one step closer to dynamic pricing
+
+
+Version 1.6.2.5 - 3/28/11 - jascotty2
+forgot to update the date in the last release, so a false 'newer release' was showing up
+fixed help support when help loaded before bettershop
+
 
 Version 1.6.2.4 - 3/25/11 - jascotty2
 Added support for my new plugin: MinecraftIM :)

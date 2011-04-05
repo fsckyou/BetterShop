@@ -27,6 +27,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class PriceList {
     // set this to true to catch & log exceptions instead of throwing them
+
     public static boolean log_nothrow = false;
     // what to write to if logging
     protected final static Logger logger = Logger.getLogger("Minecraft");
@@ -298,13 +299,16 @@ public class PriceList {
                     }
                     logger.log(Level.SEVERE, "Error opening " + tosave.getName() + " for writing", ex);
                 } finally {
-                    try {
-                        fstream.close();
-                    } catch (IOException ex) {
-                        if (!log_nothrow) {
+                    if (fstream != null) {
+                        try {
+                            fstream.close();
+                        } catch (IOException ex) {/*
+                            if (!log_nothrow) {
                             throw new IOException("Error closing " + tosave.getName(), ex);
+                            }
+                            logger.log(Level.SEVERE, "Error closing " + tosave.getName(), ex);*/
+
                         }
-                        logger.log(Level.SEVERE, "Error closing " + tosave.getName(), ex);
                     }
                 }
                 return true;
@@ -340,10 +344,10 @@ public class PriceList {
         //else cache up-to-date, or disabled
     }
 
-    public boolean ItemExists(ItemStockEntry i) throws SQLException, Exception{
-        return ItemExists(Item.findItem(i.itemNum, (byte)i.itemSub));
+    public boolean ItemExists(ItemStockEntry i) throws SQLException, Exception {
+        return ItemExists(Item.findItem(i.itemNum, (byte) i.itemSub));
     }
-    
+
     public boolean ItemExists(String check) throws SQLException, Exception {
         return ItemExists(Item.findItem(check));
     }
@@ -400,15 +404,15 @@ public class PriceList {
         return ItemExists(i) && tempCache.sell >= 0;//getSellPrice(i) >= 0;
     }
 
-    public boolean isForSale(ItemStockEntry i) throws SQLException, Exception{
-        if (tempCache != null && tempCache.ID()==i.itemNum && tempCache.Data()==i.itemSub) {
+    public boolean isForSale(ItemStockEntry i) throws SQLException, Exception {
+        if (tempCache != null && tempCache.ID() == i.itemNum && tempCache.Data() == i.itemSub) {
             // has been retrieved recently
             return tempCache.sell >= 0;
         }
         //if ItemExists, tempCache will contain the item
         return ItemExists(i) && tempCache.sell >= 0;//getSellPrice(i) >= 0;
     }
-    
+
     public double getSellPrice(ItemStack i) throws SQLException, Exception {
         return getSellPrice(Item.findItem(i));
     }
@@ -420,6 +424,7 @@ public class PriceList {
     public double getSellPrice(ItemStockEntry it) throws SQLException, Exception {
         return getSellPrice(Item.findItem(it));
     }
+
     public double getSellPrice(Item it) throws SQLException, Exception {
         if (it == null) {
             return -1;
@@ -514,7 +519,7 @@ public class PriceList {
         return false;
     }
 
-    public void removeAll() throws IOException, SQLException{
+    public void removeAll() throws IOException, SQLException {
         tempCache = null;
         if (databaseType == DBType.MYSQL) {
             MySQLpricelist.RemoveAll();
@@ -587,12 +592,16 @@ public class PriceList {
      * @return
      */
     public int GetShopPageStart(int pageNum, int pageSize, boolean showIllegal) {
-        if(pageSize<=0) pageSize=1;
-        int num = 0, showNum=0;
+        if (pageSize <= 0) {
+            pageSize = 1;
+        }
+        int num = 0, showNum = 0;
         for (PriceListItem i : priceList) {
             if (!((i.buy < 0 && i.sell < 0)
                     || !(showIllegal || i.IsLegal()))) {
-                if(showNum / pageSize==pageNum) break;
+                if (showNum / pageSize == pageNum) {
+                    break;
+                }
                 ++showNum;
             }
             ++num;
@@ -615,6 +624,7 @@ public class PriceList {
     public LinkedList<String> GetShopListPage(int pageNum, boolean isPlayer, int pageSize, String listing, String header, String footer) throws SQLException, Exception {
         return GetShopListPage(pageNum, isPlayer, pageSize, listing, header, footer, false);
     }
+
     /**
      * returns a page of prices
      * @param pageNum page to lookup (-1 will print all pages)
@@ -631,7 +641,6 @@ public class PriceList {
     public LinkedList<String> GetShopListPage(int pageNum, boolean isPlayer, int pageSize, String listing, String header, String footer, boolean showIllegal) throws SQLException, Exception {
         return GetShopListPage(pageNum, isPlayer, pageSize, listing, header, footer, showIllegal, null);
     }
-    
 
     /**
      * returns a page of prices
@@ -658,14 +667,14 @@ public class PriceList {
         int pricelistsize = GetShopSize(showIllegal);//priceList.size();
 
         int pages = (int) Math.ceil((double) pricelistsize / pageSize);
-        
+
         int pageStart;
         if (pageNum <= 0) {
             //pageNum = 1;
             pageStart = 0;
             pageSize = pricelistsize;
         } else {
-            pageStart = GetShopPageStart(pageNum-1, pageSize, showIllegal);
+            pageStart = GetShopPageStart(pageNum - 1, pageSize, showIllegal);
         }
 
         String listhead = header == null || header.length() == 0 ? ""
@@ -685,10 +694,11 @@ public class PriceList {
                     --n;
                     continue;
                 }
+                long st = stock.getItemAmount(priceList.get(i));
                 ret.add(String.format(listing, priceList.get(i).coloredName(),
-                        String.format("%5s", priceList.get(i).buy <= 0 ? " No " : String.format("%01.2f", priceList.get(i).buy)),
-                        String.format("%5s", priceList.get(i).sell <= 0 ? " No " : String.format("%01.2f", priceList.get(i).sell)),
-                        (stock==null ? "INF" : stock.getItemAmount(priceList.get(i))).toString()));
+                        String.format("%5s", priceList.get(i).buy < 0 ? " No " : String.format("%01.2f", priceList.get(i).buy)),
+                        String.format("%5s", priceList.get(i).sell < 0 ? " No " : String.format("%01.2f", priceList.get(i).sell)),
+                        (stock == null || st < 0 ? "INF" : String.valueOf(st))));
             }
             if (footer != null && footer.length() > 0) {
                 ret.add(footer);
@@ -701,62 +711,6 @@ public class PriceList {
         return ret;
     }
 
-    /**
-     * returns a page of prices, with discounts (if applicable)
-     * @param pageNum page to lookup (-1 will print all pages)
-     * @param playerName player to use for discount pricing
-     * @param pageSize how many on a page
-     * @param listing format to output listing with
-     * @param header page header (<page> of <pages>)
-     * @param footer page footer
-     * @param showIllegal whether illegal items should be included in the listing
-     * @return a list of formatted lines
-     * @throws SQLException if using MySQL database & there was some database connection error
-     * @throws Exception some serious error occurred (details in message)
-     */
-    /*public LinkedList<String> GetShopListPage(int pageNum, String playerName, int pageSize, String listing, String header, String footer, boolean showIllegal) throws SQLException, Exception {
-    LinkedList<String> ret = new LinkedList<String>();
-    if (databaseType == DBType.MYSQL && !useCache) {
-    updateCache(false);// manually update
-    } else {
-    updateCache();
-    }
-    int pricelistsize = GetShopSize(showIllegal);//priceList.size();
-
-    int pages = (int) Math.ceil((double) pricelistsize / pageSize);
-    String listhead = header == null || header.length() == 0 ? ""
-    : header.replace("<page>", pageNum < 0 ? "(All)" : String.valueOf(pageNum)).
-    replace("<pages>", String.valueOf(pages));
-    if (pageNum > pages) {
-    ret.add("There is no page " + pageNum + ". (" + pages + " pages total)");
-    } else {
-    if (listhead.length() > 0) {
-    ret.add(String.format(listhead, pageNum, pages));
-    }
-    listing = listing.replace("<item>", "%1$s").replace("<buyprice>", "%2$s").replace("<sellprice>", "%3$s");
-    if (pageNum <= 0) {
-    pageNum = 1;
-    pageSize = priceList.size();
-    }
-    for (int i = pageSize * (pageNum - 1), n = 0; n < pageSize && i < priceList.size(); ++i, ++n) {
-    if (!showIllegal && !priceList.get(i).IsLegal()) {
-    --n;
-    continue;
-    }
-    ret.add(String.format(listing, priceList.get(i).coloredName(),
-    String.format("%5s", priceList.get(i).buy <= 0 ? " No " : String.format("%01.2f", priceList.get(i).buy)),
-    String.format("%5s", priceList.get(i).sell <= 0 ? " No " : String.format("%01.2f", priceList.get(i).sell))));
-    }
-    if (footer != null && footer.length() > 0) {
-    ret.add(footer);
-    }
-    }
-    if (ret.size() > 2) {
-    // format spaces
-    return MinecraftFontWidthCalculator.alignTags(ret, true);
-    }
-    return ret;
-    }//*/
     public Item[] getItems() throws SQLException, Exception {
         return (Item[]) getPricelistItems();
     }

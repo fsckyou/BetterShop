@@ -466,6 +466,10 @@ items:
         name: RepeaterBlockOn
         aliases:
         legal: false
+    item95:
+        name: LockedChest
+        aliases:
+        legal: false
 # items
     item256:
         name: IronShovel
@@ -919,7 +923,7 @@ items:
         name: FishingRod
         aliases: rod
         craft: 280@3+287@2
-        maxstack: 1
+        #maxstack: 1
         maxdamage: 33
     item347:
         name: Clock
@@ -956,8 +960,8 @@ items:
         craft: 81@8+263=8, 81@3+5@2=3
         color: green
     item351sub3:
-        name: BrownDye
-        aliases:
+        name: CocoaBean
+        aliases: browndye, cocoa, coco, cocobean
         sub: brown
         color: gray
     item351sub4:
@@ -1062,6 +1066,11 @@ items:
         name: RedstoneRepeater
         aliases: repeater, redstoneextender, extender
         craft: 1@3+76@2+331
+    item357:
+        name: Cookie
+        aliases: 
+        craft: 296@2+351:3
+        maxstack: 8
     item2256:
         name: GoldRecord
         aliases: golddisk, grecord, gdisk
@@ -1072,6 +1081,56 @@ items:
         aliases: greendisk, grrecord, grdisk
         color: green
         maxstack: 1
+#entities :)
+# can't add more than what i have, or you'll get a chicken
+#   note: if adding to the csv, add 4000 to the entity number
+entities:
+    entity0:
+        name: Chicken
+        aliases: 
+    entity1:
+        name: Cow 
+        aliases: 
+    entity2:
+        name: Creeper
+        aliases: 
+    entity3:
+        name: Ghast
+        aliases: 
+    entity4:
+        name: Giant
+        aliases: giantzombie
+    entity5:
+        name: Monster
+        aliases: human, slave, bodyguard, dummy
+    entity6:
+        name: Pig
+        aliases: 
+    entity7:
+        name: PigZombie
+        aliases: 
+    entity8:
+        name: Sheep
+        aliases: 
+    entity9:
+        name: Skeleton
+        aliases: 
+    entity10:
+        name: Slime
+        aliases: 
+    entity11:
+        name: Spider
+        aliases: 
+    entity12:
+        name: Squid
+        aliases: 
+    entity13:
+        name: Zombie
+        aliases: 
+    entity14:
+        name: Wolf
+        aliases: dog
+          
 
 #kits can be added here (must be numbered, stating at 1)
 # kits can be bought, not sold

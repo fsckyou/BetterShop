@@ -90,14 +90,14 @@ public class ItemStockEntry {
             tempCacheDate = new Date();
         }
     }
-    
+
     public void RemoveAmount(long amt) {
         amount -= amt;
         tempCacheDate = new Date();
     }
 
     public long getTime() {
-        return tempCacheDate.getTime();
+        return tempCacheDate == null ? 0 : tempCacheDate.getTime();
     }
 
     @Override

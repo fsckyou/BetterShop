@@ -1,13 +1,5 @@
 package com.nhksos.jjfs85.BetterShop;
 
-import com.jascotty2.Item.ItemDB;
-//import com.jascotty2.MinecraftIM.ChatMessageHandler;
-import com.jascotty2.MinecraftIM.MinecraftIM;
-
-import com.nijiko.coelho.iConomy.iConomy;
-import com.nijiko.coelho.iConomy.system.Bank;
-import com.nijikokun.bukkit.Permissions.Permissions;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -18,43 +10,55 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
-import org.bukkit.event.server.PluginEvent;
 import org.bukkit.event.server.ServerListener;
+import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+
+import com.jascotty2.FTPErrorReporter;
+import com.jascotty2.Item.ItemDB;
+import com.jascotty2.Str;
+import com.fullwall.MonsterTamer_1_3.EntityListen;
+
+import com.nijiko.coelho.iConomy.iConomy;
+import com.nijiko.coelho.iConomy.system.Bank;
+import com.nijikokun.bukkit.Permissions.Permissions;
 import me.taylorkelly.help.Help;
-import org.bukkit.plugin.Plugin;
+import com.jascotty2.MinecraftIM.MinecraftIM;
 
 /*
  * BetterShop for Bukkit
  */
-public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
+public class BetterShop extends JavaPlugin {
 
-    public final static String lastUpdatedStr = "3/23/11 21:10 -0500"; // "MM/dd/yy HH:mm Z"
+    public final static String lastUpdatedStr = "4/03/11 10:10 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
-    public static BSConfig config = null;
-    public static BSPriceList pricelist = null;
-    public static BSItemStock stock = null;
-    public static BSTransactionLog transactions = null;
-    public static BSCommand bscommand = null;
-    static Permissions Permissions = null;
-    static iConomy iConomy = null;
-    static Bank iBank = null;
+    protected static BSConfig config = null;
+    protected static BSPriceList pricelist = null;
+    protected static BSItemStock stock = null;
+    protected static BSTransactionLog transactions = null;
+    protected static BSCommand bscommand = new BSCommand();
+    protected static Permissions Permissions = null;
+    protected static iConomy iConomy = null;
+    protected static Bank iBank = null;
     private final Listener Listener = new Listener(this);
     //private static boolean isLoaded = true;
     public static PluginDescriptionFile pdfFile;// = this.getDescription();
-    static MinecraftIM messenger = null;
+    protected static MinecraftIM messenger = null;
+    protected static String lastCommand = "";
+    // for animal/monster purchases
+    public final EntityListen entityListener = new EntityListen();
 
-    //public boolean messageHandled(String message) {
-    //    Log("Message intercepted: " + message);
-    //    return true;
-    //}
+    // no longer needed as of #600
     private class Listener extends ServerListener {
 
         BetterShop shop;
@@ -64,11 +68,12 @@ public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
         }
 
         @Override
-        public void onPluginEnable(PluginEvent event) {
+        public void onPluginEnable(PluginEnableEvent event) {
+            //Log(event.getPlugin().getDescription().getName());
             if (event.getPlugin().getDescription().getName().equals("iConomy")) {
                 BetterShop.iConomy = (iConomy) event.getPlugin();
                 iBank = iConomy.getBank();
-                config.currency = iBank.getCurrency();
+                //config.currency = iBank.getCurrency();
                 Log("Attached to iConomy.");
             } else if (event.getPlugin().getDescription().getName().equals("Permissions")) {
                 BetterShop.Permissions = (Permissions) event.getPlugin();
@@ -87,22 +92,22 @@ public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
         Plugin test = this.getServer().getPluginManager().getPlugin("Help");
         if (test != null) {
             Help helpPlugin = ((Help) test);
-            helpPlugin.registerCommand("shoplist [page]", "List shop prices", this, true, "BetterShop.user.list");
+            helpPlugin.registerCommand("shoplist [page]", "List shop prices", this, !config.hideHelp, "BetterShop.user.list");
             helpPlugin.registerCommand("shopitems", "compact listing of items in shop", this, "BetterShop.user.list");
             helpPlugin.registerCommand("shopkits [page]", "show listing of kits in shop", this, "BetterShop.user.list");
-            helpPlugin.registerCommand("shopbuy [item] <amount>", "Buy items from the shop", this, true, "BetterShop.user.buy");
+            helpPlugin.registerCommand("shopbuy [item] <amount>", "Buy items from the shop", this, !config.hideHelp, "BetterShop.user.buy");
             helpPlugin.registerCommand("shopbuyall [item]", "Buy all that you can hold/afford", this, "BetterShop.user.buy");
             helpPlugin.registerCommand("shopbuystack [item] <amount>", "Buy stacks of items", this, "BetterShop.user.buy");
             helpPlugin.registerCommand("shopbuyagain", "repeat last purchase action", this, "BetterShop.user.buy");
-            helpPlugin.registerCommand("shopsell [item] <amount>", "Sell items to the shop", this, true, "BetterShop.user.sell");
+            helpPlugin.registerCommand("shopsell [item] <amount>", "Sell items to the shop", this, !config.hideHelp, "BetterShop.user.sell");
             helpPlugin.registerCommand("shopsellstack [item] <amount>", "Sell stacks of items", this, "BetterShop.user.sell");
             helpPlugin.registerCommand("shopsellall <inv> <item..>", "Sell all of your items", this, "BetterShop.user.sell");
             helpPlugin.registerCommand("shopsellagain", "Repeat last sell action", this, "BetterShop.user.sell");
-            helpPlugin.registerCommand("shopcheck [item]", "Check prices of item[s]", this, true, "BetterShop.user.check");
-            helpPlugin.registerCommand("shophelp [command]", "show help on commands", this, true, "BetterShop.user.help");
-            helpPlugin.registerCommand("shopadd [item] [$buy] <$sell>", "Add/Update an item", this, true, "BetterShop.admin.add");
-            helpPlugin.registerCommand("shopremove [item]", "Remove an item from the shop", this, true, "BetterShop.admin.remove");
-            helpPlugin.registerCommand("shopload", "Reload the Configuration & PriceList DB", this, true, "BetterShop.admin.load");
+            helpPlugin.registerCommand("shopcheck [item]", "Check prices of item[s]", this, !config.hideHelp, "BetterShop.user.check");
+            helpPlugin.registerCommand("shophelp [command]", "show help on commands", this, !config.hideHelp, "BetterShop.user.help");
+            helpPlugin.registerCommand("shopadd [item] [$buy] <$sell>", "Add/Update an item", this, !config.hideHelp, "BetterShop.admin.add");
+            helpPlugin.registerCommand("shopremove [item]", "Remove an item from the shop", this, !config.hideHelp, "BetterShop.admin.remove");
+            helpPlugin.registerCommand("shopload", "Reload the Configuration & PriceList DB", this, !config.hideHelp, "BetterShop.admin.load");
 
             helpPlugin.registerCommand("shop restock", "manually restock (if enabled)", this, "BetterShop.admin.restock");
             helpPlugin.registerCommand("shop ver[sion]", "Show Version # and if is current", this, "BetterShop.admin.info");
@@ -121,21 +126,23 @@ public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
     }
 
     private void hookDepends() {
-        if (this.getServer().getPluginManager().isPluginEnabled("iConomy")) {
-            iConomy = (iConomy) this.getServer().getPluginManager().getPlugin("iConomy");
+        Plugin test = getServer().getPluginManager().getPlugin("iConomy");
+        if (test != null) {//this.getServer().getPluginManager().isPluginEnabled("iConomy")) {
+            iConomy = (iConomy) test;//this.getServer().getPluginManager().getPlugin("iConomy");
             iBank = iConomy.getBank();
-            config.currency = iBank.getCurrency();
+            //config.currency = iBank.getCurrency();
             Log("Attached to iConomy.");
         } else {
-            Log(Level.WARNING, "iConomy not yet found...");
+            Log(Level.WARNING, "iConomy not yet found...", false);
         }
-        if (this.getServer().getPluginManager().isPluginEnabled("Permissions")) {
-            Permissions = (Permissions) this.getServer().getPluginManager().getPlugin("Permissions");
+        test = getServer().getPluginManager().getPlugin("Permissions");
+        if (test != null) {//this.getServer().getPluginManager().isPluginEnabled("Permissions")) {
+            Permissions = (Permissions) test;//this.getServer().getPluginManager().getPlugin("Permissions");
             Log("Attached to Permissions.");
         }
-        if (this.getServer().getPluginManager().isPluginEnabled("MinecraftIM")) {
-            messenger = (MinecraftIM) this.getServer().getPluginManager().getPlugin("MinecraftIM");
-            //messenger.registerMessageHandler(this);
+        test = getServer().getPluginManager().getPlugin("MinecraftIM");
+        if (test != null) {//this.getServer().getPluginManager().isPluginEnabled("MinecraftIM")) {
+            messenger = (MinecraftIM) test;//this.getServer().getPluginManager().getPlugin("MinecraftIM");
             Log("linked to MinecraftIM");
         }
         //Log(Level.INFO, "Permissions not yet found...");
@@ -150,8 +157,7 @@ public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
             ItemDB.load(BSConfig.pluginFolder);
             //Log("Itemsdb loaded");
         } catch (Exception e) {
-            Log(Level.SEVERE, e);
-            Log(Level.SEVERE, "cannot load items db: closing plugin");
+            Log(Level.SEVERE, "cannot load items db: closing plugin", e, false);
             this.setEnabled(false);
             return;
         }
@@ -162,53 +168,56 @@ public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
             if (config.checkUpdates) {
                 Updater.check();
             }
-            pricelist = new BSPriceList();
-            transactions = new BSTransactionLog();
-            bscommand = new BSCommand();
-            stock = new BSItemStock();
         } else {
             config.load();
-            pricelist = new BSPriceList();
-            transactions = new BSTransactionLog();
-            stock = new BSItemStock();
         }
+        pricelist = new BSPriceList();
+        transactions = new BSTransactionLog();
+        stock = new BSItemStock();
 
         if (!pricelist.load()) {
-            Log(Level.SEVERE, "cannot load pricelist: " + pricelist.pricelistName());
+            Log(Level.SEVERE, "cannot load pricelist: " + pricelist.pricelistName(), false);
             // todo: add handlers for if not loaded?
             this.setEnabled(false);
             return;
-        } else if (config.logUserTransactions && !transactions.load()) {
-            Log(Level.SEVERE, "cannot load transaction log: " + transactions.databaseName());
+        } else if (!transactions.load()) {
+            Log(Level.SEVERE, "cannot load transaction log", false);
             //this.setEnabled(false);
             //return;
         } else if (config.useItemStock && !stock.load()) {
-            Log(Level.SEVERE, "cannot load stock database");
+            Log(Level.SEVERE, "cannot load stock database", false);
             stock = null;
         }
 
         hookDepends();
         registerEvents();
+        registerHelp();
         //isLoaded = true;
 
-        // Just output some info so we can check
-        // all is well
+        // for monster purchasing
+        PluginManager pm = getServer().getPluginManager();
+        pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Priority.Normal, this);
+        pm.registerEvent(Event.Type.ENTITY_TARGET, entityListener, Priority.Normal, this);
+
+        // Just output some info so we can check all is well
         logger.log(Level.INFO, pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!",
                 new Object[]{pdfFile.getName(), pdfFile.getVersion()});
     }
 
     public void onDisable() {
+        // NOTE: All registered events are automatically unregistered when a
+        // plugin is disabled
         try {
-            // NOTE: All registered events are automatically unregistered when a
-            // plugin is disabled
             pricelist.close();
-        } catch (IOException ex) {
-            Log(Level.SEVERE, ex);
         } catch (Exception ex) {
-            Log(Level.SEVERE, ex);
+            Log(Level.SEVERE, ex, false);
         }
-        //isLoaded = false;
+
         transactions = null;
+        stock = null;
+        pricelist = null;
+        messenger = null;
+        //config = null;
 
         logger.info("BetterShop now unloaded");
     }
@@ -218,12 +227,15 @@ public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
             String commandLabel, String[] args) {
         String commandName = command.getName().toLowerCase();
 
+        lastCommand = (sender instanceof Player ? "player:" : "console:")
+                + commandName + " " + Str.argStr(args);
+
         // i don't like seeing these messages all the time..
         //Log(((Player) sender).getName() + " used command " + command.getName());
 
         if ((BetterShop.iConomy == null)) {
             BSutils.sendMessage(sender, "\u00A74 BetterShop is missing a dependency. Check the console.");
-            Log(Level.SEVERE, "Missing: iConomy");
+            Log(Level.SEVERE, "Missing: iConomy", false);
             return true;
         }
 
@@ -364,6 +376,11 @@ public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
         } else if (commandName.equals("shophelp")) {
             return bscommand.help(sender, args);
         } else if (commandName.equals("shopbuy")) {
+            /*if (args.length == 1
+            && CreatureItem.creatureExists(args[0])
+            && sender instanceof Player) {
+            CreatureItem.spawnNewWithOwner((Player) sender, CreatureItem.getCreature(args[0]));
+            }*/
             return bscommand.buy(sender, args);
         } else if (commandName.equals("shopbuyall")) {
             ArrayList<String> arg = new ArrayList<String>();
@@ -393,68 +410,114 @@ public class BetterShop extends JavaPlugin { // implements ChatMessageHandler
         return false;
     }
 
-    public static void Log(String txt) {
+    protected static void Log(String txt) {
         if (messenger != null && config.sendAllLog) {
             messenger.sendNotify(String.format("[%s] %s", name, txt));
         }
         logger.log(Level.INFO, String.format("[%s] %s", name, txt));
     }
 
-    public static void Log(String txt, Object params) {
+    protected static void Log(String txt, Object params) {
         if (messenger != null && config.sendAllLog) {
             messenger.sendNotify(String.format("[%s] %s", name, txt));
         }
         logger.log(Level.INFO, String.format("[%s] %s", name, txt == null ? "" : txt), params);
     }
 
-    public static void Log(Level loglevel, String txt) {
-        if (messenger != null && (config.sendAllLog || loglevel.intValue() > Level.INFO.intValue()) && config.sendLogOnError) {
-            messenger.sendNotify(String.format("[%s] %s", name, txt == null ? "" : txt));
-        }
+    protected static void Log(Level loglevel, String txt) {
+        Log(loglevel, txt, true);
+    }
+
+    protected static void Log(Level loglevel, String txt, boolean sendReport) {
         logger.log(loglevel, String.format("[%s] %s", name, txt == null ? "" : txt));
-    }
-
-    public static void Log(Level loglevel, String txt, Object params) {
-        if (messenger != null && (config.sendAllLog || loglevel.intValue() > Level.INFO.intValue()) && config.sendLogOnError) {
-            messenger.sendNotify(String.format("[%s] %s", name, txt == null ? "" : txt));
+        if (config != null) {
+            if (sendReport && loglevel.intValue() > Level.WARNING.intValue() && config.sendErrorReports) {
+                sendErrorReport(txt, null);
+            }
+            if (messenger != null && loglevel.intValue() > Level.INFO.intValue() && config.sendLogOnError) {
+                messenger.sendNotify(String.format("[%s] %s", name, txt == null ? "" : txt));
+            }
         }
-        logger.log(loglevel, String.format("[%s] %s", name, txt == null ? "" : txt), params);
     }
 
-    public static void Log(Level loglevel, String txt, Exception params) {
+    protected static void Log(Level loglevel, String txt, Exception params) {
+        Log(loglevel, txt, params, true);
+    }
+
+    protected static void Log(Level loglevel, String txt, Exception params, boolean sendReport) {
         if (txt == null) {
             Log(loglevel, params);
         } else {
-            if (messenger != null && (config.sendAllLog || loglevel.intValue() > Level.INFO.intValue()) && config.sendLogOnError) {
-                messenger.sendNotify(String.format("[%s] %s%n%s%n%s", name, txt, params.getMessage(), getStackStr(params)));
-            }
             logger.log(loglevel, String.format("[%s] %s", name, txt == null ? "" : txt), (Exception) params);
+            if (config != null) {
+                if (sendReport && loglevel.intValue() > Level.WARNING.intValue() && config.sendErrorReports) {
+                    sendErrorReport(txt, params);
+                }
+                if (messenger != null && loglevel.intValue() > Level.INFO.intValue() && config.sendLogOnError) {
+                    messenger.sendNotify(String.format("[%s] %s%n%s%n%s", name, txt, params.getMessage(), Str.getStackStr(params)));
+                }
+            }
         }
     }
 
-    public static void Log(Level loglevel, String txt, Object[] params) {
-        if (messenger != null && (config.sendAllLog || loglevel.intValue() > Level.INFO.intValue()) && config.sendLogOnError) {
-            messenger.sendNotify(String.format("[%s] %s", name, txt == null ? "" : txt));
-        }
-        logger.log(loglevel, String.format("[%s] %s", name, txt == null ? "" : txt), params);
+    protected static void Log(Level loglevel, Exception err) {
+        Log(loglevel, err, true);
     }
 
-    public static void Log(Level loglevel, Exception err) {
-        if (messenger != null && (config.sendAllLog || loglevel.intValue() > Level.INFO.intValue()) && config.sendLogOnError) {
-            messenger.sendNotify(String.format("[%s] %s%n%s", name, err == null ? "? unknown exception ?" : err.getMessage(), getStackStr(err)));
-        }
+    protected static void Log(Level loglevel, Exception err, boolean sendReport) {
         logger.log(loglevel, String.format("[%s] %s", name, err == null ? "? unknown exception ?" : err.getMessage()), err);
+        if (config != null) {
+            if (sendReport && loglevel.intValue() > Level.WARNING.intValue() && config.sendErrorReports) {
+                sendErrorReport(null, err);
+            }
+            if (messenger != null && loglevel.intValue() > Level.INFO.intValue() && config.sendLogOnError) {
+                messenger.sendNotify(String.format("[%s] %s%n%s%n%s", name, err == null ? "? unknown exception ?" : err.getMessage(), Str.getStackStr(err)));
+            }
+        }
     }
+    static Date sentErrors[] = new Date[5];
+    static final long minSendWait = 600; // min time before a send expires
 
-    public static String getStackStr(Exception err) {
-        if (err == null) {
-            return "";
+    static void sendErrorReport(String txt, Exception err) {
+        boolean allow = false;
+        long now = (new Date()).getTime();
+        for (int i = 0; i < sentErrors.length; ++i) {
+            if (sentErrors[i] == null || (now - sentErrors[i].getTime()) / 1000 >= minSendWait) {
+                sentErrors[i] = new Date();
+                allow = true;
+                break;
+            }
         }
-        String stack = "";
-        StackTraceElement[] st = err.getCause().getStackTrace();
-        for (StackTraceElement e : st) {
-            stack += e.toString() + "\n";
-        }
-        return stack;
+        if (allow) {
+            int pcount = -1;
+            if (pricelist != null) {
+                try {
+                    pcount = pricelist.getItems(true).length;
+                } catch (Exception ex) {
+                }
+            }
+
+            String fname = FTPErrorReporter.SendNewText(
+                    "BetterShop Error Report at " + (new Date()).toString() + "\n"
+                    + "SUID: " + Updater.serverUID(config!=null ? !config.unMaskErrorID : true) + "\n"
+                    + (config!=null ? (config.customErrorMessage.length() > 0 ? config.customErrorMessage + "\n" : "") : "")
+                    + "Machine: " + System.getProperty("os.name") + " " + System.getProperty("os.arch") + "," + System.getProperty("user.dir") + "\n"
+                    + "Bukkit: " + Updater.getBukkitVersion(true) + "\n"
+                    + "Version: " + pdfFile.getVersion() + "  (" + lastUpdatedStr + ")\n"
+                    + "iConomy: " + (iConomy != null ? ((Plugin) iConomy).getDescription().getVersion() : "none") + "\n"
+                    + "Permissions: " + (Permissions != null ? "true" : "false") + "\n"
+                    + "Last executed command: " + lastCommand + "\n"
+                    + (config != null ? config.condensedSettings() : "-") + "," + (pcount >= 0 ? pcount : "-") + "\n"
+                    + "Message: " + (txt != null ? txt : err.getMessage() != null && err.getMessage().length() > 0 ? err.getMessage() : "") + "\n"
+                    + (err.getLocalizedMessage() != null && err.getLocalizedMessage().length() > 0
+                    && (err.getMessage() == null || !err.getMessage().equals(err.getLocalizedMessage())) ? err.getLocalizedMessage() + "\n" : "")
+                    + Str.getStackStr(err) + "\n");
+            if (fname != null && fname.length() > 0) {
+                System.out.println("report sent. id: " + fname);
+            } else {
+                System.out.println("Error report unable to send.. is the server online & BetterShop up-to-date?");
+                System.out.println("(if yes, then the error tracker is likely temporarily offline)");
+            }
+        } //else {  System.out.println("sending too fast.."); }
     }
 }

@@ -3,6 +3,22 @@
 
 # at start, will tell you if this plugin is the current version
 CheckForUpdates: true
+# as an attempt to stay on top of any bugs, error reports can be sent to notify me of a potential bug
+# (all information is confidential, and no private information is sent)
+# an error id is generated & outputted to the log, and can be viewed at ftp://nas.boldlygoingnowhere.org/youridhere
+#note: this helps, but is not self-explanitory when trying to track down a bug
+#     if you're having problems, please post at http://forums.bukkit.org/threads/3359/
+#     with the id & the steps you used to get there
+AutoErrorReporting: true
+# share your server ip (unhashed) with the devs?
+#   (if true, means you don't mind us coming over for a visit)
+UnMaskErrorID: false
+# if you want to send a custom message with your error report
+#   ex: email for me to contact you for more info about an error
+#       info about your server (installed plugins?)
+# note: message cannot be longer than 90 characters
+CustomErrorMessage: ""
+
 
 # number of lines outputted in shop list
 ItemsPerPage: 9
@@ -21,6 +37,11 @@ allowbuyillegal: false
 usemaxstack: true
 #used tools can be bought back?
 buybacktools: true
+#should the shop buy items from users?
+buybackenabled: true
+#if there are LivingEntities for sale, what's the max that can be bought at once?
+# (does not limit total, if buy repeatedly)
+maxEntityPurchase: 3
 
 # what to use for table/file name (files are saved as .csv)
 tablename: BetterShop
@@ -52,7 +73,6 @@ MySQL:
     #   use this to change how long it is considered current (seconds)
     tempCacheTTL: 10
 # section for logging transactions (future can be used to make a dynamic market)
-#todo: add flatfile compatability
 transactionLog:
     enabled: false
     # what to use for transaction log tablename (or flatfile flename)
@@ -70,9 +90,9 @@ totalsTransactionLog:
 dynamicMarket:
     # dynamic pricing not yet implemented..
     # when it is, will require transactionLog.enabled: true
-    enabled: false
+    dynamicPricing: false
 
-    # the following are not influenced if dynamicMarket is disabled
+    # the following are not influenced if dynamicPricing is disabled
     
     #if a price is not set on a craftable item, can still sell if the materials to make are for sale
     sellcraftables: true
@@ -109,10 +129,17 @@ itemStock:
 #   dark grey, medium blue, light green, cyan, orange-red, pink, yellow, white
 defaultItemColor: white
 
+#other plugin options:
+
+
 #if you're using my MinecraftIM plugin, should errors be sent to you?
 sendLogOnError: true
 #send everything logged? (not just exceptions)
 sendAllLog: false
+
+#Help: should main commands not be listed on the main page?
+hideHelp: false
+
 
 ##########################################
 # strings section: Text used in messages #
@@ -260,6 +287,27 @@ strings:
     # bottom of market list page (blank for none)
     listtail: "-----------------------------------------"
 
+#
+# messages related to stock
+####
+    
+    #when an item cannot be bought because it is out of stock
+    # <item> what tried to buy
+    outofstock: "This item is currently out of stock"
+
+    # when trying to buy more than is in stock (will then buy that much)
+    # <item> what tried to buy
+    # <amt>  how much is left in stock
+    lowstock: "Only <amt> avaliable for purchase"
+    
+    # when trying to sell, but there is no more room in stock (and noOverStock)
+    # <item> what tried to sell
+    maxstock: "This item is currently at max stock"
+    
+    # when trying to sell, but there is not enough room in stock for all (and noOverStock)
+    # <item> what tried to sell
+    # <amt>  how much is in stock
+    highstock: "Only <amt> can be sold back"
 #
 # shopbuy messages
 ####
