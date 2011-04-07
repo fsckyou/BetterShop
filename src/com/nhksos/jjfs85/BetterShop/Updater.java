@@ -6,13 +6,14 @@
  */
 package com.nhksos.jjfs85.BetterShop;
 
-import com.jascotty2.MySQL.InstallDependency;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,12 +31,18 @@ import java.util.logging.Logger;
 /**
  * @author jacob
  */
-public class Updater extends InstallDependency {
+public class Updater {
 
-    public static String downloadPage = "https://github.com/jascotty2/BetterShop/downloads";
-    public static String downloadLink = "/downloads/jascotty2/BetterShop/BetterShop.jar";
-    public static String altDownloadPage = "https://github.com/BetterShop/BetterShop/downloads";
-    public static String altDownloadLink = "/downloads/BetterShop/BetterShop/BetterShop.jar";
+    public static String downloadPage = "https://github.com/BetterShop/BetterShop/downloads";
+    public static String downloadLink = "/downloads/BetterShop/BetterShop/BetterShop.jar";
+    // for stats purposes, open the normal page that counts the downloads
+    public static String downloadLinkCounter = "https://github.com/downloads/BetterShop/BetterShop/BetterShop.jar";
+    public static String downloadLinkUrl = "http://cloud.github.com/downloads/BetterShop/BetterShop/BetterShop.jar";
+    
+    public static String altDownloadPage = "https://github.com/jascotty2/BetterShop/downloads";
+    public static String altDownloadLink = "/downloads/jascotty2/BetterShop/BetterShop.jar";
+    public static String altDownloadLinkCounter = "https://github.com/downloads/jascotty2/BetterShop/BetterShop.jar";
+    public static String altDownloadLinkUrl = "http://cloud.github.com/downloads/jascotty2/BetterShop/BetterShop.jar";
     public static String suid = null, sip = null;
 
     public Updater() {
@@ -51,6 +58,10 @@ public class Updater extends InstallDependency {
 
     public static void check(String location, String linktofind) {
         isUpToDate(location, linktofind, true);
+    }
+
+    public static boolean isUpToDate(boolean log) {
+        return isUpToDate(downloadPage, downloadLink, log);
     }
 
     public static boolean isUpToDate() {
@@ -129,12 +140,33 @@ public class Updater extends InstallDependency {
 
                             // now check the two dates & comment
                             if ((new Date(pluginDate.getTime() + BetterShop.lastUpdated_gracetime * 60000)).before(uploadDate)) {// && (uploadDate.getTime()-pluginDate.getTime())/1000 > BetterShop.lastUpdated_gracetime * 60) {
-                                if (log) {
-                                    if (uploadComment.length() > 0) {
-                                        BetterShop.Log("Newer BetterShop version found on git: " + uploadComment + " (" + uploadDate + ")");
+
+                                if (uploadComment.length() > 0) {
+                                    if (uploadComment.trim().equalsIgnoreCase(BetterShop.pdfFile.getVersion())) {
+                                        if (log) {
+                                            BetterShop.Log("BetterShop is (likely) up-to-date (version matches comment)");
+                                        }
+                                        return true;
                                     } else {
-                                        BetterShop.Log("Newer BetterShop version found on git (" + uploadDate + ")");
+                                        // double-check against this file
+                                        File jar = getJarFile();
+                                        //System.out.println(jar);
+                                        if (jar != null && jar.exists()) { // double-check got the file
+                                            if (!(new Date(jar.lastModified() + BetterShop.lastUpdated_gracetime * 60000)).before(uploadDate)) {
+                                                if (log) {
+                                                    //System.out.println("file is newer than on git");
+                                                    BetterShop.Log("File is newer than on git");
+                                                }
+                                                return true;
+                                            }
+                                        }
+
+                                        if (log) {
+                                            BetterShop.Log("Newer BetterShop version found on git: " + uploadComment + " (" + uploadDate + ")");
+                                        }
                                     }
+                                } else if (log) {
+                                    BetterShop.Log("Newer BetterShop version found on git (" + uploadDate + ")");
                                 }
                                 return false;
                                 //BetterShop.Log((new Date(pluginDate.getTime() +BetterShop.lastUpdated_gracetime * 60000)) + " before " + uploadDate);
@@ -174,41 +206,93 @@ public class Updater extends InstallDependency {
         return true;
     }
 
-    public boolean loadNew() {
-        /*
-        File pluginFile = new File(new File("plugins"), pluginName + ".jar");
-        if (pluginFile.isFile()) {
-        try {
-        Plugin newPlugin = serverPM.loadPlugin(pluginFile);
-        if (newPlugin != null) {
-        pluginName = newPlugin.getDescription().getName();
-        sender.sendMessage("§ePlugin Loaded: §c[" + pluginName + "]");
-        serverPM.enablePlugin(newPlugin);
-        if (newPlugin.isEnabled()) {
-        sender.sendMessage("§ePlugin Enabled: §a[" + pluginName + "]");
-        } else {
-        sender.sendMessage("§ePlugin §cFAILED§e to Enable:§c[" + pluginName + "]");
+    public static File getJarFile() {
+        return new File(Updater.class.getProtectionDomain().getCodeSource().getLocation().getPath().
+                replace("%20", " ").replace("%25", "%"));
+    }
+
+    public static boolean downloadUpdate() {
+        File jar = getJarFile();
+        if (jar.exists()) {
+            try {
+                downloadUpdate(downloadLinkUrl, jar.getAbsolutePath(), downloadLinkCounter);
+                return true;
+            }/* catch (MalformedURLException ex) {
+            Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+            Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
+            }*/ catch (Exception ex) {
+                BetterShop.Log(Level.SEVERE, "Failed to download update", ex, false);
+            }
         }
-        } else {
-        sender.sendMessage("§ePlugin §cFAILED§e to Load!");
-        }
-        } catch (InvalidPluginException ex) {
-        sender.sendMessage("§cFile exists but is not a plugin file.");
-        } catch (InvalidDescriptionException ex) {
-        sender.sendMessage("§cPlugin exists but is invalid.");
-        }
-        } else {
-        sender.sendMessage("§cFile does NOT exist, check name and try again.");
-        }
-        //*/
         return false;
     }
-    
+
+    protected static synchronized void downloadUpdate(String location, String filename, String counterLink) throws MalformedURLException, IOException {
+        URLConnection connection = new URL(location).openConnection();
+        if (counterLink != null && counterLink.length() > 0) {
+            try {
+                // for stats purposes, open the normal page that counts the downloads
+                URLConnection cconn = (new URL(counterLink)).openConnection();
+                cconn.getContent();
+            } catch (Exception e) {
+            }
+        }
+
+        connection.setUseCaches(false);
+
+        InputStream in = connection.getInputStream();
+        OutputStream out = new FileOutputStream(filename); //  + "_new"
+
+        byte[] buffer = new byte[65536];
+        //int currentCount = 0;
+        for (int count; (count = in.read(buffer)) >= 0;) {
+            out.write(buffer, 0, count);
+            //currentCount += count;
+        }
+
+        in.close();
+        out.close();
+    }
+
+    /*
+    public boolean loadNew() {
+    File pluginFile = new File(new File("plugins"), pluginName + ".jar");
+    if (pluginFile.isFile()) {
+    try {
+    Plugin newPlugin = serverPM.loadPlugin(pluginFile);
+    if (newPlugin != null) {
+    pluginName = newPlugin.getDescription().getName();
+    sender.sendMessage("§ePlugin Loaded: §c[" + pluginName + "]");
+    serverPM.enablePlugin(newPlugin);
+    if (newPlugin.isEnabled()) {
+    sender.sendMessage("§ePlugin Enabled: §a[" + pluginName + "]");
+    } else {
+    sender.sendMessage("§ePlugin §cFAILED§e to Enable:§c[" + pluginName + "]");
+    }
+    } else {
+    sender.sendMessage("§ePlugin §cFAILED§e to Load!");
+    }
+    } catch (InvalidPluginException ex) {
+    sender.sendMessage("§cFile exists but is not a plugin file.");
+    } catch (InvalidDescriptionException ex) {
+    sender.sendMessage("§cPlugin exists but is invalid.");
+    }
+    } else {
+    sender.sendMessage("§cFile does NOT exist, check name and try again.");
+    }
+    return false;
+    }
+    //*/
     public static String serverUID() {
-        return serverUID(true);
+        return serverUID(true, -1);
     }
 
     public static String serverUID(boolean useMask) {
+        return serverUID(useMask, -1);
+    }
+
+    public static String serverUID(boolean useMask, int maxlen) {
         if (suid == null) {
 
             String ips = "";
@@ -238,6 +322,9 @@ public class Updater extends InstallDependency {
             } catch (Exception ex) {
                 //Logger.getAnonymousLogger().log(Level.WARNING, ex.getMessage(), ex);
                 suid = ips;
+            }
+            if (maxlen > 0 && sip.length() > maxlen) {
+                sip = sip.substring(0, maxlen);
             }
         }
         return useMask ? suid : sip;
@@ -279,8 +366,8 @@ public class Updater extends InstallDependency {
                     }
                 }
                 if (ver.length() > 0) {
-                    return !includeStart ? ver.substring(ver.indexOf("git-Bukkit-")) :
-                        ver.substring(ver.indexOf("git-Bukkit-")) + "\nStartTime: " + ver.substring(0, 19)
+                    return !includeStart ? ver.substring(ver.indexOf("git-Bukkit-"))
+                            : ver.substring(ver.indexOf("git-Bukkit-")) + "\nStartTime: " + ver.substring(0, 19)
                             + "  (" + serverRunTimeSpan(ver.substring(0, 19)) + ")";
                 } else {
                     return "?";

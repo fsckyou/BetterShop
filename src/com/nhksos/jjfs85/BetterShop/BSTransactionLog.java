@@ -39,6 +39,7 @@ public class BSTransactionLog extends TransactionLog {
                         if (!MySQLconnection.tableExists(transLogTablename)) {
                             logUserTransactions = createTransactionLogTable();
                         } else {
+                            tableCheck();
                             try {
                                 truncateRecords();
                             } catch (Exception ex) {
@@ -88,6 +89,23 @@ public class BSTransactionLog extends TransactionLog {
         return BetterShop.config.useMySQL()
                 ? (MySQLconnection != null ? MySQLconnection.GetDatabaseName() : "null")
                 : (flatFile != null ? flatFile.getName() : "null");
+    }
+
+    public void tableCheck() {
+        if (isLoaded && BetterShop.config.useMySQL()
+                && MySQLconnection != null && MySQLconnection.IsConnected()) {
+            try {
+                //Version 1.6.1.1+  ALTER TABLE BetterShopMarketActivity ADD COLUMN PRICE DECIMAL(11,2);
+
+                if (logUserTransactions
+                        && !MySQLconnection.columnExists(transLogTablename, "PRICE")) {
+                    MySQLconnection.RunUpdate("ALTER TABLE " + transLogTablename + " ADD COLUMN PRICE DECIMAL(11,2);");
+                    BetterShop.Log(transLogTablename + " updated");
+                }
+            } catch (SQLException ex) {
+                BetterShop.Log(Level.SEVERE, "Error while upgrading MySQL Table", ex);
+            }
+        }
     }
 } // end class BSLog
 

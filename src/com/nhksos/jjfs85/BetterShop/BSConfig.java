@@ -29,7 +29,10 @@ public class BSConfig {
     public final static File pluginFolder = new File("plugins", BetterShop.name);
     public final static File configfile = new File(pluginFolder, configname);
     // plugin settings
-    public boolean checkUpdates = true, sendErrorReports = true, unMaskErrorID = false;
+    public boolean checkUpdates = true,
+            sendErrorReports = true,
+            unMaskErrorID = false,
+            autoUpdate = false;
     public boolean sendLogOnError = true, sendAllLog = false;
     public boolean hideHelp = false;
     public static final int MAX_CUSTMSG_LEN = 90;
@@ -140,6 +143,7 @@ public class BSConfig {
                 HashMap<String, String[]> allKeys = new HashMap<String, String[]>();
                 allKeys.put("", new String[]{
                             "CheckForUpdates",
+                            "AutoUpdate",
                             "AutoErrorReporting",
                             "UnMaskErrorID",
                             "CustomErrorMessage",
@@ -225,6 +229,13 @@ public class BSConfig {
                     if (k == null) {
                         //k = "";
                         continue;
+                    } else if (config.getKeys(k) == null) {
+                        if (missing.length() > 0) {
+                            missing += ", " + k;
+                        } else {
+                            missing += k;
+                        }
+                        continue;
                     }
                     String key = "";
                     if (k.length() > 0) {
@@ -266,6 +277,7 @@ public class BSConfig {
             }
 
             checkUpdates = config.getBoolean("CheckForUpdates", checkUpdates);
+            autoUpdate = config.getBoolean("AutoUpdate", autoUpdate);
             sendErrorReports = config.getBoolean("AutoErrorReporting", sendErrorReports);
             unMaskErrorID = config.getBoolean("UnMaskErrorID", unMaskErrorID);
             customErrorMessage = config.getString("CustomErrorMessage", customErrorMessage).trim();
@@ -478,7 +490,7 @@ public class BSConfig {
                 + b(hideHelp) + "," + b(sendLogOnError) + "," + b(sendAllLog) + ","
                 + sortOrder.size() + ",'" + tableName + "'," + databaseType + ","
                 + tempCacheTTL + "," + useDBCache + "," + priceListLifespan + ","
-                + logUserTransactions + userTansactionLifespan + ","
+                + logUserTransactions + "," + userTansactionLifespan
                 + ",'" + transLogTablename + "',"
                 + logTotalTransactions + ",'" + recordTablename + "',"
                 + useItemStock + ",'" + stockTablename + "'," + b(noOverStock) + ","

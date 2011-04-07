@@ -32,13 +32,17 @@ import com.nijiko.coelho.iConomy.system.Bank;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import me.taylorkelly.help.Help;
 import com.jascotty2.MinecraftIM.MinecraftIM;
+import java.util.Timer;
+import java.util.TimerTask;
+import org.bukkit.Server;
+import org.bukkit.event.server.PluginDisableEvent;
 
 /*
  * BetterShop for Bukkit
  */
 public class BetterShop extends JavaPlugin {
 
-    public final static String lastUpdatedStr = "4/03/11 10:10 -0500"; // "MM/dd/yy HH:mm Z"
+    public final static String lastUpdatedStr = "4/06/11 19:40 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
@@ -50,7 +54,7 @@ public class BetterShop extends JavaPlugin {
     protected static Permissions Permissions = null;
     protected static iConomy iConomy = null;
     protected static Bank iBank = null;
-    private final Listener Listener = new Listener(this);
+    private PluginListener pListener = null;
     //private static boolean isLoaded = true;
     public static PluginDescriptionFile pdfFile;// = this.getDescription();
     protected static MinecraftIM messenger = null;
@@ -58,32 +62,49 @@ public class BetterShop extends JavaPlugin {
     // for animal/monster purchases
     public final EntityListen entityListener = new EntityListen();
 
-    // no longer needed as of #600
-    private class Listener extends ServerListener {
+    private class PluginListener extends ServerListener {
 
         BetterShop shop;
 
-        public Listener(BetterShop plugin) {
+        public PluginListener(BetterShop plugin) {
             shop = plugin;
         }
 
+        // no longer needed as of #600
         @Override
         public void onPluginEnable(PluginEnableEvent event) {
-            //Log(event.getPlugin().getDescription().getName());
+            if (event.getPlugin().isEnabled()) { // double-check
+                //Log(event.getPlugin().getDescription().getName());
+                if (event.getPlugin().getDescription().getName().equals("iConomy")) {
+                    BetterShop.iConomy = (iConomy) event.getPlugin();
+                    iBank = iConomy.getBank();
+                    //config.currency = iBank.getCurrency();
+                    Log("Attached to iConomy.");
+                } else if (event.getPlugin().getDescription().getName().equals("Permissions")) {
+                    BetterShop.Permissions = (Permissions) event.getPlugin();
+                    Log("Attached to Permissions or something close enough to it");
+                } else if (event.getPlugin().getDescription().getName().equals("Help")) {
+                    shop.registerHelp();
+                } else if (event.getPlugin().getDescription().getName().equals("MinecraftIM")) {
+                    messenger = (MinecraftIM) event.getPlugin();
+                    //messenger.registerMessageHandler(shop);
+                    Log("linked to MinecraftIM");
+                }
+            }
+        }
+
+        @Override
+        public void onPluginDisable(PluginDisableEvent event) {
             if (event.getPlugin().getDescription().getName().equals("iConomy")) {
-                BetterShop.iConomy = (iConomy) event.getPlugin();
-                iBank = iConomy.getBank();
-                //config.currency = iBank.getCurrency();
-                Log("Attached to iConomy.");
+                BetterShop.iConomy = null;
+                iBank = null;
+                Log(Level.WARNING, "iConomy has been disabled!");
             } else if (event.getPlugin().getDescription().getName().equals("Permissions")) {
-                BetterShop.Permissions = (Permissions) event.getPlugin();
-                Log("Attached to Permissions or something close enough to it");
-            } else if (event.getPlugin().getDescription().getName().equals("Help")) {
-                shop.registerHelp();
+                BetterShop.Permissions = null;
+                Log("Permissions support disabled");
             } else if (event.getPlugin().getDescription().getName().equals("MinecraftIM")) {
-                messenger = (MinecraftIM) event.getPlugin();
-                //messenger.registerMessageHandler(shop);
-                Log("linked to MinecraftIM");
+                messenger = null;
+                Log("MinecraftIM link disabled");
             }
         }
     }
@@ -118,11 +139,6 @@ public class BetterShop extends JavaPlugin {
 
             Log("'Help' support enabled.");
         } //else Log("Help not yet found.");
-    }
-
-    private void registerEvents() {
-        this.getServer().getPluginManager().registerEvent(
-                Event.Type.PLUGIN_ENABLE, Listener, Priority.Monitor, this);
     }
 
     private void hookDepends() {
@@ -166,7 +182,26 @@ public class BetterShop extends JavaPlugin {
             config = new BSConfig();
             //Log("config loaded");
             if (config.checkUpdates) {
-                Updater.check();
+                if (config.autoUpdate) {
+                    if (!Updater.isUpToDate(true)) {
+                        Log("Downloading & Installing Update");
+                        if (Updater.downloadUpdate()) {
+                            Log("Update Downloaded: Restarting Server..");
+                            //this.setEnabled(false);
+                            //this.getServer().dispatchCommand((CommandSender) new CommanderSenderImpl(this), "stop");
+                            //this.getServer().dispatchCommand(new AdminCommandSender(this), "stop");
+
+                            try {
+                                (new ServerReload(getServer())).start(500);
+                            } catch (Exception e) { // just in case...
+                                this.getServer().reload();
+                            }
+                            return;
+                        }
+                    }
+                } else {
+                    Updater.check();
+                }
             }
         } else {
             config.load();
@@ -189,8 +224,9 @@ public class BetterShop extends JavaPlugin {
             stock = null;
         }
 
+        pListener = new PluginListener(this);
+
         hookDepends();
-        registerEvents();
         registerHelp();
         //isLoaded = true;
 
@@ -198,7 +234,9 @@ public class BetterShop extends JavaPlugin {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Priority.Normal, this);
         pm.registerEvent(Event.Type.ENTITY_TARGET, entityListener, Priority.Normal, this);
-
+        // monitor plugins - if any are enabled/disabled by a plugin manager
+        pm.registerEvent(Event.Type.PLUGIN_ENABLE, pListener, Priority.Monitor, this);
+        
         // Just output some info so we can check all is well
         logger.log(Level.INFO, pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!",
                 new Object[]{pdfFile.getName(), pdfFile.getVersion()});
@@ -207,10 +245,12 @@ public class BetterShop extends JavaPlugin {
     public void onDisable() {
         // NOTE: All registered events are automatically unregistered when a
         // plugin is disabled
-        try {
-            pricelist.close();
-        } catch (Exception ex) {
-            Log(Level.SEVERE, ex, false);
+        if (pricelist != null) {
+            try {
+                pricelist.close();
+            } catch (Exception ex) {
+                Log(Level.SEVERE, ex, false);
+            }
         }
 
         transactions = null;
@@ -299,6 +339,24 @@ public class BetterShop extends JavaPlugin {
                     return bscommand.importDB(sender, args);
                 } else if (args[0].equalsIgnoreCase("restore")) {
                     return bscommand.restoreDB(sender, args);
+                } else if (args[0].equalsIgnoreCase("update")) {
+                    if (sender.isOp()) {
+                        Log("Downloading & Installing Update");
+                        BSutils.sendMessage(sender, "Downloading & Installing Update");
+                        if (Updater.downloadUpdate()) {
+                            Log("Update Downloaded: Restarting Server..");
+                            BSutils.sendMessage(sender, "Download Successful.. reloading server");
+                            //this.setEnabled(false);
+                            //this.getServer().dispatchCommand((CommandSender) new CommanderSenderImpl(this), "stop");
+                            //this.getServer().dispatchCommand(new AdminCommandSender(this), "stop");
+
+                            //this.getServer().reload();
+                            (new ServerReload(getServer())).start(500);
+                        }
+                    } else {
+                        BSutils.sendMessage(sender, "Only an OP can update the shop plugin");
+                    }
+                    return true;
                 } else if (args[0].equalsIgnoreCase("ver") || args[0].equalsIgnoreCase("version")) {
                     // allow admin.info or developers access to plugin status (so if i find a bug i can see if it's current)
                     if (BSutils.hasPermission(sender, "BetterShop.admin.info", false)
@@ -499,9 +557,9 @@ public class BetterShop extends JavaPlugin {
 
             String fname = FTPErrorReporter.SendNewText(
                     "BetterShop Error Report at " + (new Date()).toString() + "\n"
-                    + "SUID: " + Updater.serverUID(config!=null ? !config.unMaskErrorID : true) + "\n"
-                    + (config!=null ? (config.customErrorMessage.length() > 0 ? config.customErrorMessage + "\n" : "") : "")
-                    + "Machine: " + System.getProperty("os.name") + " " + System.getProperty("os.arch") + "," + System.getProperty("user.dir") + "\n"
+                    + "SUID: " + Updater.serverUID(config != null ? !config.unMaskErrorID : true, BSConfig.MAX_CUSTMSG_LEN) + "\n"
+                    + (config != null ? (config.customErrorMessage.length() > 0 ? config.customErrorMessage + "\n" : "") : "")
+                    + "Machine: " + System.getProperty("os.name") + " " + System.getProperty("os.arch") /* + "," + System.getProperty("user.dir")*/ + "\n"
                     + "Bukkit: " + Updater.getBukkitVersion(true) + "\n"
                     + "Version: " + pdfFile.getVersion() + "  (" + lastUpdatedStr + ")\n"
                     + "iConomy: " + (iConomy != null ? ((Plugin) iConomy).getDescription().getVersion() : "none") + "\n"
@@ -520,4 +578,46 @@ public class BetterShop extends JavaPlugin {
             }
         } //else {  System.out.println("sending too fast.."); }
     }
+
+    // mustn't be renamed..
+    protected class ServerReload extends TimerTask {
+
+        Server reload = null;
+
+        public ServerReload(Server s) {
+            reload = s;
+        }
+
+        public void start(long wait) {
+            (new Timer()).schedule(this, wait);
+        }
+
+        @Override
+        public void run() {
+            if (reload != null) {
+                reload.reload();
+            }
+        }
+    }
+    /*
+    private static class AdminCommandSender implements CommandSender {
+
+    Plugin pl;
+
+    public AdminCommandSender(Plugin here) {
+    pl = here;
+    }
+
+    public boolean isOp() {
+    return true;
+    }
+
+    public void sendMessage(String string) {
+    pl.getServer().getLogger().info(string);
+    }
+
+    public Server getServer() {
+    return pl.getServer();
+    }
+    }//*/
 }

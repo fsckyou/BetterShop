@@ -86,6 +86,27 @@ public class Str extends OutputStream {
     }
 
 
+    public static int indexOf(String array[], String search) {
+        if (array != null && array.length > 0) {
+            for (int i = array.length - 1; i >= 0; --i) {
+                if (array[i].equals(search)) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    public static int indexOfIgnoreCase(String array[], String search) {
+        for (int i = array.length - 1; i >= 0; --i) {
+            if (array[i].equalsIgnoreCase(search)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+
     public static String getStackStr(Exception err) {
         if (err == null) {// || err.getCause() == null) {
             return "";

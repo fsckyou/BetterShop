@@ -3,6 +3,8 @@
 
 # at start, will tell you if this plugin is the current version
 CheckForUpdates: true
+# should updates be downloaded automatically? (note: deletes the old version)
+AutoUpdate: false
 # as an attempt to stay on top of any bugs, error reports can be sent to notify me of a potential bug
 # (all information is confidential, and no private information is sent)
 # an error id is generated & outputted to the log, and can be viewed at ftp://nas.boldlygoingnowhere.org/youridhere

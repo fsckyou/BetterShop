@@ -11,6 +11,7 @@ In-Game Commands:
 /shop import 			<file> 			insert values from file in plugin folder
 /shop restore 			<file> 			clear shop & load from saved backup file
 /shop restock						manually update stock (if enabled)
+/shop updade 						OP-only command that forces update & restarts server plugins
 /shophelp (shelp)		[command]		shows you all the commands you can use, or more help on [command]
 /shoplist (sl,slist)		[pagenum]		shows a listing of items for sale (if -1, all, or full given, will show full list. (for console use))
 /shopitems (sitems)					show full listing of items in shop, without prices
@@ -142,6 +143,7 @@ craftables' stock is tied to source material stock (if using sell craftables)
 make LivingEntities follow the owner around?
 change buystock if itemStock is enabled so that if trying to buy multiple stacks (buystack item 20) and stock runs out to stop buying (stop showing "out of stock")
 individually-customizable restock stock values per-item
+sign/chest shop interface
 integrate with other economy plugins?
 BOSeconomy  	http://forums.bukkit.org/threads/4874/
 
@@ -158,10 +160,23 @@ Cookies	integration:  http://forums.bukkit.org/threads/5327/
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
+Version 1.6.3.6 - 4/6/11 - jascotty2
+again, previously forgot to update the date in last version
+- added additional checks to prevent future false-positives 
+-- (also checks if comment on download matches plugin, not if plugin >= comment version)
+figured out the integrity check errors :)
+now runs checks on changed tables to check if needs updating (and adds columns as necessary)
+- just transaction log table for now (only table with added columns)
+another option added: AutoUpdate
+- if a new update is found, will download & install
+- can also run manually with /shop updade (OP-only, since forces update & restarts server plugins)
+
+
 Version 1.6.3.5 - 4/4/11 - jascotty2
 fixed a rare null exception in integretycheck?
 fixed saving errors when transaction logging disabled
 implemented infinite stock (setting stock to -1 makes infinite)
+# 1,000+ downloads in one day!
 
 
 Version 1.6.3.4 - 4/3/11 - jascotty2
@@ -169,6 +184,7 @@ fixed a rare invalid function signature error
 fixed if a player tries to buy/sell air
 OPs now completely bypass security checks
 more changes to error reporting format: added a custom message
+# 10,000+ lines of code :)
 
 
 Version 1.6.3.3 - 4/2/11 - jascotty2
@@ -263,7 +279,7 @@ added some more MySQL db connection reconnect points (autoReconnect=true not wor
 more checking for iConomy account mod failures (i've had more problems with it)
 fixed a format error if using a replacement char (like <l.>)
 retructured sellall inventory editing
-# passed 7500 lines of code! (430KB)
+# passed 7500 lines of code! (430KB) 
 
 
 Version 1.6.1.4 - 3/21/11 - jascotty2
