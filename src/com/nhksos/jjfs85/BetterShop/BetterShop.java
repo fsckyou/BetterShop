@@ -243,7 +243,9 @@ public class BetterShop extends JavaPlugin {
         // for sign events
         pm.registerEvent(Event.Type.PLAYER_INTERACT, signShop, Priority.Normal, this);
         pm.registerEvent(Event.Type.BLOCK_BREAK, signShop.signDestroy, Priority.Normal, this);
+        //pm.registerEvent(Event.Type.BLOCK_DAMAGE, signShop.signDestroy, Priority.Normal, this);
         //pm.registerEvent(Event.Type.BLOCK_CANBUILD, signShop.buildStopper, Priority.Normal, this);
+        pm.registerEvent(Event.Type.BLOCK_PLACE, signShop.signDestroy, Priority.Normal, this);
 
         // monitor plugins - if any are enabled/disabled by a plugin manager
         pm.registerEvent(Event.Type.PLUGIN_ENABLE, pListener, Priority.Monitor, this);

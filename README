@@ -67,6 +67,14 @@ buystack can be given multiple items, or number of stacks: "/buystack wool 5" or
 shopsellall can be given multiple items (/sell all cobble gravel flint dirt)
 plural-insensitive items: if not found, will check if plural & remove "s"
 not just items can be bought anymore: can now buy LivingEntities, like dogs (wolf)
+signs can be used for buying & selling
+- first line: [BetterShop] (not case-sensitive)
+- second line: action: buy [amt], buyall, buystack, sell [amt], sellall, sellstack
+- third line: item (name, id, etc)
+- fourth line: unused (was going to make price, but decided on pricecheck instead)
+- to activate, someone with BetterShop.admin.makesign must left-click the sign.. the first line will change color when active
+- left-click for price check (or activate), right-click to buy/sell
+- if a unauthorized player destroys a block a sign is on, is canceled
 
 === administration
 Every item and subtype can be priced differently
@@ -85,12 +93,14 @@ can import new prices in a batch from a csv (or old yml format) : /shop import <
 on start, can check the download page to see if there is an update avaliable
 shop can be given a finite stock from which to buy & sell
 /shop ver[sion] to check the current version & see if there's an update
+/shop update to manually download & install the most recent version
 MinecraftIM support: forward errors or all messages
 checks for missing & unused configuration nodes
 strings have default values if missing
 auto error reporting added (can be disabled)
 custom message you can send with the error report
 help main page integration can be disabled
+global shop can be disabled & only allow signs to be used
 
 
 There are two ways to add things to the shop:
@@ -123,6 +133,7 @@ BetterShop.admin.info		show shop stats (only version number right now)
 BetterShop.admin.illegal	gives the ability to purchase 'illegal' items
 BetterShop.admin.backup		backing up and restoring the pricelist
 BetterShop.admin.restock	manually restock (if item stock is enabled)
+BetterShop.admin.makesign	make/remove a bettershop sign
 
 ===============================================================================
 TODO (items are removed as they're added)
@@ -152,6 +163,7 @@ automatically add missing config nodes (preserving comments)
 items as currency (if no economy plugin)
 integrate with other economy plugins?
 add categories to items
+sign explosion protection ?
 - can search, buy, & sell with category
 BOSeconomy  	http://forums.bukkit.org/threads/4874/
 
@@ -168,7 +180,13 @@ Cookies	integration:  http://forums.bukkit.org/threads/5327/
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
-Version 1.6.4.0 - 4/8/11 - jascotty2
+Version 1.6.4.1 - ? - jascotty2
+"inhand" and "inv" added as valid sellall/buyall items (signs only)
+- "in hand" buys/sells all of the type of item in the player's hand
+sign destroy algorithm improved (still can't check for explosions :( )
+
+
+Version 1.6.4.0 (?) - 4/8/11 - jascotty2
 stock message error fixed when selling too much
 fixed <curr> causing a server freeze
 added amount to pricecheck, so can check the result buy/sell price

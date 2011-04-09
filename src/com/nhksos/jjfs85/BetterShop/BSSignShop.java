@@ -23,12 +23,16 @@ import java.util.TimerTask;
 import java.util.logging.Level;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 //import org.bukkit.event.block.BlockCanBuildEvent;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockListener;
+import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerListener;
 
@@ -66,7 +70,22 @@ public class BSSignShop extends PlayerListener {
                         if (signs.containsKey(event.getClickedBlock().getLocation())) {
                             try {
                                 Item i = signs.get(event.getClickedBlock().getLocation());
-
+                                boolean isInv = false;
+                                if (i == null) {
+                                    String in = ((Sign) event.getClickedBlock().getState()).getLine(2).toLowerCase().replaceAll(" ", "");
+                                    isInv = in.equals("inv");
+                                    if (!isInv && in.length() > 0) {
+                                        if (in.equals("hand")
+                                                || in.equals("inhand")) {
+                                            if (event.getPlayer().getItemInHand() == null
+                                                    || event.getPlayer().getItemInHand().getAmount() == 0) {
+                                                BSutils.sendMessage(event.getPlayer(), "you don't have anything in your hand");
+                                                return;
+                                            }
+                                            i = Item.findItem(event.getPlayer().getItemInHand());
+                                        }
+                                    }
+                                }
                                 String amt = action.contains(" ") ? action.substring(action.lastIndexOf(" ")).trim() : "1";
                                 if (action.endsWith("all")) {
                                     amt = "all";
@@ -175,9 +194,16 @@ public class BSSignShop extends PlayerListener {
                                 BSutils.sendMessage(event.getPlayer(), "invalid amount");
                                 return;
                             }
-                            Item toAdd[] = new Item[]{Item.findItem(clickedSign.getLine(2))};
+                            String in = clickedSign.getLine(2).replaceAll(" ", "").toLowerCase();
+                            Item toAdd[] = new Item[]{Item.findItem(in)};
                             if (toAdd != null && toAdd[0] == null && clickedSign.getLine(2).length() > 0) {
-                                toAdd = Item.findItems(clickedSign.getLine(2));
+                                if (!(in.equals("inv")
+                                        || in.equals("hand")
+                                        || in.equals("inhand"))) {
+                                    toAdd = Item.findItems(clickedSign.getLine(2));
+                                } else {
+                                    toAdd = new Item[1];
+                                }
                             }
                             if (toAdd == null) {
                                 BSutils.sendMessage(event.getPlayer(), "error");
@@ -202,7 +228,8 @@ public class BSSignShop extends PlayerListener {
                                     BSutils.sendMessage(event.getPlayer(), "item cannot be sold");
                                     return;
                                 }
-                            } else if (action.startsWith("buy")) {
+                            } else if (action.startsWith("buy")
+                                    && !(in.equals("hand") || in.equals("inhand"))) {
                                 if (toAdd[0] == null) { //  && !amt.equalsIgnoreCase("all")
                                     BSutils.sendMessage(event.getPlayer(), "must provide an item to buy");
                                     return;
@@ -233,11 +260,27 @@ public class BSSignShop extends PlayerListener {
                             //buildStopper.stopPlace(event.getClickedBlock().getRelative(event.getBlockFace()).getLocation());
                             try {
                                 Item i = signs.get(event.getClickedBlock().getLocation());
-                                if (!BetterShop.config.allowbuyillegal && !i.IsLegal()
+
+                                boolean isInv = false;
+                                if (i == null) {
+                                    String in = ((Sign) event.getClickedBlock().getState()).getLine(2).toLowerCase().replaceAll(" ", "");
+                                    isInv = in.equals("inv");
+                                    if (!isInv && in.length() > 0) {
+                                        if (in.equals("hand")
+                                                || in.equals("inhand")) {
+                                            if (event.getPlayer().getItemInHand() == null
+                                                    || event.getPlayer().getItemInHand().getAmount() == 0) {
+                                                BSutils.sendMessage(event.getPlayer(), "you don't have anything in your hand");
+                                                return;
+                                            }
+                                            i = Item.findItem(event.getPlayer().getItemInHand());
+                                        }
+                                    }
+                                }
+                                if (i != null && !BetterShop.config.allowbuyillegal && !i.IsLegal()
                                         && !BSutils.hasPermission(event.getPlayer(), BSutils.BetterShopPermission.ADMIN_ILLEGAL, true)) {
                                     return;
                                 }
-
                                 String amt = action.contains(" ") ? action.substring(action.lastIndexOf(" ")).trim() : "1";
                                 if (action.endsWith("all")) {
                                     amt = "all";
@@ -272,13 +315,13 @@ public class BSSignShop extends PlayerListener {
                                     if (isBuy) {
                                         BSutils.buyAllItem(event.getPlayer(), i);
                                     } else {
-                                        BSutils.sellItems(event.getPlayer(), false, null, -1);
+                                        BSutils.sellItems(event.getPlayer(), isInv, i, -1);
                                     }
                                 } else {
                                     if (isBuy) {
                                         BSutils.buyItem(event.getPlayer(), i, CheckInput.GetInt(amt, 0));
                                     } else {
-                                        BSutils.sellItems(event.getPlayer(), false, i, CheckInput.GetInt(amt, 0));
+                                        BSutils.sellItems(event.getPlayer(), isInv, i, CheckInput.GetInt(amt, 0));
                                     }
                                 }
 
@@ -360,34 +403,62 @@ public class BSSignShop extends PlayerListener {
         }
         return false;
     }
-
     static BlockFace checkFaces[] = new BlockFace[]{BlockFace.SELF, BlockFace.UP,
         BlockFace.NORTH, BlockFace.SOUTH, BlockFace.WEST, BlockFace.EAST};
 
     public class SignDestroyListener extends BlockListener {
 
         @Override
-        public void onBlockBreak(BlockBreakEvent event) {
-            boolean canBreak = BSutils.hasPermission(event.getPlayer(), BSutils.BetterShopPermission.ADMIN_MAKESIGN, false);
-            /*
-            if (event.getBlock().getState() instanceof Sign
-                    && signs.containsKey(event.getBlock().getLocation())) {
+        public void onBlockPlace(BlockPlaceEvent event) {
+            if (signs.containsKey(event.getBlock().getLocation())) {
                 signs.remove(event.getBlock().getLocation());
-            }*/
-            
-            for (BlockFace b : checkFaces) {
-                if (event.getBlock().getRelative(b).getState() instanceof Sign
-                        && signs.containsKey(event.getBlock().getRelative(b).getLocation())) {
-                    if (!canBreak) {
-                        event.setCancelled(true);
-                        BSutils.hasPermission(event.getPlayer(), BSutils.BetterShopPermission.ADMIN_MAKESIGN, true);
-                        return;
-                    }else{
-                        signs.remove(event.getBlock().getRelative(b).getLocation());
-                    }
+            }
+        }
+
+        @Override
+        public void onBlockBreak(BlockBreakEvent event) {
+            ArrayList<Block> list = getSigns(event.getBlock());
+            if (list.size() > 0 && !BSutils.hasPermission(event.getPlayer(), BSutils.BetterShopPermission.ADMIN_MAKESIGN, true)) {
+                event.setCancelled(true);
+                return;
+            } else {
+                for (Block b : list) {
+                    signs.remove(b.getLocation());
                 }
             }
         }
+    }
+
+    public static ArrayList<Block> getSigns(Block b) {
+        ArrayList<Block> list = new ArrayList<Block>();
+        if (b.getState() instanceof Sign) {
+            list.add(b);
+        } else {
+            if (b.getRelative(BlockFace.UP).getType() == Material.SIGN_POST) {
+                list.add(b.getRelative(BlockFace.UP));
+            }
+            if (b.getRelative(BlockFace.NORTH).getType() == Material.WALL_SIGN
+                    && b.getRelative(BlockFace.NORTH).getData() == 4) {
+                list.add(b.getRelative(BlockFace.NORTH));
+            }
+            if (b.getRelative(BlockFace.SOUTH).getType() == Material.WALL_SIGN
+                    && b.getRelative(BlockFace.SOUTH).getData() == 5) {
+                list.add(b.getRelative(BlockFace.SOUTH));
+            }
+
+            if (b.getRelative(BlockFace.WEST).getType() == Material.WALL_SIGN
+                    && b.getRelative(BlockFace.WEST).getData() == 3) {
+                list.add(b.getRelative(BlockFace.WEST));
+            }
+
+            if (b.getRelative(BlockFace.EAST).getType() == Material.WALL_SIGN
+                    && b.getRelative(BlockFace.EAST).getData() == 2) {
+                list.add(b.getRelative(BlockFace.EAST));
+            }
+
+            //BlockFace.UP, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.WEST, BlockFace.EAST
+        }
+        return list;
     }
 
     protected class SignSaver extends TimerTask {
@@ -401,21 +472,21 @@ public class BSSignShop extends PlayerListener {
             save();
         }
     }
-        /*
+    /*
     public class StopBreak extends BlockListener {
-]
-        Location toStop = null;
-        
-        public void stopPlace(Location loc) {
-        toStop = loc.clone();
-        }
-        
-        @Override
-        public void onBlockCanBuild(BlockCanBuildEvent event) {
-        if (event.getBlock().getLocation().equals(toStop)) {
-        event.setBuildable(false);
-        }
-        }
+    ]
+    Location toStop = null;
+
+    public void stopPlace(Location loc) {
+    toStop = loc.clone();
+    }
+
+    @Override
+    public void onBlockCanBuild(BlockCanBuildEvent event) {
+    if (event.getBlock().getLocation().equals(toStop)) {
+    event.setBuildable(false);
+    }
+    }
     }//*/
     /*
     public class UpdateInv extends TimerTask {

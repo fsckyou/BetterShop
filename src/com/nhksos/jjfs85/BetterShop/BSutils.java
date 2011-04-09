@@ -326,7 +326,7 @@ public class BSutils {
 
         ItemStack[] its = player.getInventory().getContents();
         for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
-            if (its[i]!=null && its[i].getAmount() > 0) {
+            if (its[i] != null && its[i].getAmount() > 0) {
                 for (Item it : toFind) {
                     if (it != null && it.equals(its[i])) {
                         ItemStockEntry find = new ItemStockEntry(its[i]);
@@ -733,6 +733,9 @@ public class BSutils {
     public static ArrayList<ItemStockEntry> getCanSell(Player player, boolean onlyInv, Item[] toSell) {
         ArrayList<ItemStockEntry> sellable = new ArrayList<ItemStockEntry>(),
                 playerInv = getTotalInventory(player, onlyInv, toSell);
+        if(toSell != null && toSell.length == 1 && toSell[0] == null){
+            toSell = null;
+        }
         //ItemStack[] its = player.getInventory().getContents();
         boolean overstock = false;
         ArrayList<String> notwant = new ArrayList<String>();
@@ -791,15 +794,16 @@ public class BSutils {
             }
         }
         if (sellable.isEmpty() && !overstock) {
-            BSutils.sendMessage(player, "You Don't have any " + (toSell == null || toSell.length == 0 ? "Sellable Items"
+            BSutils.sendMessage(player, "You Don't have any " +
+                    (toSell == null || toSell.length == 0 || (toSell.length == 1 && toSell[0] == null) ? "Sellable Items"
                     : (toSell.length == 1 ? toSell[0].coloredName() : "of those items")));
         }
         return sellable;
     }
 
     protected static double sellItems(Player player, boolean onlyInv, Item item, int amt) {
-        if (item == null) {
-            ArrayList<ItemStockEntry> playerInv = getCanSell(player, onlyInv, null);
+        if (item == null || amt < 0) {
+            ArrayList<ItemStockEntry> playerInv = getCanSell(player, onlyInv, item == null ? null : new Item[]{item});
             if (playerInv == null || playerInv.isEmpty()) {
                 return 0;
             }
