@@ -678,7 +678,7 @@ items:
         name: Seeds
         aliases: seed
     item296:
-        name: wheat
+        name: Wheat
         aliases:
     item297:
         name: Bread

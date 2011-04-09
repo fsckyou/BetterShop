@@ -11,11 +11,11 @@ In-Game Commands:
 /shop import 			<file> 			insert values from file in plugin folder
 /shop restore 			<file> 			clear shop & load from saved backup file
 /shop restock						manually update stock (if enabled)
-/shop updade 						OP-only command that forces update & restarts server plugins
+/shop update 						OP-only command that forces update & restarts server plugins
 /shophelp (shelp)		[command]		shows you all the commands you can use, or more help on [command]
 /shoplist (sl,slist)		[pagenum]		shows a listing of items for sale (if -1, all, or full given, will show full list. (for console use))
 /shopitems (sitems)					show full listing of items in shop, without prices
-/shopcheck (sc,scheck) 		<item>			lookup a specific item so you don't have to read through pages of prices
+/shopcheck (sc,scheck) 		<item> [amount]		lookup a specific item so you don't have to read through pages of prices
 /shopbuy (buy,sbuy) 		<item> [amount]		buy an item for the price in the shopshop ("all" is accepted as an amount)
 /shopbuyall (buyall,sbuyall) 	<item> 			buy all of an item that you can hold
 /shopsell (sell,ssell)   	<item> [amount]		sell an item for the price in the shop
@@ -131,20 +131,28 @@ TODO (items are removed as they're added)
 calculated/derived item prices
 /shopvalue item[@amount] item  	to show the current trade value for two items
 discount system: users or groups can be charged less/more for an item or all items (sell prices also affected)
-more descriptive kit listing, similar to shoplist... also show items in each kit?
 dynamic market pricing, based off of logged market activity
 region shops (items added while in a region defined as a shop are only added to that shop)
-add option for amount in stock for surplus decreases how much item is worth to the shop (not influenced by market activity)
+add option for amount in stock for surplus decreases how much item is worth to the shop
 /shop alias <item> - show the itemname, with a list of aliases
 add pages for /shopitems
+more descriptive kit listing, similar to shoplist:
+- pages
+- show what makes up a kit
+- enable admin.add to see avaliable kits
 SQLite support?
 tie item prices to stock quotes?
 craftables' stock is tied to source material stock (if using sell craftables)
 make LivingEntities follow the owner around?
+make wolf already have player set as owner (waiting on bukkit to fix this..)
 change buystock if itemStock is enabled so that if trying to buy multiple stacks (buystack item 20) and stock runs out to stop buying (stop showing "out of stock")
 individually-customizable restock stock values per-item
-sign/chest shop interface
+chest shop interface ? 
+automatically add missing config nodes (preserving comments)
+items as currency (if no economy plugin)
 integrate with other economy plugins?
+add categories to items
+- can search, buy, & sell with category
 BOSeconomy  	http://forums.bukkit.org/threads/4874/
 
 
@@ -159,6 +167,26 @@ Cookies	integration:  http://forums.bukkit.org/threads/5327/
 ===============================================================================
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
+
+Version 1.6.4.0 - 4/8/11 - jascotty2
+stock message error fixed when selling too much
+fixed <curr> causing a server freeze
+added amount to pricecheck, so can check the result buy/sell price
+fixed a buying error when already has some of the item
+added a sign interface
+- first line: [BetterShop] (not case-sensitive)
+- second line: action: buy [amt], buyall, buystack, sell [amt], sellall, sellstack
+- third line: item (name, id, etc)
+- fourth line: unused (was going to make price, but decided on pricecheck instead)
+- to activate, someone with BetterShop.admin.makesign must left-click the sign.. the first line will change color when active
+- left-click to pricecheck
+- right-click to run action
+if a unauthorized player destroys a block a sign is on, is canceled
+fixed column check for table updating 
+updated for 670
+configuration nodes are moved to more organized parent nodes (easier to edit if using an intelligent text editor)
+- older nodes are still supported (for now)
+
 
 Version 1.6.3.6 - 4/6/11 - jascotty2
 again, previously forgot to update the date in last version

@@ -9,7 +9,7 @@ package com.jascotty2.Shop;
 import com.jascotty2.CheckInput;
 import com.jascotty2.MySQL.MySQLPriceList;
 import com.jascotty2.Item.*;
-import com.jascotty2.MinecraftFontWidthCalculator;
+import com.jascotty2.MinecraftChatStr;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -706,7 +706,7 @@ public class PriceList {
         }
         if (ret.size() > 2) {
             // format spaces
-            return MinecraftFontWidthCalculator.alignTags(ret, isPlayer);
+            return MinecraftChatStr.alignTags(ret, isPlayer);
         }
         return ret;
     }

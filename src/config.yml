@@ -1,57 +1,77 @@
 ## BetterShop Configuration file ##
 ################################### 
 
-# at start, will tell you if this plugin is the current version
-CheckForUpdates: true
-# should updates be downloaded automatically? (note: deletes the old version)
-AutoUpdate: false
-# as an attempt to stay on top of any bugs, error reports can be sent to notify me of a potential bug
-# (all information is confidential, and no private information is sent)
-# an error id is generated & outputted to the log, and can be viewed at ftp://nas.boldlygoingnowhere.org/youridhere
-#note: this helps, but is not self-explanitory when trying to track down a bug
-#     if you're having problems, please post at http://forums.bukkit.org/threads/3359/
-#     with the id & the steps you used to get there
-AutoErrorReporting: true
-# share your server ip (unhashed) with the devs?
-#   (if true, means you don't mind us coming over for a visit)
-UnMaskErrorID: false
-# if you want to send a custom message with your error report
-#   ex: email for me to contact you for more info about an error
-#       info about your server (installed plugins?)
-# note: message cannot be longer than 90 characters
-CustomErrorMessage: ""
+errors:
+    # at start, will tell you if this plugin is the current version
+    CheckForUpdates: true
+    # should updates be downloaded automatically? (note: deletes the old version)
+    AutoUpdate: false
+    # as an attempt to stay on top of any bugs, error reports can be sent to notify me of a potential bug
+    # (all information is confidential, and no private information is sent)
+    # an error id is generated & outputted to the log, and can be viewed at ftp://nas.boldlygoingnowhere.org/youridhere
+    #note: this helps, but is not self-explanitory when trying to track down a bug
+    #     if you're having problems, please post at http://forums.bukkit.org/threads/3359/
+    #     with the id & the steps you used to get there
+    AutoErrorReporting: true
+    # share your server ip (unhashed) with the devs?
+    #   (if true, means you don't mind us coming over for a visit)
+    UnMaskErrorID: false
+    # if you want to send a custom message with your error report
+    #   ex: email for me to contact you for more info about an error
+    #       info about your server (installed plugins?)
+    # note: message cannot be longer than 90 characters
+    CustomErrorMessage: ""
+
+    #if you're using jascotty2's MinecraftIM plugin, should errors be sent to you?
+    sendLogOnError: true
+    #send everything logged? (not just errors & exceptions)
+    sendAllLog: false
 
 
-# number of lines outputted in shop list
-ItemsPerPage: 9
-# broadcast all transactions publicly?
-publicmarket: false
+shop:
+    # number of lines outputted in shop list
+    ItemsPerPage: 9
+    # broadcast all transactions publicly?
+    publicmarket: false
 
-#items listed here will be sorted before everything else, in this order
-# ex:  4, 35, 35:1, 35:2, 35:3, 35:4, 35:5, 8, 2
-# (can also use item names)
-customsort:
+    #item buying behavior
+    #if someone without BetterShop.admin.illegal can buy illegal items
+    allowbuyillegal: false
+    #whether maxstack should be honored
+    usemaxstack: true
+    #used tools can be bought back?
+    buybacktools: true
+    #should the shop buy items from users?
+    buybackenabled: true
+    #if there are LivingEntities for sale, what's the max that can be bought at once?
+    # (does not limit total, if buy repeatedly)
+    maxEntityPurchase: 3
 
-#item buying behavior
-#if someone without BetterShop.admin.illegal can buy illegal items
-allowbuyillegal: false
-#whether maxstack should be honored
-usemaxstack: true
-#used tools can be bought back?
-buybacktools: true
-#should the shop buy items from users?
-buybackenabled: true
-#if there are LivingEntities for sale, what's the max that can be bought at once?
-# (does not limit total, if buy repeatedly)
-maxEntityPurchase: 3
+    # sign based shops enabled?
+    signShops: true
+    # color of an active sign's ttle
+    activeSignColor: blue
+    # command-based shop mode
+    # modes: global, disabled (default: global)
+    commandShop: global
+    #items listed here will be sorted before everything else, in this order
+    # ex:  4, 35, 35:1, 35:2, 35:3, 35:4, 35:5, 8, 2
+    # (can also use item names)
+    customsort:
 
-# what to use for table/file name (files are saved as .csv)
-tablename: BetterShop
+    #what color to reset text to after printing an item with a custom color
+    #   black, dark blue, dark green, dark sky blue, red, magenta, gold or amber, light grey
+    #   dark grey, medium blue, light green, cyan, orange-red, pink, yellow, white
+    defaultItemColor: white
 
-#use MySQL for databases? (includes pricelist, marketActivity, transactionTotals, and itemStock)
-useMySQL: false
+    # what to use for table/file name (files are saved as .csv)
+    tablename: BetterShop
+
 
 MySQL:
+    #use MySQL for databases? (includes pricelist, marketActivity, transactionTotals, and itemStock)
+    useMySQL: false
+
     # database to use in MySQL
     database: minecraft
     # MySQL Login Username
@@ -74,6 +94,7 @@ MySQL:
     #   (to lower database lookups & increase performance)
     #   use this to change how long it is considered current (seconds)
     tempCacheTTL: 10
+
 # section for logging transactions (future can be used to make a dynamic market)
 transactionLog:
     enabled: false
@@ -84,6 +105,7 @@ transactionLog:
     #   recommend not going too high, since the db could get pretty large
     #   (older records are removed when adding new ones)
     userTansactionLifespan: 2d
+
 # besides logging individual transactions, can also record the totals for whole world
 totalsTransactionLog:
     enabled: false
@@ -126,18 +148,7 @@ itemStock:
     # note: does not save the last update time, so a server restart could interfere with this cycle
     restock: 6h
 
-#what color to reset text to after printing an item with a custom color
-#   black, dark blue, dark green, dark sky blue, red, magenta, gold or amber, light grey
-#   dark grey, medium blue, light green, cyan, orange-red, pink, yellow, white
-defaultItemColor: white
-
 #other plugin options:
-
-
-#if you're using my MinecraftIM plugin, should errors be sent to you?
-sendLogOnError: true
-#send everything logged? (not just exceptions)
-sendAllLog: false
 
 #Help: should main commands not be listed on the main page?
 hideHelp: false
@@ -259,7 +270,16 @@ strings:
     # <avail> - current avaliable stock (if enabled)
     pricecheck: "Price check! &f[<item>&f]&2 Buy: &f<buyprice> &2Sell: &f<sellprice>"
     #pricecheck: "Price check! &f[<item>&f]&2 Buy: &f<buyprice> &2Sell: &f<sellprice> (stock: <avail>)"
-    
+
+    # when amount is specified
+    # <amt> - how many items looked up
+    multipricecheck: "Price check! <amt> &f[<item>&f]&2 Buy: &f<buyprice> &2Sell: &f<sellprice>"
+    # for signs
+    multipricechecksell: "Price check! <amt> &f[<item>&f]&2 Sell: &f<sellcur>"
+
+    multipricecheckbuy: "Price check! <amt> &f[<item>&f]&2 Buy: &f<buycur>"
+
+
     # message that the item is neither for sale nor can be sold.
     # <item> - what user is looking up
     nolisting: "&f[<item>&f] &2cannot be bought or sold."
@@ -300,7 +320,7 @@ strings:
     # when trying to buy more than is in stock (will then buy that much)
     # <item> what tried to buy
     # <amt>  how much is left in stock
-    lowstock: "Only <amt> avaliable for purchase"
+    lowstock: "Only <amt> <item> &favaliable for purchase"
     
     # when trying to sell, but there is no more room in stock (and noOverStock)
     # <item> what tried to sell

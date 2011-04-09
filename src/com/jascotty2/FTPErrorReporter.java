@@ -14,7 +14,6 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Date;
 
 /**
  * @author jacob
@@ -22,10 +21,10 @@ import java.util.Date;
 public class FTPErrorReporter {
 
     private static String user = "bettershopftp",
-            pass = "5ZVm9r46h8u5";
+            pass = "5ZVm9r46h8-u5";
     protected static String ftpHost = "nas.boldlygoingnowhere.org";
     protected static FTPupload uploader = null;
-    protected static int filesizeLimit = 2000; // yes, i know it's actually 2048
+    protected static int filesizeLimit = 2500; // yes, i know it's actually 2560
 
     public static String SendNewText(String txt) {
         // http://www.kodejava.org/examples/356.html
@@ -36,7 +35,8 @@ public class FTPErrorReporter {
         if (txt.length() > filesizeLimit) {
             txt = txt.substring(0, filesizeLimit);
         }
-        String fn = String.valueOf((int) System.currentTimeMillis() / 1000) + Rand.randFname(7, 15); // String.valueOf((new Date()).getTime()).substring(3)
+        String fn = String.valueOf((int) System.currentTimeMillis() / 1000).replace("-", "") + Rand.randFname(7, 15); // String.valueOf((new Date()).getTime()).substring(3)
+
         //String fn = Rand.randFname(15, 25);
         if (uploader.uploadText(txt, fn)) {
             return fn;

@@ -42,7 +42,7 @@ import org.bukkit.event.server.PluginDisableEvent;
  */
 public class BetterShop extends JavaPlugin {
 
-    public final static String lastUpdatedStr = "4/06/11 19:40 -0500"; // "MM/dd/yy HH:mm Z"
+    public final static String lastUpdatedStr = "4/08/11 19:35 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
@@ -51,6 +51,7 @@ public class BetterShop extends JavaPlugin {
     protected static BSItemStock stock = null;
     protected static BSTransactionLog transactions = null;
     protected static BSCommand bscommand = new BSCommand();
+    protected static BSSignShop signShop = null;
     protected static Permissions Permissions = null;
     protected static iConomy iConomy = null;
     protected static Bank iBank = null;
@@ -70,7 +71,6 @@ public class BetterShop extends JavaPlugin {
             shop = plugin;
         }
 
-        // no longer needed as of #600
         @Override
         public void onPluginEnable(PluginEnableEvent event) {
             if (event.getPlugin().isEnabled()) { // double-check
@@ -135,6 +135,7 @@ public class BetterShop extends JavaPlugin {
             helpPlugin.registerCommand("shop backup", "backup current pricelist", this, "BetterShop.admin.backup");
             helpPlugin.registerCommand("shop import [file]", "import a file into the pricelist", this, "BetterShop.admin.backup");
             helpPlugin.registerCommand("shop restore [file]", "restore pricelist from backup", this, "BetterShop.admin.backup");
+            helpPlugin.registerCommand("shop update", "manually update bettershop to newest version", this, "OP");
 
 
             Log("'Help' support enabled.");
@@ -209,6 +210,7 @@ public class BetterShop extends JavaPlugin {
         pricelist = new BSPriceList();
         transactions = new BSTransactionLog();
         stock = new BSItemStock();
+        signShop = new BSSignShop(this);
 
         if (!pricelist.load()) {
             Log(Level.SEVERE, "cannot load pricelist: " + pricelist.pricelistName(), false);
@@ -219,9 +221,13 @@ public class BetterShop extends JavaPlugin {
             Log(Level.SEVERE, "cannot load transaction log", false);
             //this.setEnabled(false);
             //return;
-        } else if (config.useItemStock && !stock.load()) {
+        }
+        if (config.useItemStock && !stock.load()) {
             Log(Level.SEVERE, "cannot load stock database", false);
             stock = null;
+        }
+        if (config.signShopEnabled && !signShop.load()) {
+            Log(Level.SEVERE, "cannot load sign shop database", false);
         }
 
         pListener = new PluginListener(this);
@@ -234,9 +240,14 @@ public class BetterShop extends JavaPlugin {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Priority.Normal, this);
         pm.registerEvent(Event.Type.ENTITY_TARGET, entityListener, Priority.Normal, this);
+        // for sign events
+        pm.registerEvent(Event.Type.PLAYER_INTERACT, signShop, Priority.Normal, this);
+        pm.registerEvent(Event.Type.BLOCK_BREAK, signShop.signDestroy, Priority.Normal, this);
+        //pm.registerEvent(Event.Type.BLOCK_CANBUILD, signShop.buildStopper, Priority.Normal, this);
+
         // monitor plugins - if any are enabled/disabled by a plugin manager
         pm.registerEvent(Event.Type.PLUGIN_ENABLE, pListener, Priority.Monitor, this);
-        
+
         // Just output some info so we can check all is well
         logger.log(Level.INFO, pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!",
                 new Object[]{pdfFile.getName(), pdfFile.getVersion()});
@@ -252,12 +263,16 @@ public class BetterShop extends JavaPlugin {
                 Log(Level.SEVERE, ex, false);
             }
         }
+        if (signShop != null) {
+            signShop.save();
+        }
 
         transactions = null;
         stock = null;
         pricelist = null;
         messenger = null;
         //config = null;
+        signShop = null;
 
         logger.info("BetterShop now unloaded");
     }
@@ -316,12 +331,12 @@ public class BetterShop extends JavaPlugin {
                 } else if (args[0].equalsIgnoreCase("listkits")) {
                     commandName = "shoplistkits";
                 } else if (args[0].equalsIgnoreCase("restock")) {
-                    if (BSutils.hasPermission(sender, "BetterShop.admin.restock", true)) {
+                    if (BSutils.hasPermission(sender, BSutils.BetterShopPermission.ADMIN_RESTOCK, true)) {
                         stock.Restock(true);
                         sender.sendMessage("Stock set to initial values");
                     }
                 } else if (args[0].equalsIgnoreCase("backup")) {
-                    if (BSutils.hasPermission(sender, "BetterShop.admin.backup", true)) {
+                    if (BSutils.hasPermission(sender, BSutils.BetterShopPermission.ADMIN_BACKUP, true)) {
                         SimpleDateFormat formatter = new SimpleDateFormat("_yyyy_MM_dd_HH-mm-ss");
                         String backFname = BSConfig.pluginFolder.getPath() + File.separatorChar
                                 + config.tableName + formatter.format(new java.util.Date()) + ".csv";
@@ -359,7 +374,7 @@ public class BetterShop extends JavaPlugin {
                     return true;
                 } else if (args[0].equalsIgnoreCase("ver") || args[0].equalsIgnoreCase("version")) {
                     // allow admin.info or developers access to plugin status (so if i find a bug i can see if it's current)
-                    if (BSutils.hasPermission(sender, "BetterShop.admin.info", false)
+                    if (BSutils.hasPermission(sender, BSutils.BetterShopPermission.ADMIN_INFO, false)
                             || (sender instanceof Player && (((Player) sender).getDisplayName().equals("jascotty2")
                             || ((Player) sender).getDisplayName().equals("jjfs85")))) {
                         BSutils.sendMessage(sender, "version " + pdfFile.getVersion());
@@ -426,6 +441,15 @@ public class BetterShop extends JavaPlugin {
             //System.out.println("new command: " + commandName);
             //System.out.println(BSCommand.argStr(args));
         }
+        if (!config.useGlobalCommandShop()
+                && Str.isIn(commandName, new String[]{
+                    "shopbuy", "shopbuyall", "shopbuystack",
+                    "shopsell", "shopsellall", "shopsellstack", /*"shoplist", "shopitems", "shopcheck", "shoplistkits",
+                "shopadd", "shopremove"*/})) {
+
+            BSutils.sendMessage(sender, "Shop is disabled from here");
+            return true;
+        }
 
         if (commandName.equals("shoplist")) {
             return bscommand.list(sender, args);
@@ -434,11 +458,6 @@ public class BetterShop extends JavaPlugin {
         } else if (commandName.equals("shophelp")) {
             return bscommand.help(sender, args);
         } else if (commandName.equals("shopbuy")) {
-            /*if (args.length == 1
-            && CreatureItem.creatureExists(args[0])
-            && sender instanceof Player) {
-            CreatureItem.spawnNewWithOwner((Player) sender, CreatureItem.getCreature(args[0]));
-            }*/
             return bscommand.buy(sender, args);
         } else if (commandName.equals("shopbuyall")) {
             ArrayList<String> arg = new ArrayList<String>();

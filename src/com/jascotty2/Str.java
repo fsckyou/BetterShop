@@ -55,6 +55,29 @@ public class Str extends OutputStream {
         return false;
     }
 
+    public static boolean startIsIn(String input, String check) {
+        String comms[] = check.split(",");
+        for (String c : comms) {
+            if (input.length() >= c.length()) {
+                if (input.substring(0, c.length()).equalsIgnoreCase(c)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean startIsIn(String input, String[] check) {
+        for (String c : check) {
+            if (input.length() >= c.length()) {
+                if (input.substring(0, c.length()).equalsIgnoreCase(c)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
     public static int count(String str, String find) {
         int c = 0;
         for (int i = 0; i < str.length() - find.length(); ++i) {

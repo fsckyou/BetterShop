@@ -349,13 +349,20 @@ public class MySQL {
 
     public boolean columnExists(String tableName, String columnName) throws SQLException {
         if (IsConnected()) {
-            ResultSet t = DBconnection.getMetaData().getTables(null, null, tableName, null);
-            if (t.next()) {
-                try {
-                    return t.findColumn(columnName) > 0;
-                } catch (SQLException ex) {
-                    return false;
-                }
+            ResultSet t = DBconnection.getMetaData().getColumns(null, null, tableName, null);//.getTables(null, null, tableName, null);//
+            for (;t.next();) {
+                //for(int i=1; i<=7; ++i)
+                //System.out.println(t.getString(i));
+                //System.out.println();
+                if(t.getString(4).equals(columnName))
+                    return true;
+                //try {
+                    //t.getRowId(columnName);
+                    //t.findColumn(columnName);
+                //} catch (SQLException ex) {
+                //    Logger.getAnonymousLogger().log(Level.WARNING, ex.getMessage(), ex);
+                //    return false;
+                //}
             }
         }
         return false;

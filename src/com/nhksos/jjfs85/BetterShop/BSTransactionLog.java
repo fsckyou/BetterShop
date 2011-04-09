@@ -19,7 +19,7 @@ public class BSTransactionLog extends TransactionLog {
         //load();
     } // end default constructor
 
-    public boolean load() {
+    public final boolean load() {
         transactions.clear();
         totalTransactions.clear();
         logUserTransactions = BetterShop.config.logUserTransactions;
@@ -92,7 +92,7 @@ public class BSTransactionLog extends TransactionLog {
     }
 
     public void tableCheck() {
-        if (isLoaded && BetterShop.config.useMySQL()
+        if (BetterShop.config.useMySQL()
                 && MySQLconnection != null && MySQLconnection.IsConnected()) {
             try {
                 //Version 1.6.1.1+  ALTER TABLE BetterShopMarketActivity ADD COLUMN PRICE DECIMAL(11,2);

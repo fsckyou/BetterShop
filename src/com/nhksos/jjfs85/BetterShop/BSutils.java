@@ -1,19 +1,102 @@
 package com.nhksos.jjfs85.BetterShop;
 
+import com.jascotty2.Item.CreatureItem;
 import com.jascotty2.Item.Item;
+import com.jascotty2.Item.ItemDB;
 import com.jascotty2.Item.ItemStockEntry;
+import com.jascotty2.Item.Kit;
+import com.jascotty2.Item.Kit.KitItem;
+import com.jascotty2.Shop.UserTransaction;
+import com.jascotty2.Str;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.nijiko.coelho.iConomy.system.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.logging.Level;
 import org.bukkit.Server;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
 public class BSutils {
+
+    public static enum BetterShopPermission {
+
+        /**
+         * generic user permissions
+         */
+        USER("BetterShop.user"),
+        /**
+         * look through shop listing of prices
+         */
+        USER_LIST("BetterShop.user.list"),
+        /**
+         * check the price of item(s)
+         */
+        USER_CHECK("BetterShop.user.check"),
+        /**
+         * view ingame help menu
+         */
+        USER_HELP("BetterShop.user.help"),
+        /**
+         * buy items from the shop
+         */
+        USER_BUY("BetterShop.user.buy"),
+        /**
+         * sell items to the shop
+         */
+        USER_SELL("BetterShop.user.sell"),
+        /**
+         * generic admin permissions
+         */
+        ADMIN("BetterShop.admin"),
+        /**
+         * add/edit items to/in the shop
+         */
+        ADMIN_ADD("BetterShop.admin.add"),
+        /**
+         * remove items from the shop
+         */
+        ADMIN_REMOVE("BetterShop.admin.remove"),
+        /**
+         * reload configuration & pricelist
+         */
+        ADMIN_LOAD("BetterShop.admin.load"),
+        /**
+         * show shop stats 
+         */
+        ADMIN_INFO("BetterShop.admin.info"),
+        /**
+         * gives the ability to purchase 'illegal' items
+         */
+        ADMIN_ILLEGAL("BetterShop.admin.illegal"),
+        /**
+         * backing up and restoring the pricelist
+         */
+        ADMIN_BACKUP("BetterShop.admin.backup"),
+        /**
+         * manually restock (if item stock is enabled)
+         */
+        ADMIN_RESTOCK("BetterShop.admin.restock"),
+        /**
+         * ability to add/remove shop signs
+         */
+        ADMIN_MAKESIGN("BetterShop.admin.makesign");
+        String permissionNode = "user";
+
+        BetterShopPermission(String per) {
+            permissionNode = per;
+        }
+
+        @Override
+        public String toString() {
+            return permissionNode;
+        }
+    }
 
     static boolean anonymousCheck(CommandSender sender) {
         if (!(sender instanceof Player)) {
@@ -125,14 +208,26 @@ public class BSutils {
         return false;
     }
 
+    public static boolean hasPermission(CommandSender player, BetterShopPermission node) {
+        return hasPermission(player, node.toString(), false);
+    }
+
+    public static boolean hasPermission(CommandSender player, BetterShopPermission node, boolean notify) {
+        return hasPermission(player, node.toString(), notify);
+    }
+
     static boolean hasPermission(CommandSender player, String node) {
         return hasPermission(player, node, false);
     }
 
     static boolean hasPermission(CommandSender player, String node, boolean notify) {
-        if (player.isOp() || !(player instanceof Player)) { // ops override permission check (double-check is a Player)
+        if (player == null || player.isOp() || !(player instanceof Player) || node == null || node.length() == 0) { // ops override permission check (double-check is a Player)
             return true;
-        } else if (BetterShop.Permissions == null || BetterShop.Permissions.Security == null) {
+        }/* else if (!node.toLowerCase().startsWith("bettershop")) {
+        node = "BetterShop" + (node.codePointAt(0) == '.' ? "" : ".") + node;
+        }*/
+
+        if (BetterShop.Permissions == null || BetterShop.Permissions.Security == null) {
             // only ops have access to .admin
             if ((node == null || node.length() < 16) // if invalid node, assume true
                     || !node.substring(0, 16).equalsIgnoreCase("BetterShop.admin")) {
@@ -202,7 +297,7 @@ public class BSutils {
 
         ItemStack[] its = player.getInventory().getContents();
         for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
-            if (its[i].getAmount() > 0) {
+            if (its[i] != null && its[i].getAmount() > 0) {
                 ItemStockEntry find = new ItemStockEntry(its[i]);
                 int pos = inv.indexOf(find);
                 if (pos >= 0) {
@@ -231,7 +326,7 @@ public class BSutils {
 
         ItemStack[] its = player.getInventory().getContents();
         for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
-            if (its[i].getAmount() > 0) {
+            if (its[i]!=null && its[i].getAmount() > 0) {
                 for (Item it : toFind) {
                     if (it != null && it.equals(its[i])) {
                         ItemStockEntry find = new ItemStockEntry(its[i]);
@@ -247,5 +342,576 @@ public class BSutils {
             }
         }
         return inv;
+    }
+
+    public static ArrayList<ItemStockEntry> getTotalInventory(Player player, boolean onlyInv, ArrayList<ItemStockEntry> toFind) {
+        if (toFind == null) {
+            return getTotalInventory(player, onlyInv);
+        }
+        ArrayList<ItemStockEntry> inv = new ArrayList<ItemStockEntry>();
+        if (toFind.isEmpty()) {
+            return inv;
+        }
+        ItemStack[] its = player.getInventory().getContents();
+        for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
+            if (its[i] != null && its[i].getAmount() > 0) {
+                for (ItemStockEntry it : toFind) {
+                    if (it != null && it.equals(its[i])) {
+                        int pos = inv.indexOf(it);
+                        if (pos >= 0) {
+                            inv.get(pos).AddAmount(its[i].getAmount());
+                        } else {
+                            inv.add(new ItemStockEntry(it));
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return inv;
+    }
+    /*
+    public static ArrayList<ItemStockEntry> getTotalSellableInventory(Player player, boolean onlyInv) {
+    ArrayList<ItemStockEntry> inv = new ArrayList<ItemStockEntry>();
+    try {
+    ItemStack[] its = player.getInventory().getContents();
+    for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
+    if (its[i].getAmount() > 0 && BetterShop.pricelist.isForSale(its[i])) {
+    ItemStockEntry find = new ItemStockEntry(its[i]);
+    int pos = inv.indexOf(find);
+    if (pos >= 0) {
+    inv.get(pos).AddAmount(its[i].getAmount());
+    } else {
+    inv.add(find);
+    }
+    }
+    }
+    } catch (Exception ex) {
+    BetterShop.Log(Level.SEVERE, ex);
+    return null;
+    }
+    return inv;
+    }//*/
+
+    public static UserTransaction buyAllItem(Player player, Item toBuy) {
+        if (toBuy == null || player == null) {
+            return null;
+        }
+        double price = BetterShop.pricelist.itemBuyPrice(player, toBuy);
+        if (price < 0) {
+            if (price != Double.NEGATIVE_INFINITY) {
+                BSutils.sendMessage(player,
+                        BetterShop.config.getString("notforsale").
+                        replaceAll("<item>", toBuy.coloredName()));
+            }
+            return null;
+        }
+        int canHold = 0, maxStack = BetterShop.config.usemaxstack ? toBuy.getMaxStackSize() : 64;
+        PlayerInventory inv = player.getInventory();
+        if (!toBuy.isEntity()) {
+            // don't search armor slots
+            for (int i = 0; i <= 35; ++i) {
+                ItemStack it = inv.getItem(i);
+                if ((toBuy.equals(it) && it.getAmount() < maxStack) || it.getAmount() == 0) {
+                    canHold += maxStack - it.getAmount();
+                }
+            }
+        } else {
+            canHold = BetterShop.config.maxEntityPurchase;
+        }
+        return _buyItem(player, toBuy, canHold, maxStack, price);
+    }
+
+    public static UserTransaction buyItem(Player player, Item toBuy, int amt) {
+        if (toBuy == null || player == null || amt <= 0) {
+            return null;
+        } else if (amt <= 0) {
+            BSutils.sendMessage(player, BetterShop.config.getString("nicetry"));
+            return null;
+        }
+        double price = BetterShop.pricelist.itemBuyPrice(player, toBuy);
+        if (price < 0) {
+            if (price != Double.NEGATIVE_INFINITY) {
+                BSutils.sendMessage(player,
+                        BetterShop.config.getString("notforsale").
+                        replaceAll("<item>", toBuy.coloredName()));
+            }
+            return null;
+        }
+        if (toBuy.isKit()) {
+            return _buyKit(player, ItemDB.getKit(toBuy), amt, price);
+        }
+        int canHold = 0, maxStack = BetterShop.config.usemaxstack ? toBuy.getMaxStackSize() : 64;
+        PlayerInventory inv = player.getInventory();
+        if (!toBuy.isEntity()) {
+            // don't search armor slots
+            for (int i = 0; i <= 35; ++i) {
+                ItemStack it = inv.getItem(i);
+                if ((toBuy.equals(it) && it.getAmount() < maxStack) || it.getAmount() == 0) {
+                    canHold += maxStack - it.getAmount();
+                }
+            }
+        } else {
+            canHold = BetterShop.config.maxEntityPurchase;
+        }
+        if (amt > canHold) {
+            BSutils.sendMessage(player, String.format(BetterShop.config.getString("outofroom").
+                    replace("<item>", "%1$s").replace("<amt>", "%2$d").
+                    replace("<priceper>", "%3$01.2f").replace("<leftover>", "%4$d").
+                    replace("<curr>", "%5$s").replace("<free>", "%6$d"), toBuy.coloredName(),
+                    amt, price, amt - canHold, BetterShop.config.currency(), canHold));
+            if (canHold == 0) {
+                return null;
+            }
+            amt = canHold;
+        }
+
+        return _buyItem(player, toBuy, amt, maxStack, price);
+    }
+
+    private static UserTransaction _buyItem(Player player, Item toBuy, int amt, int maxStack, double unitPrice) {
+        UserTransaction ret = null; // new UserTransaction(toBuy, false);
+        PlayerInventory inv = player.getInventory();
+        // now check if there are items avaliable for purchase
+        long avail = -1;
+        if (BetterShop.stock != null && BetterShop.config.useItemStock) {
+            try {
+                avail = BetterShop.stock.getItemAmount(toBuy);
+            } catch (Exception ex) {
+                BetterShop.Log(Level.SEVERE, ex);
+                avail = -1;
+            }
+            if (avail == 0) {
+                BSutils.sendMessage(player, BetterShop.config.getString("outofstock").
+                        replaceAll("<item>", toBuy.coloredName()));
+                return null;
+            } else if (avail >= 0 && amt > avail) {
+                BSutils.sendMessage(player, String.format(BetterShop.config.getString("lowstock").
+                        replaceAll("<item>", toBuy.coloredName()).
+                        replaceAll("<amt>", String.valueOf(avail))));
+                amt = (int) avail;
+            }
+        }
+        double cost = amt * unitPrice;
+
+        if (cost == 0 || BSutils.debit(player, cost)) {
+            if (!toBuy.isEntity()) {
+                //if (maxStack == 64) { //((Player) player).getInventory().addItem(toBuy.toItemStack(amtbought));
+                //    inv.addItem(toBuy.toItemStack(amtbought));
+                //} else {
+                int amtLeft = amt;
+                for (int i = 0; i <= 35; ++i) {
+                    ItemStack it = inv.getItem(i);
+                    if (it.getAmount() <= 0) {
+                        inv.setItem(i, toBuy.toItemStack((maxStack < amtLeft ? maxStack : amtLeft)));
+                        amtLeft -= maxStack;
+                    } else if (toBuy.equals(it) && it.getAmount() < maxStack) {
+                        int itAmt = it.getAmount();
+                        inv.setItem(i, toBuy.toItemStack(amtLeft + itAmt > maxStack ? maxStack : amtLeft + itAmt));
+                        amtLeft -= maxStack - itAmt;
+                    }
+                    if (amtLeft <= 0) {
+                        break;
+                    }
+                }
+                //}
+                // drop in front of player?
+                //World w = player.getServer().getWorld(""); w.dropItem(player.getServer().getPlayer("").getLocation(), leftover.values());//.dropItem(
+            } else {
+                for (int i = 0; i < amt; ++i) {
+                    CreatureItem.spawnNewWithOwner((Player) player, CreatureItem.getCreature(toBuy.ID()));
+                }
+            }
+            BSutils.sendMessage(player, String.format(BetterShop.config.getString("buymsg").
+                    replace("<item>", "%1$s").
+                    replace("<amt>", "%2$d").
+                    replace("<priceper>", "%3$01.2f").
+                    replace("<total>", "%4$01.2f").
+                    replace("<curr>", "%5$s").
+                    replace("<totcur>", "%6$s"),
+                    toBuy.coloredName(), amt, unitPrice, cost,
+                    BetterShop.config.currency(), BSutils.formatCurrency(cost)));
+
+            if (BetterShop.config.publicmarket && BetterShop.config.hasString("publicbuymsg")) {
+                BSutils.broadcastMessage(player, String.format(BetterShop.config.getString("publicbuymsg").
+                        replace("<item>", "%1$s").
+                        replace("<amt>", "%2$d").
+                        replace("<priceper>", "%3$01.2f").
+                        replace("<total>", "%4$01.2f").
+                        replace("<curr>", "%5$s").
+                        replace("<totcur>", "%6$s").
+                        replace("<player>", "%7$s"),
+                        toBuy.coloredName(), amt, unitPrice, cost,
+                        BetterShop.config.currency(), BSutils.formatCurrency(cost), ((Player) player).getDisplayName()), false);
+            }
+
+            try {
+                if (BetterShop.stock != null && BetterShop.config.useItemStock) {
+                    BetterShop.stock.changeItemAmount(toBuy, -amt);
+                }
+
+                ret = new UserTransaction(
+                        toBuy, false, amt, unitPrice, ((Player) player).getDisplayName());
+                BetterShop.transactions.addRecord(ret);
+
+            } catch (Exception ex) {
+                BetterShop.Log(Level.SEVERE, ex);
+            }
+        } else {
+            BSutils.sendMessage(player, String.format(BetterShop.config.getString("insuffunds").
+                    replace("<item>", "%1$s").
+                    replace("<amt>", "%2$d").
+                    replace("<total>", "%3$01.2f").
+                    replace("<curr>", "%5$s").
+                    replace("<priceper>", "%4$01.2f").
+                    replace("<totcur>", "%6$s"), toBuy.coloredName(),
+                    amt, cost, unitPrice, BetterShop.config.currency(),
+                    BSutils.formatCurrency(unitPrice)));
+        }
+        return ret;
+    }
+
+    private static UserTransaction _buyKit(Player player, Kit toBuy, int amt, double unitPrice) {
+        UserTransaction ret = null;
+        PlayerInventory inv = ((Player) player).getInventory();
+        KitItem items[] = toBuy.getKitItems();
+
+        int maxBuy = 0;
+
+        ItemStack invCopy[] = new ItemStack[36];
+        for (int i = 0; i <= 35; ++i) {
+            invCopy[i] = new ItemStack(inv.getItem(i).getType(), inv.getItem(i).getAmount(), inv.getItem(i).getDurability());
+        }
+
+        while (true) {
+            int numtoadd = 0;
+            for (int itn = 0; itn < toBuy.numItems(); ++itn) {
+                numtoadd = items[itn].itemAmount;
+                int maxStack = BetterShop.config.usemaxstack ? items[itn].getMaxStackSize() : 64;
+                // don't search armor slots
+                for (int i = 0; i <= 35; ++i) {
+                    //if (items[itn].equals(new Item(invCopy[i])) ||  (invCopy[i].getAmount() == 0 && invCopy[i].getAmount()<maxStack)) {
+                    if ((items[itn].equals(new Item(invCopy[i])) && invCopy[i].getAmount() < maxStack)
+                            || invCopy[i].getAmount() == 0) {
+                        //System.out.println("can place " + items[itn] + " at " + i + " : " + invCopy[i]);
+                        invCopy[i].setTypeId(items[itn].ID());
+                        invCopy[i].setDurability(items[itn].Data());
+                        invCopy[i].setAmount(invCopy[i].getAmount() + (maxStack < numtoadd ? maxStack : numtoadd));
+                        numtoadd -= maxStack < numtoadd ? maxStack : numtoadd;
+                        //System.out.println(invCopy[i]);
+                        if (numtoadd <= 0) {
+                            break;
+                        }
+                    }
+                }
+                if (numtoadd > 0) {
+                    break;
+                }
+            }
+            if (numtoadd <= 0) {
+                //System.out.println("1 added: " + maxBuy);
+                ++maxBuy;
+            } else {
+                break;
+            }
+        }
+
+        if (amt > maxBuy) {
+            BSutils.sendMessage(player, String.format(BetterShop.config.getString("outofroom").
+                    replace("<item>", "%1$s").
+                    replace("<amt>", "%2$d").
+                    replace("<priceper>", "%3$01.2f").
+                    replace("<leftover>", "%4$d").
+                    replace("<curr>", "%5$s").
+                    replace("<free>", "%6$d"), toBuy.coloredName(),
+                    amt, unitPrice, amt - maxBuy, BetterShop.config.currency(), maxBuy));
+            if (maxBuy == 0) {
+                return null;
+            }
+            amt = maxBuy;
+        }
+
+        // now check if there are items avaliable for purchase
+        long avail = -1;
+        if (BetterShop.stock != null && BetterShop.config.useItemStock) {
+            try {
+                avail = BetterShop.stock.getItemAmount(toBuy);
+            } catch (Exception ex) {
+                BetterShop.Log(Level.SEVERE, ex);
+            }
+            /*if (avail == -1) {
+            BSutils.sendMessage(player, ChatColor.RED + "Failed to lookup an item stock listing");
+            return true;
+            } else */ if (avail == 0) {
+                BSutils.sendMessage(player, BetterShop.config.getString("outofstock").
+                        replaceAll("<item>", toBuy.coloredName()));
+                return null;
+            } else if (amt > avail) {
+                BSutils.sendMessage(player, String.format(BetterShop.config.getString("lowstock").
+                        replaceAll("<item>", toBuy.coloredName()).
+                        replaceAll("<amt>", String.valueOf(avail))));
+                amt = (int) avail;
+            }
+        }
+
+        double cost = amt * unitPrice;
+        if (cost == 0 || BSutils.debit(player, cost)) {
+            try {
+                for (int num = 0; num < amt; ++num) {
+                    int numtoadd = 0;
+                    for (int itn = 0; itn < toBuy.numItems(); ++itn) {
+                        numtoadd = items[itn].itemAmount;
+                        int maxStack = BetterShop.config.usemaxstack ? items[itn].getMaxStackSize() : 64;
+                        // don't search armor slots
+                        for (int i = 0; i <= 35; ++i) {
+                            if ((items[itn].equals(new Item(inv.getItem(i))) && inv.getItem(i).getAmount() < maxStack) || inv.getItem(i).getAmount() == 0) {
+                                //System.out.println("placing " + items[itn] + " at " + i + " (" + inv.getItem(i) + ")");
+                                inv.setItem(i, items[itn].toItemStack(inv.getItem(i).getAmount() + (maxStack < numtoadd ? maxStack : numtoadd)));
+                                numtoadd -= maxStack < numtoadd ? maxStack : numtoadd;
+                                //System.out.println(inv.getItem(i));
+                                if (numtoadd <= 0) {
+                                    break;
+                                }
+                            }
+                        }
+                        if (numtoadd > 0) {
+                            System.out.println("failed to add " + items[itn] + "!");
+                            break;
+                        }
+                    }
+                    if (numtoadd > 0) {
+                        System.out.println("early exit while adding!");
+                        BSutils.broadcastMessage(player, "An Error occurred.. contact an admin to resolve this issue");
+                        break;
+                    }
+                }
+                if (BetterShop.stock != null && BetterShop.config.useItemStock) {
+                    BetterShop.stock.changeItemAmount(toBuy, -amt);
+                }
+                BSutils.sendMessage(player, String.format(BetterShop.config.getString("buymsg").
+                        replace("<item>", "%1$s").
+                        replace("<amt>", "%2$d").
+                        replace("<priceper>", "%3$01.2f").
+                        replace("<total>", "%4$01.2f").
+                        replace("<curr>", "%5$s").
+                        replace("<totcur>", "%6$s"),
+                        toBuy.coloredName(), amt, unitPrice, cost, BetterShop.config.currency(),
+                        BSutils.formatCurrency(cost)));
+                if (BetterShop.config.publicmarket && BetterShop.config.hasString("publicbuymsg")) {
+                    BSutils.broadcastMessage(player, String.format(
+                            BetterShop.config.getString("publicbuymsg").
+                            replace("<item>", "%1$s").
+                            replace("<amt>", "%2$d").
+                            replace("<priceper>", "%3$01.2f").
+                            replace("<total>", "%4$01.2f").
+                            replace("<curr>", "%5$s").
+                            replace("<totcur>", "%6$s").
+                            replace("<player>", "%7$s"),
+                            toBuy.coloredName(), amt, unitPrice, cost, BetterShop.config.currency(),
+                            BSutils.formatCurrency(cost), ((Player) player).getDisplayName()), false);
+                }
+                ret = new UserTransaction(toBuy, false, amt, unitPrice, player.getDisplayName());
+                BetterShop.transactions.addRecord(ret);
+            } catch (Exception ex) {
+                BetterShop.Log(Level.SEVERE, ex);
+            }
+        } else {
+            BSutils.sendMessage(player, String.format(
+                    BetterShop.config.getString("insuffunds").
+                    replace("<item>", "%1$s").
+                    replace("<amt>", "%2$d").
+                    replace("<total>", "%3$01.2f").
+                    replace("<curr>", "%5$s").
+                    replace("<priceper>", "%4$01.2f").
+                    replace("<totcur>", "%6$s"), toBuy.coloredName(),
+                    amt, cost, unitPrice, BetterShop.config.currency(),
+                    BSutils.formatCurrency(unitPrice)));
+        }
+        return ret;
+    }
+
+    public static ArrayList<ItemStockEntry> getCanSell(Player player, boolean onlyInv, Item[] toSell) {
+        ArrayList<ItemStockEntry> sellable = new ArrayList<ItemStockEntry>(),
+                playerInv = getTotalInventory(player, onlyInv, toSell);
+        //ItemStack[] its = player.getInventory().getContents();
+        boolean overstock = false;
+        ArrayList<String> notwant = new ArrayList<String>();
+        try {
+            for (int i = 0; i < playerInv.size(); ++i) {
+                Item check = Item.findItem(playerInv.get(i));
+                if (!BetterShop.pricelist.isForSale(check)
+                        || (check.IsTool() && !BetterShop.config.buybacktools && playerInv.get(i).itemSub > 0)) {
+                    if (toSell != null && toSell.length > 0) {
+                        notwant.add(check.coloredName());
+                    }
+                    playerInv.remove(i);
+                    --i;
+                } else {
+                    if (BetterShop.config.useItemStock && BetterShop.stock != null) {
+                        // check if avaliable stock
+                        long free = BetterShop.stock.freeStockRemaining(check);
+                        if (free == 0 && BetterShop.config.noOverStock) {
+                            BSutils.sendMessage(player, BetterShop.config.getString("maxstock").
+                                    replaceAll("<item>", check.coloredName()));
+                            playerInv.get(i).amount = 0;
+                            overstock = true;
+                        } else if (free > 0 && playerInv.get(i).amount > free && BetterShop.config.noOverStock) {
+                            BSutils.sendMessage(player, BetterShop.config.getString("highstock").
+                                    replaceAll("<item>", check.coloredName()).
+                                    replaceAll("<amt>", String.valueOf(free)));
+                            playerInv.get(i).amount = (int) free;
+                        }
+                    }
+                    //amtHas += playerInv.get(i).amount;
+                    int isel = sellable.indexOf(playerInv.get(i));
+                    if (isel >= 0) {
+                        sellable.get(isel).SetAmount(sellable.get(isel).amount + playerInv.get(i).amount);
+                    } else {
+                        sellable.add(new ItemStockEntry(playerInv.get(i)));
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            BetterShop.Log(Level.SEVERE, ex);
+            BSutils.sendMessage(player, "Error looking up an item");// .. Attempting DB reload..
+            /*if (load(null)) {
+            // ask to try command again.. don't want accidental infinite recursion & don't want to plan for recursion right now
+            BSutils.sendMessage(player, "Success! Please try again.. ");
+            } else {
+            BSutils.sendMessage(player, "\u00A74Failed! Please let an OP know of this error");
+            }*/
+            return null;
+        }
+        if (notwant.size() > 0) {
+            BSutils.sendMessage(player, String.format(
+                    BetterShop.config.getString("donotwant").
+                    replace("<item>", "%1$s"), "(" + Str.argStr(notwant.toArray(new String[0]), ", ") + ")"));
+            if (notwant.size() == toSell.length) {
+                return sellable;
+            }
+        }
+        if (sellable.isEmpty() && !overstock) {
+            BSutils.sendMessage(player, "You Don't have any " + (toSell == null || toSell.length == 0 ? "Sellable Items"
+                    : (toSell.length == 1 ? toSell[0].coloredName() : "of those items")));
+        }
+        return sellable;
+    }
+
+    protected static double sellItems(Player player, boolean onlyInv, Item item, int amt) {
+        if (item == null) {
+            ArrayList<ItemStockEntry> playerInv = getCanSell(player, onlyInv, null);
+            if (playerInv == null || playerInv.isEmpty()) {
+                return 0;
+            }
+            return sellItems(player, onlyInv, playerInv);
+        } else {
+            return sellItems(player, onlyInv, new ArrayList(Arrays.asList(new ItemStockEntry(item, (long) amt))));
+        }
+    }
+
+    protected static double sellItems(Player player, boolean onlyInv, ArrayList<ItemStockEntry> items) {
+        PlayerInventory inv = player.getInventory();
+        ItemStack[] its = inv.getContents();
+
+        ArrayList<ItemStockEntry> playerInv = getTotalInventory(player, onlyInv, items);
+        // make list of transactions made (or should make)
+        LinkedList<UserTransaction> transactions = new LinkedList<UserTransaction>();
+        try {
+            for (ItemStockEntry ite : playerInv) {
+                transactions.add(new UserTransaction(ite, true,
+                        BetterShop.pricelist.getSellPrice(ite),
+                        player.getDisplayName()));
+            }
+        } catch (Exception ex) {
+            BetterShop.Log(Level.SEVERE, ex);
+        }
+
+        double credit = 0;
+        int amtSold = 0;
+        try {
+            for (ItemStockEntry ite : items) {
+                Item toSell = Item.findItem(ite);
+                if (toSell != null) {
+                    int amtLeft = (int) ite.amount;
+                    for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
+                        Item it = Item.findItem(its[i]);
+                        if (it != null && it.equals(toSell)) {
+                            if (BetterShop.pricelist.isForSale(it) && (!it.IsTool()
+                                    || (its[i].getDurability() == 0 || BetterShop.config.buybacktools))) {
+                                int amt = its[i].getAmount();
+                                if (amtLeft < amt) {
+                                    inv.setItem(i, it.toItemStack(amt - amtLeft));
+                                    amt = amtLeft;
+                                } else {
+                                    inv.setItem(i, null);
+                                }
+                                if (it.IsTool()) {
+                                    credit += (BetterShop.pricelist.getSellPrice(it) * (1 - ((double) its[i].getDurability() / it.MaxDamage()))) * amt;
+                                } else {
+                                    credit += BetterShop.pricelist.getSellPrice(it) * amt;
+                                }
+                                amtSold += amt;
+                                amtLeft -= amt;
+                                if (amtLeft <= 0) {
+                                    if (BetterShop.config.useItemStock && BetterShop.stock != null) {
+                                        BetterShop.stock.changeItemAmount(it, ite.amount);
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            BetterShop.Log(Level.SEVERE, ex);
+            BSutils.sendMessage(player, "Error looking up an item");
+        }
+
+        try {
+            for (UserTransaction t : transactions) {
+                BetterShop.transactions.addRecord(t);
+            }
+        } catch (Exception ex) {
+            BetterShop.Log(Level.SEVERE, ex);
+        }
+        BSutils.credit(player, credit);
+
+        // name of item(s) sold
+        String itemN = ""; // "(All Sellable)"
+        if (items.size() == 1) {
+            Item i = Item.findItem(items.get(0));
+            itemN = i != null ? i.coloredName() : items.get(0).name;
+        } else {
+            itemN = "(";
+            for (ItemStockEntry ite : playerInv) {
+                Item i = Item.findItem(ite);
+                itemN += i == null ? ite.name : i.coloredName() + " ";
+            }
+            itemN = itemN.trim().replace(" ", ", ") + ")";
+        }
+
+        BSutils.sendMessage(player, String.format(BetterShop.config.getString("sellmsg").
+                replace("<item>", "%1$s").
+                replace("<amt>", "%2$d").
+                replace("<priceper>", "%3$01.2f").
+                replace("<total>", "%4$01.2f").
+                replace("<curr>", "%5$s").
+                replace("<totcur>", "%6$s"),
+                itemN, amtSold, credit / amtSold, credit, BetterShop.config.currency(), BSutils.formatCurrency(credit)));
+
+        if (BetterShop.config.publicmarket && BetterShop.config.hasString("publicsellmsg")) {
+            BSutils.broadcastMessage(player, String.format(BetterShop.config.getString("publicsellmsg").
+                    replace("<item>", "%1$s").
+                    replace("<amt>", "%2$d").
+                    replace("<priceper>", "%3$01.2f").
+                    replace("<total>", "%4$01.2f").
+                    replace("<curr>", "%5$s").
+                    replace("<totcur>", "%6$s").
+                    replace("<player>", "%7$s"),
+                    itemN, amtSold, credit / amtSold, credit,
+                    BetterShop.config.currency(), BSutils.formatCurrency(credit), player.getDisplayName()), false);
+        }
+        return credit;
     }
 }

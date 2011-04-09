@@ -7,6 +7,7 @@
 package com.jascotty2.Item;
 
 import com.jascotty2.CheckInput;
+import com.jascotty2.MinecraftChatStr;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -425,61 +426,8 @@ public class Item {
         if (col == null) {
             return false;
         }
-        col = col.toLowerCase().trim();
-        /*
-        #       &0 is black
-        #       &1 is dark blue
-        #       &2 is dark green
-        #       &3 is dark sky blue
-        #       &4 is red
-        #       &5 is magenta
-        #       &6 is gold or amber
-        #       &7 is light grey
-        #       &8 is dark grey
-        #       &9 is medium blue
-        #       &2 is light green
-        #       &b is cyan
-        #       &c is orange-red
-        #       &d is pink
-        #       &e is yellow
-        #       &f is white
-         */
-        if (col.equalsIgnoreCase("black")) {
-            color = "\u00A70"; //String.format("\u00A7%x", 0x0);// 
-        } else if (col.equals("blue") || col.equals("dark blue")) {
-            color = "\u00A71"; // String.format("\u00A7%x", 0x1);// 
-        } else if (col.equals("green") || col.equals("dark green")) {
-            color = "\u00A72"; // String.format("\u00A7%x", 0x2);// 
-        } else if (col.equals("sky blue") || col.equals("dark sky blue")) {
-            color = "\u00A73"; // String.format("\u00A7%x", 0x3);// 
-        } else if (col.equals("red")) {
-            color = "\u00A74"; // String.format("\u00A7%x", 0x4);// 
-        } else if (col.equals("magenta") || col.equals("purple")) {
-            color = "\u00A75"; // String.format("\u00A7%x", 0x5);// 
-        } else if (col.equals("gold") || col.equals("amber") || col.equals("dark yellow")) {
-            color = "\u00A76"; // String.format("\u00A7%x", 0x6);// 
-        } else if (col.equals("light gray") || col.equals("light grey")) {
-            color = "\u00A77"; // String.format("\u00A7%x", 0x7);// 
-        } else if (col.equals("dark gray") || col.equals("dark grey") || col.equals("gray") || col.equals("grey")) {
-            color = "\u00A78"; // String.format("\u00A7%x", 0x8);// 
-        } else if (col.equals("medium blue")) {
-            color = "\u00A79"; // String.format("\u00A7%x", 0x9);// 
-        } else if (col.equals("light green") || col.equals("lime") || col.equals("lime green")) {
-            color = "\u00A7a"; // String.format("\u00A7%x", 0xA);// 
-        } else if (col.equals("cyan") || col.equals("light blue")) {
-            color = "\u00A7b"; // String.format("\u00A7%x", 0xB);// 
-        } else if (col.equals("orange") || col.equals("orange-red") || col.equals("red-orange")) {
-            color = "\u00A7c"; // String.format("\u00A7%x", 0xC);// 
-        } else if (col.equals("pink") || col.equals("light red")) {
-            color = "\u00A7d"; // String.format("\u00A7%x", 0xD);// 
-        } else if (col.equals("yellow")) {
-            color = "\u00A7e"; // String.format("\u00A7%x", 0xE);// 
-        } else if (col.equals("white")) {
-            color = "\u00A7f"; //String.format("\u00A7%x", 0xF);//
-        } else {
-            return false;
-        }
-        return true;
+        col = MinecraftChatStr.getChatColor(col);
+        return col.length()>0;
     }
 
     @Override

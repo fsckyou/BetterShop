@@ -111,11 +111,17 @@ public class ItemStockEntry {
     }
 
     public boolean equals(Item i) {
-        return itemSub == i.itemData && itemNum == i.itemId;
+        return (i.IsTool() || itemSub == i.itemData) && itemNum == i.itemId;
     }
 
     public boolean equals(ItemStockEntry i) {
-        return itemSub == i.itemSub && itemNum == i.itemNum;
+        Item t = Item.findItem(i);
+        return (t.IsTool() || itemSub == i.itemSub) && itemNum == i.itemNum;
+    }
+    
+    public boolean equals(ItemStack i){
+        Item t = Item.findItem(i);
+        return (t.IsTool() || itemSub == i.getDurability()) && itemNum == i.getTypeId();
     }
 
     @Override
