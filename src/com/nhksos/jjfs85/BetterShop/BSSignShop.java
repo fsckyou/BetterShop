@@ -28,10 +28,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
-//import org.bukkit.event.block.BlockCanBuildEvent;
-import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockListener;
-import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerListener;
@@ -417,7 +414,7 @@ public class BSSignShop extends PlayerListener {
 
         @Override
         public void onBlockBreak(BlockBreakEvent event) {
-            ArrayList<Block> list = getSigns(event.getBlock());
+            ArrayList<Block> list = getShopSigns(event.getBlock());
             if (list.size() > 0 && !BSutils.hasPermission(event.getPlayer(), BSutils.BetterShopPermission.ADMIN_MAKESIGN, true)) {
                 event.setCancelled(true);
                 return;
@@ -429,6 +426,16 @@ public class BSSignShop extends PlayerListener {
         }
     }
 
+    public ArrayList<Block> getShopSigns(Block b) {
+        ArrayList<Block> list = getSigns(b);
+        for(int i=0; i<list.size(); ++i){
+            if(!signs.containsKey(list.get(i).getLocation())){
+                list.remove(i);
+                --i;
+            }
+        }
+        return list;
+    }
     public static ArrayList<Block> getSigns(Block b) {
         ArrayList<Block> list = new ArrayList<Block>();
         if (b.getState() instanceof Sign) {

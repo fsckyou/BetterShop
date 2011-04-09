@@ -180,10 +180,14 @@ Cookies	integration:  http://forums.bukkit.org/threads/5327/
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
-Version 1.6.4.1 - ? - jascotty2
+Version 1.6.4.2 - 4/9/11 - jascotty2
+fixed sign destroy permission check to only check bettershop signs
+
+
+Version 1.6.4.1 - 4/8/11 - jascotty2
 "inhand" and "inv" added as valid sellall/buyall items (signs only)
 - "in hand" buys/sells all of the type of item in the player's hand
-sign destroy algorithm improved (still can't check for explosions :( )
+sign destroy protection algorithm improved (still can't check for explosions :( )
 
 
 Version 1.6.4.0 (?) - 4/8/11 - jascotty2
