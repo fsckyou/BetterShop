@@ -56,13 +56,6 @@ public class BSSignShop extends PlayerListener {
 
     @Override
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-            if (savedSigns.containsKey(event.getClickedBlock().getLocation())
-                    || signBlocks.containsKey(event.getClickedBlock().getLocation())) {
-                event.getPlayer().sendMessage("protected block");
-            }
-        }
-
         if (BetterShop.config.signShopEnabled
                 && event.getClickedBlock() != null
                 && (event.getClickedBlock().getType() == Material.WALL_SIGN

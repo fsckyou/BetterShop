@@ -7,8 +7,10 @@
 package com.jascotty2.Item;
 
 import com.fullwall.MonsterTamer_1_3.MonsterTamer;
+import com.jynxdaddy.wolfspawn_04.UpdatedWolf;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Logger;
 import org.bukkit.Location;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.CreatureType;
@@ -174,11 +176,16 @@ public class CreatureItem {
 
         Creature creature = (Creature) owner.getWorld().spawnCreature(loc, itemId);
 
-        //if(creature instanceof Wolf){
-        //    ((Wolf)creature)
-        //}else{
-        addFriends(owner, creature);
-        //}
+        if (creature instanceof Wolf) {
+            //((Wolf)creature)
+            UpdatedWolf w = new UpdatedWolf((Wolf) creature);
+            w.setOwner(owner.getName());
+            Logger.getAnonymousLogger().info("spawning owner = " + owner.getName());
+            Logger.getAnonymousLogger().info(w.toString());
+        } else {
+            Logger.getAnonymousLogger().info("spawning " + itemId);
+            addFriends(owner, creature);
+        }
 
         //MonsterTamer.writeUsers();
     }
@@ -189,9 +196,17 @@ public class CreatureItem {
 
         LivingEntity c = owner.getWorld().spawnCreature(loc, toSpawn);
 
-        if (c instanceof Creature) {
+
+        if (c instanceof Wolf) {
+            //((Wolf)creature)
+            UpdatedWolf w = new UpdatedWolf((Wolf) c);
+            w.setOwner(owner.getName());
+            Logger.getAnonymousLogger().info("spawning owner = " + owner.getName());
+            Logger.getAnonymousLogger().info(w.toString());
+        } else if (c instanceof Creature) {
             Creature creature = (Creature) c;
 
+            Logger.getAnonymousLogger().info("spawning " + toSpawn);
             addFriends(owner, creature);
         }
         //MonsterTamer.writeUsers();

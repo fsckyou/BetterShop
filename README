@@ -188,6 +188,10 @@ items as currency (if no economy plugin)
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
+Version 1.6.5.1 - 4/10/11 - jascotty2
+removed a debugging line
+
+
 Version 1.6.5.0 - 4/10/11 - jascotty2
 corrected new settings (missed some previously)
 fixed default sign pricecheck showing wrong one
