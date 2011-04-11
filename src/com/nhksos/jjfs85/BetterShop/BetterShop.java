@@ -43,7 +43,7 @@ import org.bukkit.event.server.PluginDisableEvent;
  */
 public class BetterShop extends JavaPlugin {
 
-    public final static String lastUpdatedStr = "4/09/11 02:50 -0500"; // "MM/dd/yy HH:mm Z"
+    public final static String lastUpdatedStr = "4/11/11 11:50 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
@@ -78,22 +78,30 @@ public class BetterShop extends JavaPlugin {
             if (event.getPlugin().isEnabled()) { // double-check
                 //Log(event.getPlugin().getDescription().getName());
                 if (event.getPlugin().getDescription().getName().equals("iConomy")) {
-                    BetterShop.iConomy = (iConomy) event.getPlugin();
-                    iBank = iConomy.getBank();
-                    //config.currency = iBank.getCurrency();
-                    Log("Attached to iConomy.");
+                    if (BetterShop.iConomy == null) {
+                        BetterShop.iConomy = (iConomy) event.getPlugin();
+                        iBank = iConomy.getBank();
+                        //config.currency = iBank.getCurrency();
+                        Log("Attached to iConomy.");
+                    }
                 } else if (event.getPlugin().getDescription().getName().equals("BOSEconomy")) {
-                    BetterShop.economy = (BOSEconomy) event.getPlugin();
-                    Log("Attached to BOSEconomy");
+                    if (BetterShop.economy == null) {
+                        BetterShop.economy = (BOSEconomy) event.getPlugin();
+                        Log("Attached to BOSEconomy");
+                    }
                 } else if (event.getPlugin().getDescription().getName().equals("Permissions")) {
-                    BetterShop.Permissions = (Permissions) event.getPlugin();
-                    Log("Attached to Permissions or something close enough to it");
+                    if (BetterShop.Permissions == null) {
+                        BetterShop.Permissions = (Permissions) event.getPlugin();
+                        Log("Attached to Permissions or something close enough to it");
+                    }
                 } else if (event.getPlugin().getDescription().getName().equals("Help")) {
                     shop.registerHelp();
                 } else if (event.getPlugin().getDescription().getName().equals("MinecraftIM")) {
-                    messenger = (MinecraftIM) event.getPlugin();
-                    //messenger.registerMessageHandler(shop);
-                    Log("linked to MinecraftIM");
+                    if (BetterShop.messenger == null) {
+                        messenger = (MinecraftIM) event.getPlugin();
+                        //messenger.registerMessageHandler(shop);
+                        Log("linked to MinecraftIM");
+                    }
                 }
             }
         }
@@ -106,7 +114,7 @@ public class BetterShop extends JavaPlugin {
                 Log(Level.WARNING, "iConomy has been disabled!");
             } else if (event.getPlugin().getDescription().getName().equals("BOSEconomy")) {
                 BetterShop.economy = null;
-                Log("BOSEconomy support disabled");
+                Log(Level.WARNING, "BOSEconomy has been disabled");
             } else if (event.getPlugin().getDescription().getName().equals("Permissions")) {
                 BetterShop.Permissions = null;
                 Log("Permissions support disabled");

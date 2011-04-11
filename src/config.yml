@@ -55,6 +55,8 @@ shop:
     signItemColor: false
     # swap black & white item colors?
     signItemColorBWswap: false
+    # don't allow signs to be destroyed by unauthorized players?
+    signDestroyProtection: true
     # scan for destroyed signs?
     tntSignDestroyProtection: false
     # command-based shop mode
@@ -76,7 +78,7 @@ shop:
     #if using Help: should main commands not be listed on the main page?
     hideHelp: false
 
-    # if using BOSEconomy, can set what bank will buy/sell items
+    # if using BOSEconomy, can set what bank will buy/sell items (optional)
     BOSBank:
     
     # default currency name (not yet used, but might be if no economy plugin found)

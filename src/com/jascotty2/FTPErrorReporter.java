@@ -21,7 +21,7 @@ import java.net.URLConnection;
 public class FTPErrorReporter {
 
     private static String user = "bettershopftp",
-            pass = "5ZVm9r46h8-u5";
+            pass = "5Vm9r46h8eu5";
     protected static String ftpHost = "nas.boldlygoingnowhere.org";
     protected static FTPupload uploader = null;
     protected static int filesizeLimit = 2500; // yes, i know it's actually 2560

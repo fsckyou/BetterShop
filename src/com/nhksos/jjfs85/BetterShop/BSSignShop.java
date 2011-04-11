@@ -28,6 +28,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockListener;
@@ -44,6 +45,7 @@ public class BSSignShop extends PlayerListener {
     HashMap<Location, Item> signs = new HashMap<Location, Item>();
     HashMap<Location, Sign> savedSigns = new HashMap<Location, Sign>();
     HashMap<Location, BlockState> signBlocks = new HashMap<Location, BlockState>();
+    HashMap<Player, Long> playerInteractTime = new HashMap<Player, Long>();
     public SignDestroyListener signDestroy = new SignDestroyListener();
     protected SignSaver delaySave = null;
     public long signResWait = 5000;
@@ -56,6 +58,9 @@ public class BSSignShop extends PlayerListener {
 
     @Override
     public void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.isCancelled()) {
+            return;
+        }
         if (BetterShop.config.signShopEnabled
                 && event.getClickedBlock() != null
                 && (event.getClickedBlock().getType() == Material.WALL_SIGN
@@ -63,7 +68,13 @@ public class BSSignShop extends PlayerListener {
             Sign clickedSign = (Sign) event.getClickedBlock().getState();
             if (MinecraftChatStr.uncoloredStr(clickedSign.getLine(0)).equalsIgnoreCase("[BetterShop]")) {
                 try {
-
+                    Long lt = playerInteractTime.get(event.getPlayer());
+                    //System.out.println(lt + "   " + System.currentTimeMillis());
+                    if (lt != null && System.currentTimeMillis() - lt < BSConfig.signInteractWait) {
+                        event.setCancelled(event.getAction() == Action.RIGHT_CLICK_BLOCK);
+                        return;
+                    }
+                    playerInteractTime.put(event.getPlayer(), System.currentTimeMillis());
                     boolean canEdit = BSutils.hasPermission(event.getPlayer(),
                             BSutils.BetterShopPermission.ADMIN_MAKESIGN);
                     String action = clickedSign.getLine(1).trim().replaceAll("  ", " ");
@@ -249,17 +260,17 @@ public class BSSignShop extends PlayerListener {
                                 signBlocks.put(a.getLocation(), a.getState());
                             }
                             clickedSign.setLine(0, BetterShop.config.activeSignColor + MinecraftChatStr.uncoloredStr(clickedSign.getLine(0)));
-                            
+
                             if (toAdd[0] != null && toAdd[0].color != null) {
                                 if (BetterShop.config.signItemColorBWswap && ChatColor.BLACK.toString().equals(toAdd[0].color)) {
                                     clickedSign.setLine(2, ChatColor.WHITE.toString() + clickedSign.getLine(2));
                                 } else if (BetterShop.config.signItemColorBWswap && ChatColor.WHITE.toString().equals(toAdd[0].color)) {
                                     clickedSign.setLine(2, ChatColor.BLACK.toString() + clickedSign.getLine(2));
                                 } else {
-                                    clickedSign.setLine(2,toAdd[0].color + clickedSign.getLine(2));
+                                    clickedSign.setLine(2, toAdd[0].color + clickedSign.getLine(2));
                                 }
                             }
-                            
+
                             clickedSign.update();
                             BSutils.sendMessage(event.getPlayer(), "new sign created");
 
@@ -484,7 +495,8 @@ public class BSSignShop extends PlayerListener {
         public void onBlockBreak(BlockBreakEvent event) {
             if (signBlocks.containsKey(event.getBlock().getLocation())
                     || savedSigns.containsKey(event.getBlock().getLocation())) {
-                if (!BSutils.hasPermission(event.getPlayer(), BSutils.BetterShopPermission.ADMIN_MAKESIGN, true)) {
+                if (BetterShop.config.signDestroyProtection
+                        && !BSutils.hasPermission(event.getPlayer(), BSutils.BetterShopPermission.ADMIN_MAKESIGN, true)) {
                     event.setCancelled(true);
                 } else {
                     if (event.getBlock().getState() instanceof Sign) {
@@ -504,16 +516,6 @@ public class BSSignShop extends PlayerListener {
                     }
                 }
             }
-            /*
-            ArrayList<Block> list = getShopSigns(event.getBlock());
-            if (list.size() > 0 && !BSutils.hasPermission(event.getPlayer(), BSutils.BetterShopPermission.ADMIN_MAKESIGN, true)) {
-            event.setCancelled(true);
-            return;
-            } else {
-            for (Block b : list) {
-            signs.remove(b.getLocation());
-            }
-            }*/
         }
     }
 

@@ -49,11 +49,13 @@ public class BSConfig {
             signShopEnabled = true,
             signItemColor = false, //color the names of items on signs?
             signItemColorBWswap = false,// swap black & white item colors?
+            signDestroyProtection = true,
             tntSignDestroyProtection = false;
     public int maxEntityPurchase = 3; // max can purchase at a time
     // sign settings
     public String activeSignColor = "blue"; // automatically changed to \u00A7 format
     public long signDBsaveWait = 30000; // don't save immediately, wait (30s)
+    public static long signInteractWait = 1000; // wait before another action allowed
     // global or region shops
     public CommShopMode commandShopMode = CommShopMode.GLOBAL;
     ////// database information
@@ -169,18 +171,20 @@ public class BSConfig {
                             "usemaxstack",
                             "buybacktools",
                             "buybackenabled",
-                            "maxEntityPurchase",                            
+                            "maxEntityPurchase",
                             "signShops",
                             "activeSignColor",
                             "signItemColor",
                             "signItemColorBWswap",
+                            "signDestroyProtection",
                             "tntSignDestroyProtection",
                             "commandShop",
                             "customsort",
                             "defaultItemColor",
                             "tablename",
                             "hideHelp",
-                            "BOSBank"}); // "currencyName"
+                            "BOSBank",
+                            "currencyName"});
                 allKeys.put("errors", new String[]{
                             "CheckForUpdates",
                             "AutoUpdate",
@@ -249,7 +253,7 @@ public class BSConfig {
                             "lowstock",
                             "maxstock",
                             "highstock"});
-                String allowNull[] = new String[]{"shop.customsort", "shop.BOSBank"};
+                String allowNull[] = new String[]{"shop.customsort", "shop.BOSBank", "shop.currencyName"};
 
                 String missing = "", unused = "";
                 for (String k : allKeys.keySet()) {
@@ -415,6 +419,7 @@ public class BSConfig {
 
                 signShopEnabled = n.getBoolean("signShops", signShopEnabled);
                 activeSignColor = n.getString("activeSignColor", activeSignColor);
+                signDestroyProtection = n.getBoolean("signDestroyProtection", signDestroyProtection);
                 tntSignDestroyProtection = n.getBoolean("tntSignDestroyProtection", tntSignDestroyProtection);
 
                 signItemColor = n.getBoolean("signItemColor", signItemColor);

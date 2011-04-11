@@ -126,11 +126,14 @@ public class ItemStockEntry {
     }
 
     public boolean equals(ItemStack i) {
-        if (i == null) {
+        if (i == null || itemNum != i.getTypeId()) {
             return false;
         }
+        if (itemSub == i.getDurability()) {
+            return true;
+        }
         Item t = Item.findItem(i);
-        return (t.IsTool() || itemSub == i.getDurability()) && itemNum == i.getTypeId();
+        return t != null && t.IsTool();
     }
 
     @Override

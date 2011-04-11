@@ -188,7 +188,13 @@ items as currency (if no economy plugin)
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
-Version 1.6.5.2 - ? - jascotty2
+Version 1.6.5.3 - 4/11/11 - jascotty2
+added option to disable sign protection
+added sign action wait, to prevent sign click spamming
+fixed a nullpointer error when selling
+
+
+Version 1.6.5.2 - 4/11/11 - jascotty2
 removed spawnwolf debugging line
 wolves bought have correct health
 
