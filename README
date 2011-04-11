@@ -188,8 +188,15 @@ items as currency (if no economy plugin)
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
+Version 1.6.5.2 - ? - jascotty2
+removed spawnwolf debugging line
+wolves bought have correct health
+
+
 Version 1.6.5.1 - 4/10/11 - jascotty2
 removed a debugging line
+wolfs bought have their owner already set (need to increase health)
+- thanks goes out to ashtonw (jynxdaddy) for working this out: https://github.com/ashtonw/WolfSpawn
 
 
 Version 1.6.5.0 - 4/10/11 - jascotty2
