@@ -243,6 +243,26 @@ public class ChestManip {
         }
     }
 
+    public static ItemStack[] getContentsSummary(ItemStack[] items) {
+        ArrayList<ItemStack> summ = new ArrayList<ItemStack>();
+        for (ItemStack i : items) {
+            if (i != null) {
+                boolean found = false;
+                for (ItemStack s : summ) {
+                    if (i.getTypeId() == s.getTypeId() && i.getDurability() == s.getDurability()) {
+                        s.setAmount(s.getAmount() + i.getAmount());
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    summ.add(new ItemStack(i.getTypeId(), i.getAmount(), i.getDurability()));
+                }
+            }
+        }
+        return summ.toArray(new ItemStack[0]);
+    }
+
     public static void setContents(Chest chest, ItemStack iss[]) {
         if (iss.length == 27) {
             chest.getInventory().setContents(iss);

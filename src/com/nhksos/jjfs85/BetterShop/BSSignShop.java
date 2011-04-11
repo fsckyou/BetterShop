@@ -1,7 +1,7 @@
 /**
  * Programmer: Jacob Scott
  * Program Name: BSSignShop
- * Description: interface for adding a sign interface to bettershop
+ * Description: for adding a sign interface to bettershop
  * Date: Apr 6, 2011
  */
 package com.nhksos.jjfs85.BetterShop;
@@ -21,10 +21,12 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -40,8 +42,12 @@ public class BSSignShop extends PlayerListener {
 
     BetterShop plugin = null;
     HashMap<Location, Item> signs = new HashMap<Location, Item>();
+    HashMap<Location, Sign> savedSigns = new HashMap<Location, Sign>();
+    HashMap<Location, BlockState> signBlocks = new HashMap<Location, BlockState>();
     public SignDestroyListener signDestroy = new SignDestroyListener();
     protected SignSaver delaySave = null;
+    public long signResWait = 5000;
+    protected SignRestore checkSigns = null;
     //public StopBuild buildStopper = new StopBuild();
 
     public BSSignShop(BetterShop shop) {
@@ -50,6 +56,13 @@ public class BSSignShop extends PlayerListener {
 
     @Override
     public void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+            if (savedSigns.containsKey(event.getClickedBlock().getLocation())
+                    || signBlocks.containsKey(event.getClickedBlock().getLocation())) {
+                event.getPlayer().sendMessage("protected block");
+            }
+        }
+
         if (BetterShop.config.signShopEnabled
                 && event.getClickedBlock() != null
                 && (event.getClickedBlock().getType() == Material.WALL_SIGN
@@ -62,7 +75,7 @@ public class BSSignShop extends PlayerListener {
                             BSutils.BetterShopPermission.ADMIN_MAKESIGN);
                     String action = clickedSign.getLine(1).trim().replaceAll("  ", " ");
                     if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-                        event.setCancelled(!canEdit);
+                        //event.setCancelled(!canEdit);
                         // if sign is registered, update prices
                         if (signs.containsKey(event.getClickedBlock().getLocation())) {
                             try {
@@ -237,7 +250,23 @@ public class BSSignShop extends PlayerListener {
                             }
                             // all checks passed: create sign
                             signs.put(event.getClickedBlock().getLocation().clone(), toAdd[0]);
+                            savedSigns.put(event.getClickedBlock().getLocation().clone(), clickedSign);
+                            Block a = getSignAnchor(event.getClickedBlock());
+                            if (a != null) {
+                                signBlocks.put(a.getLocation(), a.getState());
+                            }
                             clickedSign.setLine(0, BetterShop.config.activeSignColor + MinecraftChatStr.uncoloredStr(clickedSign.getLine(0)));
+                            
+                            if (toAdd[0] != null && toAdd[0].color != null) {
+                                if (BetterShop.config.signItemColorBWswap && ChatColor.BLACK.toString().equals(toAdd[0].color)) {
+                                    clickedSign.setLine(2, ChatColor.WHITE.toString() + clickedSign.getLine(2));
+                                } else if (BetterShop.config.signItemColorBWswap && ChatColor.WHITE.toString().equals(toAdd[0].color)) {
+                                    clickedSign.setLine(2, ChatColor.BLACK.toString() + clickedSign.getLine(2));
+                                } else {
+                                    clickedSign.setLine(2,toAdd[0].color + clickedSign.getLine(2));
+                                }
+                            }
+                            
                             clickedSign.update();
                             BSutils.sendMessage(event.getPlayer(), "new sign created");
 
@@ -357,10 +386,41 @@ public class BSSignShop extends PlayerListener {
                     if (!(l.getBlock().getState() instanceof Sign)) {
                         signs.remove(l);
                     } else {
-                        // check color
                         Sign checkSign = (Sign) l.getBlock().getState();
+                        // save sign
+                        savedSigns.put(l.clone(), checkSign);//plugin.getServer().getWorld(l.getWorld().getName()).getBlockAt(l));
+                        // save block that anchors it
+                        if (l.getBlock().getType() == Material.SIGN_POST) {
+                            signBlocks.put(l.getBlock().getRelative(BlockFace.DOWN).getLocation(),
+                                    l.getBlock().getRelative(BlockFace.DOWN).getState());
+                        } else {
+                            Block a = getSignAnchor(l.getBlock());
+                            if (a != null) {
+                                signBlocks.put(a.getLocation(), a.getState());
+                            }
+                        }
+
+                        // check color
+                        boolean up = false;
                         if (!checkSign.getLine(0).startsWith(BetterShop.config.activeSignColor)) {
                             checkSign.setLine(0, BetterShop.config.activeSignColor + MinecraftChatStr.uncoloredStr(checkSign.getLine(0)));
+                            up = true;
+                        }
+                        if (BetterShop.config.signItemColor) {
+                            Item i = signs.get(l);
+                            if (i != null && i.color != null && !checkSign.getLine(2).startsWith(i.color)) {
+                                if (BetterShop.config.signItemColorBWswap && ChatColor.BLACK.toString().equals(i.color)) {
+                                    checkSign.setLine(2, ChatColor.WHITE + MinecraftChatStr.uncoloredStr(checkSign.getLine(2)));
+                                } else if (BetterShop.config.signItemColorBWswap && ChatColor.WHITE.toString().equals(i.color)) {
+                                    checkSign.setLine(2, ChatColor.BLACK + MinecraftChatStr.uncoloredStr(checkSign.getLine(2)));
+                                } else {
+                                    checkSign.setLine(2, i.color + MinecraftChatStr.uncoloredStr(checkSign.getLine(2)));
+                                }
+                                up = true;
+                            }
+                        }
+
+                        if (up) {
                             checkSign.update();
                         }
                     }
@@ -400,6 +460,21 @@ public class BSSignShop extends PlayerListener {
         }
         return false;
     }
+
+    public void startProtecting() {
+        if (checkSigns != null) {
+            checkSigns.cancel();
+        }
+        checkSigns = new SignRestore();
+        checkSigns.start(signResWait);
+    }
+
+    public void stopProtecting() {
+        if (checkSigns != null) {
+            checkSigns.cancel();
+            checkSigns = null;
+        }
+    }
     static BlockFace checkFaces[] = new BlockFace[]{BlockFace.SELF, BlockFace.UP,
         BlockFace.NORTH, BlockFace.SOUTH, BlockFace.WEST, BlockFace.EAST};
 
@@ -414,28 +489,68 @@ public class BSSignShop extends PlayerListener {
 
         @Override
         public void onBlockBreak(BlockBreakEvent event) {
-            ArrayList<Block> list = getShopSigns(event.getBlock());
-            if (list.size() > 0 && !BSutils.hasPermission(event.getPlayer(), BSutils.BetterShopPermission.ADMIN_MAKESIGN, true)) {
-                event.setCancelled(true);
-                return;
-            } else {
-                for (Block b : list) {
-                    signs.remove(b.getLocation());
+            if (signBlocks.containsKey(event.getBlock().getLocation())
+                    || savedSigns.containsKey(event.getBlock().getLocation())) {
+                if (!BSutils.hasPermission(event.getPlayer(), BSutils.BetterShopPermission.ADMIN_MAKESIGN, true)) {
+                    event.setCancelled(true);
+                } else {
+                    if (event.getBlock().getState() instanceof Sign) {
+                        signs.remove(event.getBlock().getLocation());
+                        savedSigns.remove(event.getBlock().getLocation());
+                        Block b = getSignAnchor(event.getBlock());
+                        if (b != null) {
+                            signBlocks.remove(b.getLocation());
+                        }
+                    } else {
+                        ArrayList<Block> list = getShopSigns(event.getBlock());
+                        for (Block b : list) {
+                            signs.remove(b.getLocation());
+                            savedSigns.remove(b.getLocation());
+                        }
+                        signBlocks.remove(event.getBlock().getLocation());
+                    }
                 }
             }
+            /*
+            ArrayList<Block> list = getShopSigns(event.getBlock());
+            if (list.size() > 0 && !BSutils.hasPermission(event.getPlayer(), BSutils.BetterShopPermission.ADMIN_MAKESIGN, true)) {
+            event.setCancelled(true);
+            return;
+            } else {
+            for (Block b : list) {
+            signs.remove(b.getLocation());
+            }
+            }*/
         }
+    }
+
+    public static Block getSignAnchor(Block b) {
+        if (b.getState() instanceof Sign) {
+            switch (b.getData()) {
+                case 2: // w
+                    return b.getRelative(BlockFace.WEST);
+                case 3: // e
+                    return b.getRelative(BlockFace.EAST);
+                case 4: // s
+                    return b.getRelative(BlockFace.SOUTH);
+                case 5: // n
+                    return b.getRelative(BlockFace.NORTH);
+            }
+        }
+        return null;
     }
 
     public ArrayList<Block> getShopSigns(Block b) {
         ArrayList<Block> list = getSigns(b);
-        for(int i=0; i<list.size(); ++i){
-            if(!signs.containsKey(list.get(i).getLocation())){
+        for (int i = 0; i < list.size(); ++i) {
+            if (!signs.containsKey(list.get(i).getLocation())) {
                 list.remove(i);
                 --i;
             }
         }
         return list;
     }
+
     public static ArrayList<Block> getSigns(Block b) {
         ArrayList<Block> list = new ArrayList<Block>();
         if (b.getState() instanceof Sign) {
@@ -477,6 +592,32 @@ public class BSSignShop extends PlayerListener {
         @Override
         public void run() {
             save();
+        }
+    }
+
+    protected class SignRestore extends TimerTask {
+
+        public void start(long wait) {
+            (new Timer()).scheduleAtFixedRate(this, wait, wait);
+        }
+
+        @Override
+        public void run() {
+            for (BlockState b : signBlocks.values()) {
+                if (b.getBlock().getLocation().getBlock().getTypeId() != b.getTypeId()) {
+                    b.getBlock().getLocation().getBlock().setTypeIdAndData(b.getTypeId(), b.getRawData(), false);
+                }
+            }
+            for (Sign b : savedSigns.values()) {
+                if (b.getBlock().getLocation().getBlock().getTypeId() != b.getTypeId()) {
+                    b.getBlock().getLocation().getBlock().setTypeIdAndData(b.getTypeId(), b.getRawData(), false);
+                    Sign dest = (Sign) b.getBlock().getLocation().getBlock().getState();
+                    for (int i = 0; i < 4; ++i) {
+                        dest.setLine(i, b.getLine(i));
+                    }
+                    dest.update();
+                }
+            }
         }
     }
     /*

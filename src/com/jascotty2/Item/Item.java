@@ -424,10 +424,10 @@ public class Item {
 
     public boolean SetColor(String col) {
         if (col == null) {
-            return false;
+            color = null;
         }
-        col = MinecraftChatStr.getChatColor(col);
-        return col.length()>0;
+        color = MinecraftChatStr.getChatColor(col);
+        return color.length()>0;
     }
 
     @Override

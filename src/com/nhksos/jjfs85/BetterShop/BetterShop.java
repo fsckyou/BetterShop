@@ -32,6 +32,7 @@ import com.nijiko.coelho.iConomy.system.Bank;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import me.taylorkelly.help.Help;
 import com.jascotty2.MinecraftIM.MinecraftIM;
+import cosine.boseconomy.BOSEconomy;
 import java.util.Timer;
 import java.util.TimerTask;
 import org.bukkit.Server;
@@ -42,7 +43,7 @@ import org.bukkit.event.server.PluginDisableEvent;
  */
 public class BetterShop extends JavaPlugin {
 
-    public final static String lastUpdatedStr = "4/08/11 22:35 -0500"; // "MM/dd/yy HH:mm Z"
+    public final static String lastUpdatedStr = "4/09/11 02:50 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
@@ -55,6 +56,7 @@ public class BetterShop extends JavaPlugin {
     protected static Permissions Permissions = null;
     protected static iConomy iConomy = null;
     protected static Bank iBank = null;
+    protected static BOSEconomy economy = null;
     private PluginListener pListener = null;
     //private static boolean isLoaded = true;
     public static PluginDescriptionFile pdfFile;// = this.getDescription();
@@ -80,6 +82,9 @@ public class BetterShop extends JavaPlugin {
                     iBank = iConomy.getBank();
                     //config.currency = iBank.getCurrency();
                     Log("Attached to iConomy.");
+                } else if (event.getPlugin().getDescription().getName().equals("BOSEconomy")) {
+                    BetterShop.economy = (BOSEconomy) event.getPlugin();
+                    Log("Attached to BOSEconomy");
                 } else if (event.getPlugin().getDescription().getName().equals("Permissions")) {
                     BetterShop.Permissions = (Permissions) event.getPlugin();
                     Log("Attached to Permissions or something close enough to it");
@@ -99,6 +104,9 @@ public class BetterShop extends JavaPlugin {
                 BetterShop.iConomy = null;
                 iBank = null;
                 Log(Level.WARNING, "iConomy has been disabled!");
+            } else if (event.getPlugin().getDescription().getName().equals("BOSEconomy")) {
+                BetterShop.economy = null;
+                Log("BOSEconomy support disabled");
             } else if (event.getPlugin().getDescription().getName().equals("Permissions")) {
                 BetterShop.Permissions = null;
                 Log("Permissions support disabled");
@@ -150,7 +158,13 @@ public class BetterShop extends JavaPlugin {
             //config.currency = iBank.getCurrency();
             Log("Attached to iConomy.");
         } else {
-            Log(Level.WARNING, "iConomy not yet found...", false);
+            test = getServer().getPluginManager().getPlugin("BOSEconomy");
+            if (test != null) {
+                economy = (BOSEconomy) test;
+                Log("Attached to BOSEconomy");
+            } else {
+                Log(Level.WARNING, "economy plugin not yet found...", false);
+            }
         }
         test = getServer().getPluginManager().getPlugin("Permissions");
         if (test != null) {//this.getServer().getPluginManager().isPluginEnabled("Permissions")) {
@@ -228,6 +242,10 @@ public class BetterShop extends JavaPlugin {
         }
         if (config.signShopEnabled && !signShop.load()) {
             Log(Level.SEVERE, "cannot load sign shop database", false);
+
+        }
+        if (config.signShopEnabled && config.tntSignDestroyProtection) {
+            signShop.startProtecting();
         }
 
         pListener = new PluginListener(this);
@@ -267,6 +285,7 @@ public class BetterShop extends JavaPlugin {
         }
         if (signShop != null) {
             signShop.save();
+            signShop.stopProtecting();
         }
 
         transactions = null;
@@ -283,210 +302,216 @@ public class BetterShop extends JavaPlugin {
     public boolean onCommand(CommandSender sender, Command command,
             String commandLabel, String[] args) {
         String commandName = command.getName().toLowerCase();
+        try {
 
-        lastCommand = (sender instanceof Player ? "player:" : "console:")
-                + commandName + " " + Str.argStr(args);
+            lastCommand = (sender instanceof Player ? "player:" : "console:")
+                    + commandName + " " + Str.argStr(args);
 
-        // i don't like seeing these messages all the time..
-        //Log(((Player) sender).getName() + " used command " + command.getName());
+            // i don't like seeing these messages all the time..
+            //Log(((Player) sender).getName() + " used command " + command.getName());
 
-        if ((BetterShop.iConomy == null)) {
-            BSutils.sendMessage(sender, "\u00A74 BetterShop is missing a dependency. Check the console.");
-            Log(Level.SEVERE, "Missing: iConomy", false);
-            return true;
-        }
+            if (BetterShop.iConomy == null && BetterShop.economy == null) {
+                BSutils.sendMessage(sender, "\u00A74 BetterShop is missing a dependency. Check the console.");
+                Log(Level.SEVERE, "Missing: iConomy or BOSEconomy", false);
+                return true;
+            }
 
-        if (stock != null && config.useItemStock) {
-            stock.checkStockRestock();
-        }
+            if (stock != null && config.useItemStock) {
+                stock.checkStockRestock();
+            }
 
-        if (commandName.equals("shop")) {
-            if (args.length > 0) {
-                if (args[0].equalsIgnoreCase("list")) {
-                    commandName = "shoplist";
-                } else if (args[0].equalsIgnoreCase("help")) {
-                    commandName = "shophelp";
-                } else if (args[0].equalsIgnoreCase("buy")) {
-                    commandName = "shopbuy";
-                } else if (args[0].equalsIgnoreCase("sell")) {
-                    commandName = "shopsell";
-                } else if (args[0].equalsIgnoreCase("add")) {
-                    commandName = "shopadd";
-                } else if (args[0].equalsIgnoreCase("remove")) {
-                    commandName = "shopremove";
-                } else if (args[0].equalsIgnoreCase("load") || args[0].equalsIgnoreCase("reload")) {
-                    commandName = "shopload";
-                } else if (args[0].equalsIgnoreCase("check")) {
-                    commandName = "shopcheck";
-                } else if (args[0].equalsIgnoreCase("sellall")) {
-                    commandName = "shopsellall";
-                } else if (args[0].equalsIgnoreCase("sellstack")) {
-                    commandName = "shopsellstack";
-                } else if (args[0].equalsIgnoreCase("buystack")) {
-                    commandName = "shopbuystack";
-                } else if (args[0].equalsIgnoreCase("buyall")) {
-                    commandName = "shopbuyall";
-                } else if (args[0].equalsIgnoreCase("sellagain")) {
-                    commandName = "shopsellagain";
-                } else if (args[0].equalsIgnoreCase("buyagain")) {
-                    commandName = "shopbuyagain";
-                } else if (args[0].equalsIgnoreCase("listkits")) {
-                    commandName = "shoplistkits";
-                } else if (args[0].equalsIgnoreCase("restock")) {
-                    if (BSutils.hasPermission(sender, BSutils.BetterShopPermission.ADMIN_RESTOCK, true)) {
-                        stock.Restock(true);
-                        sender.sendMessage("Stock set to initial values");
-                    }
-                } else if (args[0].equalsIgnoreCase("backup")) {
-                    if (BSutils.hasPermission(sender, BSutils.BetterShopPermission.ADMIN_BACKUP, true)) {
-                        SimpleDateFormat formatter = new SimpleDateFormat("_yyyy_MM_dd_HH-mm-ss");
-                        String backFname = BSConfig.pluginFolder.getPath() + File.separatorChar
-                                + config.tableName + formatter.format(new java.util.Date()) + ".csv";
-                        try {
-                            if (pricelist.saveFile(new File(backFname))) {
-                                sender.sendMessage("Backup saved as " + backFname);
+            if (commandName.equals("shop")) {
+                if (args.length > 0) {
+                    if (args[0].equalsIgnoreCase("list")) {
+                        commandName = "shoplist";
+                    } else if (args[0].equalsIgnoreCase("help")) {
+                        commandName = "shophelp";
+                    } else if (args[0].equalsIgnoreCase("buy")) {
+                        commandName = "shopbuy";
+                    } else if (args[0].equalsIgnoreCase("sell")) {
+                        commandName = "shopsell";
+                    } else if (args[0].equalsIgnoreCase("add")) {
+                        commandName = "shopadd";
+                    } else if (args[0].equalsIgnoreCase("remove")) {
+                        commandName = "shopremove";
+                    } else if (args[0].equalsIgnoreCase("load") || args[0].equalsIgnoreCase("reload")) {
+                        commandName = "shopload";
+                    } else if (args[0].equalsIgnoreCase("check")) {
+                        commandName = "shopcheck";
+                    } else if (args[0].equalsIgnoreCase("sellall")) {
+                        commandName = "shopsellall";
+                    } else if (args[0].equalsIgnoreCase("sellstack")) {
+                        commandName = "shopsellstack";
+                    } else if (args[0].equalsIgnoreCase("buystack")) {
+                        commandName = "shopbuystack";
+                    } else if (args[0].equalsIgnoreCase("buyall")) {
+                        commandName = "shopbuyall";
+                    } else if (args[0].equalsIgnoreCase("sellagain")) {
+                        commandName = "shopsellagain";
+                    } else if (args[0].equalsIgnoreCase("buyagain")) {
+                        commandName = "shopbuyagain";
+                    } else if (args[0].equalsIgnoreCase("listkits")) {
+                        commandName = "shoplistkits";
+                    } else if (args[0].equalsIgnoreCase("restock")) {
+                        if (BSutils.hasPermission(sender, BSutils.BetterShopPermission.ADMIN_RESTOCK, true)) {
+                            stock.Restock(true);
+                            sender.sendMessage("Stock set to initial values");
+                        }
+                    } else if (args[0].equalsIgnoreCase("backup")) {
+                        if (BSutils.hasPermission(sender, BSutils.BetterShopPermission.ADMIN_BACKUP, true)) {
+                            SimpleDateFormat formatter = new SimpleDateFormat("_yyyy_MM_dd_HH-mm-ss");
+                            String backFname = BSConfig.pluginFolder.getPath() + File.separatorChar
+                                    + config.tableName + formatter.format(new java.util.Date()) + ".csv";
+                            try {
+                                if (pricelist.saveFile(new File(backFname))) {
+                                    sender.sendMessage("Backup saved as " + backFname);
+                                }
+                            } catch (IOException ex) {
+                                Log(Level.SEVERE, "Failed to save backup file " + backFname, ex);
+                                sender.sendMessage("\u00A74Failed to save backup file " + backFname);
                             }
-                        } catch (IOException ex) {
-                            Log(Level.SEVERE, "Failed to save backup file " + backFname, ex);
-                            sender.sendMessage("\u00A74Failed to save backup file " + backFname);
-                        }
-                    }
-                    return true;
-                } else if (args[0].equalsIgnoreCase("import")) {
-                    return bscommand.importDB(sender, args);
-                } else if (args[0].equalsIgnoreCase("restore")) {
-                    return bscommand.restoreDB(sender, args);
-                } else if (args[0].equalsIgnoreCase("update")) {
-                    if (sender.isOp()) {
-                        Log("Downloading & Installing Update");
-                        BSutils.sendMessage(sender, "Downloading & Installing Update");
-                        if (Updater.downloadUpdate()) {
-                            Log("Update Downloaded: Restarting Server..");
-                            BSutils.sendMessage(sender, "Download Successful.. reloading server");
-                            //this.setEnabled(false);
-                            //this.getServer().dispatchCommand((CommandSender) new CommanderSenderImpl(this), "stop");
-                            //this.getServer().dispatchCommand(new AdminCommandSender(this), "stop");
-
-                            //this.getServer().reload();
-                            (new ServerReload(getServer())).start(500);
-                        }
-                    } else {
-                        BSutils.sendMessage(sender, "Only an OP can update the shop plugin");
-                    }
-                    return true;
-                } else if (args[0].equalsIgnoreCase("ver") || args[0].equalsIgnoreCase("version")) {
-                    // allow admin.info or developers access to plugin status (so if i find a bug i can see if it's current)
-                    if (BSutils.hasPermission(sender, BSutils.BetterShopPermission.ADMIN_INFO, false)
-                            || (sender instanceof Player && (((Player) sender).getDisplayName().equals("jascotty2")
-                            || ((Player) sender).getDisplayName().equals("jjfs85")))) {
-                        BSutils.sendMessage(sender, "version " + pdfFile.getVersion());
-                        if (Updater.isUpToDate()) {
-                            BSutils.sendMessage(sender, "Version is up-to-date");
-                        } else {
-                            BSutils.sendMessage(sender, "Newer Version Avaliable");
                         }
                         return true;
+                    } else if (args[0].equalsIgnoreCase("import")) {
+                        return bscommand.importDB(sender, args);
+                    } else if (args[0].equalsIgnoreCase("restore")) {
+                        return bscommand.restoreDB(sender, args);
+                    } else if (args[0].equalsIgnoreCase("update")) {
+                        if (sender.isOp()) {
+                            Log("Downloading & Installing Update");
+                            BSutils.sendMessage(sender, "Downloading & Installing Update");
+                            if (Updater.downloadUpdate()) {
+                                Log("Update Downloaded: Restarting Server..");
+                                BSutils.sendMessage(sender, "Download Successful.. reloading server");
+                                //this.setEnabled(false);
+                                //this.getServer().dispatchCommand((CommandSender) new CommanderSenderImpl(this), "stop");
+                                //this.getServer().dispatchCommand(new AdminCommandSender(this), "stop");
+
+                                //this.getServer().reload();
+                                (new ServerReload(getServer())).start(500);
+                            }
+                        } else {
+                            BSutils.sendMessage(sender, "Only an OP can update the shop plugin");
+                        }
+                        return true;
+                    } else if (args[0].equalsIgnoreCase("ver") || args[0].equalsIgnoreCase("version")) {
+                        // allow admin.info or developers access to plugin status (so if i find a bug i can see if it's current)
+                        if (BSutils.hasPermission(sender, BSutils.BetterShopPermission.ADMIN_INFO, false)
+                                || (sender instanceof Player && (((Player) sender).getDisplayName().equals("jascotty2")
+                                || ((Player) sender).getDisplayName().equals("jjfs85")))) {
+                            BSutils.sendMessage(sender, "version " + pdfFile.getVersion());
+                            if (Updater.isUpToDate()) {
+                                BSutils.sendMessage(sender, "Version is up-to-date");
+                            } else {
+                                BSutils.sendMessage(sender, "Newer Version Avaliable");
+                            }
+                            return true;
+                        }
+                    } else {
+                        return false;
                     }
+                    // now remove [0]
+                    if (args.length > 1) {
+                        String newArgs[] = new String[args.length - 1];
+                        for (int i = 1; i < args.length; ++i) {
+                            newArgs[i - 1] = args[i];
+                        }
+                        args = newArgs;
+                    } else {
+                        args = new String[0];
+                    }
+
                 } else {
                     return false;
                 }
-                // now remove [0]
-                if (args.length > 1) {
-                    String newArgs[] = new String[args.length - 1];
-                    for (int i = 1; i < args.length; ++i) {
-                        newArgs[i - 1] = args[i];
-                    }
-                    args = newArgs;
-                } else {
-                    args = new String[0];
-                }
-
-            } else {
-                return false;
             }
-        }
 
-        // check if using history
-        if (commandName.equals("shopbuyagain") || commandName.equals("shopsellagain")) {
-            if (args.length > 0 || BSutils.anonymousCheck(sender)) {
-                return false;
-            }
-            if (commandName.equals("shopbuyagain")) {
-                String action = bscommand.userbuyHistory.get(((Player) sender).getDisplayName());
-                if (action == null) {
-                    BSutils.sendMessage(sender, "You have no recent buying history");
-                    return true;
-                } else {
-                    // trim command & put into args
-                    String cm[] = action.split(" ");
-                    commandName = cm[0];
-                    args = new String[cm.length - 1];
-                    for (int i = 1; i < cm.length; ++i) {
-                        args[i - 1] = cm[i];
-                    }
+            // check if using history
+            if (commandName.equals("shopbuyagain") || commandName.equals("shopsellagain")) {
+                if (args.length > 0 || BSutils.anonymousCheck(sender)) {
+                    return false;
                 }
-            } else {// if (commandName.equals("shopsellagain")) {
-                String action = bscommand.usersellHistory.get(((Player) sender).getDisplayName());
-                if (action == null) {
-                    BSutils.sendMessage(sender, "You have no recent sell history");
-                    return true;
-                } else {
-                    // trim command & put into args
-                    String cm[] = action.split(" ");
-                    commandName = cm[0];
-                    args = new String[cm.length - 1];
-                    for (int i = 1; i < cm.length; ++i) {
-                        args[i - 1] = cm[i];
+                if (commandName.equals("shopbuyagain")) {
+                    String action = bscommand.userbuyHistory.get(((Player) sender).getDisplayName());
+                    if (action == null) {
+                        BSutils.sendMessage(sender, "You have no recent buying history");
+                        return true;
+                    } else {
+                        // trim command & put into args
+                        String cm[] = action.split(" ");
+                        commandName = cm[0];
+                        args = new String[cm.length - 1];
+                        for (int i = 1; i < cm.length; ++i) {
+                            args[i - 1] = cm[i];
+                        }
+                    }
+                } else {// if (commandName.equals("shopsellagain")) {
+                    String action = bscommand.usersellHistory.get(((Player) sender).getDisplayName());
+                    if (action == null) {
+                        BSutils.sendMessage(sender, "You have no recent sell history");
+                        return true;
+                    } else {
+                        // trim command & put into args
+                        String cm[] = action.split(" ");
+                        commandName = cm[0];
+                        args = new String[cm.length - 1];
+                        for (int i = 1; i < cm.length; ++i) {
+                            args[i - 1] = cm[i];
+                        }
                     }
                 }
+                //System.out.println("new command: " + commandName);
+                //System.out.println(BSCommand.argStr(args));
             }
-            //System.out.println("new command: " + commandName);
-            //System.out.println(BSCommand.argStr(args));
-        }
-        if (!config.useGlobalCommandShop()
-                && Str.isIn(commandName, new String[]{
-                    "shopbuy", "shopbuyall", "shopbuystack",
-                    "shopsell", "shopsellall", "shopsellstack", /*"shoplist", "shopitems", "shopcheck", "shoplistkits",
-                "shopadd", "shopremove"*/})) {
+            if (!config.useGlobalCommandShop()
+                    && Str.isIn(commandName, new String[]{
+                        "shopbuy", "shopbuyall", "shopbuystack",
+                        "shopsell", "shopsellall", "shopsellstack", /*"shoplist", "shopitems", "shopcheck", "shoplistkits",
+                    "shopadd", "shopremove"*/})) {
 
-            BSutils.sendMessage(sender, "Shop is disabled from here");
-            return true;
-        }
+                BSutils.sendMessage(sender, "Shop is disabled from here");
+                return true;
+            }
 
-        if (commandName.equals("shoplist")) {
-            return bscommand.list(sender, args);
-        } else if (commandName.equals("shopitems")) {
-            return bscommand.listitems(sender, args);
-        } else if (commandName.equals("shophelp")) {
-            return bscommand.help(sender, args);
-        } else if (commandName.equals("shopbuy")) {
-            return bscommand.buy(sender, args);
-        } else if (commandName.equals("shopbuyall")) {
-            ArrayList<String> arg = new ArrayList<String>();
-            arg.addAll(Arrays.asList(args));
-            arg.add("all");
-            return bscommand.buy(sender, arg.toArray(new String[0]));
-        } else if (commandName.equals("shopbuystack")) {
-            return bscommand.buystack(sender, args);
-        } else if (commandName.equals("shopsell")) {
-            return bscommand.sell(sender, args);
-        } else if (commandName.equals("shopsellall")) {
-            return bscommand.sellall(sender, args);
-        } else if (commandName.equals("shopsellstack")) {
-            return bscommand.sellstack(sender, args);
-        } else if (commandName.equals("shopadd")) {
-            return bscommand.add(sender, args);
-        } else if (commandName.equals("shopremove")) {
-            return bscommand.remove(sender, args);
-        } else if (commandName.equals("shopload")) {
-            return bscommand.load(sender);
-        } else if (commandName.equals("shopcheck")) {
-            return bscommand.check(sender, args);
-        } else if (commandName.equals("shoplistkits")) {
-            return bscommand.listkits(sender, args);
-        }
+            if (commandName.equals("shoplist")) {
+                return bscommand.list(sender, args);
+            } else if (commandName.equals("shopitems")) {
+                return bscommand.listitems(sender, args);
+            } else if (commandName.equals("shophelp")) {
+                return bscommand.help(sender, args);
+            } else if (commandName.equals("shopbuy")) {
+                return bscommand.buy(sender, args);
+            } else if (commandName.equals("shopbuyall")) {
+                ArrayList<String> arg = new ArrayList<String>();
+                arg.addAll(Arrays.asList(args));
+                arg.add("all");
+                return bscommand.buy(sender, arg.toArray(new String[0]));
+            } else if (commandName.equals("shopbuystack")) {
+                return bscommand.buystack(sender, args);
+            } else if (commandName.equals("shopsell")) {
+                return bscommand.sell(sender, args);
+            } else if (commandName.equals("shopsellall")) {
+                return bscommand.sellall(sender, args);
+            } else if (commandName.equals("shopsellstack")) {
+                return bscommand.sellstack(sender, args);
+            } else if (commandName.equals("shopadd")) {
+                return bscommand.add(sender, args);
+            } else if (commandName.equals("shopremove")) {
+                return bscommand.remove(sender, args);
+            } else if (commandName.equals("shopload")) {
+                return bscommand.load(sender);
+            } else if (commandName.equals("shopcheck")) {
+                return bscommand.check(sender, args);
+            } else if (commandName.equals("shoplistkits")) {
+                return bscommand.listkits(sender, args);
+            }
 
-        return false;
+            return false;
+        } catch (Exception e) {
+            BSutils.sendMessage(sender, "Unexpected Error!");
+            Log(Level.SEVERE, e);
+        }
+        return true;
     }
 
     protected static void Log(String txt) {
@@ -533,7 +558,7 @@ public class BetterShop extends JavaPlugin {
                     sendErrorReport(txt, params);
                 }
                 if (messenger != null && loglevel.intValue() > Level.INFO.intValue() && config.sendLogOnError) {
-                    messenger.sendNotify(String.format("[%s] %s%n%s%n%s", name, txt, params.getMessage(), Str.getStackStr(params)));
+                    messenger.sendNotify(String.format("[%s] %s%n%s", name, txt, params.getMessage(), Str.getStackStr(params)));
                 }
             }
         }
@@ -550,7 +575,7 @@ public class BetterShop extends JavaPlugin {
                 sendErrorReport(null, err);
             }
             if (messenger != null && loglevel.intValue() > Level.INFO.intValue() && config.sendLogOnError) {
-                messenger.sendNotify(String.format("[%s] %s%n%s%n%s", name, err == null ? "? unknown exception ?" : err.getMessage(), Str.getStackStr(err)));
+                messenger.sendNotify(String.format("[%s] %s%n%s", name, err == null ? "? unknown exception ?" : err.getMessage(), Str.getStackStr(err)));
             }
         }
     }

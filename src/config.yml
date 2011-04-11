@@ -36,7 +36,7 @@ shop:
 
     #item buying behavior
     #if someone without BetterShop.admin.illegal can buy illegal items
-    allowbuyillegal: false
+    allowbuyillegal: true
     #whether maxstack should be honored
     usemaxstack: true
     #used tools can be bought back?
@@ -51,6 +51,12 @@ shop:
     signShops: true
     # color of an active sign's ttle
     activeSignColor: blue
+    # color the names of items on signs?
+    signItemColor: false
+    # swap black & white item colors?
+    signItemColorBWswap: false
+    # scan for destroyed signs?
+    tntSignDestroyProtection: false
     # command-based shop mode
     # modes: global, disabled (default: global)
     commandShop: global
@@ -66,6 +72,15 @@ shop:
 
     # what to use for table/file name (files are saved as .csv)
     tablename: BetterShop
+
+    #if using Help: should main commands not be listed on the main page?
+    hideHelp: false
+
+    # if using BOSEconomy, can set what bank will buy/sell items
+    BOSBank:
+    
+    # default currency name (not yet used, but might be if no economy plugin found)
+    currencyName: "Coin"
 
 
 MySQL:
@@ -147,12 +162,6 @@ itemStock:
     #   0 == never restock
     # note: does not save the last update time, so a server restart could interfere with this cycle
     restock: 6h
-
-#other plugin options:
-
-#Help: should main commands not be listed on the main page?
-hideHelp: false
-
 
 ##########################################
 # strings section: Text used in messages #

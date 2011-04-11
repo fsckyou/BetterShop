@@ -111,15 +111,24 @@ public class ItemStockEntry {
     }
 
     public boolean equals(Item i) {
+        if (i == null) {
+            return false;
+        }
         return (i.IsTool() || itemSub == i.itemData) && itemNum == i.itemId;
     }
 
     public boolean equals(ItemStockEntry i) {
+        if (i == null) {
+            return false;
+        }
         Item t = Item.findItem(i);
         return (t.IsTool() || itemSub == i.itemSub) && itemNum == i.itemNum;
     }
-    
-    public boolean equals(ItemStack i){
+
+    public boolean equals(ItemStack i) {
+        if (i == null) {
+            return false;
+        }
         Item t = Item.findItem(i);
         return (t.IsTool() || itemSub == i.getDurability()) && itemNum == i.getTypeId();
     }

@@ -340,6 +340,9 @@ public class BSCommand {
                 }
             }
         }
+        if (BetterShop.config.signShopEnabled && BetterShop.config.tntSignDestroyProtection) {
+            BetterShop.signShop.stopProtecting();
+        }
         if (ItemDB.load(BSConfig.pluginFolder)) {
             if (player != null) {
                 BSutils.sendMessage(player, ItemDB.size() + " items loaded.");
@@ -396,6 +399,9 @@ public class BSCommand {
             if (player != null) {
                 BSutils.sendMessage(player, ChatColor.RED + "shop signs db load error");
             }
+        }
+        if (BetterShop.config.signShopEnabled && BetterShop.config.tntSignDestroyProtection) {
+            BetterShop.signShop.startProtecting();
         }
         return player != null || ok;
     }
@@ -527,7 +533,8 @@ public class BSCommand {
         } else if (BSutils.anonymousCheck(player)) {
             return true;
         }
-        if (s.length == 2 && s[0].equalsIgnoreCase("all")) {
+        if (s.length == 2 && (s[0].equalsIgnoreCase("all")
+                || (CheckInput.IsInt(s[0]) && !CheckInput.IsInt(s[1])))) {
             // swap two indicies
             String t = s[0];
             s[0] = s[1];
@@ -668,6 +675,11 @@ public class BSCommand {
                 return sellall(player, new String[]{s[1]});
             } else if (s[1].equalsIgnoreCase("all")) {
                 return sellall(player, new String[]{s[0]});
+            } else if (CheckInput.IsInt(s[0]) && !CheckInput.IsInt(s[1])) {
+                // swap two indicies
+                String t = s[0];
+                s[0] = s[1];
+                s[1] = t;
             }
         } else if (s.length == 0 || s.length > 2) {
             return false;
@@ -805,7 +817,7 @@ public class BSCommand {
             }
         }
 
-        BSutils.credit(player, total);
+        BSutils.credit((Player) player, total);
 
         if (BetterShop.stock != null && BetterShop.config.useItemStock) {
             try {
@@ -834,7 +846,6 @@ public class BSCommand {
                     replace("<player>", "%7$s"),
                     toSell.coloredName(), amtSold, total / amtSold, total,
                     BetterShop.config.currency(), BSutils.formatCurrency(total), ((Player) player).getDisplayName()), false);
-
         }
         try {
             BetterShop.transactions.addRecord(new UserTransaction(toSell, true, amtSold, total / amtSold, ((Player) player).getDisplayName()));

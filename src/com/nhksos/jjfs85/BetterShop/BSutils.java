@@ -11,7 +11,7 @@ import com.jascotty2.Str;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.nijiko.coelho.iConomy.system.*;
+//import com.nijiko.coelho.iConomy.system.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -107,74 +107,111 @@ public class BSutils {
         }
     }
 
-    static boolean credit(CommandSender player, double amount) {
-        if (amount <= 0 && BetterShop.iConomy != null) {
+    static boolean decimalSupported() {
+        return BetterShop.iConomy != null;
+    }
+
+    static boolean credit(Player player, double amount) {
+        if (amount <= 0) {
             return amount == 0;
         }
-        try {
-            Account account = BetterShop.iConomy.getBank().getAccount(((Player) player).getName());
-            double preAmt = account.getBalance();
-            account.add(amount);
-            if (account.getBalance() != preAmt) {
-                return true;
-            }
-        } catch (Exception ex) {
-        }
-        // something seems to be wrong with iConomy: reload it
-        BetterShop.Log(Level.SEVERE, "Failed to credit player: attempting iConomy reload", false);
-        if (reloadIConomy(player.getServer())) {
-
+        if (BetterShop.iConomy != null) {
             try {
-                Account account = BetterShop.iConomy.getBank().getAccount(((Player) player).getName());
-                double preAmt = account.getBalance();
-                account.add(amount);
-                if (account.getBalance() != preAmt) {
+                //Account account = BetterShop.iConomy.getBank().getAccount(player.getName());
+                double preAmt = BetterShop.iConomy.getBank().getAccount(player.getName()).getBalance();
+                BetterShop.iConomy.getBank().getAccount(player.getName()).add(amount);
+                if (BetterShop.iConomy.getBank().getAccount(player.getName()).getBalance() != preAmt) {
                     return true;
                 }
             } catch (Exception ex) {
             }
+            // something seems to be wrong with iConomy: reload it
+            BetterShop.Log(Level.SEVERE, "Failed to credit player: attempting iConomy reload", false);
+            if (reloadIConomy(player.getServer())) {
+
+                try {
+                    //Account account = BetterShop.iConomy.getBank().getAccount(player.getName());
+                    double preAmt = BetterShop.iConomy.getBank().getAccount(player.getName()).getBalance();
+                    BetterShop.iConomy.getBank().getAccount(player.getName()).add(amount);
+                    if (BetterShop.iConomy.getBank().getAccount(player.getName()).getBalance() != preAmt) {
+                        return true;
+                    }
+                } catch (Exception ex) {
+                }
+            }
+            BetterShop.Log(Level.SEVERE, "Failed.", false);
+        } else if (BetterShop.economy != null) {
+            try {
+                //long preAmt = BetterShop.economy.getPlayerMoney(player.getName());
+                BetterShop.economy.addPlayerMoney(player.getName(), (int) Math.round(amount), false);
+                if (BetterShop.config.BOSBank.length() > 0) {
+                    BetterShop.economy.addBankMoney(BetterShop.config.BOSBank, -(int) Math.round(amount), false);
+                }
+            } catch (Exception ex) {
+                BetterShop.Log(Level.SEVERE, "Failed to credit player (BOSEconomy)", ex);
+            }
+        } else {
+            BetterShop.Log(Level.SEVERE, "Failed to credit player: no economy plugin", false);
+            return false;
         }
-        BetterShop.Log(Level.SEVERE, "Failed.", false);
         return true;
     }
 
-    static boolean debit(CommandSender player, double amount) {
+    static boolean debit(Player player, double amount) {
         if (amount <= 0) {
             return amount == 0;
         }
-        try {
-            Account account = BetterShop.iConomy.getBank().getAccount(((Player) player).getName());
-            double preAmt = account.getBalance();
-            // don't allow account to go negative
-            if (preAmt < amount) {
-                return false;
-            }
-            account.subtract(amount);
-            if (account.getBalance() != preAmt) {
-                return true;
-            }
-        } catch (Exception ex) {
-        }
-        // something seems to be wrong with iConomy: reload it
-        BetterShop.Log(Level.SEVERE, "Failed to debit player: attempting iConomy reload", false);
-        if (reloadIConomy(player.getServer())) {
+        if (BetterShop.iConomy != null) {
             try {
-                Account account = BetterShop.iConomy.getBank().getAccount(((Player) player).getName());
-                double preAmt = account.getBalance();
+                //Account account = BetterShop.iConomy.getBank().getAccount(player.getName());
+                double preAmt = BetterShop.iConomy.getBank().getAccount(player.getName()).getBalance();
                 // don't allow account to go negative
                 if (preAmt < amount) {
                     return false;
                 }
-                account.subtract(amount);
-                if (account.getBalance() != preAmt) {
+                BetterShop.iConomy.getBank().getAccount(player.getName()).subtract(amount);
+                if (BetterShop.iConomy.getBank().getAccount(player.getName()).getBalance() != preAmt) {
                     return true;
                 }
             } catch (Exception ex) {
             }
+            // something seems to be wrong with iConomy: reload it
+            BetterShop.Log(Level.SEVERE, "Failed to debit player: attempting iConomy reload", false);
+            if (reloadIConomy(player.getServer())) {
+                try {
+                    //Account account = BetterShop.iConomy.getBank().getAccount(player.getName());
+                    double preAmt = BetterShop.iConomy.getBank().getAccount(player.getName()).getBalance();
+                    // don't allow account to go negative
+                    if (preAmt < amount) {
+                        return false;
+                    }
+                    BetterShop.iConomy.getBank().getAccount(player.getName()).subtract(amount);
+                    if (BetterShop.iConomy.getBank().getAccount(player.getName()).getBalance() != preAmt) {
+                        return true;
+                    }
+                } catch (Exception ex) {
+                }
+            }
+
+            BetterShop.Log(Level.SEVERE, "Failed.", false);
+        } else if (BetterShop.economy != null) {
+            try {
+                int preAmt = BetterShop.economy.getPlayerMoney(player.getName());
+                // don't allow account to go negative
+                if (preAmt < amount) {
+                    return false;
+                }
+                BetterShop.economy.addPlayerMoney(player.getName(), -(int) Math.round(amount), false);
+                if (BetterShop.config.BOSBank.length() > 0) {
+                    BetterShop.economy.addBankMoney(BetterShop.config.BOSBank, (int) Math.round(amount), false);
+                }
+            } catch (Exception ex) {
+                BetterShop.Log(Level.SEVERE, "Failed to credit player (BOSEconomy)", ex);
+            }
+        } else {
+            BetterShop.Log(Level.SEVERE, "Failed to credit player: no economy plugin", false);
+            return false;
         }
-
-        BetterShop.Log(Level.SEVERE, "Failed.", false);
-
         return true;
     }
 
@@ -188,8 +225,13 @@ public class BSutils {
                 } catch (Exception ex2) {
                 }
             }
+        } else if (BetterShop.economy != null) {
+            if (amt < 1 || amt > 1) {
+                return String.valueOf((int) Math.round(amt)) + " " + BetterShop.economy.getMoneyNamePlural();
+            }
+            return String.valueOf((int) Math.round(amt)) + " " + BetterShop.economy.getMoneyName();
         }
-        return String.format("%.2f", amt) + " Coins";
+        return String.format("%.2f", amt) + " " + BetterShop.config.defaultCurrency;
     }
 
     static boolean reloadIConomy(Server serv) {
@@ -293,6 +335,9 @@ public class BSutils {
      * does not run check for tools, so tools with damage are returned seperately
      */
     public static ArrayList<ItemStockEntry> getTotalInventory(Player player, boolean onlyInv) {
+        if (player == null) {
+            return null;
+        }
         ArrayList<ItemStockEntry> inv = new ArrayList<ItemStockEntry>();
 
         ItemStack[] its = player.getInventory().getContents();
@@ -321,6 +366,8 @@ public class BSutils {
     public static ArrayList<ItemStockEntry> getTotalInventory(Player player, boolean onlyInv, Item[] toFind) {
         if (toFind == null || toFind.length == 0) {
             return getTotalInventory(player, onlyInv);
+        } else if (player == null) {
+            return null;
         }
         ArrayList<ItemStockEntry> inv = new ArrayList<ItemStockEntry>();
 
@@ -328,7 +375,7 @@ public class BSutils {
         for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
             if (its[i] != null && its[i].getAmount() > 0) {
                 for (Item it : toFind) {
-                    if (it != null && it.equals(its[i])) {
+                    if (it != null && its[i] != null && it.equals(its[i])) {
                         ItemStockEntry find = new ItemStockEntry(its[i]);
                         int pos = inv.indexOf(find);
                         if (pos >= 0) {
@@ -347,6 +394,8 @@ public class BSutils {
     public static ArrayList<ItemStockEntry> getTotalInventory(Player player, boolean onlyInv, ArrayList<ItemStockEntry> toFind) {
         if (toFind == null) {
             return getTotalInventory(player, onlyInv);
+        } else if (player == null) {
+            return null;
         }
         ArrayList<ItemStockEntry> inv = new ArrayList<ItemStockEntry>();
         if (toFind.isEmpty()) {
@@ -356,7 +405,7 @@ public class BSutils {
         for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
             if (its[i] != null && its[i].getAmount() > 0) {
                 for (ItemStockEntry it : toFind) {
-                    if (it != null && it.equals(its[i])) {
+                    if (it != null && its[i] != null && it.equals(its[i])) {
                         int pos = inv.indexOf(it);
                         if (pos >= 0) {
                             inv.get(pos).AddAmount(its[i].getAmount());
@@ -733,7 +782,7 @@ public class BSutils {
     public static ArrayList<ItemStockEntry> getCanSell(Player player, boolean onlyInv, Item[] toSell) {
         ArrayList<ItemStockEntry> sellable = new ArrayList<ItemStockEntry>(),
                 playerInv = getTotalInventory(player, onlyInv, toSell);
-        if(toSell != null && toSell.length == 1 && toSell[0] == null){
+        if (toSell != null && toSell.length == 1 && toSell[0] == null) {
             toSell = null;
         }
         //ItemStack[] its = player.getInventory().getContents();
@@ -794,8 +843,8 @@ public class BSutils {
             }
         }
         if (sellable.isEmpty() && !overstock) {
-            BSutils.sendMessage(player, "You Don't have any " +
-                    (toSell == null || toSell.length == 0 || (toSell.length == 1 && toSell[0] == null) ? "Sellable Items"
+            BSutils.sendMessage(player, "You Don't have any "
+                    + (toSell == null || toSell.length == 0 || (toSell.length == 1 && toSell[0] == null) ? "Sellable Items"
                     : (toSell.length == 1 ? toSell[0].coloredName() : "of those items")));
         }
         return sellable;

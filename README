@@ -35,7 +35,10 @@ Features:
 ===============================================================================
 
 === plugin support
-currently dependent on iConomy
+currently dependent on 
+- iConomy	http://forums.bukkit.org/threads/40/
+--or
+- BOSeconomy  	http://forums.bukkit.org/threads/4874/
 Permissions support
 Help support
 
@@ -160,12 +163,14 @@ change buystock if itemStock is enabled so that if trying to buy multiple stacks
 individually-customizable restock stock values per-item
 chest shop interface ? 
 automatically add missing config nodes (preserving comments)
-items as currency (if no economy plugin)
-integrate with other economy plugins?
+add a simple builtin economy system, if none found?
 add categories to items
-sign explosion protection ?
 - can search, buy, & sell with category
-BOSeconomy  	http://forums.bukkit.org/threads/4874/
+sign explosion protection ?
+user-owned shops (signs, linked to chests)
+4th line for configurable prices or shop profit owner
+
+
 
 
 === Removed (not going to implement)
@@ -175,10 +180,27 @@ dynamicDiscount: if a user has an applicable discount, will also discount items 
 		(if i do implement discounts, this will be automatic)
 Cookies	integration:  http://forums.bukkit.org/threads/5327/
 		(might implement if becomes active again)
+items as currency (if no economy plugin)
+		(as i began to write this, i realized that it's an entire economy plugin... one that i just might develop)
+
 
 ===============================================================================
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
+
+Version 1.6.5.0 - 4/10/11 - jascotty2
+corrected new settings (missed some previously)
+fixed default sign pricecheck showing wrong one
+fixed messenger formatting error
+misc. null fixes
+BOSEconomy support added
+changed block protection from scan to save (should improve performance)
+added tnt protection, in the form of a scanner that routinely checks that all shop signs & their anchors still exist
+added syntax check for /buy & /sell # [item] (like the sign syntax)
+allowbuyillegal now defaults to true
+fixed color set (hidden logic error)
+signs can have the item name colored according to the defined item color
+
 
 Version 1.6.4.2 - 4/9/11 - jascotty2
 fixed sign destroy permission check to only check bettershop signs

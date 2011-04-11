@@ -438,8 +438,8 @@ items:
         name: Pumpkin
         aliases:
     item87:
-        name: Netherack
-        aliases: netherstone, hellstone, nstone, hstone
+        name: Netherrack
+        aliases: netherack, netherstone, hellstone, nstone, hstone, bloodstone, redmossycobblestone
     item88:
         name: Soulsand
         aliases: slowsand, slowmud, ssand, smud, mud

@@ -2,6 +2,7 @@ package com.nhksos.jjfs85.BetterShop;
 
 import com.jascotty2.CheckInput;
 import com.jascotty2.Item.Item;
+//import com.jascotty2.Item.ItemCurrency;
 import com.jascotty2.Item.ItemDB;
 import com.jascotty2.MinecraftChatStr;
 
@@ -34,17 +35,21 @@ public class BSConfig {
     public boolean hideHelp = false;
     public static final int MAX_CUSTMSG_LEN = 90;
     ////// shop settings
-    //public String currency = "Coin";
+    public String defaultCurrency = "Coin";
     public int pagesize = 9;
     public boolean publicmarket = false;
-    public String defColor = "white";
+    public String defColor = "white",
+            BOSBank = "";
     protected String customErrorMessage = "";
     ///// item buying behavior
-    public boolean allowbuyillegal = false, //if someone without BetterShop.admin.illegal can buy illegal items
+    public boolean allowbuyillegal = true, //if someone without BetterShop.admin.illegal can buy illegal items
             usemaxstack = true, //whether maxstack should be honored
             buybacktools = true, //used tools can be bought back?
             buybackenabled = true, //shop buys items from users?
-            signShopEnabled = true;
+            signShopEnabled = true,
+            signItemColor = false, //color the names of items on signs?
+            signItemColorBWswap = false,// swap black & white item colors?
+            tntSignDestroyProtection = false;
     public int maxEntityPurchase = 3; // max can purchase at a time
     // sign settings
     public String activeSignColor = "blue"; // automatically changed to \u00A7 format
@@ -123,8 +128,8 @@ public class BSConfig {
         // # shopcheck messages
         stringMap.put("pricecheck", "Price check! &f[<item>&f]&2 Buy: &f<buyprice> &2Sell: &f<sellprice>" + (useItemStock ? " (stock: <avail>)" : ""));
         stringMap.put("multipricecheck", "Price check! <amt> &f[<item>&f]&2 Buy: &f<buyprice> &2Sell: &f<sellprice>");
-        stringMap.put("multipricechecksell", "Price check! <amt> &f[<item>&f]&2 Buy: &f<buycur>");
-        stringMap.put("multipricecheckbuy", "Price check! <amt> &f[<item>&f]&2 Sell: &f<sellcur>");
+        stringMap.put("multipricechecksell", "Price check! <amt> &f[<item>&f]&2 Sell: &f<sellcur>");
+        stringMap.put("multipricecheckbuy", "Price check! <amt> &f[<item>&f]&2 Buy: &f<buycur>");
         stringMap.put("nolisting", "&f[<item>&f] &2cannot be bought or sold.");
         // # shoplist messages
         stringMap.put("listhead", "-------- Price-List Page: &f<page> &2of &f<pages> &2--------");
@@ -156,6 +161,7 @@ public class BSConfig {
             // check for completedness
             try {
                 HashMap<String, String[]> allKeys = new HashMap<String, String[]>();
+
                 allKeys.put("shop", new String[]{
                             "ItemsPerPage",
                             "publicmarket",
@@ -163,10 +169,18 @@ public class BSConfig {
                             "usemaxstack",
                             "buybacktools",
                             "buybackenabled",
-                            "maxEntityPurchase",
+                            "maxEntityPurchase",                            
+                            "signShops",
+                            "activeSignColor",
+                            "signItemColor",
+                            "signItemColorBWswap",
+                            "tntSignDestroyProtection",
+                            "commandShop",
                             "customsort",
                             "defaultItemColor",
-                            "tablename"});
+                            "tablename",
+                            "hideHelp",
+                            "BOSBank"}); // "currencyName"
                 allKeys.put("errors", new String[]{
                             "CheckForUpdates",
                             "AutoUpdate",
@@ -235,7 +249,7 @@ public class BSConfig {
                             "lowstock",
                             "maxstock",
                             "highstock"});
-                String allowNull[] = new String[]{"shop.customsort", "strings.listhead", "strings.listtail"};
+                String allowNull[] = new String[]{"shop.customsort", "shop.BOSBank"};
 
                 String missing = "", unused = "";
                 for (String k : allKeys.keySet()) {
@@ -289,8 +303,6 @@ public class BSConfig {
                 }
             }
 
-            hideHelp = config.getBoolean("hideHelp", hideHelp);
-
             // supporting these older nodes for now
             boolean usingOldMySQLsetting = false;
             if (configHasNode(config, new String[]{"CheckForUpdates", "AutoUpdate",
@@ -299,7 +311,7 @@ public class BSConfig {
                         "buybacktools", "buybackenabled", "maxEntityPurchase",
                         "tablename", "useMySQL", "useMySQLPricelist", "defaultItemColor",
                         "sendLogOnError", "sendAllLog", "hideHelp", "customsort"})) {
-                BetterShop.Log(Level.WARNING, "Using Deprecated  Configuration Nodes: Update To New Format Soon!");
+                BetterShop.Log(Level.WARNING, "Using Deprecated Configuration Nodes: Update To New Format Soon!");
 
                 checkUpdates = config.getBoolean("CheckForUpdates", checkUpdates);
                 autoUpdate = config.getBoolean("AutoUpdate", autoUpdate);
@@ -360,6 +372,7 @@ public class BSConfig {
                 sendAllLog = config.getBoolean("sendAllLog", sendAllLog);
 
                 hideHelp = config.getBoolean("hideHelp", hideHelp);
+                BOSBank = config.getString("BOSBank", "");
 
                 String customsort = config.getString("customsort");
                 if (customsort != null) {
@@ -402,6 +415,11 @@ public class BSConfig {
 
                 signShopEnabled = n.getBoolean("signShops", signShopEnabled);
                 activeSignColor = n.getString("activeSignColor", activeSignColor);
+                tntSignDestroyProtection = n.getBoolean("tntSignDestroyProtection", tntSignDestroyProtection);
+
+                signItemColor = n.getBoolean("signItemColor", signItemColor);
+                signItemColorBWswap = n.getBoolean("signItemColorBWswap", signItemColorBWswap);
+
                 String cShopMode = n.getString("commandShop");
                 if (cShopMode != null) {
                     if (cShopMode.equalsIgnoreCase("disabled") || cShopMode.equalsIgnoreCase("none")) {
@@ -415,12 +433,15 @@ public class BSConfig {
                     }
                 }
 
-                tableName = config.getString("tablename", tableName);
+                tableName = n.getString("tablename", tableName);
 
-                defColor = config.getString("defaultItemColor", defColor);
+                defColor = n.getString("defaultItemColor", defColor);
                 ItemDB.setDefaultColor(defColor);
 
-                String customsort = config.getString("customsort");
+                //ItemCurrency.loadFromString(n.getString("currencyItems", "diamond>20, goldbar>5, ironbar>1, redstone>.5"));
+                defaultCurrency = n.getString("currencyName", "Coin");
+
+                String customsort = n.getString("customsort");
                 if (customsort != null) {
                     // parse for items && add to custom sort arraylist
                     String items[] = customsort.split(",");
@@ -433,6 +454,8 @@ public class BSConfig {
                         }
                     }
                 }
+                hideHelp = n.getBoolean("hideHelp", hideHelp);
+
             }
             activeSignColor = MinecraftChatStr.getChatColor(activeSignColor);
 
