@@ -69,7 +69,6 @@ public class BSSignShop extends PlayerListener {
             if (MinecraftChatStr.uncoloredStr(clickedSign.getLine(0)).equalsIgnoreCase("[BetterShop]")) {
                 try {
                     Long lt = playerInteractTime.get(event.getPlayer());
-                    //System.out.println(lt + "   " + System.currentTimeMillis());
                     if (lt != null && System.currentTimeMillis() - lt < BSConfig.signInteractWait) {
                         event.setCancelled(event.getAction() == Action.RIGHT_CLICK_BLOCK);
                         return;

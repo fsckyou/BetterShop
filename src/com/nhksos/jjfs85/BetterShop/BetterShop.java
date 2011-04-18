@@ -32,6 +32,7 @@ import com.nijiko.coelho.iConomy.system.Bank;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import me.taylorkelly.help.Help;
 import com.jascotty2.MinecraftIM.MinecraftIM;
+import com.jascotty2.ServerInfo;
 import cosine.boseconomy.BOSEconomy;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -43,7 +44,7 @@ import org.bukkit.event.server.PluginDisableEvent;
  */
 public class BetterShop extends JavaPlugin {
 
-    public final static String lastUpdatedStr = "4/11/11 11:50 -0500"; // "MM/dd/yy HH:mm Z"
+    public final static String lastUpdatedStr = "4/18/11 11:00 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
@@ -332,7 +333,7 @@ public class BetterShop extends JavaPlugin {
                 if (args.length > 0) {
                     if (args[0].equalsIgnoreCase("list")) {
                         commandName = "shoplist";
-                    } else if (args[0].equalsIgnoreCase("help")) {
+                    } else if (args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("?")) {
                         commandName = "shophelp";
                     } else if (args[0].equalsIgnoreCase("buy")) {
                         commandName = "shopbuy";
@@ -611,10 +612,10 @@ public class BetterShop extends JavaPlugin {
 
             String fname = FTPErrorReporter.SendNewText(
                     "BetterShop Error Report at " + (new Date()).toString() + "\n"
-                    + "SUID: " + Updater.serverUID(config != null ? !config.unMaskErrorID : true, BSConfig.MAX_CUSTMSG_LEN) + "\n"
+                    + "SUID: " + ServerInfo.serverUID(config != null ? !config.unMaskErrorID : true, BSConfig.MAX_CUSTMSG_LEN) + "\n"
                     + (config != null ? (config.customErrorMessage.length() > 0 ? config.customErrorMessage + "\n" : "") : "")
                     + "Machine: " + System.getProperty("os.name") + " " + System.getProperty("os.arch") /* + "," + System.getProperty("user.dir")*/ + "\n"
-                    + "Bukkit: " + Updater.getBukkitVersion(true) + "\n"
+                    + "Bukkit: " + ServerInfo.getBukkitVersion(true) + "\n"
                     + "Version: " + pdfFile.getVersion() + "  (" + lastUpdatedStr + ")\n"
                     + "iConomy: " + (iConomy != null ? ((Plugin) iConomy).getDescription().getVersion() : "none") + "\n"
                     + "Permissions: " + (Permissions != null ? "true" : "false") + "\n"

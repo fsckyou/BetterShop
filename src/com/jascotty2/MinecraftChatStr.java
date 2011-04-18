@@ -63,18 +63,18 @@ public class MinecraftChatStr {
         // for purposes of this function, assuming a normal char to be 6
         len *= 6;
         len -= getStringWidth(str);
-        return str + unformattedStrRepeat(pad, len / getCharWidth(pad, 6));
+        return str + Str.repeat(pad, len / getCharWidth(pad, 6));
     }
 
     public static String strPadRightChat(String str, int abslen, char pad) {
         // int width = 325;
         abslen -= getStringWidth(str);
-        return str + unformattedStrRepeat(pad, abslen / getCharWidth(pad, 6));
+        return str + Str.repeat(pad, abslen / getCharWidth(pad, 6));
     }
 
     public static String strPadRightChat(String str, char pad) {
         int width = 325 - getStringWidth(str);
-        return str + unformattedStrRepeat(pad, width / getCharWidth(pad, 6));
+        return str + Str.repeat(pad, width / getCharWidth(pad, 6));
     }
 
     /**
@@ -88,18 +88,18 @@ public class MinecraftChatStr {
         // for purposes of this function, assuming a normal char to be 6
         len *= 6;
         len -= getStringWidth(str);
-        return unformattedStrRepeat(pad, len / getCharWidth(pad, 6)) + str;
+        return Str.repeat(pad, len / getCharWidth(pad, 6)) + str;
     }
 
     public static String strPadLeftChat(String str, int abslen, char pad) {
         // int width = 325;
         abslen -= getStringWidth(str);
-        return unformattedStrRepeat(pad, abslen / getCharWidth(pad, 6)) + str;
+        return Str.repeat(pad, abslen / getCharWidth(pad, 6)) + str;
     }
 
     public static String strPadLeftChat(String str, char pad) {
         int width = 325 - getStringWidth(str);
-        return unformattedStrRepeat(pad, width / getCharWidth(pad, 6)) + str;
+        return Str.repeat(pad, width / getCharWidth(pad, 6)) + str;
     }
 
     /**
@@ -116,7 +116,7 @@ public class MinecraftChatStr {
         int padwid = getCharWidth(pad, 6);
         int prepad = (len / padwid) / 2;
         len -= prepad * padwid;
-        return unformattedStrRepeat(pad, prepad) + str + unformattedStrRepeat(pad, len / padwid);
+        return Str.repeat(pad, prepad) + str + Str.repeat(pad, len / padwid);
     }
 
     public static String strPadCenterChat(String str, int abslen, char pad) {
@@ -125,7 +125,7 @@ public class MinecraftChatStr {
         int padwid = getCharWidth(pad, 6);
         int prepad = (abslen / padwid) / 2;
         abslen -= prepad * padwid;
-        return unformattedStrRepeat(pad, prepad) + str + unformattedStrRepeat(pad, abslen / padwid);
+        return Str.repeat(pad, prepad) + str + Str.repeat(pad, abslen / padwid);
     }
 
     public static String strPadCenterChat(String str, char pad) {
@@ -133,33 +133,9 @@ public class MinecraftChatStr {
         int padwid = getCharWidth(pad, 6);
         int prepad = (width / padwid) / 2;
         width -= prepad * padwid;
-        return unformattedStrRepeat(pad, prepad) + str + unformattedStrRepeat(pad, width / padwid);
+        return Str.repeat(pad, prepad) + str + Str.repeat(pad, width / padwid);
     }
 
-    public static String unformattedPadRight(String str, int len, char pad) {
-        for (int i = str.length(); i < len; ++i) {
-            str += pad;
-        }
-        return str;
-    }
-
-    public static String unformattedPadLeft(String str, int len, char pad) {
-        return unformattedStrRepeat(pad, len - str.length()) + str;
-    }
-
-    public static String unformattedPadCenter(String str, int len, char pad) {
-        len -= str.length();
-        int prepad = len / 2;
-        return unformattedStrRepeat(pad, prepad) + str + unformattedStrRepeat(pad, len - prepad);
-    }
-
-    public static String unformattedStrRepeat(char ch, int len) {
-        String str = "";
-        for (int i = 0; i < len; ++i) {
-            str += ch;
-        }
-        return str;
-    }
 
     private static boolean containsAlignTag(String str, String tag) {
         int pos = str.indexOf("<" + tag);
@@ -197,19 +173,19 @@ public class MinecraftChatStr {
                             if (minecraftChatFormat) {
                                 newinput.add(MinecraftChatStr.strPadRight(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl) + line.substring(line.indexOf("<" + fm + ">") + 3));
                             } else {
-                                newinput.add(MinecraftChatStr.unformattedPadRight(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl) + line.substring(line.indexOf("<" + fm + ">") + 3));
+                                newinput.add(Str.padRight(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl) + line.substring(line.indexOf("<" + fm + ">") + 3));
                             }
                         } else if (fm.equals("c")) {
                             if (minecraftChatFormat) {
                                 newinput.add(MinecraftChatStr.strPadCenter(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl) + line.substring(line.indexOf("<" + fm + ">") + 3));
                             } else {
-                                newinput.add(MinecraftChatStr.unformattedPadCenter(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl) + line.substring(line.indexOf("<" + fm + ">") + 3));
+                                newinput.add(Str.padCenter(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl) + line.substring(line.indexOf("<" + fm + ">") + 3));
                             }
                         } else {
                             if (minecraftChatFormat) {
                                 newinput.add(MinecraftChatStr.strPadLeft(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl) + line.substring(line.indexOf("<" + fm + ">") + 3));
                             } else {
-                                newinput.add(MinecraftChatStr.unformattedPadLeft(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl) + line.substring(line.indexOf("<" + fm + ">") + 3));
+                                newinput.add(Str.padLeft(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl) + line.substring(line.indexOf("<" + fm + ">") + 3));
                             }
                         }
                     } else {

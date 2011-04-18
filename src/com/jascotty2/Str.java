@@ -77,7 +77,7 @@ public class Str extends OutputStream {
         }
         return false;
     }
-    
+
     public static int count(String str, String find) {
         int c = 0;
         for (int i = 0; i < str.length() - find.length(); ++i) {
@@ -108,7 +108,6 @@ public class Str extends OutputStream {
         return c;
     }
 
-
     public static int indexOf(String array[], String search) {
         if (array != null && array.length > 0) {
             for (int i = array.length - 1; i >= 0; --i) {
@@ -129,7 +128,6 @@ public class Str extends OutputStream {
         return -1;
     }
 
-
     public static String getStackStr(Exception err) {
         if (err == null) {// || err.getCause() == null) {
             return "";
@@ -141,6 +139,101 @@ public class Str extends OutputStream {
         stackstream.close();
         return stackoutstream.text;
 
+    }
+
+    /**
+     * pads str on the right (space-padded) (left-align)
+     * @param str
+     * @param len
+     * @return
+     */
+    public static String padRight(String str, int len) {
+        for (int i = str.length(); i < len; ++i) {
+            str += ' ';
+        }
+        return str;
+    }
+
+    /**
+     * pads str on the right with pad (left-align)
+     * @param str
+     * @param len
+     * @param pad
+     * @return
+     */
+    public static String padRight(String str, int len, char pad) {
+        for (int i = str.length(); i < len; ++i) {
+            str += pad;
+        }
+        return str;
+    }
+
+    /**
+     * pads str on the left (space-padded) (right-align)
+     * @param str
+     * @param len
+     * @return
+     */
+    public static String padLeft(String str, int len) {
+        return repeat(' ', len - str.length()) + str;
+    }
+
+    /**
+     * pads str on the left with pad (right-align)
+     * @param str
+     * @param len
+     * @param pad
+     * @return
+     */
+    public static String padLeft(String str, int len, char pad) {
+        return repeat(pad, len - str.length()) + str;
+    }
+
+    /**
+     * pads str on the left & right (space-padded) (center-align)
+     * @param str
+     * @param len
+     * @return
+     */
+    public static String padCenter(String str, int len) {
+        len -= str.length();
+        int prepad = len / 2;
+        return repeat(' ', prepad) + str + repeat(' ', len - prepad);
+    }
+
+    /**
+     * pads str on the left & right with pad (center-align)
+     * @param str
+     * @param len
+     * @param pad
+     * @return
+     */
+    public static String padCenter(String str, int len, char pad) {
+        len -= str.length();
+        int prepad = len / 2;
+        return repeat(pad, prepad) + str + repeat(pad, len - prepad);
+    }
+
+    public static String repeat(char ch, int len) {
+        String str = "";
+        for (int i = 0; i < len; ++i) {
+            str += ch;
+        }
+        return str;
+    }
+
+    /**
+     * Returns a sequence str of the provided str count # of times
+     * @param str
+     * @param count
+     * @return
+     */
+    public static String repeat(String str, int count) {
+        String retstr = "";
+        for (int i = 0; i < count; ++i) {
+            retstr += str;
+        }
+        return retstr;
     }
 
     @Override

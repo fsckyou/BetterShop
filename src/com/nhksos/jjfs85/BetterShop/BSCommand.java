@@ -517,8 +517,8 @@ public class BSCommand {
             }
             BSutils.sendMessage(player, ChatColor.RED + "Error removing item");
         } else {
-            BSutils.sendMessage(player, String.format(BetterShop.config.getString("unkitem").
-                    replace("<item>", "%s"), toRem.name));
+            BSutils.sendMessage(player,
+                    BetterShop.config.getString("unkitem").replaceAll("<item>", s[0]));
         }
         return true;
 

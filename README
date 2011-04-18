@@ -158,7 +158,6 @@ SQLite support?
 tie item prices to stock quotes?
 craftables' stock is tied to source material stock (if using sell craftables)
 make LivingEntities follow the owner around?
-make wolf already have player set as owner (waiting on bukkit to fix this..)
 change buystock if itemStock is enabled so that if trying to buy multiple stacks (buystack item 20) and stock runs out to stop buying (stop showing "out of stock")
 individually-customizable restock stock values per-item
 chest shop interface ? 
@@ -166,11 +165,8 @@ automatically add missing config nodes (preserving comments)
 add a simple builtin economy system, if none found?
 add categories to items
 - can search, buy, & sell with category
-sign explosion protection ?
 user-owned shops (signs, linked to chests)
 4th line for configurable prices or shop profit owner
-
-
 
 
 === Removed (not going to implement)
@@ -187,6 +183,10 @@ items as currency (if no economy plugin)
 ===============================================================================
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
+
+Version 1.6.5.4 - 4/18/11 - jascotty2
+misc. nullpointer fixes
+
 
 Version 1.6.5.3 - 4/11/11 - jascotty2
 added option to disable sign protection
@@ -451,7 +451,7 @@ major MySQL problem fixed - pricelist table wasn't being created
 
 
 Version 1.6.0 - 3/16/11 - jascotty2
-major code restructure & reorganization 
+major code restructure & reorganization (technically a 'version 2')
 changed item db to a more descriptive yml file
 - can define what items make an item (for calculated/dynamic costs)
 - can change what color it will be outputted as in the listing
@@ -540,10 +540,15 @@ Building
 ===============================================================================
 
 To build, you need to include the following as libraries:
-    bukkit.jar	(current build used git-Bukkit-0.0.0-516-gdf87bb3-b531jnks (MC: 1.3))
-    iConomy.jar	(4.5.3)
+    CraftBukki:      #677
+    Bukkit:          #653
+    iConomy.jar	     (4.6.5)
     Permissions.jar 
-    Help.jar	(0.2)
+    Help.jar	     (0.2)
+    BOSEconomy.jar   (0.6.2)
+    Minecraft IM.jar (0.1.5)
+    mysql-connector-java-5.1.15-bin.jar
+    
 
 If you want helpful bukkit javadocs, you should get:
     the Bukkit source code
@@ -554,6 +559,8 @@ Once it builds, compress on linux using:
 
 or on Windows using:
     I have no clue. I guess something similar to jar.
+
+try NetBeans :)
 
 And it's ready to be placed in a plugins directory :)
 

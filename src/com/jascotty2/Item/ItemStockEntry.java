@@ -111,18 +111,21 @@ public class ItemStockEntry {
     }
 
     public boolean equals(Item i) {
-        if (i == null) {
+        if (i == null || itemNum != i.itemId) {
             return false;
         }
-        return (i.IsTool() || itemSub == i.itemData) && itemNum == i.itemId;
+        return itemSub == i.itemData || i.IsTool();
     }
 
     public boolean equals(ItemStockEntry i) {
-        if (i == null) {
+        if (i == null || itemNum != i.itemNum) {
             return false;
         }
+        if (itemSub == i.itemSub) {
+            return true;
+        }
         Item t = Item.findItem(i);
-        return (t.IsTool() || itemSub == i.itemSub) && itemNum == i.itemNum;
+        return t!=null && t.IsTool();
     }
 
     public boolean equals(ItemStack i) {

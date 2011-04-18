@@ -20,6 +20,7 @@ errors:
     #   ex: email for me to contact you for more info about an error
     #       info about your server (installed plugins?)
     # note: message cannot be longer than 90 characters
+    # (this is not displayed to the user, it is sent in the error report)
     CustomErrorMessage: ""
 
     #if you're using jascotty2's MinecraftIM plugin, should errors be sent to you?
