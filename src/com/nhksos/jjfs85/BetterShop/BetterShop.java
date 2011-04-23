@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import com.jascotty2.FTPErrorReporter;
+import com.jascotty2.Item.CreatureItem.EntityListen;
 import com.jascotty2.Item.ItemDB;
 import com.jascotty2.Str;
-import com.fullwall.MonsterTamer_1_3.EntityListen;
 
 import com.nijiko.coelho.iConomy.iConomy;
 import com.nijiko.coelho.iConomy.system.Bank;
@@ -209,6 +209,7 @@ public class BetterShop extends JavaPlugin {
                 if (config.autoUpdate) {
                     if (!Updater.isUpToDate(true)) {
                         Log("Downloading & Installing Update");
+                            ServerReload sreload = new ServerReload(getServer());
                         if (Updater.downloadUpdate()) {
                             Log("Update Downloaded: Restarting Server..");
                             //this.setEnabled(false);
@@ -216,7 +217,8 @@ public class BetterShop extends JavaPlugin {
                             //this.getServer().dispatchCommand(new AdminCommandSender(this), "stop");
 
                             try {
-                                (new ServerReload(getServer())).start(500);
+                                //(new ServerReload(getServer())).start(500);
+                                sreload.start(500);
                             } catch (Exception e) { // just in case...
                                 this.getServer().reload();
                             }
@@ -262,7 +264,7 @@ public class BetterShop extends JavaPlugin {
         hookDepends();
         registerHelp();
         //isLoaded = true;
-
+        
         // for monster purchasing
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Priority.Normal, this);
@@ -389,6 +391,7 @@ public class BetterShop extends JavaPlugin {
                         if (sender.isOp()) {
                             Log("Downloading & Installing Update");
                             BSutils.sendMessage(sender, "Downloading & Installing Update");
+                            ServerReload sreload = new ServerReload(getServer());
                             if (Updater.downloadUpdate()) {
                                 Log("Update Downloaded: Restarting Server..");
                                 BSutils.sendMessage(sender, "Download Successful.. reloading server");
@@ -397,7 +400,7 @@ public class BetterShop extends JavaPlugin {
                                 //this.getServer().dispatchCommand(new AdminCommandSender(this), "stop");
 
                                 //this.getServer().reload();
-                                (new ServerReload(getServer())).start(500);
+                                sreload.start(500);
                             }
                         } else {
                             BSutils.sendMessage(sender, "Only an OP can update the shop plugin");
@@ -633,8 +636,7 @@ public class BetterShop extends JavaPlugin {
             }
         } //else {  System.out.println("sending too fast.."); }
     }
-
-    // mustn't be renamed..
+    
     protected class ServerReload extends TimerTask {
 
         Server reload = null;

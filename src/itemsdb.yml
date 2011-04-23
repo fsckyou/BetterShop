@@ -28,9 +28,16 @@ items:
         name: Wood
         aliases: plank
         craft: 17=4
-    item6:
+    item6sub0:
         name: Sapling
-        aliases: 
+        aliases: sapling, treesapling, tree, branch
+    item6sub1:
+        name: SpruceSapling
+        sub: spruce
+    item6sub2:
+        name: BirchSapling
+        aliases: pinecone
+        sub: birch, pine
     item7:
         name: Bedrock
         aliases: adminium
@@ -120,6 +127,18 @@ items:
     item26:
         name: BedBlock
         aliases:
+        legal: false
+    item27:
+        name: PowerRail
+        aliases: boosterrail, boosttrack, boostrack, poweredrail, poweredtrack
+        craft: 266@6+331+280=6
+    item28:
+        name: DetectorRail
+        aliases: detectorail
+        craft: 265@6+331+70=6
+    item30:
+        name: Web
+        aliases: spiderweb
         legal: false
     item35sub0:
         name: WhiteWool
@@ -355,7 +374,7 @@ items:
     item65:
         name: Ladder
         aliases:
-        craft: 280@7
+        craft: 280@7=2
     item66:
         name: Rails
         aliases: minecarttrack, minecartrail, track, rail

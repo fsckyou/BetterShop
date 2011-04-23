@@ -13,7 +13,7 @@ import org.bukkit.entity.Wolf;
 /**
  * Adapter for Wolf with updated API
  * @author Ashton
- * @edit jascotty2 - health set with setowner
+ * @edit jascotty2 - health set with setowner, and updated for 1.5
  */
 public class UpdatedWolf {
 
@@ -28,50 +28,49 @@ public class UpdatedWolf {
     }
 
     public boolean isAngry() {
-        return getHandle().x();
+        return wolf.isAngry();
     }
 
     public void setAngry(boolean angry) {
-        getHandle().c(angry);
+        wolf.setAngry(angry);
     }
 
     public boolean isSitting() {
-        return getHandle().w();
+        return wolf.isSitting();
     }
 
     public void setSitting(boolean sitting) {
-        getHandle().b(sitting);
+        wolf.setSitting(sitting);
     }
 
     public boolean isTame() {
-        return getHandle().y();
+        return getHandle().m_();
     }
 
     public void setTame(boolean tame) {
-        if (tame && !wolf.getHandle().y()) {// if was wild
+        if (tame && !wolf.getHandle().m_()) {// if was wild
             wolf.getHandle().health = (int) Math.round(20 * (wolf.getHandle().health / 8.));
-        } else if (!tame && wolf.getHandle().y()) {
+        } else if (!tame && wolf.getHandle().m_()) {
             wolf.getHandle().health = (int) Math.round(8 * (wolf.getHandle().health / 20.));
         }
         wolf.getHandle().d(tame);
     }
 
     public String getOwner() {
-        return getHandle().v();
+        return getHandle().x();
     }
 
     public void setOwner(String player) {
         EntityWolf e = getHandle();
-
         if ((player != null) && (player.length() > 0)) {
-            if (!e.y()) {// if was wild
+            if (!e.m_()) {// if was wild
                 e.health = (int) Math.round(20 * (e.health / 8.));
             }
             e.d(true); /* Make him tame */
             e.a((PathEntity) null); /* Clear path */
             e.a(player); /* Set owner */
         } else {
-            if (e.y()) {// if was tame
+            if (e.m_()) {// if was tame
                 e.health = (int) Math.round(8 * (e.health / 20.));
             }
             e.d(false); /* Make him not tame */

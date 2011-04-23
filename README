@@ -184,6 +184,11 @@ items as currency (if no economy plugin)
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
+Version 1.6.5.5 - ?- jascotty2
+hopefully fixed an update restart error
+wolves fixed for 1.5
+
+
 Version 1.6.5.4 - 4/18/11 - jascotty2
 misc. nullpointer fixes
 
@@ -540,8 +545,8 @@ Building
 ===============================================================================
 
 To build, you need to include the following as libraries:
-    CraftBukki:      #677
-    Bukkit:          #653
+    CraftBukki:      #684
+    Bukkit:          #654
     iConomy.jar	     (4.6.5)
     Permissions.jar 
     Help.jar	     (0.2)
