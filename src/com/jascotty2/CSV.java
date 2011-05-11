@@ -60,10 +60,19 @@ public class CSV {
     }
 
     public static boolean saveFile(File toSave, ArrayList<String> lines) throws IOException {
-        if (!toSave.exists() && !toSave.createNewFile()) {
-            return false;
+        if (!toSave.exists()) {
+            // TODO: first check if directory exists, then create the file
+            File dir = new File(toSave.getAbsolutePath().substring(0, toSave.getAbsolutePath().lastIndexOf(File.separatorChar)));
+            dir.mkdirs();
+            try {
+                if (!toSave.createNewFile()) {
+                    return false;
+                }
+            } catch (Exception e) {
+                return false;
+            }
         }
-        if (toSave.canWrite()) { 
+        if (toSave.canWrite()) {
             FileWriter fstream = null;
             fstream = new FileWriter(toSave.getAbsolutePath());
             //System.out.println("writing to " + tosave.getAbsolutePath());
@@ -80,10 +89,19 @@ public class CSV {
     }
 
     public static boolean saveCSVFile(File toSave, ArrayList<String[]> lines) throws IOException {
-        if (!toSave.exists() && !toSave.createNewFile()) {
-            return false;
+        if (!toSave.exists()) {
+            // TODO: first check if directory exists, then create the file
+            File dir = new File(toSave.getAbsolutePath().substring(0, toSave.getAbsolutePath().lastIndexOf(File.separatorChar)));
+            dir.mkdirs();
+            try {
+                if (!toSave.createNewFile()) {
+                    return false;
+                }
+            } catch (Exception e) {
+                return false;
+            }
         }
-        if (toSave.canWrite()) { 
+        if (toSave.canWrite()) {
             FileWriter fstream = null;
             fstream = new FileWriter(toSave.getAbsolutePath());
             //System.out.println("writing to " + tosave.getAbsolutePath());

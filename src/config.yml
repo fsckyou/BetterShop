@@ -39,6 +39,7 @@ shop:
     #if someone without BetterShop.admin.illegal can buy illegal items
     allowbuyillegal: true
     #whether maxstack should be honored
+    # if false, all items can be purchased stacked to 64
     usemaxstack: true
     #used tools can be bought back?
     buybacktools: true

@@ -231,6 +231,8 @@ public class PriceList {
 
     /**
      * closes connections & frees up used memory
+     * @throws IOException
+     * @throws SQLException
      */
     public void close() throws IOException, SQLException {
         // no need to save.. is saved after every edit
@@ -280,7 +282,19 @@ public class PriceList {
 
     public boolean saveFile(File tosave) throws IOException {
         if (tosave != null && !tosave.isDirectory()) {
-            if (!tosave.exists() || tosave.canWrite()) {
+            if (!tosave.exists()){
+                File dir = new File(tosave.getAbsolutePath().substring(0, tosave.getAbsolutePath().lastIndexOf(File.separatorChar)));
+                dir.mkdirs();
+                try {
+                    if (!tosave.createNewFile()) {
+                        return false;
+                    }
+                } catch (Exception e) {
+                    return false;
+                }
+            }
+            if (tosave.canWrite()) {
+                
                 FileWriter fstream = null;
                 try {
                     fstream = new FileWriter(tosave.getAbsolutePath());
@@ -573,6 +587,7 @@ public class PriceList {
 
     /**
      * number of items that shop will buy or sell & is legal or can buy illegal
+     * @param showIllegal 
      * @return
      */
     public int GetShopSize(boolean showIllegal) {

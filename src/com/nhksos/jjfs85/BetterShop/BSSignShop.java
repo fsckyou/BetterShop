@@ -61,12 +61,14 @@ public class BSSignShop extends PlayerListener {
         if (event.isCancelled()) {
             return;
         }
+        //if(event.getAction() == Action.RIGHT_CLICK_BLOCK) event.getPlayer().getWorld().strikeLightning(event.getClickedBlock().getLocation());
         if (BetterShop.config.signShopEnabled
                 && event.getClickedBlock() != null
                 && (event.getClickedBlock().getType() == Material.WALL_SIGN
                 || event.getClickedBlock().getType() == Material.SIGN_POST)) {
             Sign clickedSign = (Sign) event.getClickedBlock().getState();
             if (MinecraftChatStr.uncoloredStr(clickedSign.getLine(0)).equalsIgnoreCase("[BetterShop]")) {
+                BetterShop.lastCommand = "Sign: [" + clickedSign.getLine(1) + "][" + clickedSign.getLine(2) + "][" + clickedSign.getLine(3) + "]";
                 try {
                     Long lt = playerInteractTime.get(event.getPlayer());
                     if (lt != null && System.currentTimeMillis() - lt < BSConfig.signInteractWait) {
@@ -76,7 +78,7 @@ public class BSSignShop extends PlayerListener {
                     playerInteractTime.put(event.getPlayer(), System.currentTimeMillis());
                     boolean canEdit = BSutils.hasPermission(event.getPlayer(),
                             BSutils.BetterShopPermission.ADMIN_MAKESIGN);
-                    String action = clickedSign.getLine(1).trim().replaceAll("  ", " ");
+                    String action = MinecraftChatStr.uncoloredStr(clickedSign.getLine(1)).trim().replace("  ", " ");
                     if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
                         //event.setCancelled(!canEdit);
                         // if sign is registered, update prices
@@ -207,7 +209,7 @@ public class BSSignShop extends PlayerListener {
                                 BSutils.sendMessage(event.getPlayer(), "invalid amount");
                                 return;
                             }
-                            String in = clickedSign.getLine(2).replaceAll(" ", "").toLowerCase();
+                            String in = MinecraftChatStr.uncoloredStr(clickedSign.getLine(2)).replace(" ", "").toLowerCase();
                             Item toAdd[] = new Item[]{Item.findItem(in)};
                             if (toAdd != null && toAdd[0] == null && clickedSign.getLine(2).length() > 0) {
                                 if (!(in.equals("inv")
@@ -357,7 +359,6 @@ public class BSSignShop extends PlayerListener {
                             } catch (Exception ex) {
                                 BetterShop.Log(Level.SEVERE, ex);
                             }
-                            //(new UpdateInv(event.getPlayer())).start(2000);
                             // may be depricated, but only thing i could get to work :(
                             event.getPlayer().updateInventory();
                         } else {

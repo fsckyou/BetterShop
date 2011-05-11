@@ -1150,6 +1150,16 @@ entities:
         name: Wolf
         aliases: dog
           
+# weather events
+#   note: if adding to the csv, add 4100 to the entity number
+weather:
+    rain:
+        aliases: shower
+    thunderstorm:
+        aliases: storm
+    lightning:
+        aliases: strike
+    
 
 #kits can be added here (must be numbered, stating at 1)
 # kits can be bought, not sold

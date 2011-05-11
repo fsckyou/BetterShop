@@ -18,13 +18,34 @@ public class Str extends OutputStream {
     public String text = "";
 
     public static String argStr(String[] s) {
-        return argStr(s, " ");
+        return argStr(s, " ", 0);
+    }
+    
+    public static String argStr(String[] s, int start) {
+        return argStr(s, " ", start);
     }
 
     public static String argStr(String[] s, String sep) {
+        return argStr(s, sep, 0);
+    }
+
+    public static String argStr(String[] s, String sep, int start) {
         String ret = "";
         if (s != null) {
-            for (int i = 0; i < s.length; ++i) {
+            for (int i = start; i < s.length; ++i) {
+                ret += s[i];
+                if (i + 1 < s.length) {
+                    ret += sep;
+                }
+            }
+        }
+        return ret;
+    }
+
+    public static String argStr(String[] s, String sep, int start, int length) {
+        String ret = "";
+        if (s != null) {
+            for (int i = start, j = 0; i < s.length && j < length; ++i, ++j) {
                 ret += s[i];
                 if (i + 1 < s.length) {
                     ret += sep;

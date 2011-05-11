@@ -73,7 +73,7 @@ public class ItemStockEntry {
             name = copy.name;
         } else {
             itemSub = toCopy.getDurability();
-            name = toCopy.toString();
+            name = toCopy.getData().getItemType().name();
         }
         amount = toCopy.getAmount();
         tempCacheDate = new Date();

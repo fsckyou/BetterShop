@@ -8,10 +8,10 @@ import com.jascotty2.Item.Kit;
 import com.jascotty2.Item.Kit.KitItem;
 import com.jascotty2.Shop.UserTransaction;
 import com.jascotty2.Str;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-//import com.nijiko.coelho.iConomy.system.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -86,7 +86,7 @@ public class BSutils {
          * ability to add/remove shop signs
          */
         ADMIN_MAKESIGN("BetterShop.admin.makesign");
-        String permissionNode = "user";
+        String permissionNode = null;
 
         BetterShopPermission(String per) {
             permissionNode = per;
@@ -115,12 +115,9 @@ public class BSutils {
         if (amount <= 0) {
             return amount == 0;
         }
-        if (BetterShop.iConomy != null) {
+        if (BetterShop.iConomy != null || BetterShop.legacyIConomy != null) {
             try {
-                //Account account = BetterShop.iConomy.getBank().getAccount(player.getName());
-                double preAmt = BetterShop.iConomy.getBank().getAccount(player.getName()).getBalance();
-                BetterShop.iConomy.getBank().getAccount(player.getName()).add(amount);
-                if (BetterShop.iConomy.getBank().getAccount(player.getName()).getBalance() != preAmt) {
+                if (iconomyEdit(player.getName(), amount)) {
                     return true;
                 }
             } catch (Exception ex) {
@@ -128,12 +125,8 @@ public class BSutils {
             // something seems to be wrong with iConomy: reload it
             BetterShop.Log(Level.SEVERE, "Failed to credit player: attempting iConomy reload", false);
             if (reloadIConomy(player.getServer())) {
-
                 try {
-                    //Account account = BetterShop.iConomy.getBank().getAccount(player.getName());
-                    double preAmt = BetterShop.iConomy.getBank().getAccount(player.getName()).getBalance();
-                    BetterShop.iConomy.getBank().getAccount(player.getName()).add(amount);
-                    if (BetterShop.iConomy.getBank().getAccount(player.getName()).getBalance() != preAmt) {
+                    if (iconomyEdit(player.getName(), amount)) {
                         return true;
                     }
                 } catch (Exception ex) {
@@ -161,16 +154,9 @@ public class BSutils {
         if (amount <= 0) {
             return amount == 0;
         }
-        if (BetterShop.iConomy != null) {
+        if (BetterShop.iConomy != null || BetterShop.legacyIConomy != null) {
             try {
-                //Account account = BetterShop.iConomy.getBank().getAccount(player.getName());
-                double preAmt = BetterShop.iConomy.getBank().getAccount(player.getName()).getBalance();
-                // don't allow account to go negative
-                if (preAmt < amount) {
-                    return false;
-                }
-                BetterShop.iConomy.getBank().getAccount(player.getName()).subtract(amount);
-                if (BetterShop.iConomy.getBank().getAccount(player.getName()).getBalance() != preAmt) {
+                if (iconomyEdit(player.getName(), -amount)) {
                     return true;
                 }
             } catch (Exception ex) {
@@ -179,20 +165,12 @@ public class BSutils {
             BetterShop.Log(Level.SEVERE, "Failed to debit player: attempting iConomy reload", false);
             if (reloadIConomy(player.getServer())) {
                 try {
-                    //Account account = BetterShop.iConomy.getBank().getAccount(player.getName());
-                    double preAmt = BetterShop.iConomy.getBank().getAccount(player.getName()).getBalance();
-                    // don't allow account to go negative
-                    if (preAmt < amount) {
-                        return false;
-                    }
-                    BetterShop.iConomy.getBank().getAccount(player.getName()).subtract(amount);
-                    if (BetterShop.iConomy.getBank().getAccount(player.getName()).getBalance() != preAmt) {
+                    if (iconomyEdit(player.getName(), -amount)) {
                         return true;
                     }
                 } catch (Exception ex) {
                 }
             }
-
             BetterShop.Log(Level.SEVERE, "Failed.", false);
         } else if (BetterShop.economy != null) {
             try {
@@ -215,23 +193,48 @@ public class BSutils {
         return true;
     }
 
-    public static String formatCurrency(double amt) {
-        if (BetterShop.iConomy != null && BetterShop.iConomy.getBank() != null) {
-            try {
-                return BetterShop.iConomy.getBank().format(amt);
-            } catch (Exception ex) {
-                try {
-                    return String.format("%.2f", amt) + " " + BetterShop.iConomy.getBank().getCurrency();
-                } catch (Exception ex2) {
+    private static boolean iconomyEdit(String player, double amount) {
+        //Account account = BetterShop.iConomy.getBank().getAccount(player.getName());
+        if (BetterShop.iConomy != null) {
+            double preAmt = BetterShop.iConomy.getAccount(player).getHoldings().balance();// BetterShop.legacyIConomy ? BetterShop.iConomy.getBank().getAccount(player).getBalance() :
+            // don't allow account to go negative
+            if (preAmt > amount) {
+                BetterShop.iConomy.getAccount(player).getHoldings().add(amount);
+                if (BetterShop.iConomy.getAccount(player).getHoldings().balance() != preAmt) {
+                    return true;
                 }
             }
-        } else if (BetterShop.economy != null) {
-            if (amt < 1 || amt > 1) {
-                return String.valueOf((int) Math.round(amt)) + " " + BetterShop.economy.getMoneyNamePlural();
+        } else if (BetterShop.legacyIConomy != null) {
+            double preAmt = com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(player).getBalance();
+            // don't allow account to go negative
+            if (preAmt > amount) {
+                com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(player).add(amount);
+                if (com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(player).getBalance() != preAmt) {
+                    return true;
+                }
             }
-            return String.valueOf((int) Math.round(amt)) + " " + BetterShop.economy.getMoneyName();
         }
-        return String.format("%.2f", amt) + " " + BetterShop.config.defaultCurrency;
+        return false;
+    }
+
+    public static String formatCurrency(double amt) {
+        try {
+            if (BetterShop.iConomy != null) {
+                return BetterShop.iConomy.format(amt);
+            } else if (BetterShop.legacyIConomy != null) {
+                return com.nijiko.coelho.iConomy.iConomy.getBank().format(amt);
+            } else if (BetterShop.economy != null) {
+                if (amt < 1 || amt > 1) {
+                    return String.valueOf((int) Math.round(amt)) + " " + BetterShop.economy.getMoneyNamePlural();
+                }
+                return String.valueOf((int) Math.round(amt)) + " " + BetterShop.economy.getMoneyName();
+            }
+        } catch (Exception ex) {
+            BetterShop.Log(Level.WARNING, "Error Formatting Currency", ex, false);
+        }
+        return String.format("%.2f", amt) + " "
+                + (amt > 1 || amt < 1 ? BetterShop.config.pluralCurrency
+                : BetterShop.config.defaultCurrency);
     }
 
     static boolean reloadIConomy(Server serv) {
@@ -268,28 +271,30 @@ public class BSutils {
         }/* else if (!node.toLowerCase().startsWith("bettershop")) {
         node = "BetterShop" + (node.codePointAt(0) == '.' ? "" : ".") + node;
         }*/
-
-        if (BetterShop.Permissions == null || BetterShop.Permissions.Security == null) {
-            // only ops have access to .admin
-            if ((node == null || node.length() < 16) // if invalid node, assume true
-                    || !node.substring(0, 16).equalsIgnoreCase("BetterShop.admin")) {
-                return true;
+        try {
+            if (BetterShop.Permissions == null || BetterShop.Permissions.Security == null) {
+                // only ops have access to .admin
+                if (node.length() < 16 // if invalid node, assume true
+                        || !node.substring(0, 16).equalsIgnoreCase("BetterShop.admin")) {
+                    return true;
+                }
+            } else {//if (player instanceof Player) {
+                if (BetterShop.Permissions.Security.has((Player) player, node)) {
+                    return true;
+                }
             }
-        } else {//if (player instanceof Player) {
-            if (BetterShop.Permissions.Security.has((Player) player, node)) {
-                return true;
+            if (notify) {
+                //PermDeny(player, node);
+                BSutils.sendMessage(player, BetterShop.config.getString("permdeny").replace("<perm>", node));
             }
+            return false;
+        } catch (Exception e) {
+            BetterShop.Log(Level.SEVERE, e, false);
+            return node.length() < 16 // if invalid node, assume true
+                    || !node.substring(0, 16).equalsIgnoreCase("BetterShop.admin");
         }
-        if (notify) {
-            //PermDeny(player, node);
-            BSutils.sendMessage(player, String.format(BetterShop.config.getString("permdeny").replace("<perm>", "%1$s"), node));
-        }
-        return false;
     }
-
-    //static void PermDeny(CommandSender player, String node) {
-    //    BSutils.sendMessage(player, String.format(BetterShop.config.getString("permdeny").replace("<perm>", "%1$s"), node));
-    //}
+    
     static void sendMessage(CommandSender player, String s) {
         if (player != null) {
             player.sendMessage(BetterShop.config.getString("prefix") + s);
@@ -330,9 +335,12 @@ public class BSutils {
         }
     }
 
-    /*
+    /**
      * all items in the user's inventory
-     * does not run check for tools, so tools with damage are returned seperately
+     * does not run check for tools, so tools with damage are returned separately
+     * @param player Player to check
+     * @param onlyInv if the lower 9 slots should be checked or not
+     * @return
      */
     public static ArrayList<ItemStockEntry> getTotalInventory(Player player, boolean onlyInv) {
         if (player == null) {

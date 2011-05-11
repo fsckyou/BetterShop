@@ -9,7 +9,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.event.Event.Priority;
 import org.bukkit.event.server.ServerListener;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -27,8 +26,12 @@ import com.jascotty2.Item.CreatureItem.EntityListen;
 import com.jascotty2.Item.ItemDB;
 import com.jascotty2.Str;
 
-import com.nijiko.coelho.iConomy.iConomy;
-import com.nijiko.coelho.iConomy.system.Bank;
+// iConomy 4.x
+//import com.nijiko.coelho.iConomy.iConomy;
+//import com.nijiko.coelho.iConomy.system.Bank;
+// iConomy 5.x
+//import com.iConomy.iConomy;
+
 import com.nijikokun.bukkit.Permissions.Permissions;
 import me.taylorkelly.help.Help;
 import com.jascotty2.MinecraftIM.MinecraftIM;
@@ -55,8 +58,10 @@ public class BetterShop extends JavaPlugin {
     protected static BSCommand bscommand = new BSCommand();
     protected static BSSignShop signShop = null;
     protected static Permissions Permissions = null;
-    protected static iConomy iConomy = null;
-    protected static Bank iBank = null;
+    protected static com.iConomy.iConomy iConomy = null;
+    protected static com.nijiko.coelho.iConomy.iConomy legacyIConomy = null;
+    //protected static boolean legacyIConomy = true;
+    //protected static Bank iBank = null;
     protected static BOSEconomy economy = null;
     private PluginListener pListener = null;
     //private static boolean isLoaded = true;
@@ -76,20 +81,23 @@ public class BetterShop extends JavaPlugin {
 
         @Override
         public void onPluginEnable(PluginEnableEvent event) {
-            if (event.getPlugin().isEnabled()) { // double-check
-                //Log(event.getPlugin().getDescription().getName());
+            if (event.getPlugin().isEnabled()) { // double-checking enabled
                 if (event.getPlugin().getDescription().getName().equals("iConomy")) {
                     if (BetterShop.iConomy == null) {
-                        BetterShop.iConomy = (iConomy) event.getPlugin();
-                        iBank = iConomy.getBank();
-                        //config.currency = iBank.getCurrency();
+                        try {
+                            BetterShop.legacyIConomy = (com.nijiko.coelho.iConomy.iConomy) event.getPlugin();
+                        } catch (NoClassDefFoundError e) {
+                            BetterShop.iConomy = (com.iConomy.iConomy) event.getPlugin();
+                        }
                         Log("Attached to iConomy.");
                     }
+                    config.setCurrency();
                 } else if (event.getPlugin().getDescription().getName().equals("BOSEconomy")) {
                     if (BetterShop.economy == null) {
                         BetterShop.economy = (BOSEconomy) event.getPlugin();
                         Log("Attached to BOSEconomy");
                     }
+                    config.setCurrency();
                 } else if (event.getPlugin().getDescription().getName().equals("Permissions")) {
                     if (BetterShop.Permissions == null) {
                         BetterShop.Permissions = (Permissions) event.getPlugin();
@@ -100,7 +108,6 @@ public class BetterShop extends JavaPlugin {
                 } else if (event.getPlugin().getDescription().getName().equals("MinecraftIM")) {
                     if (BetterShop.messenger == null) {
                         messenger = (MinecraftIM) event.getPlugin();
-                        //messenger.registerMessageHandler(shop);
                         Log("linked to MinecraftIM");
                     }
                 }
@@ -111,7 +118,7 @@ public class BetterShop extends JavaPlugin {
         public void onPluginDisable(PluginDisableEvent event) {
             if (event.getPlugin().getDescription().getName().equals("iConomy")) {
                 BetterShop.iConomy = null;
-                iBank = null;
+                BetterShop.legacyIConomy = null;
                 Log(Level.WARNING, "iConomy has been disabled!");
             } else if (event.getPlugin().getDescription().getName().equals("BOSEconomy")) {
                 BetterShop.economy = null;
@@ -122,49 +129,62 @@ public class BetterShop extends JavaPlugin {
             } else if (event.getPlugin().getDescription().getName().equals("MinecraftIM")) {
                 messenger = null;
                 Log("MinecraftIM link disabled");
+            } else if (event.getPlugin().getDescription().getName().equals("Help")) {
+                helpEnabled = false;
             }
         }
     }
+    private boolean helpEnabled = false; //no reason to check twice :)
 
     private void registerHelp() {
-        Plugin test = this.getServer().getPluginManager().getPlugin("Help");
-        if (test != null) {
-            Help helpPlugin = ((Help) test);
-            helpPlugin.registerCommand("shoplist [page]", "List shop prices", this, !config.hideHelp, "BetterShop.user.list");
-            helpPlugin.registerCommand("shopitems", "compact listing of items in shop", this, "BetterShop.user.list");
-            helpPlugin.registerCommand("shopkits [page]", "show listing of kits in shop", this, "BetterShop.user.list");
-            helpPlugin.registerCommand("shopbuy [item] <amount>", "Buy items from the shop", this, !config.hideHelp, "BetterShop.user.buy");
-            helpPlugin.registerCommand("shopbuyall [item]", "Buy all that you can hold/afford", this, "BetterShop.user.buy");
-            helpPlugin.registerCommand("shopbuystack [item] <amount>", "Buy stacks of items", this, "BetterShop.user.buy");
-            helpPlugin.registerCommand("shopbuyagain", "repeat last purchase action", this, "BetterShop.user.buy");
-            helpPlugin.registerCommand("shopsell [item] <amount>", "Sell items to the shop", this, !config.hideHelp, "BetterShop.user.sell");
-            helpPlugin.registerCommand("shopsellstack [item] <amount>", "Sell stacks of items", this, "BetterShop.user.sell");
-            helpPlugin.registerCommand("shopsellall <inv> <item..>", "Sell all of your items", this, "BetterShop.user.sell");
-            helpPlugin.registerCommand("shopsellagain", "Repeat last sell action", this, "BetterShop.user.sell");
-            helpPlugin.registerCommand("shopcheck [item]", "Check prices of item[s]", this, !config.hideHelp, "BetterShop.user.check");
-            helpPlugin.registerCommand("shophelp [command]", "show help on commands", this, !config.hideHelp, "BetterShop.user.help");
-            helpPlugin.registerCommand("shopadd [item] [$buy] <$sell>", "Add/Update an item", this, !config.hideHelp, "BetterShop.admin.add");
-            helpPlugin.registerCommand("shopremove [item]", "Remove an item from the shop", this, !config.hideHelp, "BetterShop.admin.remove");
-            helpPlugin.registerCommand("shopload", "Reload the Configuration & PriceList DB", this, !config.hideHelp, "BetterShop.admin.load");
+        if (!helpEnabled) {
+            Plugin test = this.getServer().getPluginManager().getPlugin("Help");
+            if (test != null) {
+                Help helpPlugin = ((Help) test);
+                helpPlugin.registerCommand("shoplist [page]", "List shop prices", this, !config.hideHelp, "BetterShop.user.list");
+                helpPlugin.registerCommand("shopitems", "compact listing of items in shop", this, "BetterShop.user.list");
+                helpPlugin.registerCommand("shopkits [page]", "show listing of kits in shop", this, "BetterShop.user.list");
+                helpPlugin.registerCommand("shopbuy [item] <amount>", "Buy items from the shop", this, !config.hideHelp, "BetterShop.user.buy");
+                helpPlugin.registerCommand("shopbuyall [item]", "Buy all that you can hold/afford", this, "BetterShop.user.buy");
+                helpPlugin.registerCommand("shopbuystack [item] <amount>", "Buy stacks of items", this, "BetterShop.user.buy");
+                helpPlugin.registerCommand("shopbuyagain", "repeat last purchase action", this, "BetterShop.user.buy");
+                helpPlugin.registerCommand("shopsell [item] <amount>", "Sell items to the shop", this, !config.hideHelp, "BetterShop.user.sell");
+                helpPlugin.registerCommand("shopsellstack [item] <amount>", "Sell stacks of items", this, "BetterShop.user.sell");
+                helpPlugin.registerCommand("shopsellall <inv> <item..>", "Sell all of your items", this, "BetterShop.user.sell");
+                helpPlugin.registerCommand("shopsellagain", "Repeat last sell action", this, "BetterShop.user.sell");
+                helpPlugin.registerCommand("shopcheck [item]", "Check prices of item[s]", this, !config.hideHelp, "BetterShop.user.check");
+                helpPlugin.registerCommand("shophelp [command]", "show help on commands", this, !config.hideHelp, "BetterShop.user.help");
+                helpPlugin.registerCommand("shopadd [item] [$buy] <$sell>", "Add/Update an item", this, !config.hideHelp, "BetterShop.admin.add");
+                helpPlugin.registerCommand("shopremove [item]", "Remove an item from the shop", this, !config.hideHelp, "BetterShop.admin.remove");
+                helpPlugin.registerCommand("shopload", "Reload the Configuration & PriceList DB", this, !config.hideHelp, "BetterShop.admin.load");
 
-            helpPlugin.registerCommand("shop restock", "manually restock (if enabled)", this, "BetterShop.admin.restock");
-            helpPlugin.registerCommand("shop ver[sion]", "Show Version # and if is current", this, "BetterShop.admin.info");
-            helpPlugin.registerCommand("shop backup", "backup current pricelist", this, "BetterShop.admin.backup");
-            helpPlugin.registerCommand("shop import [file]", "import a file into the pricelist", this, "BetterShop.admin.backup");
-            helpPlugin.registerCommand("shop restore [file]", "restore pricelist from backup", this, "BetterShop.admin.backup");
-            helpPlugin.registerCommand("shop update", "manually update bettershop to newest version", this, "OP");
+                helpPlugin.registerCommand("shop restock", "manually restock (if enabled)", this, "BetterShop.admin.restock");
+                helpPlugin.registerCommand("shop ver[sion]", "Show Version # and if is current", this, "BetterShop.admin.info");
+                helpPlugin.registerCommand("shop backup", "backup current pricelist", this, "BetterShop.admin.backup");
+                helpPlugin.registerCommand("shop import [file]", "import a file into the pricelist", this, "BetterShop.admin.backup");
+                helpPlugin.registerCommand("shop restore [file]", "restore pricelist from backup", this, "BetterShop.admin.backup");
+                helpPlugin.registerCommand("shop update", "manually update bettershop to newest version", this, "OP");
 
-
-            Log("'Help' support enabled.");
-        } //else Log("Help not yet found.");
+                helpEnabled = true;
+                Log("'Help' support enabled.");
+            } //else Log("Help not yet found.");
+        }
     }
 
     private void hookDepends() {
         Plugin test = getServer().getPluginManager().getPlugin("iConomy");
-        if (test != null) {//this.getServer().getPluginManager().isPluginEnabled("iConomy")) {
-            iConomy = (iConomy) test;//this.getServer().getPluginManager().getPlugin("iConomy");
-            iBank = iConomy.getBank();
-            //config.currency = iBank.getCurrency();
+        if (test != null) {
+            try {
+                legacyIConomy = (com.nijiko.coelho.iConomy.iConomy) test;
+                if (com.nijiko.coelho.iConomy.iConomy.getBukkitServer() != null) {
+                    config.setCurrency();
+                }
+            } catch (NoClassDefFoundError e) {
+                iConomy = (com.iConomy.iConomy) test;
+                if (iConomy.getBukkitServer() != null) {
+                    config.setCurrency();
+                }
+            }
             Log("Attached to iConomy.");
         } else {
             test = getServer().getPluginManager().getPlugin("BOSEconomy");
@@ -174,18 +194,20 @@ public class BetterShop extends JavaPlugin {
             } else {
                 Log(Level.WARNING, "economy plugin not yet found...", false);
             }
+            if (economy.getAccountManager() != null) {
+                config.setCurrency();
+            }
         }
         test = getServer().getPluginManager().getPlugin("Permissions");
-        if (test != null) {//this.getServer().getPluginManager().isPluginEnabled("Permissions")) {
-            Permissions = (Permissions) test;//this.getServer().getPluginManager().getPlugin("Permissions");
+        if (test != null) {
+            Permissions = (Permissions) test;
             Log("Attached to Permissions.");
         }
         test = getServer().getPluginManager().getPlugin("MinecraftIM");
-        if (test != null) {//this.getServer().getPluginManager().isPluginEnabled("MinecraftIM")) {
-            messenger = (MinecraftIM) test;//this.getServer().getPluginManager().getPlugin("MinecraftIM");
+        if (test != null) {
+            messenger = (MinecraftIM) test;
             Log("linked to MinecraftIM");
         }
-        //Log(Level.INFO, "Permissions not yet found...");
     }
 
     public void onEnable() {
@@ -209,7 +231,7 @@ public class BetterShop extends JavaPlugin {
                 if (config.autoUpdate) {
                     if (!Updater.isUpToDate(true)) {
                         Log("Downloading & Installing Update");
-                            ServerReload sreload = new ServerReload(getServer());
+                        ServerReload sreload = new ServerReload(getServer());
                         if (Updater.downloadUpdate()) {
                             Log("Update Downloaded: Restarting Server..");
                             //this.setEnabled(false);
@@ -264,20 +286,20 @@ public class BetterShop extends JavaPlugin {
         hookDepends();
         registerHelp();
         //isLoaded = true;
-        
+
         // for monster purchasing
         PluginManager pm = getServer().getPluginManager();
-        pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Priority.Normal, this);
-        pm.registerEvent(Event.Type.ENTITY_TARGET, entityListener, Priority.Normal, this);
+        pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Normal, this);
+        pm.registerEvent(Event.Type.ENTITY_TARGET, entityListener, Event.Priority.Normal, this);
         // for sign events
-        pm.registerEvent(Event.Type.PLAYER_INTERACT, signShop, Priority.Normal, this);
-        pm.registerEvent(Event.Type.BLOCK_BREAK, signShop.signDestroy, Priority.Normal, this);
+        pm.registerEvent(Event.Type.PLAYER_INTERACT, signShop, Event.Priority.Normal, this);
+        pm.registerEvent(Event.Type.BLOCK_BREAK, signShop.signDestroy, Event.Priority.Normal, this);
         //pm.registerEvent(Event.Type.BLOCK_DAMAGE, signShop.signDestroy, Priority.Normal, this);
         //pm.registerEvent(Event.Type.BLOCK_CANBUILD, signShop.buildStopper, Priority.Normal, this);
-        pm.registerEvent(Event.Type.BLOCK_PLACE, signShop.signDestroy, Priority.Normal, this);
+        pm.registerEvent(Event.Type.BLOCK_PLACE, signShop.signDestroy, Event.Priority.Normal, this);
 
         // monitor plugins - if any are enabled/disabled by a plugin manager
-        pm.registerEvent(Event.Type.PLUGIN_ENABLE, pListener, Priority.Monitor, this);
+        pm.registerEvent(Event.Type.PLUGIN_ENABLE, pListener, Event.Priority.Monitor, this);
 
         // Just output some info so we can check all is well
         logger.log(Level.INFO, pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!",
@@ -285,8 +307,9 @@ public class BetterShop extends JavaPlugin {
     }
 
     public void onDisable() {
-        // NOTE: All registered events are automatically unregistered when a
-        // plugin is disabled
+        // NOTE: All registered events are automatically unregistered when a plugin is disabled
+        lastCommand = "(disabling)";
+
         if (pricelist != null) {
             try {
                 pricelist.close();
@@ -312,16 +335,16 @@ public class BetterShop extends JavaPlugin {
     @Override
     public boolean onCommand(CommandSender sender, Command command,
             String commandLabel, String[] args) {
-        String commandName = command.getName().toLowerCase();
+        String commandName = command.getName().toLowerCase(),
+                argStr = Str.argStr(args);
         try {
 
             lastCommand = (sender instanceof Player ? "player:" : "console:")
-                    + commandName + " " + Str.argStr(args);
-
-            // i don't like seeing these messages all the time..
-            //Log(((Player) sender).getName() + " used command " + command.getName());
-
-            if (BetterShop.iConomy == null && BetterShop.economy == null) {
+                    + commandName + " " + argStr;
+            
+            if (iConomy == null && legacyIConomy == null && economy == null 
+                    && (commandName.contains("buy") || commandName.contains("sell")
+                    || argStr.contains("buy") || argStr.contains("sell"))) {
                 BSutils.sendMessage(sender, "\u00A74 BetterShop is missing a dependency. Check the console.");
                 Log(Level.SEVERE, "Missing: iConomy or BOSEconomy", false);
                 return true;
@@ -492,7 +515,19 @@ public class BetterShop extends JavaPlugin {
             } else if (commandName.equals("shophelp")) {
                 return bscommand.help(sender, args);
             } else if (commandName.equals("shopbuy")) {
-                return bscommand.buy(sender, args);
+                if (args.length > 0 && args[0].equalsIgnoreCase("rain")) {
+                    ((Player) sender).getWorld().setStorm(true);
+                } else if (args.length > 0 && args[0].equalsIgnoreCase("thunder")) {
+                    ((Player) sender).getWorld().setThundering(true);
+                } else if (args.length > 0 && args[0].equalsIgnoreCase("clear")) {
+                    ((Player) sender).getWorld().setStorm(false);
+                    ((Player) sender).getWorld().setThundering(false);
+                } else if (args.length > 0 && args[0].equalsIgnoreCase("lightning")) {
+                    ((Player) sender).getWorld().strikeLightning(((Player) sender).getCompassTarget());
+                } else {
+                    return bscommand.buy(sender, args);
+                }
+                return true;
             } else if (commandName.equals("shopbuyall")) {
                 ArrayList<String> arg = new ArrayList<String>();
                 arg.addAll(Arrays.asList(args));
@@ -591,8 +626,8 @@ public class BetterShop extends JavaPlugin {
             }
         }
     }
-    static Date sentErrors[] = new Date[5];
-    static final long minSendWait = 600; // min time before a send expires
+    static Date sentErrors[] = new Date[3];
+    static final long minSendWait = 3600; // min time before a send expires
 
     static void sendErrorReport(String txt, Exception err) {
         boolean allow = false;
@@ -636,7 +671,7 @@ public class BetterShop extends JavaPlugin {
             }
         } //else {  System.out.println("sending too fast.."); }
     }
-    
+
     protected class ServerReload extends TimerTask {
 
         Server reload = null;

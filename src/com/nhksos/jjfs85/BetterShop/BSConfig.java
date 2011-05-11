@@ -2,7 +2,6 @@ package com.nhksos.jjfs85.BetterShop;
 
 import com.jascotty2.CheckInput;
 import com.jascotty2.Item.Item;
-//import com.jascotty2.Item.ItemCurrency;
 import com.jascotty2.Item.ItemDB;
 import com.jascotty2.MinecraftChatStr;
 
@@ -35,7 +34,7 @@ public class BSConfig {
     public boolean hideHelp = false;
     public static final int MAX_CUSTMSG_LEN = 90;
     ////// shop settings
-    public String defaultCurrency = "Coin";
+    public String defaultCurrency = "Coin", pluralCurrency = "Coins";
     public int pagesize = 9;
     public boolean publicmarket = false;
     public String defColor = "white",
@@ -445,6 +444,7 @@ public class BSConfig {
 
                 //ItemCurrency.loadFromString(n.getString("currencyItems", "diamond>20, goldbar>5, ironbar>1, redstone>.5"));
                 defaultCurrency = n.getString("currencyName", "Coin");
+                pluralCurrency = n.getString("currencyNamePlural", "Coins");
 
                 String customsort = n.getString("customsort");
                 if (customsort != null) {
@@ -614,11 +614,33 @@ public class BSConfig {
         //else logger.log(Level.INFO, configname + " found!");
     }
 
-    public String currency() {
-        if (BetterShop.iBank != null) {
-            return BetterShop.iBank.getCurrency();
+    public void setCurrency() {
+        try {
+            if (BetterShop.iConomy != null) {
+                String t = BetterShop.iConomy.format(1.);
+                defaultCurrency = t.substring(t.indexOf(" ") + 1);
+                t = BetterShop.iConomy.format(2.);
+                pluralCurrency = t.substring(t.indexOf(" ") + 1);
+            } else if (BetterShop.legacyIConomy != null) {
+                String t = com.nijiko.coelho.iConomy.iConomy.getBank().format(1.);
+                defaultCurrency = t.substring(t.indexOf(" ") + 1);
+                t = com.nijiko.coelho.iConomy.iConomy.getBank().format(2.);
+                pluralCurrency = t.substring(t.indexOf(" ") + 1);
+            } else if(BetterShop.economy != null){
+                defaultCurrency = BetterShop.economy.getMoneyName();
+                pluralCurrency = BetterShop.economy.getMoneyNamePlural();
+            }
+        } catch (Exception e) {
+            BetterShop.Log(Level.SEVERE, "Error Extracting Currency Name", e, false);
         }
-        return "Coin";
+    }
+
+    public String currency() {
+        return defaultCurrency;
+    }
+
+    public String currency(boolean plural) {
+        return plural ? pluralCurrency : defaultCurrency;
     }
 
     String b(boolean b) {

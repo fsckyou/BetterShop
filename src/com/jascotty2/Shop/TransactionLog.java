@@ -281,7 +281,7 @@ public class TransactionLog {
                     + "AMT   INTEGER   NOT NULL,"
                     + "SOLD  TINYINT NOT NULL,"
                     + "PRICE DECIMAL(11,2),"
-                    + "PRIMARY KEY (DATE, USER, ID));");
+                    + "PRIMARY KEY (DATE, USER, ID, SUB));");
         } catch (SQLException e) {
             throw new SQLException("Error while creating transaction log table", e);
         }

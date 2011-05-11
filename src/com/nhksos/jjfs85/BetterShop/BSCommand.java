@@ -162,7 +162,7 @@ public class BSCommand {
         if (!s[0].equalsIgnoreCase("all")
                 && (lookup == null || lookup.length == 0 || lookup[0] == null)) {
             BSutils.sendMessage(player, BetterShop.config.getString("unkitem").
-                    replaceAll("<item>", s[0]));
+                    replace("<item>", s[0]));
             return true;
         }
         boolean canBuyIllegal = BetterShop.config.allowbuyillegal
