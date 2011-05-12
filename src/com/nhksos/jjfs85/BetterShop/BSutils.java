@@ -132,7 +132,7 @@ public class BSutils {
                 } catch (Exception ex) {
                 }
             }
-            BetterShop.Log(Level.SEVERE, "Failed.", false);
+            BetterShop.Log(Level.SEVERE, "iConomy reload failed to resolve issue.", false);
         } else if (BetterShop.economy != null) {
             try {
                 //long preAmt = BetterShop.economy.getPlayerMoney(player.getName());
@@ -151,7 +151,7 @@ public class BSutils {
     }
 
     static boolean debit(Player player, double amount) {
-        if (amount <= 0) {
+        if (amount <= 0 || playerBalance(player.getName()) < amount) {
             return amount == 0;
         }
         if (BetterShop.iConomy != null || BetterShop.legacyIConomy != null) {
@@ -171,7 +171,7 @@ public class BSutils {
                 } catch (Exception ex) {
                 }
             }
-            BetterShop.Log(Level.SEVERE, "Failed.", false);
+            BetterShop.Log(Level.SEVERE, "iConomy reload failed to resolve issue.", false);
         } else if (BetterShop.economy != null) {
             try {
                 int preAmt = BetterShop.economy.getPlayerMoney(player.getName());
@@ -193,25 +193,33 @@ public class BSutils {
         return true;
     }
 
+    public static double playerBalance(String player) {
+        if (BetterShop.iConomy != null) {
+            return BetterShop.iConomy.getAccount(player).getHoldings().balance();
+        } else if (BetterShop.legacyIConomy != null) {
+            return com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(player).getBalance();
+        } else if (BetterShop.economy != null) {
+            return BetterShop.economy.getPlayerMoney(player);
+        } else {
+            return 0;
+        }
+    }
+
     private static boolean iconomyEdit(String player, double amount) {
         //Account account = BetterShop.iConomy.getBank().getAccount(player.getName());
         if (BetterShop.iConomy != null) {
             double preAmt = BetterShop.iConomy.getAccount(player).getHoldings().balance();// BetterShop.legacyIConomy ? BetterShop.iConomy.getBank().getAccount(player).getBalance() :
             // don't allow account to go negative
-            if (preAmt > amount) {
+            if (amount > 0 || preAmt > -amount) {
                 BetterShop.iConomy.getAccount(player).getHoldings().add(amount);
-                if (BetterShop.iConomy.getAccount(player).getHoldings().balance() != preAmt) {
-                    return true;
-                }
+                return BetterShop.iConomy.getAccount(player).getHoldings().balance() != preAmt;
             }
         } else if (BetterShop.legacyIConomy != null) {
             double preAmt = com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(player).getBalance();
             // don't allow account to go negative
-            if (preAmt > amount) {
+            if (amount > 0 || preAmt > -amount) {
                 com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(player).add(amount);
-                if (com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(player).getBalance() != preAmt) {
-                    return true;
-                }
+                return com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(player).getBalance() != preAmt;
             }
         }
         return false;
@@ -294,7 +302,7 @@ public class BSutils {
                     || !node.substring(0, 16).equalsIgnoreCase("BetterShop.admin");
         }
     }
-    
+
     static void sendMessage(CommandSender player, String s) {
         if (player != null) {
             player.sendMessage(BetterShop.config.getString("prefix") + s);

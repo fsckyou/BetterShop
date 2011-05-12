@@ -184,7 +184,11 @@ items as currency (if no economy plugin)
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
-Version 1.6.5.5 - ? - jascotty2
+Version 1.6.5.5b - 5/11/11 - jascotty2
+fixed iConomy debit/credit low-balance bug
+
+
+Version 1.6.5.5 - 5/11/11 - jascotty2
 hopefully fixed an update restart error
 wolves fixed for mc 1.5
 fixed saving errors when directory removed
@@ -195,6 +199,7 @@ fixed sign creation if sign is colored (eg. if dat file was accidentally deleted
 
 Version 1.6.5.4 - 4/18/11 - jascotty2
 misc. nullpointer fixes
+# 14,000+ downloads!
 
 
 Version 1.6.5.3 - 4/11/11 - jascotty2
