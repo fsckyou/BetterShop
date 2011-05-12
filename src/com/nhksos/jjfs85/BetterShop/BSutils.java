@@ -143,6 +143,14 @@ public class BSutils {
             } catch (Exception ex) {
                 BetterShop.Log(Level.SEVERE, "Failed to credit player (BOSEconomy)", ex);
             }
+        } else if (BetterShop.essentials != null) {
+            try {
+                //User u = BetterShop.essentials.getUser(player);
+                //double preAmt = u.getMoney();
+                BetterShop.essentials.getUser(player).giveMoney(amount);
+            } catch (Exception ex) {
+                BetterShop.Log(Level.SEVERE, "Failed to credit player (Essentials)", ex);
+            }
         } else {
             BetterShop.Log(Level.SEVERE, "Failed to credit player: no economy plugin", false);
             return false;
@@ -151,7 +159,7 @@ public class BSutils {
     }
 
     static boolean debit(Player player, double amount) {
-        if (amount <= 0 || playerBalance(player.getName()) < amount) {
+        if (amount <= 0 || playerBalance(player) < amount) {
             return amount == 0;
         }
         if (BetterShop.iConomy != null || BetterShop.legacyIConomy != null) {
@@ -184,22 +192,34 @@ public class BSutils {
                     BetterShop.economy.addBankMoney(BetterShop.config.BOSBank, (int) Math.round(amount), false);
                 }
             } catch (Exception ex) {
-                BetterShop.Log(Level.SEVERE, "Failed to credit player (BOSEconomy)", ex);
+                BetterShop.Log(Level.SEVERE, "Failed to debit player (BOSEconomy)", ex);
+            }
+        } else if (BetterShop.essentials != null) {
+            try {
+                //User u = BetterShop.essentials.getUser(player);
+                //double preAmt = u.getMoney();
+                BetterShop.essentials.getUser(player).takeMoney(amount);
+            } catch (Exception ex) {
+                BetterShop.Log(Level.SEVERE, "Failed to debit player (Essentials)", ex);
             }
         } else {
-            BetterShop.Log(Level.SEVERE, "Failed to credit player: no economy plugin", false);
+            BetterShop.Log(Level.SEVERE, "Failed to debit player: no economy plugin", false);
             return false;
         }
         return true;
     }
 
-    public static double playerBalance(String player) {
-        if (BetterShop.iConomy != null) {
-            return BetterShop.iConomy.getAccount(player).getHoldings().balance();
+    public static double playerBalance(Player player) {
+        if (player == null) {
+            return 0;
+        } else if (BetterShop.iConomy != null) {
+            return BetterShop.iConomy.getAccount(player.getName()).getHoldings().balance();
         } else if (BetterShop.legacyIConomy != null) {
-            return com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(player).getBalance();
+            return com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(player.getName()).getBalance();
         } else if (BetterShop.economy != null) {
-            return BetterShop.economy.getPlayerMoney(player);
+            return BetterShop.economy.getPlayerMoney(player.getName());
+        } else if (BetterShop.essentials != null) {
+            return BetterShop.essentials.getUser(player).getMoney();
         } else {
             return 0;
         }

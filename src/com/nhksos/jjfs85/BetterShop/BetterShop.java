@@ -1,5 +1,6 @@
 package com.nhksos.jjfs85.BetterShop;
 
+import com.earth2me.essentials.Essentials;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -63,6 +64,7 @@ public class BetterShop extends JavaPlugin {
     //protected static boolean legacyIConomy = true;
     //protected static Bank iBank = null;
     protected static BOSEconomy economy = null;
+    protected static Essentials essentials = null;
     private PluginListener pListener = null;
     //private static boolean isLoaded = true;
     public static PluginDescriptionFile pdfFile;// = this.getDescription();
@@ -98,6 +100,12 @@ public class BetterShop extends JavaPlugin {
                         Log("Attached to BOSEconomy");
                     }
                     config.setCurrency();
+                } else if (event.getPlugin().getDescription().getName().equals("Essentials")) {
+                    if (BetterShop.essentials == null) {
+                        BetterShop.essentials = (Essentials) event.getPlugin();
+                        Log("Attached to Essentials");
+                    }
+                    config.setCurrency();
                 } else if (event.getPlugin().getDescription().getName().equals("Permissions")) {
                     if (BetterShop.Permissions == null) {
                         BetterShop.Permissions = (Permissions) event.getPlugin();
@@ -126,6 +134,9 @@ public class BetterShop extends JavaPlugin {
             } else if (event.getPlugin().getDescription().getName().equals("Permissions")) {
                 BetterShop.Permissions = null;
                 Log("Permissions support disabled");
+            } else if (event.getPlugin().getDescription().getName().equals("Essentials")) {
+                BetterShop.essentials = null;
+                Log("Essentials support disabled");
             } else if (event.getPlugin().getDescription().getName().equals("MinecraftIM")) {
                 messenger = null;
                 Log("MinecraftIM link disabled");
@@ -190,12 +201,21 @@ public class BetterShop extends JavaPlugin {
             test = getServer().getPluginManager().getPlugin("BOSEconomy");
             if (test != null) {
                 economy = (BOSEconomy) test;
+                if (economy.getAccountManager() != null) {
+                    config.setCurrency();
+                }
                 Log("Attached to BOSEconomy");
             } else {
-                Log(Level.WARNING, "economy plugin not yet found...", false);
-            }
-            if (economy.getAccountManager() != null) {
-                config.setCurrency();
+                test = getServer().getPluginManager().getPlugin("Essentials");
+                if (test != null) {
+                    essentials = (Essentials) test;
+                    if(Essentials.getStatic() != null){
+                        config.setCurrency();
+                    }
+                    Log("Attached to Essentials");
+                } else {
+                    Log(Level.WARNING, "economy plugin not yet found...", false);
+                }
             }
         }
         test = getServer().getPluginManager().getPlugin("Permissions");
@@ -341,8 +361,8 @@ public class BetterShop extends JavaPlugin {
 
             lastCommand = (sender instanceof Player ? "player:" : "console:")
                     + commandName + " " + argStr;
-            
-            if (iConomy == null && legacyIConomy == null && economy == null 
+
+            if (iConomy == null && legacyIConomy == null && economy == null && essentials == null
                     && (commandName.contains("buy") || commandName.contains("sell")
                     || argStr.contains("buy") || argStr.contains("sell"))) {
                 BSutils.sendMessage(sender, "\u00A74 BetterShop is missing a dependency. Check the console.");
