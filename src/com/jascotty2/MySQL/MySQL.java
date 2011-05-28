@@ -243,13 +243,16 @@ public class MySQL {
 
         if (IsConnected()) {
             try {
+                if(!qry.trim().endsWith(";")){
+                    qry+=";";
+                }
                 //BetterShop.Log(Level.INFO, String.format("SELECT * FROM %s WHERE NAME='%s';", sql_tableName, name));
                 return DBconnection.createStatement().executeQuery(qry);
 
             } catch (SQLException ex) {
                 // if lost connection & successfully reconnected, try again
-                if(IsConnected(false) && IsConnected(true)){
-                     return DBconnection.createStatement().executeQuery(qry);   
+                if (IsConnected(false) && IsConnected(true)) {
+                    return DBconnection.createStatement().executeQuery(qry);
                 }
                 //disconnect();
                 throw ex;
@@ -262,10 +265,13 @@ public class MySQL {
     public int RunUpdate(String qry) throws SQLException { //
         if (IsConnected()) {
             try {
+                if(!qry.trim().endsWith(";")){
+                    qry+=";";
+                }
                 return DBconnection.prepareStatement(qry).executeUpdate();
             } catch (SQLException ex) {
                 // if lost connection & successfully reconnected, try again
-                if(IsConnected(false) && IsConnected(true)){
+                if (IsConnected(false) && IsConnected(true)) {
                     return DBconnection.prepareStatement(qry).executeUpdate();
                 }
                 //disconnect();
@@ -288,8 +294,8 @@ public class MySQL {
 
             } catch (SQLException ex) {
                 // if lost connection & successfully reconnected, try again
-                if(IsConnected(false) && IsConnected(true)){
-                  return DBconnection.createStatement().executeQuery("SELECT * FROM " + tablename + ";");  
+                if (IsConnected(false) && IsConnected(true)) {
+                    return DBconnection.createStatement().executeQuery("SELECT * FROM " + tablename + ";");
                 }
                 //disconnect();
                 throw ex;
@@ -303,9 +309,10 @@ public class MySQL {
      * check if is currently connected to a server
      * preforms a pre-check, and if not & connection info exists, will attempt reconnect
      */
-    public boolean IsConnected(){
+    public boolean IsConnected() {
         return IsConnected(true);
     }
+
     public boolean IsConnected(boolean reconnect) {
         try {
             if (DBconnection != null && DBconnection.isClosed()) {
@@ -336,6 +343,27 @@ public class MySQL {
             //} catch (SQLException ex) {
             //    Logger.getLogger(MySQL.class.getName()).log(Level.SEVERE, "Error retrieving table list", ex);
             //}
+        }
+        return false;
+    }
+
+    public boolean columnExists(String tableName, String columnName) throws SQLException {
+        if (IsConnected()) {
+            ResultSet t = DBconnection.getMetaData().getColumns(null, null, tableName, null);//.getTables(null, null, tableName, null);//
+            for (;t.next();) {
+                //for(int i=1; i<=7; ++i)
+                //System.out.println(t.getString(i));
+                //System.out.println();
+                if(t.getString(4).equals(columnName))
+                    return true;
+                //try {
+                    //t.getRowId(columnName);
+                    //t.findColumn(columnName);
+                //} catch (SQLException ex) {
+                //    Logger.getAnonymousLogger().log(Level.WARNING, ex.getMessage(), ex);
+                //    return false;
+                //}
+            }
         }
         return false;
     }

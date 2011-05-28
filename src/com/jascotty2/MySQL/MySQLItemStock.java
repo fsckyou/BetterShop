@@ -21,29 +21,31 @@ public class MySQLItemStock {
     private String sql_database = "minecraft", sql_tableName = "ItemStock";
     // DB connection
     public MySQL MySQLdatabase = new MySQL();
-    
+
     public MySQLItemStock(String database, String tableName, String username, String password, String hostName, String portNum) throws SQLException, Exception {
 
         MySQLdatabase.connect(database, username, password, hostName, portNum);
         sql_database = database;
         sql_tableName = tableName;
         // now check & create table
-        if(!MySQLdatabase.tableExists(tableName)){
+        if (!MySQLdatabase.tableExists(tableName)) {
             createItemStockTable(tableName);
         }
     } // end default constructor
+
     public MySQLItemStock(MySQL database, String tableName) throws SQLException {
         MySQLdatabase = database;
         sql_tableName = tableName;
         // now check & create table
-        if(!MySQLdatabase.tableExists(tableName)){
+        if (MySQLdatabase != null && !MySQLdatabase.tableExists(tableName)) {
             createItemStockTable(tableName);
         }
     }
-    public MySQL getMySQLconnection(){
+
+    public MySQL getMySQLconnection() {
         return MySQLdatabase;
     }
-    
+
     public final boolean connect() throws SQLException, Exception {
         if (MySQLdatabase == null) {
             return false;
@@ -100,8 +102,8 @@ public class MySQLItemStock {
                         "SELECT * FROM %s WHERE NAME='%s';", sql_tableName, name));
                 if (table.first()) {
                     ItemStockEntry ret = new ItemStockEntry();
-                    ret.itemNum=table.getInt(1);
-                    ret.itemSub=table.getByte(2);
+                    ret.itemNum = table.getInt(1);
+                    ret.itemSub = table.getByte(2);
                     ret.name = table.getString(3);
                     ret.amount = table.getLong(4);
                     return ret;
@@ -124,8 +126,8 @@ public class MySQLItemStock {
                         item.ID(), (int) item.Data()));
                 if (table.first()) {
                     ItemStockEntry ret = new ItemStockEntry();
-                    ret.itemNum=table.getInt(1);
-                    ret.itemSub=table.getByte(2);
+                    ret.itemNum = table.getInt(1);
+                    ret.itemSub = table.getByte(2);
                     ret.name = table.getString(3);
                     ret.amount = table.getLong(4);
                     return ret;
@@ -143,7 +145,7 @@ public class MySQLItemStock {
         if (ItemExists(itemName)) {
             try {
                 MySQLdatabase.RunUpdate(
-                        String.format("UPDATE %s SET AMT='%d' WHERE NAME='%s';", 
+                        String.format("UPDATE %s SET AMT='%d' WHERE NAME='%s';",
                         sql_tableName, amt, itemName));
                 /* or:
                 String.format("UPDATE %s SET BUY=%f1.2, SELL=%f1.2 WHERE ID='%d' AND SUB='%d';",
@@ -236,6 +238,7 @@ public class MySQLItemStock {
         }
         return false;
     }
+
     public boolean RemoveItem(Item item) throws SQLException {
         if (MySQLdatabase.IsConnected()) {
             try {
@@ -294,21 +297,24 @@ public class MySQLItemStock {
         }
         return true;
     }
-    
 
-    public String GetDatabaseName(){
+    public String GetDatabaseName() {
         return sql_database;
     }
-    public String GetTableName(){
+
+    public String GetTableName() {
         return sql_tableName;
     }
-    public String GetUserName(){
+
+    public String GetUserName() {
         return MySQLdatabase.GetUserName();
     }
-    public String GetHostName(){
+
+    public String GetHostName() {
         return MySQLdatabase.GetHostName();
     }
-    public String GetPortNum(){
+
+    public String GetPortNum() {
         return MySQLdatabase.GetPortNum();
     }
 } // end class MySQLPriceList

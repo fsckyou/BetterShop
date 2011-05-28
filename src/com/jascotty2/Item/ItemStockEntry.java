@@ -73,7 +73,7 @@ public class ItemStockEntry {
             name = copy.name;
         } else {
             itemSub = toCopy.getDurability();
-            name = toCopy.toString();
+            name = toCopy.getData().getItemType().name();
         }
         amount = toCopy.getAmount();
         tempCacheDate = new Date();
@@ -111,11 +111,32 @@ public class ItemStockEntry {
     }
 
     public boolean equals(Item i) {
-        return itemSub == i.itemData && itemNum == i.itemId;
+        if (i == null || itemNum != i.itemId) {
+            return false;
+        }
+        return itemSub == i.itemData || i.IsTool();
     }
 
     public boolean equals(ItemStockEntry i) {
-        return itemSub == i.itemSub && itemNum == i.itemNum;
+        if (i == null || itemNum != i.itemNum) {
+            return false;
+        }
+        if (itemSub == i.itemSub) {
+            return true;
+        }
+        Item t = Item.findItem(i);
+        return t!=null && t.IsTool();
+    }
+
+    public boolean equals(ItemStack i) {
+        if (i == null || itemNum != i.getTypeId()) {
+            return false;
+        }
+        if (itemSub == i.getDurability()) {
+            return true;
+        }
+        Item t = Item.findItem(i);
+        return t != null && t.IsTool();
     }
 
     @Override

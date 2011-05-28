@@ -9,7 +9,7 @@ package com.jascotty2.Shop;
 import com.jascotty2.CheckInput;
 import com.jascotty2.MySQL.MySQLPriceList;
 import com.jascotty2.Item.*;
-import com.jascotty2.MinecraftFontWidthCalculator;
+import com.jascotty2.MinecraftChatStr;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -208,13 +208,15 @@ public class PriceList {
                     }
                     logger.log(Level.SEVERE, "Error opening " + toload.getName() + " for reading", ex);
                 } finally {
-                    try {
-                        fstream.close();
-                    } catch (IOException ex) {
-                        if (!log_nothrow) {
-                            throw new IOException("Error closing " + toload.getName(), ex);
+                    if (fstream != null) {
+                        try {
+                            fstream.close();
+                        } catch (IOException ex) {
+                            if (!log_nothrow) {
+                                throw new IOException("Error closing " + toload.getName(), ex);
+                            }
+                            logger.log(Level.SEVERE, "Error closing " + toload.getName(), ex);
                         }
-                        logger.log(Level.SEVERE, "Error closing " + toload.getName(), ex);
                     }
                 }
                 return isLoaded = true && save();
@@ -229,6 +231,8 @@ public class PriceList {
 
     /**
      * closes connections & frees up used memory
+     * @throws IOException
+     * @throws SQLException
      */
     public void close() throws IOException, SQLException {
         // no need to save.. is saved after every edit
@@ -278,7 +282,19 @@ public class PriceList {
 
     public boolean saveFile(File tosave) throws IOException {
         if (tosave != null && !tosave.isDirectory()) {
-            if (!tosave.exists() || tosave.canWrite()) {
+            if (!tosave.exists()){
+                File dir = new File(tosave.getAbsolutePath().substring(0, tosave.getAbsolutePath().lastIndexOf(File.separatorChar)));
+                dir.mkdirs();
+                try {
+                    if (!tosave.createNewFile()) {
+                        return false;
+                    }
+                } catch (Exception e) {
+                    return false;
+                }
+            }
+            if (tosave.canWrite()) {
+                
                 FileWriter fstream = null;
                 try {
                     fstream = new FileWriter(tosave.getAbsolutePath());
@@ -571,6 +587,7 @@ public class PriceList {
 
     /**
      * number of items that shop will buy or sell & is legal or can buy illegal
+     * @param showIllegal 
      * @return
      */
     public int GetShopSize(boolean showIllegal) {
@@ -622,7 +639,7 @@ public class PriceList {
      * @throws Exception some serious error occurred (details in message)
      */
     public LinkedList<String> GetShopListPage(int pageNum, boolean isPlayer, int pageSize, String listing, String header, String footer) throws SQLException, Exception {
-        return GetShopListPage(pageNum, isPlayer, pageSize, listing, header, footer, false);
+        return GetShopListPage(pageNum, isPlayer, pageSize, listing, header, footer, false, true);
     }
 
     /**
@@ -634,12 +651,13 @@ public class PriceList {
      * @param header page header (<page> of <pages>)
      * @param footer page footer
      * @param showIllegal whether illegal items should be included in the listing
+     * @param showDec whether to round to whole numbers or show 2 decimal places
      * @return a list of formatted lines
      * @throws SQLException if using MySQL database & there was some database connection error
      * @throws Exception some serious error occurred (details in message)
      */
-    public LinkedList<String> GetShopListPage(int pageNum, boolean isPlayer, int pageSize, String listing, String header, String footer, boolean showIllegal) throws SQLException, Exception {
-        return GetShopListPage(pageNum, isPlayer, pageSize, listing, header, footer, showIllegal, null);
+    public LinkedList<String> GetShopListPage(int pageNum, boolean isPlayer, int pageSize, String listing, String header, String footer, boolean showIllegal, boolean showDec) throws SQLException, Exception {
+        return GetShopListPage(pageNum, isPlayer, pageSize, listing, header, footer, showIllegal, showDec, null);
     }
 
     /**
@@ -651,12 +669,15 @@ public class PriceList {
      * @param header page header (<page> of <pages>)
      * @param footer page footer
      * @param showIllegal whether illegal items should be included in the listing
+     * @param showDec whether to round to whole numbers or show 2 decimal places
      * @param stock what to use for stock, if applicable
      * @return a list of formatted lines
      * @throws SQLException if using MySQL database & there was some database connection error
      * @throws Exception some serious error occurred (details in message)
      */
-    public LinkedList<String> GetShopListPage(int pageNum, boolean isPlayer, int pageSize, String listing, String header, String footer, boolean showIllegal, ItemStock stock) throws SQLException, Exception {
+    public LinkedList<String> GetShopListPage(int pageNum, boolean isPlayer,
+            int pageSize, String listing, String header, String footer,
+            boolean showIllegal, boolean showDec, ItemStock stock) throws SQLException, Exception {
         LinkedList<String> ret = new LinkedList<String>();
         if (databaseType == DBType.MYSQL && !useCache) {
             updateCache(false);// manually update
@@ -696,8 +717,8 @@ public class PriceList {
                 }
                 long st = stock.getItemAmount(priceList.get(i));
                 ret.add(String.format(listing, priceList.get(i).coloredName(),
-                        String.format("%5s", priceList.get(i).buy < 0 ? " No " : String.format("%01.2f", priceList.get(i).buy)),
-                        String.format("%5s", priceList.get(i).sell < 0 ? " No " : String.format("%01.2f", priceList.get(i).sell)),
+                        String.format("%5s", priceList.get(i).buy < 0 ? " No " : (showDec ? String.format("%01.2f", priceList.get(i).buy) : String.valueOf((int) Math.round(priceList.get(i).buy)))),
+                        String.format("%5s", priceList.get(i).sell < 0 ? " No " : (showDec ? String.format("%01.2f", priceList.get(i).sell) : String.valueOf((int) Math.round(priceList.get(i).sell)))),
                         (stock == null || st < 0 ? "INF" : String.valueOf(st))));
             }
             if (footer != null && footer.length() > 0) {
@@ -706,7 +727,7 @@ public class PriceList {
         }
         if (ret.size() > 2) {
             // format spaces
-            return MinecraftFontWidthCalculator.alignTags(ret, isPlayer);
+            return MinecraftChatStr.alignTags(ret, isPlayer);
         }
         return ret;
     }

@@ -6,38 +6,36 @@
  */
 package com.nhksos.jjfs85.BetterShop;
 
-import com.jascotty2.MySQL.InstallDependency;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author jacob
  */
-public class Updater extends InstallDependency {
+public class Updater {
 
-    public static String downloadPage = "https://github.com/jascotty2/BetterShop/downloads";
-    public static String downloadLink = "/downloads/jascotty2/BetterShop/BetterShop.jar";
-    public static String altDownloadPage = "https://github.com/BetterShop/BetterShop/downloads";
-    public static String altDownloadLink = "/downloads/BetterShop/BetterShop/BetterShop.jar";
-    public static String suid = null, sip = null;
-
+    public static String downloadPage = "https://github.com/BetterShop/BetterShop/downloads";
+    public static String downloadLink = "/downloads/BetterShop/BetterShop/BetterShop.jar";
+    // for stats purposes, open the normal page that counts the downloads
+    public static String downloadLinkCounter = "https://github.com/downloads/BetterShop/BetterShop/BetterShop.jar";
+    public static String downloadLinkUrl = "http://cloud.github.com/downloads/BetterShop/BetterShop/BetterShop.jar";
+    
+    public static String altDownloadPage = "https://github.com/jascotty2/BetterShop/downloads";
+    public static String altDownloadLink = "/downloads/jascotty2/BetterShop/BetterShop.jar";
+    public static String altDownloadLinkCounter = "https://github.com/downloads/jascotty2/BetterShop/BetterShop.jar";
+    public static String altDownloadLinkUrl = "http://cloud.github.com/downloads/jascotty2/BetterShop/BetterShop.jar";
+    
     public Updater() {
     } // end default constructor
 
@@ -51,6 +49,10 @@ public class Updater extends InstallDependency {
 
     public static void check(String location, String linktofind) {
         isUpToDate(location, linktofind, true);
+    }
+
+    public static boolean isUpToDate(boolean log) {
+        return isUpToDate(downloadPage, downloadLink, log);
     }
 
     public static boolean isUpToDate() {
@@ -129,12 +131,33 @@ public class Updater extends InstallDependency {
 
                             // now check the two dates & comment
                             if ((new Date(pluginDate.getTime() + BetterShop.lastUpdated_gracetime * 60000)).before(uploadDate)) {// && (uploadDate.getTime()-pluginDate.getTime())/1000 > BetterShop.lastUpdated_gracetime * 60) {
-                                if (log) {
-                                    if (uploadComment.length() > 0) {
-                                        BetterShop.Log("Newer BetterShop version found on git: " + uploadComment + " (" + uploadDate + ")");
+
+                                if (uploadComment.length() > 0) {
+                                    if (uploadComment.trim().equalsIgnoreCase(BetterShop.pdfFile.getVersion())) {
+                                        if (log) {
+                                            BetterShop.Log("BetterShop is (likely) up-to-date (version matches comment)");
+                                        }
+                                        return true;
                                     } else {
-                                        BetterShop.Log("Newer BetterShop version found on git (" + uploadDate + ")");
+                                        // double-check against this file
+                                        File jar = getJarFile();
+                                        //System.out.println(jar);
+                                        if (jar != null && jar.exists()) { // double-check got the file
+                                            if (!(new Date(jar.lastModified() + BetterShop.lastUpdated_gracetime * 60000)).before(uploadDate)) {
+                                                if (log) {
+                                                    //System.out.println("file is newer than on git");
+                                                    BetterShop.Log("File is newer than on git");
+                                                }
+                                                return true;
+                                            }
+                                        }
+
+                                        if (log) {
+                                            BetterShop.Log("Newer BetterShop version found on git: " + uploadComment + " (" + uploadDate + ")");
+                                        }
                                     }
+                                } else if (log) {
+                                    BetterShop.Log("Newer BetterShop version found on git (" + uploadDate + ")");
                                 }
                                 return false;
                                 //BetterShop.Log((new Date(pluginDate.getTime() +BetterShop.lastUpdated_gracetime * 60000)) + " before " + uploadDate);
@@ -174,167 +197,84 @@ public class Updater extends InstallDependency {
         return true;
     }
 
-    public boolean loadNew() {
-        /*
-        File pluginFile = new File(new File("plugins"), pluginName + ".jar");
-        if (pluginFile.isFile()) {
-        try {
-        Plugin newPlugin = serverPM.loadPlugin(pluginFile);
-        if (newPlugin != null) {
-        pluginName = newPlugin.getDescription().getName();
-        sender.sendMessage("§ePlugin Loaded: §c[" + pluginName + "]");
-        serverPM.enablePlugin(newPlugin);
-        if (newPlugin.isEnabled()) {
-        sender.sendMessage("§ePlugin Enabled: §a[" + pluginName + "]");
-        } else {
-        sender.sendMessage("§ePlugin §cFAILED§e to Enable:§c[" + pluginName + "]");
+    public static File getJarFile() {
+        return new File(Updater.class.getProtectionDomain().getCodeSource().getLocation().getPath().
+                replace("%20", " ").replace("%25", "%"));
+    }
+
+    public static boolean downloadUpdate() {
+        File jar = getJarFile();
+        if (jar.exists()) {
+            try {
+                downloadUpdate(downloadLinkUrl, jar.getAbsolutePath(), downloadLinkCounter);
+                return true;
+            }/* catch (MalformedURLException ex) {
+            Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+            Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
+            }*/ catch (Exception ex) {
+                BetterShop.Log(Level.SEVERE, "Failed to download update", ex, false);
+            }
         }
-        } else {
-        sender.sendMessage("§ePlugin §cFAILED§e to Load!");
-        }
-        } catch (InvalidPluginException ex) {
-        sender.sendMessage("§cFile exists but is not a plugin file.");
-        } catch (InvalidDescriptionException ex) {
-        sender.sendMessage("§cPlugin exists but is invalid.");
-        }
-        } else {
-        sender.sendMessage("§cFile does NOT exist, check name and try again.");
-        }
-        //*/
         return false;
     }
+
+    protected static synchronized void downloadUpdate(String location, String filename, String counterLink) throws MalformedURLException, IOException {
+        URLConnection connection = new URL(location).openConnection();
+        if (counterLink != null && counterLink.length() > 0) {
+            try {
+                // for stats purposes, open the normal page that counts the downloads
+                URLConnection cconn = (new URL(counterLink)).openConnection();
+                cconn.getContent();
+            } catch (Exception e) {
+            }
+        }
+
+        connection.setUseCaches(false);
+
+        InputStream in = connection.getInputStream();
+        OutputStream out = new FileOutputStream(filename); //  + "_new"
+
+        byte[] buffer = new byte[65536];
+        //int currentCount = 0;
+        for (int count; (count = in.read(buffer)) >= 0;) {
+            out.write(buffer, 0, count);
+            //currentCount += count;
+        }
+
+        in.close();
+        out.close();
+    }
+
+    /*
+    public boolean loadNew() {
+    File pluginFile = new File(new File("plugins"), pluginName + ".jar");
+    if (pluginFile.isFile()) {
+    try {
+    Plugin newPlugin = serverPM.loadPlugin(pluginFile);
+    if (newPlugin != null) {
+    pluginName = newPlugin.getDescription().getName();
+    sender.sendMessage("§ePlugin Loaded: §c[" + pluginName + "]");
+    serverPM.enablePlugin(newPlugin);
+    if (newPlugin.isEnabled()) {
+    sender.sendMessage("§ePlugin Enabled: §a[" + pluginName + "]");
+    } else {
+    sender.sendMessage("§ePlugin §cFAILED§e to Enable:§c[" + pluginName + "]");
+    }
+    } else {
+    sender.sendMessage("§ePlugin §cFAILED§e to Load!");
+    }
+    } catch (InvalidPluginException ex) {
+    sender.sendMessage("§cFile exists but is not a plugin file.");
+    } catch (InvalidDescriptionException ex) {
+    sender.sendMessage("§cPlugin exists but is invalid.");
+    }
+    } else {
+    sender.sendMessage("§cFile does NOT exist, check name and try again.");
+    }
+    return false;
+    }
+    //*/
     
-    public static String serverUID() {
-        return serverUID(true);
-    }
-
-    public static String serverUID(boolean useMask) {
-        if (suid == null) {
-
-            String ips = "";
-            try {
-                // Obtain the InetAddress of the computer on which this program is running
-                InetAddress localaddr = InetAddress.getLocalHost();
-                ips = localaddr.getHostName();
-                try {
-                    URL autoIP = new URL("http://www.whatismyip.com/automation/n09230945.asp");
-                    BufferedReader in = new BufferedReader(new InputStreamReader(autoIP.openStream()));
-                    ips += ":" + (in.readLine()).trim();
-
-                } catch (Exception e) {
-                    ips += ":ukpip";
-                }
-                for (InetAddress i : InetAddress.getAllByName(localaddr.getHostName())) {
-                    if (!i.isLoopbackAddress()) {
-                        ips += ":" + i.getHostAddress();
-                    }
-                }
-            } catch (Exception ex) {
-                ips += ":ukh";
-            }
-            sip = ips;
-            try {
-                suid = md5Str(ips);
-            } catch (Exception ex) {
-                //Logger.getAnonymousLogger().log(Level.WARNING, ex.getMessage(), ex);
-                suid = ips;
-            }
-        }
-        return useMask ? suid : sip;
-    }
-
-    public static String md5Str(String txt) throws NoSuchAlgorithmException {
-        byte hash[] = MessageDigest.getInstance("MD5").digest(txt.getBytes());
-        String ret = "";
-        char chars[] = {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's',
-            'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm',
-            '~', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
-            '-', '+', ':', ';', ',', '.', '/', '?', '!', '@', '#', '$', '%', '^', '&', '*',
-            'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S',
-            'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M'};
-        for (byte b : hash) {
-            ret += chars[((int) b + 255) % chars.length];
-        }
-        return ret;
-    }
-
-    public static String getBukkitVersion() {
-        return getBukkitVersion(false);
-    }
-
-    // reads the server log for this info
-    public static String getBukkitVersion(boolean includeStart) {
-        File slog = new File("server.log");
-        if (slog.exists() && slog.canRead()) {
-            FileReader fstream = null;
-            try {
-                String ver = "";
-                fstream = new FileReader(slog.getAbsolutePath());
-                BufferedReader in = new BufferedReader(fstream);
-
-                String line = "";
-                while ((line = in.readLine()) != null) {
-                    if (line.contains("This server is running Craftbukkit version git-Bukkit-")) {
-                        ver = line;
-                    }
-                }
-                if (ver.length() > 0) {
-                    return !includeStart ? ver.substring(ver.indexOf("git-Bukkit-")) :
-                        ver.substring(ver.indexOf("git-Bukkit-")) + "\nStartTime: " + ver.substring(0, 19)
-                            + "  (" + serverRunTimeSpan(ver.substring(0, 19)) + ")";
-                } else {
-                    return "?";
-                }
-            } catch (Exception ex) {
-                Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
-            } finally {
-                try {
-                    fstream.close();
-                } catch (IOException ex) {
-                }
-            }
-
-        }
-        return "?";
-    }
-
-    public static String serverRunTimeSpan(String startTime) {
-        Date uploadDate = null;
-        try {
-            // 2011-04-01 21:35:22
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
-            uploadDate = formatter.parse(startTime.trim());
-        } catch (ParseException ex) {
-            Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, "Error parsing log start date", ex);
-            return ex.getMessage();
-        }
-        long sec = ((new Date()).getTime() - uploadDate.getTime()) / 1000;
-        int mon = (int) (sec / 2592000);
-        sec -= mon * 2592000;
-
-        int day = (int) (sec / 86400);
-        sec -= day * 86400;
-
-        int hr = (int) (sec / 3600);
-        sec -= hr * 3600;
-
-        int min = (int) (sec / 60);
-        sec = sec % 60;
-
-        String timeSpan = "";
-        if (mon > 0) {
-            timeSpan += mon + " Months, ";
-        }
-        if (day > 0) {
-            timeSpan += day + " Days, ";
-        }
-        if (hr > 0) {
-            timeSpan += hr + " Hours, ";
-        }
-        if (min > 0) {
-            timeSpan += min + " Minutes, ";
-        }
-        return timeSpan + sec + " Sec";
-    }
 } // end class Updater
 

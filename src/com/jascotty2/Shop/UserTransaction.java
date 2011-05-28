@@ -50,6 +50,15 @@ public class UserTransaction {
         time = (new Date()).getTime() / 1000;
     }
 
+    public UserTransaction(Item item, boolean isSold) {
+        itemNum = item.ID();
+        itemSub = item.Data();
+        name = item.name;
+        sold = isSold;
+        user = "";
+        time = (new Date()).getTime() / 1000;
+    }
+
     public UserTransaction(ItemStack item, boolean isSold, int amount, double price, String username) {
         itemNum = item.getTypeId();
         itemSub = item.getDurability();

@@ -3,6 +3,7 @@ package com.nhksos.jjfs85.BetterShop;
 import com.jascotty2.CheckInput;
 import com.jascotty2.Item.Item;
 import com.jascotty2.Item.ItemDB;
+import com.jascotty2.MinecraftChatStr;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -19,44 +20,59 @@ public class BSConfig {
 
     // chat messages
     private final HashMap<String, String> stringMap = new HashMap<String, String>();
-    //public String currency = "Coin";
-    public int pagesize = 9;
-    public boolean publicmarket = false;
-    public String defColor = "white";
-    protected String customErrorMessage = "";
     // files used by plugin
     public final static String configname = "config.yml";
     public final static File pluginFolder = new File("plugins", BetterShop.name);
     public final static File configfile = new File(pluginFolder, configname);
-    // plugin settings
-    public boolean checkUpdates = true, sendErrorReports = true, unMaskErrorID = false;
+    public final static File signDBFile = new File(pluginFolder, "signs.dat");
+    ///// plugin settings
+    public boolean checkUpdates = true,
+            sendErrorReports = true,
+            unMaskErrorID = false,
+            autoUpdate = false;
     public boolean sendLogOnError = true, sendAllLog = false;
     public boolean hideHelp = false;
     public static final int MAX_CUSTMSG_LEN = 90;
-    // database information
+    ////// shop settings
+    public String defaultCurrency = "Coin", pluralCurrency = "Coins";
+    public int pagesize = 9;
+    public boolean publicmarket = false;
+    public String defColor = "white",
+            BOSBank = "";
+    protected String customErrorMessage = "";
+    ///// item buying behavior
+    public boolean allowbuyillegal = true, //if someone without BetterShop.admin.illegal can buy illegal items
+            usemaxstack = true, //whether maxstack should be honored
+            buybacktools = true, //used tools can be bought back?
+            buybackenabled = true, //shop buys items from users?
+            signShopEnabled = true,
+            signItemColor = false, //color the names of items on signs?
+            signItemColorBWswap = false,// swap black & white item colors?
+            signDestroyProtection = true,
+            tntSignDestroyProtection = false;
+    public int maxEntityPurchase = 3; // max can purchase at a time
+    // sign settings
+    public String activeSignColor = "blue"; // automatically changed to \u00A7 format
+    public long signDBsaveWait = 30000; // don't save immediately, wait (30s)
+    public static long signInteractWait = 1000; // wait before another action allowed
+    // global or region shops
+    public CommShopMode commandShopMode = CommShopMode.GLOBAL;
+    ////// database information
     public String tableName = "BetterShop";
     public String sql_username = "root", sql_password = "root", sql_database = "minecraft", sql_hostName = "localhost", sql_portNum = "3306";
     private DBType databaseType = DBType.FLATFILE;
-    // database caching (MySQL only)
+    /// database caching (MySQL only)
     public boolean useDBCache = true;
     //public BigInteger priceListLifespan = new BigInteger("0"); // 0 = never update
     public long priceListLifespan = 0; // 0 = never update
     public int tempCacheTTL = 10; //how long before tempCache is considered outdated (seconds)
-    // logging settings
+    ////// logging settings
     public boolean logUserTransactions = false, logTotalTransactions = false;
     //public BigInteger userTansactionLifespan = new BigInteger("172800"); // 2 days.. i'd like to use unsigned long, but java doesn't have it..
     public long userTansactionLifespan = 172800;
     public String transLogTablename = "BetterShopMarketActivity", recordTablename = "BetterShopTransactionTotals";
     // if pricelist is to have a custom sort order, what should be at the top
     public ArrayList<String> sortOrder = new ArrayList<String>();
-    //item buying behavior
-    public boolean allowbuyillegal = false, //if someone without BetterShop.admin.illegal can buy illegal items
-            usemaxstack = true, //whether maxstack should be honored
-            buybacktools = true, //used tools can be bought back?
-            buybackenabled = true; //shop buys items from users?
-    public int maxEntityPurchase = 3; // max can purchase at a time
-    // global or region shops
-    public boolean useRegionShops = false;
     // dynamic pricing options
     public boolean useDynamicPricing = false;
     //if a price is not set on a craftable item, can still sell if the materials to make are for sale
@@ -84,6 +100,11 @@ public class BSConfig {
         MYSQL, SQLITE, FLATFILE
     }
 
+    public enum CommShopMode {
+
+        GLOBAL, REGIONS, BOTH, NONE
+    }
+
     public BSConfig() {
         create();
         load();
@@ -107,6 +128,9 @@ public class BSConfig {
         stringMap.put("removemsg", "&f[<item>&f]&2 removed from the shop");
         // # shopcheck messages
         stringMap.put("pricecheck", "Price check! &f[<item>&f]&2 Buy: &f<buyprice> &2Sell: &f<sellprice>" + (useItemStock ? " (stock: <avail>)" : ""));
+        stringMap.put("multipricecheck", "Price check! <amt> &f[<item>&f]&2 Buy: &f<buyprice> &2Sell: &f<sellprice>");
+        stringMap.put("multipricechecksell", "Price check! <amt> &f[<item>&f]&2 Sell: &f<sellcur>");
+        stringMap.put("multipricecheckbuy", "Price check! <amt> &f[<item>&f]&2 Buy: &f<buycur>");
         stringMap.put("nolisting", "&f[<item>&f] &2cannot be bought or sold.");
         // # shoplist messages
         stringMap.put("listhead", "-------- Price-List Page: &f<page> &2of &f<pages> &2--------");
@@ -138,25 +162,38 @@ public class BSConfig {
             // check for completedness
             try {
                 HashMap<String, String[]> allKeys = new HashMap<String, String[]>();
-                allKeys.put("", new String[]{
-                            "CheckForUpdates",
-                            "AutoErrorReporting",
-                            "UnMaskErrorID",
-                            "CustomErrorMessage",
+
+                allKeys.put("shop", new String[]{
                             "ItemsPerPage",
                             "publicmarket",
-                            "customsort",
                             "allowbuyillegal",
                             "usemaxstack",
                             "buybacktools",
                             "buybackenabled",
                             "maxEntityPurchase",
-                            "tablename",
-                            "useMySQL",
+                            "signShops",
+                            "activeSignColor",
+                            "signItemColor",
+                            "signItemColorBWswap",
+                            "signDestroyProtection",
+                            "tntSignDestroyProtection",
+                            "commandShop",
+                            "customsort",
                             "defaultItemColor",
+                            "tablename",
+                            "hideHelp",
+                            "BOSBank",
+                            "currencyName"});
+                allKeys.put("errors", new String[]{
+                            "CheckForUpdates",
+                            "AutoUpdate",
+                            "AutoErrorReporting",
+                            "UnMaskErrorID",
+                            "CustomErrorMessage",
                             "sendLogOnError",
                             "sendAllLog"});
                 allKeys.put("MySQL", new String[]{
+                            "useMySQL",
                             "database",
                             "username",
                             "password",
@@ -164,31 +201,26 @@ public class BSConfig {
                             "Port",
                             "cache",
                             "cacheUpdate",
-                            "tempCacheTTL"
-                        });
+                            "tempCacheTTL"});
                 allKeys.put("transactionLog", new String[]{
                             "enabled",
                             "logtablename",
-                            "userTansactionLifespan"
-                        });
+                            "userTansactionLifespan"});
                 allKeys.put("totalsTransactionLog", new String[]{
                             "enabled",
-                            "logtablename"
-                        });
+                            "logtablename"});
                 allKeys.put("dynamicMarket", new String[]{
                             "dynamicPricing",
                             "sellcraftables",
                             "sellcraftableMarkup",
-                            "woolsellweight"
-                        });
+                            "woolsellweight"});
                 allKeys.put("itemStock", new String[]{
                             "enabled",
                             "tablename",
                             "startStock",
                             "maxStock",
                             "noOverStock",
-                            "restock"
-                        });
+                            "restock"});
                 allKeys.put("strings", new String[]{
                             "prefix",
                             "permdeny",
@@ -199,6 +231,9 @@ public class BSConfig {
                             "chgmsg",
                             "removemsg",
                             "pricecheck",
+                            "multipricecheck",
+                            "multipricechecksell",
+                            "multipricecheckbuy",
                             "nolisting",
                             "listhead",
                             "listing",
@@ -216,14 +251,20 @@ public class BSConfig {
                             "outofstock",
                             "lowstock",
                             "maxstock",
-                            "highstock"
-                        });
-                String allowNull[] = new String[]{"customsort", "strings.listhead", "strings.listtail"};
+                            "highstock"});
+                String allowNull[] = new String[]{"shop.customsort", "shop.BOSBank", "shop.currencyName"};
 
                 String missing = "", unused = "";
                 for (String k : allKeys.keySet()) {
                     if (k == null) {
                         //k = "";
+                        continue;
+                    } else if (config.getKeys(k) == null) {
+                        if (missing.length() > 0) {
+                            missing += ", " + k + ".*";
+                        } else {
+                            missing += k + ".*";
+                        }
                         continue;
                     }
                     String key = "";
@@ -265,52 +306,167 @@ public class BSConfig {
                 }
             }
 
-            checkUpdates = config.getBoolean("CheckForUpdates", checkUpdates);
-            sendErrorReports = config.getBoolean("AutoErrorReporting", sendErrorReports);
-            unMaskErrorID = config.getBoolean("UnMaskErrorID", unMaskErrorID);
-            customErrorMessage = config.getString("CustomErrorMessage", customErrorMessage).trim();
-            if (customErrorMessage.length() > MAX_CUSTMSG_LEN) {
-                BetterShop.Log("Notice: CustomErrorMessage is too long. (will be truncated)");
-                customErrorMessage = customErrorMessage.substring(0, MAX_CUSTMSG_LEN);
-            }
+            // supporting these older nodes for now
+            boolean usingOldMySQLsetting = false;
+            if (configHasNode(config, new String[]{"CheckForUpdates", "AutoUpdate",
+                        "AutoErrorReporting", "UnMaskErrorID", "CustomErrorMessage",
+                        "ItemsPerPage", "publicmarket", "allowbuyillegal", "usemaxstack",
+                        "buybacktools", "buybackenabled", "maxEntityPurchase",
+                        "tablename", "useMySQL", "useMySQLPricelist", "defaultItemColor",
+                        "sendLogOnError", "sendAllLog", "hideHelp", "customsort"})) {
+                BetterShop.Log(Level.WARNING, "Using Deprecated Configuration Nodes: Update To New Format Soon!");
 
-            pagesize = config.getInt("ItemsPerPage", pagesize);
-            publicmarket = config.getBoolean("publicmarket", publicmarket);
+                checkUpdates = config.getBoolean("CheckForUpdates", checkUpdates);
+                autoUpdate = config.getBoolean("AutoUpdate", autoUpdate);
+                sendErrorReports = config.getBoolean("AutoErrorReporting", sendErrorReports);
+                unMaskErrorID = config.getBoolean("UnMaskErrorID", unMaskErrorID);
+                customErrorMessage = config.getString("CustomErrorMessage", customErrorMessage).trim();
+                if (customErrorMessage.length() > MAX_CUSTMSG_LEN) {
+                    BetterShop.Log("Notice: CustomErrorMessage is too long. (will be truncated)");
+                    customErrorMessage = customErrorMessage.substring(0, MAX_CUSTMSG_LEN);
+                }
 
-            allowbuyillegal = config.getBoolean("allowbuyillegal", allowbuyillegal);
-            usemaxstack = config.getBoolean("usemaxstack", usemaxstack);
-            buybacktools = config.getBoolean("buybacktools", buybacktools);
-            buybackenabled = config.getBoolean("buybackenabled", buybackenabled);
-            maxEntityPurchase = config.getInt("maxEntityPurchase", maxEntityPurchase);
+                pagesize = config.getInt("ItemsPerPage", pagesize);
+                publicmarket = config.getBoolean("publicmarket", publicmarket);
 
-            tableName = config.getString("tablename", tableName);
-            databaseType = config.getBoolean("useMySQL", config.getBoolean("useMySQLPricelist", false)) ? DBType.MYSQL : DBType.FLATFILE;
+                allowbuyillegal = config.getBoolean("allowbuyillegal", allowbuyillegal);
+                usemaxstack = config.getBoolean("usemaxstack", usemaxstack);
+                buybacktools = config.getBoolean("buybacktools", buybacktools);
+                buybackenabled = config.getBoolean("buybackenabled", buybackenabled);
+                maxEntityPurchase = config.getInt("maxEntityPurchase", maxEntityPurchase);
 
-            defColor = config.getString("defaultItemColor", defColor);
-            ItemDB.setDefaultColor(defColor);
+                tableName = config.getString("tablename", tableName);
 
-            sendLogOnError = config.getBoolean("sendLogOnError", sendLogOnError);
-            sendAllLog = config.getBoolean("sendAllLog", sendAllLog);
-
-            hideHelp = config.getBoolean("hideHelp", hideHelp);
-
-            String customsort = config.getString("customsort");
-            if (customsort != null) {
-                // parse for items && add to custom sort arraylist
-                String items[] = customsort.split(",");
-                for (String i : items) {
-                    Item toAdd = Item.findItem(i.trim());
-                    if (toAdd != null) {
-                        sortOrder.add(toAdd.IdDatStr());
-                    } else {
-                        BetterShop.Log("Invalid Item in customsort configuration: " + i);
+                if (config.getProperty("useMySQL") != null || config.getProperty("useMySQLPricelist") != null) {
+                    usingOldMySQLsetting = true;
+                    databaseType = config.getBoolean("useMySQL", config.getBoolean("useMySQLPricelist", false)) ? DBType.MYSQL : DBType.FLATFILE;
+                    if (databaseType == DBType.MYSQL) {
+                        n = config.getNode("MySQL");
+                        if (n != null) {
+                            sql_username = n.getString("username", sql_username);
+                            sql_password = n.getString("password", sql_password);
+                            sql_database = n.getString("database", sql_database).replace(" ", "_");
+                            sql_hostName = n.getString("Hostname", sql_hostName);
+                            sql_portNum = n.getString("Port", sql_portNum);
+                            String lifespan = n.getString("tempCacheTTL");
+                            if (lifespan != null) {
+                                tempCacheTTL = CheckInput.GetInt(lifespan, tempCacheTTL);
+                            }
+                            useDBCache = n.getBoolean("cache", useDBCache);
+                            lifespan = n.getString("cacheUpdate");
+                            if (lifespan != null) {
+                                try {
+                                    priceListLifespan = CheckInput.GetBigInt_TimeSpanInSec(lifespan, 'h').longValue();
+                                } catch (Exception ex) {
+                                    BetterShop.Log(Level.WARNING, "cacheUpdate has an illegal value");
+                                    BetterShop.Log(Level.WARNING, ex);
+                                }
+                            }
+                        } else {
+                            BetterShop.Log(Level.WARNING, "MySQL section in " + configname + " is missing");
+                        }
                     }
                 }
+
+                defColor = config.getString("defaultItemColor", defColor);
+                ItemDB.setDefaultColor(defColor);
+
+                sendLogOnError = config.getBoolean("sendLogOnError", sendLogOnError);
+                sendAllLog = config.getBoolean("sendAllLog", sendAllLog);
+
+                hideHelp = config.getBoolean("hideHelp", hideHelp);
+                BOSBank = config.getString("BOSBank", "");
+
+                String customsort = config.getString("customsort");
+                if (customsort != null) {
+                    // parse for items && add to custom sort arraylist
+                    String items[] = customsort.split(",");
+                    for (String i : items) {
+                        Item toAdd = Item.findItem(i.trim());
+                        if (toAdd != null) {
+                            sortOrder.add(toAdd.IdDatStr());
+                        } else {
+                            BetterShop.Log("Invalid Item in customsort configuration: " + i);
+                        }
+                    }
+                }
+            } // end depricated settings block
+
+            if ((n = config.getNode("errors")) != null) {
+                checkUpdates = n.getBoolean("CheckForUpdates", checkUpdates);
+                autoUpdate = n.getBoolean("AutoUpdate", autoUpdate);
+                sendErrorReports = n.getBoolean("AutoErrorReporting", sendErrorReports);
+                unMaskErrorID = n.getBoolean("UnMaskErrorID", unMaskErrorID);
+                customErrorMessage = n.getString("CustomErrorMessage", customErrorMessage).trim();
+                if (customErrorMessage.length() > MAX_CUSTMSG_LEN) {
+                    BetterShop.Log("Notice: CustomErrorMessage is too long. (will be truncated)");
+                    customErrorMessage = customErrorMessage.substring(0, MAX_CUSTMSG_LEN);
+                }
+                sendLogOnError = n.getBoolean("sendLogOnError", sendLogOnError);
+                sendAllLog = n.getBoolean("sendAllLog", sendAllLog);
             }
 
-            if (databaseType == DBType.MYSQL) {
-                n = config.getNode("MySQL");
-                if (n != null) {
+            if ((n = config.getNode("shop")) != null) {
+                pagesize = n.getInt("ItemsPerPage", pagesize);
+                publicmarket = n.getBoolean("publicmarket", publicmarket);
+
+                allowbuyillegal = n.getBoolean("allowbuyillegal", allowbuyillegal);
+                usemaxstack = n.getBoolean("usemaxstack", usemaxstack);
+                buybacktools = n.getBoolean("buybacktools", buybacktools);
+                buybackenabled = n.getBoolean("buybackenabled", buybackenabled);
+                maxEntityPurchase = n.getInt("maxEntityPurchase", maxEntityPurchase);
+
+                signShopEnabled = n.getBoolean("signShops", signShopEnabled);
+                activeSignColor = n.getString("activeSignColor", activeSignColor);
+                signDestroyProtection = n.getBoolean("signDestroyProtection", signDestroyProtection);
+                tntSignDestroyProtection = n.getBoolean("tntSignDestroyProtection", tntSignDestroyProtection);
+
+                signItemColor = n.getBoolean("signItemColor", signItemColor);
+                signItemColorBWswap = n.getBoolean("signItemColorBWswap", signItemColorBWswap);
+
+                String cShopMode = n.getString("commandShop");
+                if (cShopMode != null) {
+                    if (cShopMode.equalsIgnoreCase("disabled") || cShopMode.equalsIgnoreCase("none")) {
+                        commandShopMode = CommShopMode.NONE;
+                    }/*else if(cShopMode.equalsIgnoreCase("regions")){
+                    commandShopMode = CommShopMode.REGIONS;
+                    }else if(cShopMode.equalsIgnoreCase("both")){
+                    commandShopMode = CommShopMode.BOTH;
+                    }*/ else {
+                        commandShopMode = CommShopMode.GLOBAL;
+                    }
+                }
+
+                tableName = n.getString("tablename", tableName);
+
+                defColor = n.getString("defaultItemColor", defColor);
+                ItemDB.setDefaultColor(defColor);
+
+                //ItemCurrency.loadFromString(n.getString("currencyItems", "diamond>20, goldbar>5, ironbar>1, redstone>.5"));
+                defaultCurrency = n.getString("currencyName", "Coin");
+                pluralCurrency = n.getString("currencyNamePlural", "Coins");
+
+                String customsort = n.getString("customsort");
+                if (customsort != null) {
+                    // parse for items && add to custom sort arraylist
+                    String items[] = customsort.split(",");
+                    for (String i : items) {
+                        Item toAdd = Item.findItem(i.trim());
+                        if (toAdd != null) {
+                            sortOrder.add(toAdd.IdDatStr());
+                        } else {
+                            BetterShop.Log("Invalid Item in customsort configuration: " + i);
+                        }
+                    }
+                }
+                hideHelp = n.getBoolean("hideHelp", hideHelp);
+
+            }
+            activeSignColor = MinecraftChatStr.getChatColor(activeSignColor);
+
+            if (!usingOldMySQLsetting && (n = config.getNode("MySQL")) != null) {
+                databaseType = n.getBoolean("useMySQL", config.getBoolean("useMySQLPricelist", false)) ? DBType.MYSQL : DBType.FLATFILE;
+                if (databaseType == DBType.MYSQL) {
                     sql_username = n.getString("username", sql_username);
                     sql_password = n.getString("password", sql_password);
                     sql_database = n.getString("database", sql_database).replace(" ", "_");
@@ -330,12 +486,10 @@ public class BSConfig {
                             BetterShop.Log(Level.WARNING, ex);
                         }
                     }
-                } else {
-                    BetterShop.Log(Level.WARNING, "MySQL section in " + configname + " is missing");
                 }
             }
-            n = config.getNode("transactionLog");
-            if (n != null) {
+
+            if ((n = config.getNode("transactionLog")) != null) {
                 logUserTransactions = n.getBoolean("enabled", logUserTransactions);
                 transLogTablename = n.getString("logtablename", transLogTablename).replace(" ", "_");
                 String lifespan = n.getString("userTansactionLifespan");
@@ -346,28 +500,21 @@ public class BSConfig {
                         BetterShop.Log(Level.WARNING, "userTansactionLifespan has an illegal value", ex);
                     }
                 }
-            } else {
-                BetterShop.Log(Level.WARNING, "transactionLog section in config not found");
             }
 
-            n = config.getNode("totalsTransactionLog");
-            if (n != null) {
+            if ((n = config.getNode("totalsTransactionLog")) != null) {
                 logTotalTransactions = n.getBoolean("enabled", logTotalTransactions);
                 recordTablename = n.getString("logtablename", recordTablename).replace(" ", "_");
-            } else {
-                BetterShop.Log(Level.WARNING, "totalsTransactionLog section in config not found");
             }
 
-            n = config.getNode("dynamicMarket");
-            if (n != null) {
+            if ((n = config.getNode("dynamicMarket")) != null) {
                 useDynamicPricing = n.getBoolean("dynamicPricing", n.getBoolean("enabled", useDynamicPricing));
                 sellcraftables = n.getBoolean("sellcraftables", sellcraftables);
                 sellcraftableMarkup = n.getDouble("sellcraftableMarkup", sellcraftableMarkup / 100) * 100;
                 woolsellweight = n.getBoolean("woolsellweight", woolsellweight);
             }
 
-            n = config.getNode("itemStock");
-            if (n != null) {
+            if ((n = config.getNode("itemStock")) != null) {
                 useItemStock = n.getBoolean("enabled", useItemStock);
                 stockTablename = n.getString("stockTablename", stockTablename);
                 noOverStock = n.getBoolean("noOverStock", noOverStock);
@@ -389,8 +536,7 @@ public class BSConfig {
 
                 }
             }
-            n = config.getNode("strings");
-            if (n != null) {
+            if ((n = config.getNode("strings")) != null) {
                 for (String k : config.getKeys("strings")) {
                     if (stringMap.containsKey(k)) {
                         stringMap.put(k, n.getString(k, stringMap.get(k)));
@@ -416,6 +562,14 @@ public class BSConfig {
 
     public boolean useFlatfile() {
         return databaseType == DBType.FLATFILE;
+    }
+
+    public boolean useGlobalCommandShop() {
+        return commandShopMode == CommShopMode.GLOBAL || commandShopMode == CommShopMode.BOTH;
+    }
+
+    public boolean useRegionCommandShop() {
+        return commandShopMode == CommShopMode.REGIONS || commandShopMode == CommShopMode.BOTH;
     }
 
     public String getString(String key) {
@@ -460,11 +614,33 @@ public class BSConfig {
         //else logger.log(Level.INFO, configname + " found!");
     }
 
-    public String currency() {
-        if (BetterShop.iBank != null) {
-            return BetterShop.iBank.getCurrency();
+    public void setCurrency() {
+        try {
+            if (BetterShop.iConomy != null) {
+                String t = BetterShop.iConomy.format(1.);
+                defaultCurrency = t.substring(t.indexOf(" ") + 1);
+                t = BetterShop.iConomy.format(2.);
+                pluralCurrency = t.substring(t.indexOf(" ") + 1);
+            } else if (BetterShop.legacyIConomy != null) {
+                String t = com.nijiko.coelho.iConomy.iConomy.getBank().format(1.);
+                defaultCurrency = t.substring(t.indexOf(" ") + 1);
+                t = com.nijiko.coelho.iConomy.iConomy.getBank().format(2.);
+                pluralCurrency = t.substring(t.indexOf(" ") + 1);
+            } else if(BetterShop.economy != null){
+                defaultCurrency = BetterShop.economy.getMoneyName();
+                pluralCurrency = BetterShop.economy.getMoneyNamePlural();
+            }
+        } catch (Exception e) {
+            BetterShop.Log(Level.SEVERE, "Error Extracting Currency Name", e, false);
         }
-        return "Coin";
+    }
+
+    public String currency() {
+        return defaultCurrency;
+    }
+
+    public String currency(boolean plural) {
+        return plural ? pluralCurrency : defaultCurrency;
     }
 
     String b(boolean b) {
@@ -478,7 +654,7 @@ public class BSConfig {
                 + b(hideHelp) + "," + b(sendLogOnError) + "," + b(sendAllLog) + ","
                 + sortOrder.size() + ",'" + tableName + "'," + databaseType + ","
                 + tempCacheTTL + "," + useDBCache + "," + priceListLifespan + ","
-                + logUserTransactions + userTansactionLifespan + ","
+                + logUserTransactions + "," + userTansactionLifespan
                 + ",'" + transLogTablename + "',"
                 + logTotalTransactions + ",'" + recordTablename + "',"
                 + useItemStock + ",'" + stockTablename + "'," + b(noOverStock) + ","
@@ -506,5 +682,14 @@ public class BSConfig {
             }
         }
         return -1;
+    }
+
+    static boolean configHasNode(Configuration config, String[] nodes) {
+        for (String n : nodes) {
+            if (config.getProperty(n) != null) {
+                return true;
+            }
+        }
+        return false;
     }
 }
