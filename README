@@ -184,8 +184,11 @@ items as currency (if no economy plugin)
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
-
 Version 1.6.6 - 6/16/11 - jascotty2
+update version to 1.6.6 (what it should've been) and fix error reoprting passwd
+
+
+Version 1.6.5.7 - 6/16/11 - jascotty2
 updated for mc 1.6.6 (craftbukkit 860)
 extracts Essentials economy currency names from its config file
 fixed iconomy debit logic error: could buy something for the same cost as your balance for free
@@ -203,6 +206,7 @@ added an update recursion check; should stop random endless update loops
 changed update date check string
 Known Bug: bought maps are all map_0
  - waiting on bukkit for a way to remedy this..
+# total of over 56,000 cumulative downloads for the jascotty2 versions of bettershop :D
 
 
 Version 1.6.5.6 - 5/11/11 - jascotty2
