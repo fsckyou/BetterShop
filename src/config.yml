@@ -20,7 +20,7 @@ errors:
     #   ex: email for me to contact you for more info about an error
     #       info about your server (installed plugins?)
     # note: message cannot be longer than 90 characters
-    # (this is not displayed to the user, it is sent in the error report)
+    # (this is not displayed to the user or in the logs, it is sent in the error report)
     CustomErrorMessage: ""
 
     #if you're using jascotty2's MinecraftIM plugin, should errors be sent to you?
@@ -34,6 +34,10 @@ shop:
     ItemsPerPage: 9
     # broadcast all transactions publicly?
     publicmarket: false
+    # if all commands should be logged
+    logcommands: false
+    # if logging commands, where to save
+    commandLogFile: Commands.log
 
     #item buying behavior
     #if someone without BetterShop.admin.illegal can buy illegal items
@@ -236,6 +240,19 @@ strings:
     nicetry: "...Nice try!"
     # nicetry is shown when someone tries to beat the system. Like /shopbuy diamond 0.
     
+    # commandlog is the format used when logging commands (if enabled)
+    # <H> 24-hour format hour
+    # <h> 12-hour format hour
+    # <m> minute
+    # <s> second
+    # <e> epoch time (seconds since 1 January 1970 0:00:00 UTC)
+    # <a> am/pm
+    # <z> timezone (eg. GMT)
+    # <Z>	RFC 822 time zone	(eg. -0800)
+    # <t> tab character
+    # <user> username
+    # <c> bettershop command executed
+    commandlog: "<H>:<m>:<s> <user> <t> > <c>"
 #
 # shopadd messages
 ####
@@ -292,6 +309,7 @@ strings:
 
     multipricecheckbuy: "Price check! <amt> &f[<item>&f]&2 Buy: &f<buycur>"
 
+    # notice: setting something like "Sell: <sellprice> <curr>" could output "Sell: No Dollars" if selling disabled
 
     # message that the item is neither for sale nor can be sold.
     # <item> - what user is looking up

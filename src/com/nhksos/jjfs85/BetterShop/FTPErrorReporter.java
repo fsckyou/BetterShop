@@ -1,11 +1,12 @@
 /**
  * Programmer: Jacob Scott
  * Program Name: FTPErrorReporter
- * Description:
+ * Description: gives methods to upload error reports to my private server
  * Date: Mar 29, 2011
  */
-package com.jascotty2;
+package com.nhksos.jjfs85.BetterShop;
 
+import com.jascotty2.util.Rand;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;

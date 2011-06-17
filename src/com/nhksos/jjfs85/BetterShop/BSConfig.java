@@ -1,12 +1,13 @@
 package com.nhksos.jjfs85.BetterShop;
 
-import com.jascotty2.CheckInput;
-import com.jascotty2.Item.Item;
-import com.jascotty2.Item.ItemDB;
-import com.jascotty2.MinecraftChatStr;
+import com.jascotty2.io.CheckInput;
+import com.jascotty2.Item.JItem;
+import com.jascotty2.Item.JItemDB;
+import com.jascotty2.bukkit.MinecraftChatStr;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public class BSConfig {
     public final static String configname = "config.yml";
     public final static File pluginFolder = new File("plugins", BetterShop.name);
     public final static File configfile = new File(pluginFolder, configname);
+    public final static File itemDBFile = new File(pluginFolder, "itemsdb.yml");
     public final static File signDBFile = new File(pluginFolder, "signs.dat");
     ///// plugin settings
     public boolean checkUpdates = true,
@@ -67,10 +69,14 @@ public class BSConfig {
     public long priceListLifespan = 0; // 0 = never update
     public int tempCacheTTL = 10; //how long before tempCache is considered outdated (seconds)
     ////// logging settings
-    public boolean logUserTransactions = false, logTotalTransactions = false;
+    public boolean logUserTransactions = false,
+            logTotalTransactions = false,
+            logCommands = false;
     //public BigInteger userTansactionLifespan = new BigInteger("172800"); // 2 days.. i'd like to use unsigned long, but java doesn't have it..
     public long userTansactionLifespan = 172800;
-    public String transLogTablename = "BetterShopMarketActivity", recordTablename = "BetterShopTransactionTotals";
+    public String transLogTablename = "BetterShopMarketActivity",
+            recordTablename = "BetterShopTransactionTotals",
+            commandFilename = "Commands.log";
     // if pricelist is to have a custom sort order, what should be at the top
     public ArrayList<String> sortOrder = new ArrayList<String>();
     // dynamic pricing options
@@ -106,8 +112,6 @@ public class BSConfig {
     }
 
     public BSConfig() {
-        create();
-        load();
     }
 
     public final boolean load() {
@@ -120,6 +124,7 @@ public class BSConfig {
         stringMap.put("permdeny", "OI! You don't have permission to do that!");
         stringMap.put("unkitem", "What is &f<item>&2?");
         stringMap.put("nicetry", "...Nice try!");
+        stringMap.put("commandlog", "<H>:<m>:<s> <user> <t> > <c>");
         // # shopadd messages
         stringMap.put("paramerror", "Oops... something wasn't right there.");
         stringMap.put("addmsg", "&f[<item>&f]&2 added to the shop. Buy: &f<buyprice>&2 Sell: &f<sellprice>");
@@ -162,18 +167,13 @@ public class BSConfig {
             // check for completedness
             try {
                 HashMap<String, String[]> allKeys = new HashMap<String, String[]>();
-
                 allKeys.put("shop", new String[]{
-                            "ItemsPerPage",
-                            "publicmarket",
-                            "allowbuyillegal",
-                            "usemaxstack",
-                            "buybacktools",
-                            "buybackenabled",
-                            "maxEntityPurchase",
+                            "ItemsPerPage", "publicmarket",
+                            "logcommands", "commandLogFile",
+                            "allowbuyillegal", "usemaxstack",
+                            "buybacktools", "buybackenabled", "maxEntityPurchase",
                             "signShops",
-                            "activeSignColor",
-                            "signItemColor",
+                            "activeSignColor", "signItemColor",
                             "signItemColorBWswap",
                             "signDestroyProtection",
                             "tntSignDestroyProtection",
@@ -369,7 +369,7 @@ public class BSConfig {
                 }
 
                 defColor = config.getString("defaultItemColor", defColor);
-                ItemDB.setDefaultColor(defColor);
+                JItemDB.setDefaultColor(defColor);
 
                 sendLogOnError = config.getBoolean("sendLogOnError", sendLogOnError);
                 sendAllLog = config.getBoolean("sendAllLog", sendAllLog);
@@ -382,7 +382,7 @@ public class BSConfig {
                     // parse for items && add to custom sort arraylist
                     String items[] = customsort.split(",");
                     for (String i : items) {
-                        Item toAdd = Item.findItem(i.trim());
+                        JItem toAdd = JItemDB.findItem(i.trim());
                         if (toAdd != null) {
                             sortOrder.add(toAdd.IdDatStr());
                         } else {
@@ -409,6 +409,11 @@ public class BSConfig {
             if ((n = config.getNode("shop")) != null) {
                 pagesize = n.getInt("ItemsPerPage", pagesize);
                 publicmarket = n.getBoolean("publicmarket", publicmarket);
+
+                logCommands = n.getBoolean("logcommands", logCommands);
+                if (n.getString("commandLogFile") != null) {
+                    commandFilename = n.getString("commandLogFile");
+                }
 
                 allowbuyillegal = n.getBoolean("allowbuyillegal", allowbuyillegal);
                 usemaxstack = n.getBoolean("usemaxstack", usemaxstack);
@@ -440,7 +445,7 @@ public class BSConfig {
                 tableName = n.getString("tablename", tableName);
 
                 defColor = n.getString("defaultItemColor", defColor);
-                ItemDB.setDefaultColor(defColor);
+                JItemDB.setDefaultColor(defColor);
 
                 //ItemCurrency.loadFromString(n.getString("currencyItems", "diamond>20, goldbar>5, ironbar>1, redstone>.5"));
                 defaultCurrency = n.getString("currencyName", "Coin");
@@ -451,7 +456,7 @@ public class BSConfig {
                     // parse for items && add to custom sort arraylist
                     String items[] = customsort.split(",");
                     for (String i : items) {
-                        Item toAdd = Item.findItem(i.trim());
+                        JItem toAdd = JItemDB.findItem(i.trim());
                         if (toAdd != null) {
                             sortOrder.add(toAdd.IdDatStr());
                         } else {
@@ -590,28 +595,38 @@ public class BSConfig {
         return true;
     }
 
-    private void create() {
+    public void extractDefaults() {
         pluginFolder.mkdirs();
         if (!configfile.exists()) {
-            try {
-                BetterShop.Log(configname + " not found. Creating new file.");
-                configfile.createNewFile();
-                InputStream res = BetterShop.class.getResourceAsStream("/config.yml");
-                FileWriter tx = new FileWriter(configfile);
-                try {
-                    for (int i = 0; (i = res.read()) > 0;) {
-                        tx.write(i);
-                    }
-                } finally {
-                    tx.flush();
-                    tx.close();
-                    res.close();
-                }
-            } catch (IOException ex) {
-                BetterShop.Log(Level.SEVERE, "Failed creating new config file ", ex);
-            }
+            BetterShop.Log(configname + " not found. Creating new file.");
+            extractFile(configfile);
         }
-        //else logger.log(Level.INFO, configname + " found!");
+        if (!itemDBFile.exists()) {
+            extractFile(itemDBFile);
+        }
+    }
+
+    private void extractFile(File dest) {
+        extractFile(dest, dest.getName());
+    }
+
+    private void extractFile(File dest, String fname) {
+        try {
+            dest.createNewFile();
+            InputStream res = BetterShop.class.getResourceAsStream("/" + fname);
+            FileWriter tx = new FileWriter(dest);
+            try {
+                for (int i = 0; (i = res.read()) > 0;) {
+                    tx.write(i);
+                }
+            } finally {
+                tx.flush();
+                tx.close();
+                res.close();
+            }
+        } catch (IOException ex) {
+            BetterShop.Log(Level.SEVERE, "Failed creating new file (" + fname + ")", ex);
+        }
     }
 
     public void setCurrency() {
@@ -626,9 +641,17 @@ public class BSConfig {
                 defaultCurrency = t.substring(t.indexOf(" ") + 1);
                 t = com.nijiko.coelho.iConomy.iConomy.getBank().format(2.);
                 pluralCurrency = t.substring(t.indexOf(" ") + 1);
-            } else if(BetterShop.economy != null){
+            } else if (BetterShop.economy != null) {
                 defaultCurrency = BetterShop.economy.getMoneyName();
                 pluralCurrency = BetterShop.economy.getMoneyNamePlural();
+            } else if (BetterShop.essentials != null) {
+                File conf = new File(BetterShop.essentials.getDataFolder(), "config.yml");
+                if (conf.exists()) {
+                    Configuration config = new Configuration(conf);
+                    config.load();
+                    defaultCurrency = config.getString("currency-name", defaultCurrency);
+                    pluralCurrency = config.getString("currency-name-plural", pluralCurrency);
+                }
             }
         } catch (Exception e) {
             BetterShop.Log(Level.SEVERE, "Error Extracting Currency Name", e, false);
@@ -641,6 +664,53 @@ public class BSConfig {
 
     public String currency(boolean plural) {
         return plural ? pluralCurrency : defaultCurrency;
+    }
+
+    public boolean intCurrency() {
+        return BetterShop.economy != null;
+    }
+    public FileWriter commlog_fstream = null;
+    public BufferedWriter commlog_out = null;
+
+    public void logCommand(String playername, String command) {
+        if (commlog_fstream == null) {
+            try {
+                commlog_fstream = new FileWriter(new File(pluginFolder, commandFilename), true);
+                commlog_out = new BufferedWriter(commlog_fstream);
+            } catch (IOException ex) {
+                BetterShop.Log(Level.SEVERE, "Failed to open logfile for writing", ex, false);
+                commlog_fstream = null;
+                commlog_out = null;
+                return;
+            }
+        }
+        try {
+            commlog_out.write(commandLogStr(playername, command));
+            commlog_out.newLine();
+        } catch (IOException ex) {
+            BetterShop.Log(Level.SEVERE, "Failed to write to logfile", ex, false);
+        }
+    }
+
+    public void closeCommandLog() {
+        if (commlog_fstream != null) {
+            try {
+                commlog_out.flush();
+                commlog_out.close();
+                commlog_fstream.flush();
+                commlog_fstream.close();
+            } catch (IOException ex) {
+               // BetterShop.Log(Level.SEVERE, "Failed to write to logfile", ex, false);
+            }
+            commlog_out = null;
+            commlog_fstream = null;
+        }
+    }
+
+    public String commandLogStr(String playername, String command) {
+        String time[] = (new java.text.SimpleDateFormat("kk:hh:mm:ss:a:z:Z")).format(new java.util.Date()).split(":");
+
+        return stringMap.get("commandlog").replace("<H>", time[0]).replace("<h>", time[1]).replace("<m>", time[2]).replace("<s>", time[3]).replace("<a>", time[4]).replace("<z>", time[5]).replace("<Z>", time[6]).replace("<t>", "\t").replace("<e>", String.valueOf((int) (System.currentTimeMillis() / 1000))).replace("<u>", playername).replace("<user>", playername).replace("<c>", command).replace("<command>", command);
     }
 
     String b(boolean b) {

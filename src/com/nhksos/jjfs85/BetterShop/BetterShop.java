@@ -22,10 +22,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import com.jascotty2.FTPErrorReporter;
 import com.jascotty2.Item.CreatureItem.EntityListen;
-import com.jascotty2.Item.ItemDB;
-import com.jascotty2.Str;
+import com.jascotty2.Item.JItemDB;
+import com.jascotty2.util.Str;
 
 // iConomy 4.x
 //import com.nijiko.coelho.iConomy.iConomy;
@@ -36,7 +35,7 @@ import com.jascotty2.Str;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import me.taylorkelly.help.Help;
 import com.jascotty2.MinecraftIM.MinecraftIM;
-import com.jascotty2.ServerInfo;
+import com.jascotty2.bukkit.ServerInfo;
 import cosine.boseconomy.BOSEconomy;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -52,7 +51,7 @@ public class BetterShop extends JavaPlugin {
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
-    protected static BSConfig config = null;
+    protected static BSConfig config = new BSConfig();
     protected static BSPriceList pricelist = null;
     protected static BSItemStock stock = null;
     protected static BSTransactionLog transactions = null;
@@ -85,7 +84,7 @@ public class BetterShop extends JavaPlugin {
         public void onPluginEnable(PluginEnableEvent event) {
             if (event.getPlugin().isEnabled()) { // double-checking enabled
                 if (event.getPlugin().getDescription().getName().equals("iConomy")) {
-                    if (BetterShop.iConomy == null) {
+                    if (BetterShop.iConomy == null && BetterShop.legacyIConomy == null) {
                         try {
                             BetterShop.legacyIConomy = (com.nijiko.coelho.iConomy.iConomy) event.getPlugin();
                         } catch (NoClassDefFoundError e) {
@@ -105,7 +104,9 @@ public class BetterShop extends JavaPlugin {
                         BetterShop.essentials = (Essentials) event.getPlugin();
                         Log("Attached to Essentials");
                     }
-                    config.setCurrency();
+                    if (BetterShop.iConomy == null && BetterShop.legacyIConomy == null) {
+                        config.setCurrency();
+                    }
                 } else if (event.getPlugin().getDescription().getName().equals("Permissions")) {
                     if (BetterShop.Permissions == null) {
                         BetterShop.Permissions = (Permissions) event.getPlugin();
@@ -209,7 +210,7 @@ public class BetterShop extends JavaPlugin {
                 test = getServer().getPluginManager().getPlugin("Essentials");
                 if (test != null) {
                     essentials = (Essentials) test;
-                    if(Essentials.getStatic() != null){
+                    if (Essentials.getStatic() != null) {
                         config.setCurrency();
                     }
                     Log("Attached to Essentials");
@@ -233,46 +234,41 @@ public class BetterShop extends JavaPlugin {
     public void onEnable() {
         pdfFile = this.getDescription();
         logger.log(Level.INFO, String.format("Loading %s version %s ...", pdfFile.getName(), pdfFile.getVersion()));
-
+        config.extractDefaults();
         // ready items db (needed for pricelist, sorting in config, item lookup, ...)
         try {
-            ItemDB.load(BSConfig.pluginFolder);
+            JItemDB.load(BSConfig.itemDBFile);
             //Log("Itemsdb loaded");
         } catch (Exception e) {
             Log(Level.SEVERE, "cannot load items db: closing plugin", e, false);
             this.setEnabled(false);
             return;
         }
+        config.load();
+        if (config.checkUpdates) {
+            if (config.autoUpdate) {
+                Log("Checking for updates...");
+                if (!Updater.isUpToDate(true)) {
+                    Log("Downloading & Installing Update");
+                    ServerReload sreload = new ServerReload(getServer());
+                    if (Updater.downloadUpdate()) {
+                        Log("Update Downloaded: Restarting Server..");
+                        //this.setEnabled(false);
+                        //this.getServer().dispatchCommand((CommandSender) new CommanderSenderImpl(this), "stop");
+                        //this.getServer().dispatchCommand(new AdminCommandSender(this), "stop");
 
-        if (config == null) {
-            config = new BSConfig();
-            //Log("config loaded");
-            if (config.checkUpdates) {
-                if (config.autoUpdate) {
-                    if (!Updater.isUpToDate(true)) {
-                        Log("Downloading & Installing Update");
-                        ServerReload sreload = new ServerReload(getServer());
-                        if (Updater.downloadUpdate()) {
-                            Log("Update Downloaded: Restarting Server..");
-                            //this.setEnabled(false);
-                            //this.getServer().dispatchCommand((CommandSender) new CommanderSenderImpl(this), "stop");
-                            //this.getServer().dispatchCommand(new AdminCommandSender(this), "stop");
-
-                            try {
-                                //(new ServerReload(getServer())).start(500);
-                                sreload.start(500);
-                            } catch (Exception e) { // just in case...
-                                this.getServer().reload();
-                            }
-                            return;
+                        try {
+                            //(new ServerReload(getServer())).start(500);
+                            sreload.start(500);
+                        } catch (Exception e) { // just in case...
+                            this.getServer().reload();
                         }
+                        return;
                     }
-                } else {
-                    Updater.check();
                 }
+            } else {
+                Updater.check();
             }
-        } else {
-            config.load();
         }
         pricelist = new BSPriceList();
         transactions = new BSTransactionLog();
@@ -329,6 +325,7 @@ public class BetterShop extends JavaPlugin {
     public void onDisable() {
         // NOTE: All registered events are automatically unregistered when a plugin is disabled
         lastCommand = "(disabling)";
+        config.closeCommandLog();
 
         if (pricelist != null) {
             try {
@@ -357,6 +354,12 @@ public class BetterShop extends JavaPlugin {
             String commandLabel, String[] args) {
         String commandName = command.getName().toLowerCase(),
                 argStr = Str.argStr(args);
+        
+        if(config.logCommands){
+            config.logCommand(sender instanceof Player ? ((Player)sender).getName() : "(console)",
+                    commandLabel + " " + argStr);
+        }
+        
         try {
 
             lastCommand = (sender instanceof Player ? "player:" : "console:")

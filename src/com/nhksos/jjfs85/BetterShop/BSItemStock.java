@@ -6,7 +6,7 @@
  */
 package com.nhksos.jjfs85.BetterShop;
 
-import com.jascotty2.Item.Item;
+import com.jascotty2.Item.JItem;
 import com.jascotty2.Item.ItemStock;
 import com.jascotty2.Item.ItemStockEntry;
 import com.jascotty2.MySQL.MySQLItemStock;
@@ -61,8 +61,8 @@ public class BSItemStock extends ItemStock {
      */
     public boolean checkMissingStock() {
         try {
-            Item[] prices = BetterShop.pricelist.getItems();
-            for (Item i : prices) {
+            JItem[] prices = BetterShop.pricelist.getItems();
+            for (JItem i : prices) {
                 if (stockList.indexOf(i) == -1) {
                     setItemAmount(i, BetterShop.config.startStock);
                 }
@@ -80,8 +80,8 @@ public class BSItemStock extends ItemStock {
         } else {
             try {
                 lastStock = new Date();
-                Item[] prices = BetterShop.pricelist.getItems();
-                for (Item i : prices) {
+                JItem[] prices = BetterShop.pricelist.getItems();
+                for (JItem i : prices) {
                     setItemAmount(i, BetterShop.config.startStock);
                 }
             } catch (Exception ex) {
@@ -97,7 +97,7 @@ public class BSItemStock extends ItemStock {
         }
     }
 
-    public long freeStockRemaining(Item check) {
+    public long freeStockRemaining(JItem check) {
         if (BetterShop.config.useItemStock) {
             try {
                 long st = BetterShop.stock.getItemAmount(check);
@@ -116,7 +116,7 @@ public class BSItemStock extends ItemStock {
     }
 
     @Override
-    public void changeItemAmount(Item it, long delta) throws SQLException, Exception {
+    public void changeItemAmount(JItem it, long delta) throws SQLException, Exception {
         if (it == null || !BetterShop.config.useItemStock || BetterShop.stock.getItemAmount(it) < 0) {
             return;
         }

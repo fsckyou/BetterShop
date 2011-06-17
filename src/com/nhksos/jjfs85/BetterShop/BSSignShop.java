@@ -6,14 +6,15 @@
  */
 package com.nhksos.jjfs85.BetterShop;
 
-import com.jascotty2.CSV;
-import com.jascotty2.CheckInput;
+import com.jascotty2.io.FileIO;
+import com.jascotty2.io.CheckInput;
 import com.jascotty2.Item.ChestManip;
-import com.jascotty2.Item.Item;
+import com.jascotty2.Item.JItem;
 import com.jascotty2.Item.ItemStockEntry;
+import com.jascotty2.Item.JItemDB;
 import com.jascotty2.Item.PriceListItem;
-import com.jascotty2.MinecraftChatStr;
-import com.jascotty2.Str;
+import com.jascotty2.bukkit.MinecraftChatStr;
+import com.jascotty2.util.Str;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ import org.bukkit.event.player.PlayerListener;
 public class BSSignShop extends PlayerListener {
 
     BetterShop plugin = null;
-    HashMap<Location, Item> signs = new HashMap<Location, Item>();
+    HashMap<Location, JItem> signs = new HashMap<Location, JItem>();
     HashMap<Location, Sign> savedSigns = new HashMap<Location, Sign>();
     HashMap<Location, BlockState> signBlocks = new HashMap<Location, BlockState>();
     HashMap<Player, Long> playerInteractTime = new HashMap<Player, Long>();
@@ -84,7 +85,7 @@ public class BSSignShop extends PlayerListener {
                         // if sign is registered, update prices
                         if (signs.containsKey(event.getClickedBlock().getLocation())) {
                             try {
-                                Item i = signs.get(event.getClickedBlock().getLocation());
+                                JItem i = signs.get(event.getClickedBlock().getLocation());
                                 boolean isInv = false;
                                 if (i == null) {
                                     String in = ((Sign) event.getClickedBlock().getState()).getLine(2).toLowerCase().replaceAll(" ", "");
@@ -97,7 +98,7 @@ public class BSSignShop extends PlayerListener {
                                                 BSutils.sendMessage(event.getPlayer(), "you don't have anything in your hand");
                                                 return;
                                             }
-                                            i = Item.findItem(event.getPlayer().getItemInHand());
+                                            i = JItemDB.findItem(event.getPlayer().getItemInHand());
                                         }
                                     }
                                 }
@@ -113,17 +114,18 @@ public class BSSignShop extends PlayerListener {
                                 boolean isBuy = action.toLowerCase().startsWith("buy");
 
                                 PriceListItem price = null;
+                                String pname = "";
                                 if (i != null) {
                                     price = BetterShop.pricelist.getItemPrice(i);
                                     if (price == null) {
-                                        BSutils.sendMessage(event.getPlayer(), i.name + " cannot be bought or sold");
+                                        BSutils.sendMessage(event.getPlayer(), i.Name() + " cannot be bought or sold");
                                         return;
                                     }
-                                    price.name = i.coloredName();
+                                    pname = i.coloredName();
                                 } else {
                                     price = new PriceListItem();
                                     price.buy = price.sell = 0;
-                                    price.name = "(";
+                                    pname = "(";
                                 }
 
                                 int numCheck = 1;
@@ -149,16 +151,16 @@ public class BSSignShop extends PlayerListener {
                                             int tt = 0;
                                             for (ItemStockEntry ite : sellable) {
                                                 tt += ite.amount;
-                                                PriceListItem tprice = BetterShop.pricelist.getItemPrice(Item.findItem(ite.name));
+                                                PriceListItem tprice = BetterShop.pricelist.getItemPrice(JItemDB.findItem(ite.name));
                                                 price.buy += tprice.buy > 0 ? tprice.buy * ite.amount : 0;
                                                 price.sell += tprice.sell > 0 ? tprice.sell * ite.amount : 0;
-                                                if (price.name.length() > 1) {
-                                                    price.name += ", " + ite.name;
+                                                if (pname.length() > 1) {
+                                                    pname += ", " + ite.name;
                                                 } else {
-                                                    price.name += ite.name;
+                                                    pname += ite.name;
                                                 }
                                             }
-                                            price.name += ")";
+                                            pname += ")";
                                             numCheck = tt;
                                         }
                                     }
@@ -178,7 +180,7 @@ public class BSSignShop extends PlayerListener {
                                         replace("<amt>", "%8$s"),
                                         (price.IsLegal() || canBuyIllegal) && price.buy >= 0 ? price.buy : "No",
                                         price.sell >= 0 ? price.sell : "No",
-                                        price.name,
+                                        pname,
                                         BetterShop.config.currency(),
                                         (price.IsLegal() || canBuyIllegal) && price.buy >= 0
                                         ? BSutils.formatCurrency(price.buy) : "No",
@@ -210,14 +212,14 @@ public class BSSignShop extends PlayerListener {
                                 return;
                             }
                             String in = MinecraftChatStr.uncoloredStr(clickedSign.getLine(2)).replace(" ", "").toLowerCase();
-                            Item toAdd[] = new Item[]{Item.findItem(in)};
+                            JItem toAdd[] = new JItem[]{JItemDB.findItem(in)};
                             if (toAdd != null && toAdd[0] == null && clickedSign.getLine(2).length() > 0) {
                                 if (!(in.equals("inv")
                                         || in.equals("hand")
                                         || in.equals("inhand"))) {
-                                    toAdd = Item.findItems(clickedSign.getLine(2));
+                                    toAdd = JItemDB.findItems(clickedSign.getLine(2));
                                 } else {
-                                    toAdd = new Item[1];
+                                    toAdd = new JItem[1];
                                 }
                             }
                             if (toAdd == null) {
@@ -230,7 +232,7 @@ public class BSSignShop extends PlayerListener {
                                 BSutils.sendMessage(event.getPlayer(), "more than one matching items");
                                 return;
                             } else if (toAdd[0] != null && toAdd[0].ID() <= 0) {
-                                BSutils.sendMessage(event.getPlayer(), toAdd[0].name + " cannot be bought or sold");
+                                BSutils.sendMessage(event.getPlayer(), toAdd[0].Name() + " cannot be bought or sold");
                                 return;
                             } else if (toAdd[0] != null && action.startsWith("sell")) {
                                 if (toAdd[0].isEntity()) {
@@ -290,7 +292,7 @@ public class BSSignShop extends PlayerListener {
                             event.setCancelled(true);
                             //buildStopper.stopPlace(event.getClickedBlock().getRelative(event.getBlockFace()).getLocation());
                             try {
-                                Item i = signs.get(event.getClickedBlock().getLocation());
+                                JItem i = signs.get(event.getClickedBlock().getLocation());
 
                                 boolean isInv = false;
                                 if (i == null) {
@@ -304,7 +306,7 @@ public class BSSignShop extends PlayerListener {
                                                 BSutils.sendMessage(event.getPlayer(), "you don't have anything in your hand");
                                                 return;
                                             }
-                                            i = Item.findItem(event.getPlayer().getItemInHand());
+                                            i = JItemDB.findItem(event.getPlayer().getItemInHand());
                                         }
                                     }
                                 }
@@ -376,13 +378,13 @@ public class BSSignShop extends PlayerListener {
     public boolean load() {
         if (BSConfig.signDBFile.exists()) {
             try {
-                ArrayList<String[]> signdb = CSV.loadFile(BSConfig.signDBFile);
+                ArrayList<String[]> signdb = FileIO.loadCSVFile(BSConfig.signDBFile);
                 for (String[] s : signdb) {
                     if (s.length >= 5 && plugin.getServer().getWorld(s[0]) != null) {
                         signs.put(new Location(plugin.getServer().getWorld(s[0]),
                                 CheckInput.GetDouble(s[1], 0),
                                 CheckInput.GetDouble(s[2], 0),
-                                CheckInput.GetDouble(s[3], 0)), Item.findItem(s[4]));
+                                CheckInput.GetDouble(s[3], 0)), JItemDB.findItem(s[4]));
                     }
                 }
                 // now scan & double-check these are all signs (and have correct color)
@@ -411,7 +413,7 @@ public class BSSignShop extends PlayerListener {
                             up = true;
                         }
                         if (BetterShop.config.signItemColor) {
-                            Item i = signs.get(l);
+                            JItem i = signs.get(l);
                             if (i != null && i.color != null && !checkSign.getLine(2).startsWith(i.color)) {
                                 if (BetterShop.config.signItemColorBWswap && ChatColor.BLACK.toString().equals(i.color)) {
                                     checkSign.setLine(2, ChatColor.WHITE + MinecraftChatStr.uncoloredStr(checkSign.getLine(2)));
@@ -458,7 +460,7 @@ public class BSSignShop extends PlayerListener {
                         + l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() + ","
                         + (signs.get(l) != null ? signs.get(l).IdDatStr() : " "));
             }
-            return CSV.saveFile(BSConfig.signDBFile, file);
+            return FileIO.saveFile(BSConfig.signDBFile, file);
         } catch (Exception e) {
             BetterShop.Log(Level.SEVERE, e);
         }

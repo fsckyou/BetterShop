@@ -111,7 +111,7 @@ Recommended, but slow: use /shopadd [item] [buy-price] [sell-price]
 Faster: use a text editor (or spreadsheet program) to add items to the BetterShop.csv file. 
 	items are in this order: id, subdata, buy, sell, name
 	item id & subdata are checked against itemsdb.yml, and are removed if they don't exist
-	for your convenience, you can use names (not subnames, though), so "wool,blue,1,-1" is a valid entry
+	for your convenience, you can use item names (not subitem names, though), so "wool,blue,1,-1" is a valid entry
 	The name value is there only for human readability, it's not read by the plugin.
 
 ===============================================================================
@@ -161,13 +161,13 @@ make LivingEntities follow the owner around?
 change buystock if itemStock is enabled so that if trying to buy multiple stacks (buystack item 20) and stock runs out to stop buying (stop showing "out of stock")
 individually-customizable restock stock values per-item
 chest shop interface ? 
-automatically add missing config nodes (preserving comments)
+automatically add missing config nodes (preserving comments) when upgrading
 add a simple builtin economy system, if none found?
-add categories to items
-- can search, buy, & sell with category
-user-owned shops (signs, linked to chests)
+user-owned shops (signs, linked to chests?) ?
 4th line for configurable prices or shop profit owner
-
+fix "buy all" to automatically buy max can afford (already does in stock & can hold)
+daily profit caps for selling to the shop
+allow selling using categories (& buying also?)
 
 === Removed (not going to implement)
 persistentMySQL: if false, will disconnect from db when now using it (use if have a high cacheUpdate)
@@ -184,8 +184,30 @@ items as currency (if no economy plugin)
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
+
+Version 1.6.6 - 6/16/11 - jascotty2
+updated for mc 1.6.6 (craftbukkit 860)
+extracts Essentials economy currency names from its config file
+fixed iconomy debit logic error: could buy something for the same cost as your balance for free
+major item & kit database restructure - much cleaner structure now
+itemsdb.yml reduced - now constant data is embedded in the plugin; the yml file is for extra item descriptions
+- now mostly for changing item names and aliases
+- some other data can still be changed, like legal & craft can be expanded (if using a custom craft plugin)
+- custom data values can no longer be added (which could otherwise cause client crashes)
+- - also adds new bukkit items if plugin hasn't been updated (within plugin, not yml file)
+items can now have spaces in the main name
+added item categories (searchable in shoplist)
+- can search for items by category
+- categories are entered in a seperate section on itemsdb.yml, instead of editing for every item entry
+added an update recursion check; should stop random endless update loops
+changed update date check string
+Known Bug: bought maps are all map_0
+ - waiting on bukkit for a way to remedy this..
+
+
 Version 1.6.5.6 - 5/11/11 - jascotty2
 Essentials economy support added
+
 
 Version 1.6.5.5b - 5/11/11 - jascotty2
 fixed iConomy debit/credit low-balance bug
