@@ -184,6 +184,15 @@ items as currency (if no economy plugin)
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
+Version 1.6.6.2 - 6/20/11 - jascotty2
+misc. null fixes
+MySQL pricelist items fixed
+
+
+Version 1.6.6.1 - 6/19/11 - jascotty2
+fixed itemDat error
+
+
 Version 1.6.6 - 6/16/11 - jascotty2
 update version to 1.6.6 (what it should've been) and fix error reporting passwd
 

@@ -150,14 +150,16 @@ public class BSSignShop extends PlayerListener {
                                             ArrayList<ItemStockEntry> sellable = BSutils.getCanSell(event.getPlayer(), false, null);
                                             int tt = 0;
                                             for (ItemStockEntry ite : sellable) {
-                                                tt += ite.amount;
                                                 PriceListItem tprice = BetterShop.pricelist.getItemPrice(JItemDB.findItem(ite.name));
-                                                price.buy += tprice.buy > 0 ? tprice.buy * ite.amount : 0;
-                                                price.sell += tprice.sell > 0 ? tprice.sell * ite.amount : 0;
-                                                if (pname.length() > 1) {
-                                                    pname += ", " + ite.name;
-                                                } else {
-                                                    pname += ite.name;
+                                                if (tprice != null) { // double-check..
+                                                    tt += ite.amount;
+                                                    price.buy += tprice.buy > 0 ? tprice.buy * ite.amount : 0;
+                                                    price.sell += tprice.sell > 0 ? tprice.sell * ite.amount : 0;
+                                                    if (pname.length() > 1) {
+                                                        pname += ", " + ite.name;
+                                                    } else {
+                                                        pname += ite.name;
+                                                    }
                                                 }
                                             }
                                             pname += ")";
@@ -361,7 +363,7 @@ public class BSSignShop extends PlayerListener {
                             } catch (Exception ex) {
                                 BetterShop.Log(Level.SEVERE, ex);
                             }
-                            // may be depricated, but only thing i could get to work :(
+                            // may be depricated, but only thing i can get to work :(
                             event.getPlayer().updateInventory();
                         } else {
                             BSutils.sendMessage(event.getPlayer(), "this is not a legal sign");

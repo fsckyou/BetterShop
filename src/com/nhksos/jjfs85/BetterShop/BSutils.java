@@ -329,22 +329,21 @@ public class BSutils {
         BSutils.sendMessage(player, BetterShop.config.getString(key).
                 replace("<item>", item).
                 replace("<amt>", Integer.toString(amt)).
-                replace("<priceper>", String.format(BetterShop.config.intCurrency() ? "%d" : "%.2f", total / amt)).
-                replace("<total>", String.format(BetterShop.config.intCurrency() ? "%d" : "%.2f", total)).
+                replace("<priceper>", BetterShop.config.intCurrency() ? String.format("%d", (int) Math.round(total / amt)) : String.format("%.2f", total / amt)).
+                replace("<total>", BetterShop.config.intCurrency() ? String.format("%d", (int) Math.round(total)) : String.format("%.2f", total)).
                 replace("<curr>", BetterShop.config.currency()).
                 replace("<totcur>", BSutils.formatCurrency(total)));
         //price
         if (BetterShop.config.publicmarket && BetterShop.config.hasString("public" + key)) {
-            BSutils.broadcastMessage(player, String.format(BetterShop.config.getString("public" + key).
-                    replace("<item>", "%1$s").
-                    replace("<amt>", "%2$d").
-                    replace("<priceper>", "%3$01.2f").
-                    replace("<total>", "%4$01.2f").
-                    replace("<curr>", "%5$s").
-                    replace("<totcur>", "%6$s").
-                    replace("<player>", "%7$s"),
-                    item, amt, total / amt, total,
-                    BetterShop.config.currency(), BSutils.formatCurrency(total), ((Player) player).getDisplayName()), false);
+            BSutils.broadcastMessage(player, BetterShop.config.getString("public" + key).
+                    replace("<item>", item).
+                    replace("<amt>", String.valueOf(amt)).
+                    replace("<priceper>", BetterShop.config.intCurrency() ? String.format("%d", (int) Math.round(total / amt)) : String.format("%.2f", total / amt)).
+                    replace("<total>", BetterShop.config.intCurrency() ? String.format("%d", (int) Math.round(total)) : String.format("%.2f", total)).
+                    replace("<curr>", BetterShop.config.currency()).
+                    replace("<totcur>", BSutils.formatCurrency(total)).
+                    replace("<player>", ((Player) player).getDisplayName()),
+                    false);
         }
     }
 
@@ -512,7 +511,7 @@ public class BSutils {
             if (price != Double.NEGATIVE_INFINITY) {
                 BSutils.sendMessage(player,
                         BetterShop.config.getString("notforsale").
-                        replaceAll("<item>", toBuy.coloredName()));
+                        replace("<item>", toBuy.coloredName()));
             }
             return null;
         }
@@ -544,7 +543,7 @@ public class BSutils {
             if (price != Double.NEGATIVE_INFINITY) {
                 BSutils.sendMessage(player,
                         BetterShop.config.getString("notforsale").
-                        replaceAll("<item>", toBuy.coloredName()));
+                        replace("<item>", toBuy.coloredName()));
             }
             return null;
         }
@@ -593,12 +592,12 @@ public class BSutils {
             }
             if (avail == 0) {
                 BSutils.sendMessage(player, BetterShop.config.getString("outofstock").
-                        replaceAll("<item>", toBuy.coloredName()));
+                        replace("<item>", toBuy.coloredName()));
                 return null;
             } else if (avail >= 0 && amt > avail) {
                 BSutils.sendMessage(player, String.format(BetterShop.config.getString("lowstock").
-                        replaceAll("<item>", toBuy.coloredName()).
-                        replaceAll("<amt>", String.valueOf(avail))));
+                        replace("<item>", toBuy.coloredName()).
+                        replace("<amt>", String.valueOf(avail))));
                 amt = (int) avail;
             }
         }
@@ -606,8 +605,7 @@ public class BSutils {
 
         if (cost == 0 || BSutils.debit(player, cost)) {
             if (!toBuy.isEntity()) {
-                if(toBuy.equals(JItems.MAP)){
-                    
+                if (toBuy.equals(JItems.MAP)) {
                 }
                 //if (maxStack == 64) { //((Player) player).getInventory().addItem(toBuy.toItemStack(amtbought));
                 //    inv.addItem(toBuy.toItemStack(amtbought));
@@ -741,12 +739,12 @@ public class BSutils {
             return true;
             } else */ if (avail == 0) {
                 BSutils.sendMessage(player, BetterShop.config.getString("outofstock").
-                        replaceAll("<item>", toBuy.coloredName()));
+                        replace("<item>", toBuy.coloredName()));
                 return null;
             } else if (amt > avail) {
                 BSutils.sendMessage(player, String.format(BetterShop.config.getString("lowstock").
-                        replaceAll("<item>", toBuy.coloredName()).
-                        replaceAll("<amt>", String.valueOf(avail))));
+                        replace("<item>", toBuy.coloredName()).
+                        replace("<amt>", String.valueOf(avail))));
                 amt = (int) avail;
             }
         }
@@ -833,13 +831,13 @@ public class BSutils {
                         long free = BetterShop.stock.freeStockRemaining(check);
                         if (free == 0 && BetterShop.config.noOverStock) {
                             BSutils.sendMessage(player, BetterShop.config.getString("maxstock").
-                                    replaceAll("<item>", check.coloredName()));
+                                    replace("<item>", check.coloredName()));
                             playerInv.get(i).amount = 0;
                             overstock = true;
                         } else if (free > 0 && playerInv.get(i).amount > free && BetterShop.config.noOverStock) {
                             BSutils.sendMessage(player, BetterShop.config.getString("highstock").
-                                    replaceAll("<item>", check.coloredName()).
-                                    replaceAll("<amt>", String.valueOf(free)));
+                                    replace("<item>", check.coloredName()).
+                                    replace("<amt>", String.valueOf(free)));
                             playerInv.get(i).amount = (int) free;
                         }
                     }
