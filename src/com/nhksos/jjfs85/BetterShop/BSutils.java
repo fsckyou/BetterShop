@@ -349,23 +349,37 @@ public class BSutils {
 
     static void sendMessage(CommandSender player, String s) {
         if (player != null) {
-            player.sendMessage(BetterShop.config.getString("prefix") + s);
-        }
-    }
-
-    static void sendMessage(CommandSender player, String s, boolean isPublic) {
-        if (player != null) {
-            if (isPublic) {
-                broadcastMessage(player, s);
+            if (s.contains("\n")) {
+                String lns[] = s.split("\n");
+                player.sendMessage(BetterShop.config.getString("prefix") + lns[0]);
+                for (int i = 1; i < lns.length; ++i) {
+                    player.sendMessage(lns[i]);
+                }
             } else {
                 player.sendMessage(BetterShop.config.getString("prefix") + s);
             }
         }
     }
 
+    static void sendMessage(CommandSender player, String s, boolean isPublic) {
+        if (!isPublic) {
+            sendMessage(player, s);
+        } else if (player != null) {
+            broadcastMessage(player, s);
+        }
+    }
+
     static void broadcastMessage(CommandSender player, String s) {
         if (player != null) {
+            if (s.contains("\n")) {
+                String lns[] = s.split("\n");
+                player.getServer().broadcastMessage(BetterShop.config.getString("prefix") + lns[0]);
+                for (int i = 1; i < lns.length; ++i) {
+                    player.getServer().broadcastMessage(lns[i]);
+                }
+            } else {
             player.getServer().broadcastMessage(BetterShop.config.getString("prefix") + s);
+            }
         }
         BetterShop.Log("(public announcement) " + s.replaceAll("\\\u00A7.", ""));
     }
@@ -379,7 +393,8 @@ public class BSutils {
                 for (Player p : player.getServer().getOnlinePlayers()) {
                     if (!p.getDisplayName().equals(name)) {
                         //player.getServer().broadcastMessage(BetterShop.config.getString("prefix") + s);
-                        p.sendMessage(BetterShop.config.getString("prefix") + s);
+                        //p.sendMessage(BetterShop.config.getString("prefix") + s);
+                        sendMessage(p, s);
                     }
                 }
                 BetterShop.Log("(public announcement) " + s.replaceAll("\\\u00A7.", ""));
@@ -528,6 +543,12 @@ public class BSutils {
         } else {
             canHold = BetterShop.config.maxEntityPurchase;
         }
+
+        double bal = playerBalance(player);
+        if (bal < price * canHold) {
+            canHold = (int) (bal / price);
+        }
+
         return _buyItem(player, toBuy, canHold, maxStack, price);
     }
 
@@ -606,6 +627,7 @@ public class BSutils {
         if (cost == 0 || BSutils.debit(player, cost)) {
             if (!toBuy.isEntity()) {
                 if (toBuy.equals(JItems.MAP)) {
+                    //TODO: either make a new map or copy a map.....
                 }
                 //if (maxStack == 64) { //((Player) player).getInventory().addItem(toBuy.toItemStack(amtbought));
                 //    inv.addItem(toBuy.toItemStack(amtbought));

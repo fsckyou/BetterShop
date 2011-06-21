@@ -47,7 +47,7 @@ import org.bukkit.event.server.PluginDisableEvent;
  */
 public class BetterShop extends JavaPlugin {
 
-    public final static String lastUpdatedStr = "6/20/11 00:00 -0500"; // "MM/dd/yy HH:mm Z"
+    public final static String lastUpdatedStr = "6/21/11 13:05 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
@@ -361,7 +361,6 @@ public class BetterShop extends JavaPlugin {
         }
         
         try {
-
             lastCommand = (sender instanceof Player ? "player:" : "console:")
                     + commandName + " " + argStr;
 
@@ -383,6 +382,8 @@ public class BetterShop extends JavaPlugin {
                         commandName = "shoplist";
                     } else if (args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("?")) {
                         commandName = "shophelp";
+                    } else if (args[0].equalsIgnoreCase("alias") || args[0].equalsIgnoreCase("a")) {
+                        commandName = "shopalias";
                     } else if (args[0].equalsIgnoreCase("buy")) {
                         commandName = "shopbuy";
                     } else if (args[0].equalsIgnoreCase("sell")) {
@@ -537,6 +538,8 @@ public class BetterShop extends JavaPlugin {
                 return bscommand.listitems(sender, args);
             } else if (commandName.equals("shophelp")) {
                 return bscommand.help(sender, args);
+            } else if (commandName.equals("shopalias")) {
+                return bscommand.listAlias(sender, args);
             } else if (commandName.equals("shopbuy")) {
                 if (args.length > 0 && args[0].equalsIgnoreCase("rain")) {
                     ((Player) sender).getWorld().setStorm(true);
@@ -553,8 +556,8 @@ public class BetterShop extends JavaPlugin {
                 return true;
             } else if (commandName.equals("shopbuyall")) {
                 ArrayList<String> arg = new ArrayList<String>();
-                arg.addAll(Arrays.asList(args));
                 arg.add("all");
+                arg.addAll(Arrays.asList(args));
                 return bscommand.buy(sender, arg.toArray(new String[0]));
             } else if (commandName.equals("shopbuystack")) {
                 return bscommand.buystack(sender, args);

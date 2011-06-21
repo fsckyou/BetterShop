@@ -141,6 +141,7 @@ public class BSConfig {
         stringMap.put("listhead", "-------- Price-List Page: &f<page> &2of &f<pages> &2--------");
         stringMap.put("listing", "&f[<item>&f]&2 <l> Buy: &f<buyprice>&2  Sell: &f<sellprice>" + (useItemStock ? " <l>(stock: <avail>)" : ""));
         stringMap.put("listtail", "-----------------------------------------");
+        stringMap.put("listalias", "&f[<item>&f]&2 is also known as: &b<alias>");
         // # shopbuy messages
         stringMap.put("buymsg", "Buying &f<amt> &2<item>&2 at &f<priceper> &2<curr> each... &f<total> &2<curr> total!");
         stringMap.put("publicbuymsg", "<player> bought &f<amt> &2<item>&2 for &f<totcur>");

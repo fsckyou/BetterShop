@@ -339,6 +339,11 @@ strings:
 
     # bottom of market list page (blank for none)
     listtail: "-----------------------------------------"
+    
+    # what is shown if a user looks up an item's aliases
+    # <item> - what was looked up
+    # <alias> - comma-delimited string of aliases
+    listalias: "&f[<item>&f]&2 is also known as: &b<alias>"
 
 #
 # messages related to stock

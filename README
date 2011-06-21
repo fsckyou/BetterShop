@@ -148,7 +148,6 @@ discount system: users or groups can be charged less/more for an item or all ite
 dynamic market pricing, based off of logged market activity
 region shops (items added while in a region defined as a shop are only added to that shop)
 add option for amount in stock for surplus decreases how much item is worth to the shop
-/shop alias <item> - show the itemname, with a list of aliases
 add pages for /shopitems
 more descriptive kit listing, similar to shoplist:
 - pages
@@ -165,7 +164,6 @@ automatically add missing config nodes (preserving comments) when upgrading
 add a simple builtin economy system, if none found?
 user-owned shops (signs, linked to chests?) ?
 4th line for configurable prices or shop profit owner
-fix "buy all" to automatically buy max can afford (already does in stock & can hold)
 daily profit caps for selling to the shop
 allow selling using categories (& buying also?)
 
@@ -183,6 +181,14 @@ items as currency (if no economy plugin)
 ===============================================================================
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
+
+Version 1.6.6.3 - 6/21/11 - jascotty2
+added the "permission" node to plugin.yml
+fixed entity & kits (broken since db rewrite, sorry)
+fixed "buyall" to automatically buy max can afford 
+/shop alias <item> - show the itemname, with a list of aliases
+- also added smart word-wrapping to this function
+
 
 Version 1.6.6.2 - 6/20/11 - jascotty2
 misc. null fixes

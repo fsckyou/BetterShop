@@ -8,6 +8,7 @@ import com.jascotty2.Item.ItemStockEntry;
 import com.jascotty2.Item.PriceListItem;
 import com.jascotty2.Shop.UserTransaction;
 import com.jascotty2.Shop.PriceList;
+import com.jascotty2.bukkit.MinecraftChatStr;
 import com.jascotty2.util.Str;
 import java.io.File;
 import java.util.ArrayList;
@@ -436,20 +437,22 @@ public class BSCommand {
         }
 
         if (CheckInput.IsDouble(s[1]) && CheckInput.IsDouble(s[2])) {
-            if (CheckInput.GetDouble(s[1], -1) > PriceList.MAX_PRICE
-                    || CheckInput.GetDouble(s[2], -1) > PriceList.MAX_PRICE) {
+            double buy = CheckInput.GetDouble(s[1], -1),
+                    sel = CheckInput.GetDouble(s[2], -1);
+            if (buy > PriceList.MAX_PRICE
+                    || sel > PriceList.MAX_PRICE) {
                 BSutils.sendMessage(player, "Price set too high. Max = " + BSutils.formatCurrency(PriceList.MAX_PRICE));
                 return true;
-            } else if (toAdd.isKit() && CheckInput.GetDouble(s[2], -1) >= 0) {
+            } else if (toAdd.isKit() && sel >= 0) {
                 BSutils.sendMessage(player, "Note: Kits cannot be sold");
                 s[2] = "-1";
-            } else if (toAdd.isEntity() && CheckInput.GetDouble(s[2], -1) >= 0) {
+            } else if (toAdd.isEntity() && sel >= 0) {
                 BSutils.sendMessage(player, "Note: Entities cannot be sold");
                 s[2] = "-1";
             }
             try {
                 boolean isChanged = BetterShop.pricelist.ItemExists(toAdd);
-                if (BetterShop.pricelist.setPrice(s[0], s[1], s[2])) {
+                if (BetterShop.pricelist.setPrice(toAdd, buy, sel)) {
                     PriceListItem nPrice = BetterShop.pricelist.getItemPrice(toAdd);
                     double by = nPrice == null ? -2 : nPrice.buy,
                             sl = nPrice == null ? -2 : nPrice.sell;
@@ -464,7 +467,7 @@ public class BSCommand {
                             BetterShop.config.publicmarket);
 
                     if (!isChanged && BetterShop.config.useItemStock && BetterShop.stock != null) {
-                            BetterShop.stock.setItemAmount(toAdd, BetterShop.config.startStock);
+                        BetterShop.stock.setItemAmount(toAdd, BetterShop.config.startStock);
                     }
                     return true;
                 }
@@ -878,6 +881,9 @@ public class BSCommand {
     }
 
     public boolean listkits(CommandSender player, String[] s) {
+        if (!BSutils.hasPermission(player, BSutils.BetterShopPermission.USER_LIST, true)) {
+            return true;
+        }
         try {
             BSutils.sendMessage(player, "Kit listing:");
             String kitNames = "";
@@ -902,6 +908,31 @@ public class BSCommand {
             }
             return true;
         }
+    }
+
+    public boolean listAlias(CommandSender player, String[] s) {
+        if ((!BSutils.hasPermission(player, BSutils.BetterShopPermission.USER_HELP, true))) {
+            return true;
+        } else if (s.length != 1) {
+            return false;
+        }
+        JItem it = JItemDB.findItem(s[0]);
+        if (it == null) {
+            BSutils.sendMessage(player, BetterShop.config.getString("unkitem").
+                    replace("<item>", s[0]));
+        } else {
+            StringBuilder aliases = new StringBuilder();
+            for(String a : it.Aliases()){
+                aliases.append(a).append(", ");
+            }
+            aliases.delete(aliases.length()-2, aliases.length());
+            
+            BSutils.sendMessage(player,
+                    MinecraftChatStr.strWordWrap(
+                    BetterShop.config.getString("listalias").
+                    replace("<item>", it.coloredName()).replace("<alias>", aliases.toString())));
+        }
+        return true;
     }
 
     public boolean importDB(CommandSender player, String[] s) {
