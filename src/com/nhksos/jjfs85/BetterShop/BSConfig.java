@@ -670,6 +670,7 @@ public class BSConfig {
     public boolean intCurrency() {
         return BetterShop.economy != null;
     }
+    
     public FileWriter commlog_fstream = null;
     public BufferedWriter commlog_out = null;
 

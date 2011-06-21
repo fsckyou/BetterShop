@@ -925,6 +925,7 @@ public class BSCommand {
             for(String a : it.Aliases()){
                 aliases.append(a).append(", ");
             }
+            if(aliases.length()>0)
             aliases.delete(aliases.length()-2, aliases.length());
             
             BSutils.sendMessage(player,

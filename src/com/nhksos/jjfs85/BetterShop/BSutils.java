@@ -109,7 +109,7 @@ public class BSutils {
     }
 
     static boolean decimalSupported() {
-        return BetterShop.iConomy != null;
+        return BetterShop.iConomy != null || BetterShop.legacyIConomy != null;
     }
 
     static boolean credit(Player player, double amount) {
