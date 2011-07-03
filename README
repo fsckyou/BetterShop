@@ -182,6 +182,13 @@ items as currency (if no economy plugin)
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
+Version 1.6.6.4 - 7/3/11 - jascotty2
+updated items for mc 1.7
+fixed unknown item auto adding (more update-proof)
+fixed itemdb reload logic error
+sign destroy protection thread moved to bukkit scheduler
+
+
 Version 1.6.6.3b - 6/21/11 - jascotty2
 fixed a bug with buying decimal values with old iconomy
 fixed a bug if /itemalias with no alias

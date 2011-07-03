@@ -577,7 +577,7 @@ public class BSutils {
             // don't search armor slots
             for (int i = 0; i <= 35; ++i) {
                 ItemStack it = inv.getItem(i);
-                if ((toBuy.equals(it) && it.getAmount() < maxStack) || it.getAmount() == 0) {
+                if (it.getAmount() <= 0 || (toBuy.equals(it) && it.getAmount() < maxStack)) {
                     canHold += maxStack - it.getAmount();
                 }
             }

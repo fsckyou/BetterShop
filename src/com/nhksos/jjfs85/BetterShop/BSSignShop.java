@@ -594,10 +594,21 @@ public class BSSignShop extends PlayerListener {
         }
     }
 
-    protected class SignRestore extends TimerTask {
+    protected class SignRestore implements Runnable { //extends TimerTask
+
+        int taskID = -1;
 
         public void start(long wait) {
-            (new Timer()).scheduleAtFixedRate(this, wait, wait);
+            //(new Timer()).scheduleAtFixedRate(this, wait, wait);
+            // 20 ticks per second
+            taskID = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, this, 100, (wait * 20) / 1000);
+        }
+
+        public void cancel() {
+            if (taskID != -1) {
+                plugin.getServer().getScheduler().cancelTask(taskID);
+                taskID = -1;
+            }
         }
 
         @Override

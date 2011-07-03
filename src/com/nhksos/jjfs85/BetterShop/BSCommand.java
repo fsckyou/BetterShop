@@ -349,7 +349,7 @@ public class BSCommand {
         if (BetterShop.config.signShopEnabled && BetterShop.config.tntSignDestroyProtection) {
             BetterShop.signShop.stopProtecting();
         }
-        if (JItemDB.load(BSConfig.pluginFolder)) {
+        if (JItemDB.load(BSConfig.itemDBFile)) {
             if (player != null) {
                 BSutils.sendMessage(player, JItemDB.size() + " items loaded.");
             }

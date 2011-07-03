@@ -131,6 +131,9 @@ items:
     item28:
         name: Detector Rail
         aliases: detectorail
+    item29:
+        name: Sticky Piston
+        aliases: spiston
     item30:
         name: Web
         aliases: spiderweb, cobweb
@@ -142,6 +145,8 @@ items:
         name: Fern
     item32:
         name: Dead Shrub
+    item33:
+        name: Piston
     item35sub0:
         name: White Wool
         aliases: cloth, whitecloth, whitewool, wool
@@ -805,9 +810,11 @@ items:
         aliases: repeater, redstoneextender, extender
     item357:
         name: Cookie
-        aliases: 
+        aliases:
     item358:
         name: Map
+    item359:
+        name: Shears
     item2256:
         name: Gold Record
         aliases: golddisk, grecord, gdisk
