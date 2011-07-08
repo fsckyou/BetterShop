@@ -47,7 +47,7 @@ import org.bukkit.event.server.PluginDisableEvent;
  */
 public class BetterShop extends JavaPlugin {
 
-    public final static String lastUpdatedStr = "6/21/11 13:05 -0500"; // "MM/dd/yy HH:mm Z"
+    public final static String lastUpdatedStr = "07/03/11 12:15 -0500"; // "MM/dd/yy HH:mm Z"
     public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
     protected final static Logger logger = Logger.getLogger("Minecraft");
     public static final String name = "BetterShop";
@@ -354,12 +354,12 @@ public class BetterShop extends JavaPlugin {
             String commandLabel, String[] args) {
         String commandName = command.getName().toLowerCase(),
                 argStr = Str.argStr(args);
-        
-        if(config.logCommands){
-            config.logCommand(sender instanceof Player ? ((Player)sender).getName() : "(console)",
+
+        if (config.logCommands) {
+            config.logCommand(sender instanceof Player ? ((Player) sender).getName() : "(console)",
                     commandLabel + " " + argStr);
         }
-        
+
         try {
             lastCommand = (sender instanceof Player ? "player:" : "console:")
                     + commandName + " " + argStr;
@@ -653,7 +653,7 @@ public class BetterShop extends JavaPlugin {
         }
     }
     static Date sentErrors[] = new Date[3];
-    static final long minSendWait = 3600; // min time before a send expires
+    static final long minSendWait = 3600; // min time before a send expires (seconds)
 
     static void sendErrorReport(String txt, Exception err) {
         boolean allow = false;
@@ -681,7 +681,7 @@ public class BetterShop extends JavaPlugin {
                     + "Machine: " + System.getProperty("os.name") + " " + System.getProperty("os.arch") /* + "," + System.getProperty("user.dir")*/ + "\n"
                     + "Bukkit: " + ServerInfo.getBukkitVersion(true) + "\n"
                     + "Version: " + pdfFile.getVersion() + "  (" + lastUpdatedStr + ")\n"
-                    + "iConomy: " + (iConomy != null ? ((Plugin) iConomy).getDescription().getVersion() : "none") + "\n"
+                    + "Econ: " + econPlugin() + "\n"
                     + "Permissions: " + (Permissions != null ? "true" : "false") + "\n"
                     + "Last executed command: " + lastCommand + "\n"
                     + (config != null ? config.condensedSettings() : "-") + "," + (pcount >= 0 ? pcount : "-") + "\n"
@@ -696,6 +696,20 @@ public class BetterShop extends JavaPlugin {
                 System.out.println("(if yes, then the error tracker is likely temporarily offline)");
             }
         } //else {  System.out.println("sending too fast.."); }
+    }
+
+    static String econPlugin() {
+        if (iConomy != null) {
+            return "iConomy " + ((Plugin) iConomy).getDescription().getVersion();
+        } else if (legacyIConomy != null) {
+            return "iConomy " + ((Plugin) legacyIConomy).getDescription().getVersion();
+        } else if (economy != null) {
+            return "BOSEconomy " + ((Plugin) economy).getDescription().getVersion();
+        } else if (essentials != null) {
+            return "Essentials " + ((Plugin) essentials).getDescription().getVersion();
+        } else {
+            return "none";
+        }
     }
 
     protected class ServerReload extends TimerTask {

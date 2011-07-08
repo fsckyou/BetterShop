@@ -289,9 +289,13 @@ public class BSCommand {
             }
         }
 
-        for (String line : BetterShop.pricelist.GetShopListPage(pagenum, player instanceof Player,
-                BetterShop.config.allowbuyillegal || BSutils.hasPermission(player, BSutils.BetterShopPermission.ADMIN_ILLEGAL, false))) {
-            BSutils.sendMessage(player, line.replace("<curr>", BetterShop.config.currency()));
+        if (BetterShop.pricelist == null) {
+            BSutils.sendMessage(player, ChatColor.RED + "Pricelist Error: Notify Server Admin");
+        } else {
+            for (String line : BetterShop.pricelist.GetShopListPage(pagenum, player instanceof Player,
+                    BetterShop.config.allowbuyillegal || BSutils.hasPermission(player, BSutils.BetterShopPermission.ADMIN_ILLEGAL, false))) {
+                BSutils.sendMessage(player, line.replace("<curr>", BetterShop.config.currency()));
+            }
         }
 
         return true;
@@ -306,14 +310,16 @@ public class BSCommand {
         try {
             LinkedList<String> items = BetterShop.pricelist.GetItemList(
                     BetterShop.config.allowbuyillegal || BSutils.hasPermission(player, BSutils.BetterShopPermission.ADMIN_ILLEGAL, false));
-            String output = "\u00A72";
-            for (int i = 0; i < items.size(); ++i) {
-                output += items.get(i);
-                if (i + 1 < items.size()) {
-                    output += "\u00A72, ";
+            StringBuilder output = new StringBuilder("\u00A72");
+            if (items != null && items.size() > 0) {
+                for (int i = 0; i < items.size(); ++i) {
+                    output.append(items.get(i));
+                    if (i + 1 < items.size()) {
+                        output.append("\u00A72, ");
+                    }
                 }
             }
-            BSutils.sendMessage(player, output);
+            BSutils.sendMessage(player, output.toString());
             return true;
         } catch (Exception ex) {
             BetterShop.Log(Level.SEVERE, ex);
@@ -922,12 +928,13 @@ public class BSCommand {
                     replace("<item>", s[0]));
         } else {
             StringBuilder aliases = new StringBuilder();
-            for(String a : it.Aliases()){
+            for (String a : it.Aliases()) {
                 aliases.append(a).append(", ");
             }
-            if(aliases.length()>0)
-            aliases.delete(aliases.length()-2, aliases.length());
-            
+            if (aliases.length() > 1) {//.indexOf(",") != -1) {
+                aliases.delete(aliases.length() - 2, aliases.length());
+            }
+
             BSutils.sendMessage(player,
                     MinecraftChatStr.strWordWrap(
                     BetterShop.config.getString("listalias").

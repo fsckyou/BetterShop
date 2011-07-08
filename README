@@ -1,6 +1,7 @@
 BetterShop - The "better" global command-based shop that ties into iConomy
 
-active developers: jascotty2 & jjfs85
+active developers: jascotty2 
+initial idea by jjfs85
 ===============================================================================
 In-Game Commands:
 ===============================================================================
@@ -28,6 +29,7 @@ In-Game Commands:
 /shopbuyagain (buyagain,sba) 				repeat last buy action
 /shopsellagain (sellagain,ssa) 				repeat last sell action
 /shopkits (skits)					show a listing of available kits (will be elaborated later)
+/shop alias 			<item>			show the itemname, with a list of aliases
 
 
 ===============================================================================
@@ -39,6 +41,8 @@ currently dependent on
 - iConomy	http://forums.bukkit.org/threads/40/
 --or
 - BOSeconomy  	http://forums.bukkit.org/threads/4874/
+--or
+- Essentials	http://forums.bukkit.org/threads/15312/
 Permissions support
 Help support
 
@@ -78,6 +82,8 @@ signs can be used for buying & selling
 - to activate, someone with BetterShop.admin.makesign must left-click the sign.. the first line will change color when active
 - left-click for price check (or activate), right-click to buy/sell
 - if a unauthorized player destroys a block a sign is on, is canceled
+item categories
+- can search for items by category (in shoplist)
 
 === administration
 Every item and subtype can be priced differently
@@ -182,11 +188,19 @@ items as currency (if no economy plugin)
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
-Version 1.6.6.4 - 7/3/11 - jascotty2
+Version 1.6.6.5 - 7/8/11 
+fixed unknown bukkit item naming in itemsdb (more update-proof)
+fixed custom maxstack having been removed
+
+
+Version 1.6.6.4 - 7/3/11 - new thread & future updates by jascotty2
 updated items for mc 1.7
 fixed unknown item auto adding (more update-proof)
 fixed itemdb reload logic error
 sign destroy protection thread moved to bukkit scheduler
+fixed an itemstock setting error
+fixed buying slimes (they're not "creatures")
+other misc. fixes
 
 
 Version 1.6.6.3b - 6/21/11 - jascotty2

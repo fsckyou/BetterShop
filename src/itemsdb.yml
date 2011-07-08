@@ -133,7 +133,7 @@ items:
         aliases: detectorail
     item29:
         name: Sticky Piston
-        aliases: spiston
+        aliases: spiston, slimepiston
     item30:
         name: Web
         aliases: spiderweb, cobweb
