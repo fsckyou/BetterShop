@@ -175,12 +175,14 @@ public class BSCommand {
                     for (ItemStockEntry ite : sellable) {
                         numCheck += ite.amount;
                         PriceListItem tprice = BetterShop.pricelist.getItemPrice(JItemDB.findItem(ite.name));
-                        price.buy += tprice.buy > 0 ? tprice.buy : 0;
-                        price.sell += tprice.sell > 0 ? tprice.sell : 0;
-                        if (name.length() > 1) {
-                            name += ", " + ite.name;
-                        } else {
-                            name += ite.name;
+                        if(tprice != null){
+                            price.buy += tprice.buy > 0 ? tprice.buy : 0;
+                            price.sell += tprice.sell > 0 ? tprice.sell : 0;
+                            if (name.length() > 1) {
+                                name += ", " + ite.name;
+                            } else {
+                                name += ite.name;
+                            }
                         }
                     }
                     name += ")";
@@ -304,8 +306,8 @@ public class BSCommand {
     public boolean listitems(CommandSender player, String[] s) {
         if (!BSutils.hasPermission(player, BSutils.BetterShopPermission.USER_LIST, true)) {
             return true;
-        } else if (s != null || s.length > 0) {
-            //return false;
+        } else if (s != null && s.length > 1) {
+            return false;
         }
         try {
             LinkedList<String> items = BetterShop.pricelist.GetItemList(
@@ -492,7 +494,7 @@ public class BSCommand {
     public boolean remove(CommandSender player, String[] s) {
         if ((!BSutils.hasPermission(player, BSutils.BetterShopPermission.ADMIN_REMOVE, true))) {
             return true;
-        } else if (s.length != 1) {
+        } else if (s == null || s.length != 1) {
             return false;
         }
         JItem toRem = JItemDB.findItem(s[0]);

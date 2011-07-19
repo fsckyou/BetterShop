@@ -457,10 +457,10 @@ items:
         aliases:
     item265:
         name: Iron Ingot
-        aliases: ironbar, iingot, ibar
+        aliases: ironignot, ironbar, iingot, ibar, iron
     item266:
         name: Gold Ingot
-        aliases: goldbar, gingot, gbar
+        aliases: goldignot, goldbar, gingot, gbar, gold
     item267:
         name: Iron Sword
         aliases: isword

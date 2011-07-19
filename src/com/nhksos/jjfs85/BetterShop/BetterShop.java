@@ -541,19 +541,19 @@ public class BetterShop extends JavaPlugin {
             } else if (commandName.equals("shopalias")) {
                 return bscommand.listAlias(sender, args);
             } else if (commandName.equals("shopbuy")) {
-                if (args.length > 0 && args[0].equalsIgnoreCase("rain")) {
-                    ((Player) sender).getWorld().setStorm(true);
-                } else if (args.length > 0 && args[0].equalsIgnoreCase("thunder")) {
-                    ((Player) sender).getWorld().setThundering(true);
-                } else if (args.length > 0 && args[0].equalsIgnoreCase("clear")) {
-                    ((Player) sender).getWorld().setStorm(false);
-                    ((Player) sender).getWorld().setThundering(false);
-                } else if (args.length > 0 && args[0].equalsIgnoreCase("lightning")) {
-                    ((Player) sender).getWorld().strikeLightning(((Player) sender).getCompassTarget());
-                } else {
+//                if (args.length > 0 && args[0].equalsIgnoreCase("rain")) {
+//                    ((Player) sender).getWorld().setStorm(true);
+//                } else if (args.length > 0 && args[0].equalsIgnoreCase("thunder")) {
+//                    ((Player) sender).getWorld().setThundering(true);
+//                } else if (args.length > 0 && args[0].equalsIgnoreCase("clear")) {
+//                    ((Player) sender).getWorld().setStorm(false);
+//                    ((Player) sender).getWorld().setThundering(false);
+//                } else if (args.length > 0 && args[0].equalsIgnoreCase("lightning")) {
+//                    ((Player) sender).getWorld().strikeLightning(((Player) sender).getCompassTarget());
+//                } else {
                     return bscommand.buy(sender, args);
-                }
-                return true;
+//                }
+//                return true;
             } else if (commandName.equals("shopbuyall")) {
                 ArrayList<String> arg = new ArrayList<String>();
                 arg.add("all");

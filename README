@@ -188,9 +188,19 @@ items as currency (if no economy plugin)
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
+Version 1.6.6.6 - 7/19/11
+weather "easter egg" removed (was free to "buy" weather events)
+updated MySQL parameters to allow some special characters in names
+temp. fix for inventory data error until bukkit merges my fix
+other misc. null fixes
+
+
 Version 1.6.6.5 - 7/8/11 
 fixed unknown bukkit item naming in itemsdb (more update-proof)
 fixed custom maxstack having been removed
+better handling of iConomy nullpointer errors
+fix buying ghasts (also not of "creature")
+misc. null fixes
 
 
 Version 1.6.6.4 - 7/3/11 - new thread & future updates by jascotty2

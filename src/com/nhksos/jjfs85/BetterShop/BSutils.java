@@ -210,11 +210,15 @@ public class BSutils {
         return true;
     }
 
+    static boolean _pastBalanceErr = false;
+    
     public static double playerBalance(Player player) {
+        try{
         if (player == null) {
             return 0;
         } else if (BetterShop.iConomy != null) {
-            return BetterShop.iConomy.getAccount(player.getName()).getHoldings().balance();
+            com.iConomy.system.Account a = BetterShop.iConomy.getAccount(player.getName());
+            return a != null ? a.getHoldings().balance() : 0;
         } else if (BetterShop.legacyIConomy != null) {
             return com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(player.getName()).getBalance();
         } else if (BetterShop.economy != null) {
@@ -222,6 +226,13 @@ public class BSutils {
         } else if (BetterShop.essentials != null) {
             return BetterShop.essentials.getUser(player).getMoney();
         } else {
+            return 0;
+        }
+        }catch (Exception e){
+            if(!_pastBalanceErr){
+                BetterShop.Log(Level.SEVERE, "Error looking up player balance \n(this error will only show once)", e);
+                _pastBalanceErr = true;
+            }
             return 0;
         }
     }
@@ -378,7 +389,7 @@ public class BSutils {
                     player.getServer().broadcastMessage(lns[i]);
                 }
             } else {
-            player.getServer().broadcastMessage(BetterShop.config.getString("prefix") + s);
+                player.getServer().broadcastMessage(BetterShop.config.getString("prefix") + s);
             }
         }
         BetterShop.Log("(public announcement) " + s.replaceAll("\\\u00A7.", ""));
