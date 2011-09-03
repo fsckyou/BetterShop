@@ -41,6 +41,8 @@ currently dependent on
 - iConomy	http://forums.bukkit.org/threads/40/
 --or
 - BOSeconomy  	http://forums.bukkit.org/threads/4874/
+-- or
+- MultiCurrency http://forums.bukkit.org/threads/26455/
 --or
 - Essentials	http://forums.bukkit.org/threads/15312/
 Permissions support
@@ -84,6 +86,12 @@ signs can be used for buying & selling
 - if a unauthorized player destroys a block a sign is on, is canceled
 item categories
 - can search for items by category (in shoplist)
+players using Spout (if installed & enabled) can use a GUI Menu for buying & selling
+- default button is 'b'
+- displays items in shop in top half
+- item detail below with # in stock, buy/sell price, & buttons to buy & sell
+- amount to buy/sell can be set in text box or with up/down buttons
+
 
 === administration
 Every item and subtype can be priced differently
