@@ -188,6 +188,22 @@ items as currency (if no economy plugin)
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
+Version 1.6.7 - 9/3/11
+GUI Menu added using Spout :)
+- default button is 'b'
+- displays items in shop in top half
+- item detail below with # in stock, buy/sell price, & buttons to buy & sell
+- amount to buy/sell can be set in text box or with up/down buttons
+added economy support via Register 2.1
+- now supports iConomy 4,5,6, BOSEcon 6,7, MultiCurrency, EssentialsEco
+changes in how error reporting occurs
+plugin stat polling added (may be temporary)
+- disabled with AutoErrorReporting: false
+permissions updated for 3x
+sign valid item check fixed
+other misc. fixes
+
+
 Version 1.6.6.6 - 7/19/11
 weather "easter egg" removed (was free to "buy" weather events)
 updated MySQL parameters to allow some special characters in names

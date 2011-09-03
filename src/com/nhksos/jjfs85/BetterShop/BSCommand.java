@@ -373,9 +373,12 @@ public class BSCommand {
             if (player != null) {
                 BSutils.sendMessage(player, ChatColor.RED + "Config loading error.");
             }
+            ok = false;
         } else {
             BSutils.sendMessage(player, "Config.yml loaded.");
-            ok = false;
+			if(BetterShop.keyListener != null){
+				BetterShop.keyListener.reloadKey();
+			}
         }
         if (BetterShop.pricelist.load()) {
             BSutils.sendMessage(player, "Price Database " + BetterShop.pricelist.pricelistName() + " loaded.");

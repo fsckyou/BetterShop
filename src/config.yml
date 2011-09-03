@@ -90,6 +90,15 @@ shop:
     # default currency name (not yet used, but might be if no economy plugin found)
     currencyName: "Coin"
 
+spout:
+    # if you have spout, whether to use the spout gui
+    enabled: true
+
+    # what key to bring up the display
+    key: b
+
+
+
 
 MySQL:
     #use MySQL for databases? (includes pricelist, marketActivity, transactionTotals, and itemStock)
