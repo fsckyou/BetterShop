@@ -1,6 +1,6 @@
 name: BetterShop
 main: com.nhksos.jjfs85.BetterShop.BetterShop
-version: 1.6.7
+version: 1.6.7.1
 website: http://github.com/BetterShop/BetterShop
 author: jascotty2 and jjfs85 (and lologarithm)
 description: >
@@ -98,3 +98,39 @@ commands:
     usage: /<command>
     aliases: [ssellagain, sellagain, ssa]
     permission: BetterShop.user.sell
+permissions:
+  BetterShop.user.*:
+    description: all user commands
+    default: true
+  BetterShop.user.list:
+    description: look through shop listing of prices
+  BetterShop.user.check:
+    description: check the price of item(s)
+  BetterShop.user.help:
+    description: view ingame help menu
+  BetterShop.user.buy:
+    description: buy items from the shop
+  BetterShop.user.sell:
+    description: sell items to the shop
+  BetterShop.user.spout:
+    description: allow a user to use the spout gui menu
+  BetterShop.admin.*:
+    description: all admin permissions
+    default: op
+  BetterShop.admin.add:
+    description: add/edit items to/in the shop
+  BetterShop.admin.remove:
+    description: remove items from the shop
+  BetterShop.admin.load:
+    description: reload configuration & pricelist
+  BetterShop.admin.info:
+    description: show shop stats
+  BetterShop.admin.illegal:
+    description: gives the ability to purchase 'illegal' items
+  BetterShop.admin.backup:
+    description: backing up and restoring the pricelist
+  BetterShop.admin.restock:
+    description: manually restock (if item stock is enabled)
+  BetterShop.admin.makesign:
+    description: ability to add/remove shop signs
+    

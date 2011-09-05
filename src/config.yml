@@ -28,7 +28,6 @@ errors:
     #send everything logged? (not just errors & exceptions)
     sendAllLog: false
 
-
 shop:
     # number of lines outputted in shop list
     ItemsPerPage: 9
@@ -97,8 +96,17 @@ spout:
     # what key to bring up the display
     key: b
 
-
-
+discountGroups:
+    # groups are defined using permissions
+    # BetterShop.discount.(NAME)
+    # ex: BetterShop.discount.VIP
+    # note: "BetterShop.discount.none" negates discounts
+    # discounts are defined in whole-number percentages
+    # note: values greater than 100% are truncated to 100%
+    #		(so that users aren't given money to buy items)
+    # also, negative values can be used to force users to pay more
+    # (buy & sell prices are changed by the same amount)
+    VIP: 10
 
 MySQL:
     #use MySQL for databases? (includes pricelist, marketActivity, transactionTotals, and itemStock)

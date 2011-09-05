@@ -78,9 +78,10 @@ public class SpoutKeyListener extends InputListener {
 		} else if (event.getKey() == Keyboard.KEY_ESCAPE) {
 			SpoutPopupDisplay.closePopup(event.getPlayer());
 		} else if (event.getKey() == listenKey) {
-			SpoutPopupDisplay.popup(event.getPlayer(), event.getScreenType());
+			if (BSutils.hasPermission(event.getPlayer(), BSutils.BetterShopPermission.USER_SPOUT, true)) {
+				SpoutPopupDisplay.popup(event.getPlayer(), event.getScreenType());
+			}
 		}
 	}
-	
 } // end class SpoutKeyListener
 

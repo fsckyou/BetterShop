@@ -38,7 +38,7 @@ import me.taylorkelly.help.Help;
  */
 public class BetterShop extends JavaPlugin {
 
-	public final static String lastUpdatedStr = "09/03/11 01:10 -0500"; // "MM/dd/yy HH:mm Z"
+	public final static String lastUpdatedStr = "09/04/11 21:50 -0500"; // "MM/dd/yy HH:mm Z"
 	public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
 	protected final static Logger logger = Logger.getLogger("Minecraft");
 	public static final String name = "BetterShop";
@@ -320,6 +320,8 @@ public class BetterShop extends JavaPlugin {
 				+ pdfFile.getVersion() + " is enabled!", new Object[]{
 					pdfFile.getName(), pdfFile.getVersion()});
 
+
+		//sendErrorReport("Test Error", new Exception());
 		// usage stats tracking :)
 		if (config.sendErrorReports) { // setting to allow privacy-minded people some privacy..
 			com.jascotty2.bukkit.FTP_PluginTracker.queueSend(this, config.unMaskErrorID);
@@ -636,12 +638,12 @@ public class BetterShop extends JavaPlugin {
 		logger.log(Level.INFO, String.format("[%s] %s", name, txt));
 	}
 
-	protected static void Log(String txt, Object params) {
+	protected static void Log(String txt, Exception err) {
 		if (messenger != null && config.sendAllLog) {
 			messenger.sendNotify(String.format("[%s] %s", name, txt));
 		}
 		logger.log(Level.INFO, String.format("[%s] %s", name, txt == null ? ""
-				: txt), params);
+				: txt), err);
 	}
 
 	protected static void Log(Level loglevel, String txt) {
@@ -751,7 +753,7 @@ public class BetterShop extends JavaPlugin {
 						/* errorMessage */ txt,
 						/* error */ err);
 			} catch (Exception e) {
-				Log("error uploading error report: " + e.getMessage(), false);
+				Log("error uploading error report: " + e.getClass().getName() + ": " + e.getMessage());
 			}
 			//
 			// String fname = FTPErrorReporter.SendNewText(

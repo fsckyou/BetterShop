@@ -1,0 +1,157 @@
+id,subdata,buyprice,sellprice,name
+1,,5,2.5,Stone
+3,,1,0.25,Dirt
+4,,1,0.25,Cobblestone
+5,,2.5,1,Plank
+6,,3,1.5,Sapling
+12,,1.75,0.75,Sand
+13,,3.5,1.75,Gravel
+14,,45,35,Gold Ore
+15,,35,25,Iron Ore
+17,,8,4,Log
+18,,100,25,Leaves
+20,,20,7.5,Glass
+22,,180,90,Lapis Lazuli Block
+23,,60,31.75,Dispenser
+24,,10,3,Sandstone
+25,,40,28,Note Block
+27,,365,182.5,Powered rail
+28,,52,26,Detector rail
+29,,288,144,Sticky Piston
+30,,50,25,Web
+33,,38,19,Piston
+35,,3,1,Wool
+37,,10,4,Yellow Flower
+38,,10,4,Red Rose
+39,,10,1,Brown Mushroom
+40,,10,1,Red Mushroom
+41,,495,405,Gold Block
+42,,405,315,Iron Block
+44,,15,3,Stone Slab
+44,1,21,9,Sandstone Slab
+44,2,7.5,3,Wooden Slab
+44,3,3,0.75,Cobble Slab
+45,,360,80,Brick
+47,,51,24,Bookcase
+48,,50,25,Mossy Cobblestone
+49,,1000,500,Obsidian
+50,,7,4,Torch
+53,,4,1.5,Wooden Stairs
+54,,20,9,Chest
+58,,8,4,Workbench
+61,,4,2,Furnace
+65,,4.5,1.75,Ladder
+66,,16,8,Minecart Tracks
+67,,1.5,0.25,Cobblestone Stairs
+69,,2,1,Lever
+70,,10,5,Stone Pressure Plate
+72,,5,2,Wooden Pressure Plate
+76,,31,15,Redstone Torch
+77,,10,5,Stone Button
+81,,10,5,Cactus
+84,,78,36,Jukebox
+85,,6,3,Fence
+86,,10,5,Pumpkin
+87,,5,1,NetherRack
+88,,6,2,Slow Sand
+89,,60,30,Glowstone Block
+91,,17,8.5,Jack-O-Lantern
+96,,8,5.5,Trapdoor
+256,,47,36,Iron Spade
+257,,136,106,Iron Pickaxe
+258,,136,106,Iron Axe
+259,,50,40,Flint and Steel
+260,,2,0.5,Red Apple
+261,,35,15,Bow
+262,,0.5,0.2,Arrow
+263,,25,15,Coal
+265,,45,35,Iron Ingot
+266,,55,45,Gold Ingot
+267,,91,71,Iron Sword
+272,,3,1.5,Stone Sword
+273,,2,1,Stone Spade
+274,,4,2,Stone Pickaxe
+275,,4,2,Stone Axe
+280,,1,0.5,Stick
+281,,7.5,3,Bowl
+282,,10,5,Mushroom Soup
+283,,57,28.5,Gold Sword
+284,,56,28,Gold Spade
+285,,58,29,Gold Pickaxe
+286,,58,29,Gold Axe
+287,,10,2.5,String
+288,,3,1.5,Feather
+289,,40,25,Gunpowder
+291,,2,1,Stone Hoe
+292,,91,70.5,Iron Hoe
+294,,91,70.5,Gold Hoe
+295,,3,0.5,Seeds
+296,,5,3,Wheat
+297,,15,5,Bread
+298,,15,2.5,Leather Helmet
+299,,24,4,Leather Chestplate
+300,,21,3.5,Leather Pants
+301,,12,2,Leather Boots
+306,,225,175,Iron Helmet
+307,,360,280,Iron Chestplate
+308,,315,245,Iron Pants
+309,,180,140,Iron Boots
+314,,275,225,Gold Helmet
+315,,440,360,Gold Chestplate
+316,,385,315,Gold Pants
+317,,220,180,Gold Boots
+318,,4,2,Flint
+320,,20,10,Grilled Pork
+321,,11,5.5,Paintings
+322,,3963,1981.5,Golden Apple
+323,,13,7,Sign
+324,,6,3,Wooden Door
+325,,135,105,Bucket
+326,,150,120,Water Bucket
+328,,225,112.5,Mine Cart
+329,,10,5,Saddle
+330,,270,135,Iron Door
+331,,30,20,Redstone
+332,,1,0.25,Snowball
+333,,10,5.5,Boat
+334,,3,0.5,Leather
+335,,150,120,Milk Bucket
+336,,90,80,Clay Brick
+337,,20,10,Clay Balls
+338,,4,2,Reed
+339,,4,2,Paper
+340,,12,6,Book
+341,,250,125,Slime Ball
+344,,30,15,Egg
+345,,210,105,Compass
+346,,25,12.5,Fishing Rod
+347,,250,125,Watch
+348,,15,7.5,Glowstone Dust
+349,,30,15,Raw Fish
+350,,35,17.5,Cooked Fish
+351,,6,3,Ink Sack
+351,1,5,2,Rose red
+351,2,11,6,Cactus Green
+351,3,20,15,Cocoa Beans
+351,4,20,10,Lapis Lazuli
+351,5,25,12,Purple Dye
+351,6,31,16,Cyan Dye
+351,7,46,23,Light Gray Dye
+351,8,26,13,Gray Dye
+351,9,25,12,Pink Dye
+351,10,31,16,Lime Dye
+351,11,5,2,Dandelion Yellow
+351,12,40,20,Light Blue Dye
+351,13,50,24,Magenta Dye
+351,14,10,4,Orange Dye
+351,15,7,3.5,Bone Meal
+352,,20,10,Bone
+353,,4,2,Sugar
+354,,353,176.5,Cake
+355,,20,10,Bed
+356,,107,53.5,Redstone Repeater
+357,,3.75,1.8,Cookie
+358,,242,121,Map
+359,,90,70,Shears
+2256,,2500,1500,Gold Record
+2257,,2500,1500,Green Record

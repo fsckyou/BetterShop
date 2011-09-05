@@ -118,6 +118,11 @@ auto error reporting added (can be disabled)
 custom message you can send with the error report
 help main page integration can be disabled
 global shop can be disabled & only allow signs to be used
+can use permissions to define discounts for certain users
+- uses nodes in "BetterShop.discount.xxxx"
+- nodes defined in config under discountGroups
+- ex: discountGroups:
+          VIP: 10   # gives 10% discount to players with BetterShop.discount.VIP
 
 
 There are two ways to add things to the shop:
@@ -143,6 +148,7 @@ BetterShop.user.check		check the price of item(s)
 BetterShop.user.help		view ingame help menu
 BetterShop.user.buy		buy items from the shop
 BetterShop.user.sell		sell items to the shop
+BetterShop.user.spout		for spout screen access
 BetterShop.admin.add		add/edit items to/in the shop
 BetterShop.admin.remove		remove items from the shop
 BetterShop.admin.load		reload configuration & pricelist
@@ -195,6 +201,21 @@ items as currency (if no economy plugin)
 ===============================================================================
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
+
+Version 1.6.7.1 - 9/4/11
+added support for bukkit permissions
+- built-in support for "BetterShop.(user|admin).*" nodes, so you don't have to add all of the other nodes
+added permission node "BetterShop.user.spout" for spout screen access
+fixed some lingering integer pricing errors
+added a simple permissions-based discounting system
+- uses nodes in "BetterShop.discount.xxxx"
+- nodes defined in config under discountGroups
+- ex: discountGroups:
+          VIP: 10   # gives 10% discount to players with BetterShop.discount.VIP
+fixed gui defaulting to amount limit when one == 0
+fixed server error reporting bug
+changed server uuid method, more stable
+
 
 Version 1.6.7 - 9/3/11
 GUI Menu added using Spout :)

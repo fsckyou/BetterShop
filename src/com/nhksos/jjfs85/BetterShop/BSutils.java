@@ -16,12 +16,15 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 //import org.bukkit.Server;
 //import org.bukkit.plugin.Plugin;
 //import org.bukkit.plugin.PluginManager;
+//import org.bukkit.permissions.PermissionAttachmentInfo;
 
 public class BSutils {
 
@@ -51,6 +54,10 @@ public class BSutils {
 		 * sell items to the shop
 		 */
 		USER_SELL("BetterShop.user.sell"),
+		/**
+		 * allow a user to use the spout gui menu
+		 */
+		USER_SPOUT("BetterShop.user.spout"),
 		/**
 		 * generic admin permissions
 		 */
@@ -108,6 +115,17 @@ public class BSutils {
 		}
 	}
 
+	static double getPlayerDiscount(Player p) {
+		if (p != null && !_hasPerm(p, "BetterShop.discount.none")) {
+			for (Entry<String, Double> g : BetterShop.config.groups.entrySet()) {
+				if (_hasPerm(p, "BetterShop.discount." + g.getKey())) {
+					return g.getValue();
+				}
+			}
+		}
+		return 0;
+	}
+
 	static boolean credit(Player player, double amount) {
 		if (amount <= 0) {
 			return amount == 0;
@@ -154,7 +172,7 @@ public class BSutils {
 				return true;
 			}
 			BetterShop.Log(Level.SEVERE, "Failed to debit player", false);
-			
+
 			// something seems to be wrong with iConomy: reload it
 //			BetterShop.Log(Level.SEVERE, "Failed to debit player: attempting iConomy reload", false);
 //			if (reloadIConomy(player.getServer())) {
@@ -195,9 +213,9 @@ public class BSutils {
 		double preAmt = BSEcon.getBalance(player);
 		if (amount > 0 || preAmt >= -amount) {
 			BSEcon.addMoney(player, amount);
-			if(BetterShop.config.BOSBank != null 
+			if (BetterShop.config.BOSBank != null
 					&& BSEcon.economyMethod.hasBanks()
-					&& BSEcon.economyMethod.hasBank(BetterShop.config.BOSBank)){
+					&& BSEcon.economyMethod.hasBank(BetterShop.config.BOSBank)) {
 				BSEcon.addMoney(BetterShop.config.BOSBank, -amount);
 			}
 			return BSEcon.getBalance(player) != preAmt;
@@ -245,33 +263,44 @@ public class BSutils {
 	}
 
 	static boolean hasPermission(CommandSender player, String node, boolean notify) {
-		if (player == null || player.isOp() || !(player instanceof Player) || node == null || node.length() == 0) { // ops override permission check (double-check is a Player)
+		if (player == null || player.isOp() || !(player instanceof Player)
+				|| node == null || node.length() == 0) { // ops override permission check (double-check is a Player)
 			return true;
-		}/* else if (!node.toLowerCase().startsWith("bettershop")) {
-		node = "BetterShop" + (node.codePointAt(0) == '.' ? "" : ".") + node;
-		}*/
+		}
+		if (_hasPerm((Player) player, node)) {
+			return true;
+		} else if (notify) {
+			//PermDeny(player, node);
+			BSutils.sendMessage(player, BetterShop.config.getString("permdeny").replace("<perm>", node));
+		}
+		return false;
+	}
+
+	private static boolean _hasPerm(Player player, String node) {
 		try {
-			if (BetterShop.Permissions == null) {
-				// only ops have access to .admin
-				if (node.length() < 16 // if invalid node, assume true
-						|| !node.substring(0, 16).equalsIgnoreCase("BetterShop.admin")) {
-					return true;
-				}
-			} else {//if (player instanceof Player) {
-				if (BetterShop.Permissions.getHandler().has((Player) player, node)) {
-					return true;
-				}
+			if (BetterShop.Permissions != null) {
+				return BetterShop.Permissions.getHandler().has(player, node);
 			}
-			if (notify) {
-				//PermDeny(player, node);
-				BSutils.sendMessage(player, BetterShop.config.getString("permdeny").replace("<perm>", node));
+//			System.out.println("no perm: checking superperm for " + player.getName() + ": " + node);
+//			System.out.println(player.hasPermission(node));
+//			for(PermissionAttachmentInfo i : player.getEffectivePermissions()){
+//				System.out.println(i.getPermission());
+//			}
+			if (player.hasPermission(node)) {
+				return true;
+			} else if (!node.contains("*") && Str.count(node, '.') >= 2) {
+//				System.out.println("Checking for " + node.substring(0, node.lastIndexOf('.') + 1) + "*  : "
+//						+ player.hasPermission(node.substring(0, node.lastIndexOf('.') + 1) + "*"));
+				return player.hasPermission(node.substring(0, node.lastIndexOf('.') + 1) + "*");
 			}
+//			System.out.println("no permission");
 			return false;
 		} catch (Exception e) {
 			BetterShop.Log(Level.SEVERE, e, false);
-			return node.length() < 16 // if invalid node, assume true
-					|| !node.substring(0, 16).equalsIgnoreCase("BetterShop.admin");
 		}
+		return node.length() < 16 // if invalid node, assume true
+				|| (!node.substring(0, 16).equalsIgnoreCase("BetterShop.admin") // only ops have access to .admin
+				&& !node.substring(0, 19).equalsIgnoreCase("BetterShop.discount"));
 	}
 
 	public static void sendFormttedMessage(Player player, String key, String item, int amt, double total) {
@@ -279,8 +308,8 @@ public class BSutils {
 		BSutils.sendMessage(player, BetterShop.config.getString(key).
 				replace("<item>", item).
 				replace("<amt>", Integer.toString(amt)).
-				replace("<priceper>", BetterShop.config.intCurrency() ? String.format("%d", (int) Math.round(total / amt)) : String.format("%.2f", total / amt)).
-				replace("<total>", BetterShop.config.intCurrency() ? String.format("%d", (int) Math.round(total)) : String.format("%.2f", total)).
+				replace("<priceper>", String.format("%.2f", total / amt)).
+				replace("<total>", String.format("%.2f", total)).
 				replace("<curr>", BetterShop.config.currency()).
 				replace("<totcur>", BSutils.formatCurrency(total)));
 		//price
@@ -288,8 +317,8 @@ public class BSutils {
 			BSutils.broadcastMessage(player, BetterShop.config.getString("public" + key).
 					replace("<item>", item).
 					replace("<amt>", String.valueOf(amt)).
-					replace("<priceper>", BetterShop.config.intCurrency() ? String.format("%d", (int) Math.round(total / amt)) : String.format("%.2f", total / amt)).
-					replace("<total>", BetterShop.config.intCurrency() ? String.format("%d", (int) Math.round(total)) : String.format("%.2f", total)).
+					replace("<priceper>", String.format("%.2f", total / amt)).
+					replace("<total>", String.format("%.2f", total)).
 					replace("<curr>", BetterShop.config.currency()).
 					replace("<totcur>", BSutils.formatCurrency(total)).
 					replace("<player>", player.getDisplayName()),
@@ -416,7 +445,7 @@ public class BSutils {
 		return inv;
 	}
 
-	public static ArrayList<ItemStockEntry> getTotalInventory(Player player, boolean onlyInv, ArrayList<ItemStockEntry> toFind) {
+	public static ArrayList<ItemStockEntry> getTotalInventory(Player player, boolean onlyInv, List<ItemStockEntry> toFind) {
 		if (toFind == null) {
 			return getTotalInventory(player, onlyInv);
 		} else if (player == null) {
@@ -583,11 +612,13 @@ public class BSutils {
 			canHold = BetterShop.config.maxEntityPurchase;
 		}
 		if (amt > canHold) {
-			BSutils.sendMessage(player, String.format(BetterShop.config.getString("outofroom").
-					replace("<item>", "%1$s").replace("<amt>", "%2$d").
-					replace("<priceper>", "%3$01.2f").replace("<leftover>", "%4$d").
-					replace("<curr>", "%5$s").replace("<free>", "%6$d"), toBuy.coloredName(),
-					amt, price, amt - canHold, BetterShop.config.currency(), canHold));
+			BSutils.sendMessage(player, BetterShop.config.getString("outofroom").
+					replace("<item>", toBuy.coloredName()).
+					replace("<amt>", String.valueOf(amt)).
+					replace("<priceper>", String.format("%01.2f", price)).
+					replace("<leftover>", String.valueOf(amt - canHold)).
+					replace("<curr>", BetterShop.config.currency()).
+					replace("<free>", String.valueOf(canHold)));
 			if (canHold == 0) {
 				return null;
 			}
@@ -614,9 +645,9 @@ public class BSutils {
 						replace("<item>", toBuy.coloredName()));
 				return null;
 			} else if (avail >= 0 && amt > avail) {
-				BSutils.sendMessage(player, String.format(BetterShop.config.getString("lowstock").
+				BSutils.sendMessage(player, BetterShop.config.getString("lowstock").
 						replace("<item>", toBuy.coloredName()).
-						replace("<amt>", String.valueOf(avail))));
+						replace("<amt>", String.valueOf(avail)));
 				amt = (int) avail;
 			}
 		}
@@ -905,11 +936,11 @@ public class BSutils {
 			}
 			return sellItems(player, onlyInv, playerInv);
 		} else {
-			return sellItems(player, onlyInv, new ArrayList<ItemStockEntry>(Arrays.asList(new ItemStockEntry(item, (long) amt))));
+			return sellItems(player, onlyInv, Arrays.asList(new ItemStockEntry(item, (long) amt)));
 		}
 	}
 
-	protected static double sellItems(Player player, boolean onlyInv, ArrayList<ItemStockEntry> items) {
+	protected static double sellItems(Player player, boolean onlyInv, List<ItemStockEntry> items) {
 		PlayerInventory inv = player.getInventory();
 		ItemStack[] its = inv.getContents();
 
@@ -945,11 +976,11 @@ public class BSutils {
 								} else {
 									inv.setItem(i, null);
 								}
-								if (it.IsTool()) {
-									credit += (BetterShop.pricelist.getSellPrice(it) * (1 - ((double) its[i].getDurability() / it.MaxDamage()))) * amt;
-								} else {
-									credit += BetterShop.pricelist.getSellPrice(it) * amt;
-								}
+
+								credit += it.IsTool() ? (BetterShop.pricelist.itemSellPrice(player, it)
+										* (1 - ((double) its[i].getDurability() / it.MaxDamage()))) * amt
+										: BetterShop.pricelist.itemSellPrice(player, it) * amt;
+
 								amtSold += amt;
 								amtLeft -= amt;
 								if (amtLeft <= 0) {

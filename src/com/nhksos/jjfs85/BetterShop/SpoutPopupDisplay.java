@@ -372,7 +372,8 @@ class MarketItem extends GenericContainer {
 
 	int itemId;
 	byte itemData;
-	PriceListItem price;
+	//PriceListItem price;
+	double buyPrice, sellPrice;
 	long stock;
 	Player player;
 	GenericItemWidget item = new GenericItemWidget();
@@ -479,7 +480,8 @@ class MarketItem extends GenericContainer {
 	public final void updateItem(int id, byte dat) {
 		itemId = id;
 		itemData = dat;
-		price = null;
+		//price = null;
+		buyPrice = sellPrice = -1;
 
 		JItem j = JItemDB.GetItem(id, dat);
 		if (j != null && j.IsValidItem()) {
@@ -492,7 +494,9 @@ class MarketItem extends GenericContainer {
 		lblName.setText(j != null ? j.Name() : String.valueOf(id)).setDirty(true);
 
 		try {
-			price = BetterShop.pricelist.getItemPrice(id, dat);
+			//price = BetterShop.pricelist.getItemPrice(id, dat);
+			buyPrice = BetterShop.pricelist.itemBuyPrice(player, id, dat);
+			sellPrice = BetterShop.pricelist.itemSellPrice(player, id, dat);
 			stock = BetterShop.stock.freeStockRemaining(id, dat);
 			maxBuyAmt = BSutils.amtCanBuy(player, j);
 			maxSellAmt = BSutils.amtHas(player, j);
@@ -500,8 +504,8 @@ class MarketItem extends GenericContainer {
 				lblName.setText(lblName.getText() + "\n\n" + (stock < 0 ? "INF" : stock) + " in Stock");
 			}
 
-			lblBuy.setText("Buy Price: " + BSutils.formatCurrency(price.buy)).setDirty(true);
-			lblSell.setText("Sell Price: " + BSutils.formatCurrency(price.sell)).setDirty(true);
+			lblBuy.setText("Buy Price: " + BSutils.formatCurrency(buyPrice)).setDirty(true);
+			lblSell.setText("Sell Price: " + BSutils.formatCurrency(sellPrice)).setDirty(true);
 
 			if (!lblAmt.isVisible()) {
 				lblAmt.setVisible(true).setDirty(true);
@@ -515,7 +519,7 @@ class MarketItem extends GenericContainer {
 				btnBuy.setVisible(true).setDirty(true);
 				btnSell.setVisible(true).setDirty(true);
 			}
-			if (currentAmt >= maxBuyAmt || currentAmt >= maxSellAmt) {
+			if (currentAmt > maxBuyAmt && currentAmt > maxSellAmt) {
 				currentAmt = maxBuyAmt > maxSellAmt ? maxBuyAmt : maxSellAmt;
 			}
 			setAmt(currentAmt);//maxBuyAmt == 0 ? (maxSellAmt == 0 ? 0 : 1) : 1);
@@ -593,9 +597,9 @@ class MarketItem extends GenericContainer {
 //		}
 
 		lblBuyBtn.setText("Buy " + buyAmt() + " for\n "
-				+ BSutils.formatCurrency(price.buy * buyAmt())).setDirty(true);
+				+ BSutils.formatCurrency(buyPrice * buyAmt())).setDirty(true);
 		lblSellBtn.setText("Sell " + sellAmt() + " for\n "
-				+ BSutils.formatCurrency(price.sell * sellAmt())).setDirty(true);
+				+ BSutils.formatCurrency(sellPrice * sellAmt())).setDirty(true);
 	}
 	Timer t = null;
 

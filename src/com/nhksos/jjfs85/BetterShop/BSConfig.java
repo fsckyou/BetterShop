@@ -103,6 +103,8 @@ public class BSConfig {
 	// spout-related
 	boolean spoutEnabled = true;
 	String spoutKey = "B";
+	// permissions groups
+	HashMap<String, Double> groups = new HashMap<String, Double>();
 
 	public enum DBType {
 
@@ -480,6 +482,20 @@ public class BSConfig {
 				spoutEnabled = n.getBoolean("enabled", spoutEnabled);
 				spoutKey = n.getString("key", spoutKey);
 			}
+			
+			// groups
+			if ((n = config.getNode("discountGroups")) != null) {
+				groups.clear();
+				for(String g : n.getKeys()){
+					if(!CheckInput.IsDouble(n.getString(g))){
+						BetterShop.Log(Level.WARNING, "Invalid discount set for " + g);
+					} else {
+						double d = CheckInput.GetDouble(n.getString(g), 0) / 100;
+						if(d > 1) d = 1;
+						groups.put(g, d);
+					}
+				}
+			}
 
 			if (!usingOldMySQLsetting && (n = config.getNode("MySQL")) != null) {
 				databaseType = n.getBoolean("useMySQL", config.getBoolean("useMySQLPricelist", false)) ? DBType.MYSQL : DBType.FLATFILE;
@@ -694,9 +710,6 @@ public class BSConfig {
 		return plural ? pluralCurrency : defaultCurrency;
 	}
 
-	public boolean intCurrency() {
-		return BetterShop.economy != null;
-	}
 	public FileWriter commlog_fstream = null;
 	public BufferedWriter commlog_out = null;
 

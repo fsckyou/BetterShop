@@ -13,7 +13,7 @@ import com.jascotty2.util.Str;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import org.bukkit.ChatColor;
 
@@ -294,8 +294,7 @@ public class BSCommand {
         if (BetterShop.pricelist == null) {
             BSutils.sendMessage(player, ChatColor.RED + "Pricelist Error: Notify Server Admin");
         } else {
-            for (String line : BetterShop.pricelist.GetShopListPage(pagenum, player instanceof Player,
-                    BetterShop.config.allowbuyillegal || BSutils.hasPermission(player, BSutils.BetterShopPermission.ADMIN_ILLEGAL, false))) {
+            for (String line : BetterShop.pricelist.GetShopListPage(pagenum, player)) {
                 BSutils.sendMessage(player, line.replace("<curr>", BetterShop.config.currency()));
             }
         }
@@ -310,7 +309,7 @@ public class BSCommand {
             return false;
         }
         try {
-            LinkedList<String> items = BetterShop.pricelist.GetItemList(
+            List<String> items = BetterShop.pricelist.GetItemList(
                     BetterShop.config.allowbuyillegal || BSutils.hasPermission(player, BSutils.BetterShopPermission.ADMIN_ILLEGAL, false));
             StringBuilder output = new StringBuilder("\u00A72");
             if (items != null && items.size() > 0) {
@@ -470,8 +469,8 @@ public class BSCommand {
 
                     BSutils.sendMessage(player, BetterShop.config.getString(isChanged ? "chgmsg" : "addmsg").
                             replace("<item>", toAdd.coloredName()).
-                            replace("<buyprice>", BetterShop.config.intCurrency() ? String.format("%d", (int) Math.round(by)) : String.format("%.2f", by)).
-                            replace("<sellprice>", BetterShop.config.intCurrency() ? String.format("%d", (int) Math.round(sl)) : String.format("%.2f", sl)).
+                            replace("<buyprice>", String.format("%.2f", by)).
+                            replace("<sellprice>", String.format("%.2f", sl)).
                             replace("<curr>", BetterShop.config.currency()).
                             replace("<buycur>", BSutils.formatCurrency(by)).
                             replace("<sellcur>", BSutils.formatCurrency(sl)),
@@ -703,7 +702,7 @@ public class BSCommand {
         }
         double price = Double.NEGATIVE_INFINITY;
         try {
-            price = BetterShop.pricelist.getSellPrice(toSell);
+            price = BetterShop.pricelist.itemSellPrice((Player) player, toSell);
         } catch (Exception ex) {
             BetterShop.Log(Level.SEVERE, ex);
         }
