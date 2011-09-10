@@ -65,7 +65,11 @@ shop:
     # scan for destroyed signs?
     tntSignDestroyProtection: false
     # command-based shop mode
-    # modes: global, disabled (default: global)
+    # modes: GLOBAL, REGIONS, BOTH, NONE (default: global)
+    # GLOBAL: regions are areas where command-based shop access is disabled
+    # REGIONS: globally disabled, except for within regions
+    # BOTH: allows command-based shop access from anywhere
+    # NONE: cannot use commands (or spout) to use the shop
     commandShop: global
     #items listed here will be sorted before everything else, in this order
     # ex:  4, 35, 35:1, 35:2, 35:3, 35:4, 35:5, 8, 2
@@ -464,3 +468,8 @@ strings:
     # <curr> - iConomy currency
     # <totcur> - formatted total (like "1,800 Coins" instead of "1800 Coin")
     publicsellmsg: "<player> sold &f<amt> &2<item>&2 for &f<totcur>"
+
+### messages related to region shops
+
+    # when tries a command (or spout gui) from a disabled region
+    regionShopDisabled: "You cannot access the store from here!"

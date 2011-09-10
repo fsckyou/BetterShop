@@ -1,8 +1,9 @@
 name: BetterShop
-main: com.nhksos.jjfs85.BetterShop.BetterShop
-version: 1.6.7.1
+#main: com.nhksos.jjfs85.BetterShop.BetterShop
+main: me.jascotty2.bettershop.BetterShop
+version: 2.0 alpha
 website: http://github.com/BetterShop/BetterShop
-author: jascotty2 and jjfs85 (and lologarithm)
+author: jascotty2 (and jjfs85 and lologarithm)
 description: >
              BetterShop is a command-based shop for Bukkit.
              It uses iConomy or BOSEcon for the economic backbone,
@@ -23,15 +24,15 @@ commands:
     usage: /<command> <page>
     aliases: [sl,slist]
     permission: BetterShop.user.list
-  shopalias:
+  shoplistalias:
     description: show tha accepted aliases for an item
     usage: /<command> [item]
-    aliases: [salias, sa]
+    aliases: [shopalias, salias, sa]
     permission: BetterShop.user.help
-  shopitems:
+  shoplistitems:
     description: show listing of items in shop, without prices
     usage: /<command>
-    aliases: [sitems]
+    aliases: [shopitems, sitems, slistitems]
     permission: BetterShop.user.list
   shopbuy:
     description: Buy an item for the price in the shop
@@ -86,7 +87,7 @@ commands:
   shoplistkits:
     description: Lists available kits
     usage: /<command> <page>
-    aliases: [shopkits,skits]
+    aliases: [shopkits, skits, slistkits]
     permission: BetterShop.user.list
   shopbuyagain:
     description: repeat last purchase
@@ -102,6 +103,13 @@ permissions:
   BetterShop.user.*:
     description: all user commands
     default: true
+    children:
+      BetterShop.user.list: true
+      BetterShop.user.check: true
+      BetterShop.user.help: true
+      BetterShop.user.buy: true
+      BetterShop.user.sell: true
+      BetterShop.user.spout: true
   BetterShop.user.list:
     description: look through shop listing of prices
   BetterShop.user.check:
@@ -117,6 +125,15 @@ permissions:
   BetterShop.admin.*:
     description: all admin permissions
     default: op
+    children:
+      BetterShop.admin.add: true
+      BetterShop.admin.remove: true
+      BetterShop.admin.load: true
+      BetterShop.admin.info: true
+      BetterShop.admin.illegal: true
+      BetterShop.admin.backup: true
+      BetterShop.admin.restock: true
+      BetterShop.admin.makesign: true
   BetterShop.admin.add:
     description: add/edit items to/in the shop
   BetterShop.admin.remove:
