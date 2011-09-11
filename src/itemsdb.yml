@@ -424,6 +424,15 @@ items:
     item95:
         name: Locked Chest
         aliases:
+    item96:
+        name: Trapdoor
+        aliases: tdoor
+    item97:
+        name: Silverfish Stone
+        aliases: monsterstone, silverstone
+    item98:
+        name: Stone Brick
+        aliases:
 # items
     item256:
         name: Iron Shovel
@@ -815,6 +824,32 @@ items:
         name: Map
     item359:
         name: Shears
+    item360:
+        name: Melon Slice
+    item361:
+        name: Pumpkin Seeds
+        aliases:
+    item362:
+        name: Melon Seeds
+        aliases:
+    item363:
+        name: Raw Beef
+        aliases: beef, cowmeat
+    item364:
+        name: Steak
+        aliases: cookedbeef, cookedcow
+    item365:
+        name: Raw Chicken
+        aliases: chicken
+    item366:
+        name: Cooked Chicken
+        aliases:
+    item367:
+        name: Rotten Flesh
+        aliases: flesh
+    item368:
+        name: Ender Pearl
+        aliases: epearl
     item2256:
         name: Gold Record
         aliases: golddisk, grecord, gdisk
@@ -879,6 +914,13 @@ categories:
     food: apple, goldenapple, bread, pork, cookedpork, rawfish, cookedfish, cake, cookie
     loot: string, arrow, gunpowder, feather
     armor: 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317
+    tools: 256, 257, 258, 269, 270, 271, 273, 274, 275, 277, 278, 279, 284, 285, 286, 290, 291, 292, 293, 294, 346, 359
+    weapons: 261, 262, 267, 268, 272, 276, 283
+    wool: "35, 35:12, 35:10, 35:2, 35:11, 35:3, 35:9, 35:13, 35:5, 35:4, 35:1, 35:14, 35:6, 35:8, 35:7, 35:15"
+    dye: "351:15, 351:3, 351:5, 351:13, 351:4, 351:12, 351:6, 351:2, 351:11, 351:14, 351:1, 351:9, 351:7, 351:8, 351"
+    dye: "351, 351:1, 351:2, 351:3, 351:4, 351:5, 351:6, 351:7, 351:8, 351:9, 351:10, 351:11, 351:12, 351:13, 351:14, 351:15"
+    entities: 4000, 4001, 4002, 4003, 4004, 4005, 4006, 4007, 4008, 4009, 4010, 4011, 4012, 4013, 4014
+    kits: 5000, 5001, 5002
 
 #kits can be added here (must be numbered, starting at 1, starts at 5000 in pricelist database)
 # kits can be bought, not sold

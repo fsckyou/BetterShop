@@ -156,6 +156,19 @@ public enum JItems {
     DIODE_BLOCK_ON("Repeater Block On", 94, false),
     LOCKED_CHEST("Locked Chest", 95, false),
     TRAPDOOR("Trapdoor", 96, "5@6=2"),
+    SILVERFISH_STONE("Silverfish Stone", 97, false),
+    STONE_BRICK("Stone Brick", 98, "1@4=4"),
+    BROWN_MUSHROOM_BLOCK("Brown Mushroom Block", 99, false),
+    RED_MUSHROOM_BLOCK("Red Mushroom Block", 100, false),
+    IRON_BARS("Iron Bars", 101, "265@6=16"),
+    GLASS_PANE("Glass Pane", 102, "20@6=16"),
+    MELON("Melon", 103, "360@9"),
+    PUMPKIN_STEM("Pumpkin Stem Block", 104, false),
+    MELON_STEM("Melon Stem Block", 105, false),
+    VINE("Vine", 106),
+    FENCE_GATE("Fence Gate", 107, "4@280+5@2"),
+    BRICK_STAIRS("Brick Stairs", 108, "45@6=4"),
+    STONE_STAIRS("Stone Stairs", 109, "98@6=4"),
     IRON_SPADE("Iron Shovel", 256, "280@2+265", (short) 251),
     IRON_PICKAXE("Iron Pickaxe", 257, "280@2+265@3", (short) 251),
     IRON_AXE("Iron Axe", 258, "280@2+265@3", (short) 251),
@@ -198,7 +211,7 @@ public enum JItems {
     GOLD_HOE("Gold Hoe", 294, (short) 33),
     SEEDS("Seeds", 295),
     WHEAT("Wheat", 296),
-    BREAD("Bread", 297, "296@3", 1),
+    BREAD("Bread", 297, "296@3"),
     LEATHER_HELMET("Leather Helmet", 298, "334@5", (short) 34),
     LEATHER_CHESTPLATE("Leather Chestplate", 299, "334@8", (short) 49),
     LEATHER_LEGGINGS("Leather Leggings", 300, "334@7", (short) 46),
@@ -221,8 +234,8 @@ public enum JItems {
     GOLD_LEGGINGS("Gold Leggings", 316, "265@7", (short) 92),
     GOLD_BOOTS("Gold Boots", 317, "265@4", (short) 80),
     FLINT("Flint", 318),
-    PORK("Raw Porkchop", 319, 1),
-    GRILLED_PORK("Cooked Porkchop", 320, "319@6+263=6", 1), // intentionally less-than-perfect conversion
+    PORK("Raw Porkchop", 319),
+    GRILLED_PORK("Cooked Porkchop", 320, "319@8+263=8, 319@3+5@2=3"), // intentionally less-than-perfect conversion
     PAINTING("Painting", 321, "280@8+15"),
     GOLDEN_APPLE("Golden Apple", 322, "260+41@8", 1),
     SIGN("Sign", 323, "280+5@6", 1),
@@ -277,6 +290,15 @@ public enum JItems {
     COOKIE("Cookie", 357, "296@2+351:3", 8),
     MAP("Map", 358, "339@8+345"),
     SHEARS("Shears", 359, "265@2", (short) 239),
+    MELON_SLICE("Melon Slice", 360),
+    PUMPKIN_SEEDS("Pumpkin Seeds", 361, "360"),
+    MELON_SEEDS("Melon Seeds", 362, "360"),
+    RAW_BEEF("Raw Beef", 363),
+    STEAK("Steak", 364, "363@8+263=8, 363@3+5@2=3"),
+    RAW_CHICKEN("Raw Chicken", 365),
+    COOKED_CHICKEN("Cooked Chicken", 366, "365@8+263=8, 365@3+5@2=3"),
+    ROTTEN_FLESH("Rotten Flesh", 367),
+    ENDER_PEARL("Ender Pearl", 368),
     GOLD_RECORD("Gold Record", 2256, 1),
     GREEN_RECORD("Green Record", 2257, 1);
 // Item Information
@@ -493,8 +515,8 @@ public enum JItems {
     }
 
     private JItem _getIdDat(String datStr) {
-        String s1 = datStr.contains(":") ? datStr.substring(0, datStr.indexOf(":")).trim() : datStr,
-                s2 = datStr.contains(":") ? datStr.substring(datStr.indexOf(":") + 1).trim() : "";
+        String s1 = datStr.contains(":") ? datStr.substring(0, datStr.indexOf(':')).trim() : datStr,
+                s2 = datStr.contains(":") ? datStr.substring(datStr.indexOf(':') + 1).trim() : "";
         JItem r = new JItem();
         r.itemId = CheckInput.GetInt(s1, -1);
         r.itemDat = CheckInput.GetByte(s2, (byte) 0);
@@ -509,22 +531,22 @@ public enum JItems {
 
         // get result amount
         if (craftStr.contains("=")) {
-            if (craftStr.split("=").length > 2 || craftStr.length() == craftStr.indexOf("=")) {
+            if (craftStr.split("=").length > 2 || craftStr.length() == craftStr.indexOf('=')) {
                 return null;
             }
-            ret.resultAmount = CheckInput.GetInt(craftStr.substring(craftStr.indexOf("=") + 1), 0);
-            craftStr = craftStr.substring(0, craftStr.indexOf("="));
+            ret.resultAmount = CheckInput.GetInt(craftStr.substring(craftStr.indexOf('=') + 1), 0);
+            craftStr = craftStr.substring(0, craftStr.indexOf('='));
         } else {
             ret.resultAmount = 1;
         }
         // extract all items
         for (String i : craftStr.split("\\+")) {
             if (i.contains("@")) {
-                if (i.length() > i.indexOf("@")) {
-                    ret.AddItem(_getIdDat(i.substring(0, i.indexOf("@"))),
-                            CheckInput.GetInt(i.substring(i.indexOf("@") + 1), 0));
+                if (i.length() > i.indexOf('@')) {
+                    ret.AddItem(_getIdDat(i.substring(0, i.indexOf('@'))),
+                            CheckInput.GetInt(i.substring(i.indexOf('@') + 1), 0));
                 } else {
-                    ret.AddItem(_getIdDat(i.substring(0, i.indexOf("@"))));
+                    ret.AddItem(_getIdDat(i.substring(0, i.indexOf('@'))));
                 }
             } else {
                 ret.AddItem(_getIdDat(i));
@@ -589,7 +611,7 @@ public enum JItems {
 
     public static JItems getItem(int id) {
         for (JItems i : JItems.values()) {
-            if (i.itemId == id && i.itemData == 0) {
+            if (i.ID() == id && i.Data() == 0) {
                 return i;
             }
         }
@@ -598,7 +620,7 @@ public enum JItems {
 
     public static JItems getItem(int id, byte dat) {
         for (JItems i : JItems.values()) {
-            if (i.itemId == id && i.itemData == dat) {
+            if (i.ID() == id && i.Data() == dat) {
                 return i;
             }
         }
@@ -607,7 +629,7 @@ public enum JItems {
 
     public static JItems getItem(Material material) {
         for (JItems i : JItems.values()) {
-            if (i.itemId == material.getId() && i.itemData == 0) {
+            if (i.ID() == material.getId() && i.Data() == 0) {
                 return i;
             }
         }
@@ -621,7 +643,7 @@ public enum JItems {
         int id = search.getItemStack().getTypeId();
         byte dat = search.getItemStack().getData().getData();
         for (JItems i : JItems.values()) {
-            if (i.itemId == id && i.itemData == dat) {
+            if (i.ID() == id && i.Data() == dat) {
                 return i;
             }
         }
