@@ -55,7 +55,7 @@ public class SellCommands {
 
 	@Command(
 	commands = {"shopsell", "ssell", "sell"},
-	aliases = {"s"},
+	aliases = {"sell", "s"},
 	desc = "Sell an item for the price in the shop",
 	usage = "<item> [amount]",
 	permissions = {"BetterShop.user.sell"})
@@ -236,7 +236,7 @@ public class SellCommands {
 
 	@Command(
 	commands = {"shopsellstack", "sellstack", "ssellstack", "sells", "ssells"},
-	aliases = {},
+	aliases = {"sellstack"},
 	desc = "Sell a stack of an item to the shop",
 	usage = "<item> [amount]",
 	permissions = {"BetterShop.user.sell"})
@@ -287,7 +287,7 @@ public class SellCommands {
 
 	@Command(
 	commands = {"shopsellall", "sellall"},
-	aliases = {"sall"},
+	aliases = {"sellall", "sall"},
 	desc = "Sell a stack of an item to the shop",
 	usage = "<item> [amount]",
 	permissions = {"BetterShop.user.sell"})
@@ -347,7 +347,7 @@ public class SellCommands {
 
 	@Command(
 	commands = {"shopsellagain", "ssellagain", "sellagain", "ssa"},
-	aliases = {"s!", "sell!"},
+	aliases = {"sellagain", "s!", "sell!"},
 	desc = "Repeat the last selling action the player did",
 	usage = "",
 	permissions = {"BetterShop.user.sell"})

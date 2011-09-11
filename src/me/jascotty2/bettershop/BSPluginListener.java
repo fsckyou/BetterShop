@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package me.jascotty2.bettershop;
 
 import me.jascotty2.bettershop.commands.HelpCommands;
@@ -33,7 +32,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.jascotty2.minecraftim.MinecraftIM;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import me.taylorkelly.help.Help;
+import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 import org.getspout.spout.Spout;
 
 /**
@@ -76,9 +77,17 @@ class BSPluginListener extends ServerListener {
 						Plugin bp = BetterShop.getPlugin();
 						//bp.super.getClassLoader().loadClass(event.getPlugin().getDescription().getMain());
 						//JavaPlugin.class.getClassLoader().loadClass(event.getPlugin().getDescription().getMain());
-						((JavaPlugin)bp).getClass().getClassLoader().loadClass(event.getPlugin().getDescription().getMain());
+						((JavaPlugin) bp).getClass().getClassLoader().loadClass(event.getPlugin().getDescription().getMain());
 						BetterShop.keyListener = new SpoutKeyListener();
 						BetterShop.buttonListener = new SpoutPopupListener();
+
+						// spout listeners
+						PluginManager pm = shop.getServer().getPluginManager();
+						pm.registerEvent(Event.Type.CUSTOM_EVENT, BetterShop.keyListener,
+								Event.Priority.Normal, shop);
+						pm.registerEvent(Event.Type.CUSTOM_EVENT, BetterShop.buttonListener,
+								Event.Priority.Normal, shop);
+
 					} catch (ClassNotFoundException ex) {
 						BetterShopLogger.Severe("Error loading Spout!", ex);
 					}

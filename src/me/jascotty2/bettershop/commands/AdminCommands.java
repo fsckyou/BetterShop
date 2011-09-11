@@ -66,7 +66,7 @@ public class AdminCommands {
 
 	@Command(
 	commands = {"shopadd", "sadd"},
-	aliases = {"ad", "add"},
+	aliases = {"add", "ad"},
 	desc = "Add an item to, or update an item in, the price list",
 	usage = "[item] [buy-price] [sell-price]",
 	min = 2,
@@ -147,7 +147,7 @@ public class AdminCommands {
 
 	@Command(
 	commands = {"shopremove", "sremove"},
-	aliases = {"rm", "remove"},
+	aliases = {"remove", "rm"},
 	desc = "Remove an item from the price list",
 	usage = "[item]",
 	min = 1,
@@ -384,7 +384,7 @@ public class AdminCommands {
 
 	@Command(
 	commands = {},
-	aliases = {"v", "ver", "version"},
+	aliases = {"version", "v", "ver"},
 	desc = "Check the current version",
 	permissions = {"BetterShop.admin.info", "jascotty2", "jjfs85"})
 	public static void version(CommandSender sender, String[] s) {

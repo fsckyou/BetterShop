@@ -43,7 +43,7 @@ import org.bukkit.entity.Player;
 public class ListCommands {
 
 	@Command(commands = {"shoplist", "slist", "sl"},
-	aliases = {"l", "ls", "list"},
+	aliases = {"list", "l", "ls"},
 	desc = "Lists prices for the shop",
 	permissions = {"BetterShop.user.list"})
 	public static boolean list(CommandSender player, String[] s) {
@@ -79,7 +79,7 @@ public class ListCommands {
 	}
 
 	@Command(commands = {"shoplistitems", "shopitems", "sitems", "slistitems"},
-	aliases = {"i", "li", "items", "listitems"},
+	aliases = {"items", "i", "li", "listitems"},
 	desc = "Lists items registered in the shop",
 	permissions = {"BetterShop.user.list"})
 	public static boolean listitems(CommandSender player, String[] s) {
@@ -116,7 +116,7 @@ public class ListCommands {
 
 	@Command(
 	commands = {"shoplistkits", "shopkits", "skits", "slistits"},
-	aliases = {"k", "kits", "listkits"},
+	aliases = {"kits", "k", "listkits"},
 	desc = "Lists kits in the shop",
 	permissions = {"BetterShop.user.list"})
 	public static boolean listkits(CommandSender player, String[] s) {
@@ -148,7 +148,7 @@ public class ListCommands {
 
 	@Command(
 	commands = {"shoplistalias", "shopalias", "salias", "sa"},
-	aliases = {"a", "alias", "listalias", "aliases", "listaliases"},
+	aliases = {"alias", "a", "listalias", "aliases", "listaliases"},
 	desc = "Show the accepted aliases for an item",
 	permissions = {"BetterShop.user.help"})
 	public static boolean listAlias(CommandSender player, String[] s) {
@@ -178,7 +178,7 @@ public class ListCommands {
 
 	@Command(
 	commands = {"shopcheck", "scheck", "sc"},
-	aliases = {"c", "check", "price", "lookup"},
+	aliases = {"check", "c", "price", "lookup"},
 	desc = "Check prices for an item",
 	permissions = {"Bettershop.user.check"})
 	public static boolean check(CommandSender player, String[] s) {

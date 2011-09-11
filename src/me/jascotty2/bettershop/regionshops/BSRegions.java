@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package me.jascotty2.bettershop.regionshops;
 
 import com.sk89q.wg_regions_52.ApplicableRegionSet;
@@ -31,10 +30,14 @@ import com.sk89q.worldedit.bukkit.selections.Polygonal2DSelection;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
+import me.jascotty2.bettershop.BSutils;
 import org.bukkit.Server;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -83,21 +86,13 @@ public class BSRegions {
 
 	public boolean define(Player pl, String id, Selection sel) {
 		if (sel == null) {
-			if (pl != null) {
-				pl.sendMessage("Select a region first");
-			}
+			BSutils.sendMessage(pl, ChatColor.YELLOW + "Select a region first");
 			return false;
-		}
-
-		if (!Region.isValidId(id)) {
-			if (pl != null) {
-				pl.sendMessage("Invalid region ID specified!");
-			}
+		} else if (!Region.isValidId(id)) {
+			BSutils.sendMessage(pl, ChatColor.RED + "Invalid region ID specified!");
 			return false;
 		} else if (id.equalsIgnoreCase("__global__")) {
-			if (pl != null) {
-				pl.sendMessage("A region cannot be named __global__");
-			}
+			BSutils.sendMessage(pl, ChatColor.RED + "A region cannot be named __global__");
 			return false;
 		}
 
@@ -114,9 +109,7 @@ public class BSRegions {
 			final BlockVector max = sel.getNativeMaximumPoint().toBlockVector();
 			region = new CuboidRegion(id, min, max);
 		} else {
-			if (pl != null) {
-				pl.sendMessage(ChatColor.RED + "The type of region selected in WorldEdit is unsupported!");
-			}
+			BSutils.sendMessage(pl, ChatColor.RED + "The type of region selected in WorldEdit is unsupported!");
 			return false;
 		}
 
@@ -125,13 +118,9 @@ public class BSRegions {
 
 		try {
 			mgr.save();
-			if (pl != null) {
-				pl.sendMessage(ChatColor.YELLOW + "Region saved as " + id + ".");
-			}
+			BSutils.sendMessage(pl, ChatColor.GREEN + "Region saved as " + id + ".");
 		} catch (IOException e) {
-			if (pl != null) {
-				pl.sendMessage(ChatColor.RED + "Failed to write regions file: " + e.getMessage());
-			}
+			BSutils.sendMessage(pl, ChatColor.RED + "Failed to write regions file: " + e.getMessage());
 		}
 		return true;
 	}
@@ -149,8 +138,8 @@ public class BSRegions {
 	}
 
 	public String[] list(final World world) {
-		if(world != null){
-			
+		if (world != null) {
+
 			final RegionManager mgr = globalRegionManager.get(world);
 			final Map<String, Region> regions = mgr.getRegions();
 
@@ -183,61 +172,71 @@ public class BSRegions {
 		}
 	}
 
-	public void remove(CommandSender sender, String args[]) {
-		if (args.length < 2 || args.length > 3) {
-			sender.sendMessage("Error parsing command: incorrect # of args");
-			return;
-		}
-
-		String id = args[2];
-
-		if (sender instanceof Player) {
-			remove(sender, ((Player) sender).getWorld(), id);
-		} else {
-			String worldname;
-			if (id.contains(":") && id.indexOf(':') == id.lastIndexOf(':')) {
-				worldname = id.substring(0, id.indexOf(':'));
-				id = id.substring(id.indexOf(':') + 1);
-			} else {
-				sender.sendMessage("must specify world (world:region)");
-				return;
-			}
-			World world = null;
-
-			for (final World w : sender.getServer().getWorlds()) {
-				if (w.getName().equalsIgnoreCase(worldname)) {
-					world = w;
-					break;
-				}
-			}
-
-			if (world == null) {
-				sender.sendMessage("world not found");
-				return;
-			}
-
-			remove(sender, world, id);
-		}
+	public void remove(World w, String id) {
+		remove(null, w, id);
 	}
 
-	private void remove(CommandSender sender, World world, String id) {
-		final RegionManager mgr = globalRegionManager.get(world);
-		final Region region = mgr.getRegion(id);
+	public boolean remove(CommandSender pl, World world, String id) {
+		if (world == null) {
+			if (pl == null) {
+				return false;
+			} else if (id.contains(":") || !(pl instanceof Player)) {
+				String worldname;
+				if (id.contains(":") && id.indexOf(':') == id.lastIndexOf(':')) {
+					worldname = id.substring(0, id.indexOf(':'));
+					id = id.substring(id.indexOf(':') + 1);
+				} else {
+					BSutils.sendMessage(pl, ChatColor.RED + "must specify world (world:region)");
+					return false;
+				}
 
-		if (region == null) {
-			sender.sendMessage("Could not find a region by that ID.");
-			return;
+				for (final World w : pl.getServer().getWorlds()) {
+					if (w.getName().equalsIgnoreCase(worldname)) {
+						world = w;
+						break;
+					}
+				}
+
+				if (world == null) {
+					BSutils.sendMessage(pl, ChatColor.RED + "world not found");
+					return false;
+				}
+			} else if (pl instanceof Player) {
+				world = ((Player) pl).getWorld();
+			}
 		}
+		if (world != null) {
+			final RegionManager mgr = globalRegionManager.get(world);
+			final Region region = mgr.getRegion(id);
 
-		mgr.removeRegion(id);
+			if (region == null) {
+				BSutils.sendMessage(pl, ChatColor.RED + "Could not find a region by that ID.");
+				return false;
+			}
 
-		sender.sendMessage(ChatColor.YELLOW + "Region '" + id + "' removed.");
+			mgr.removeRegion(id);
 
-		try {
-			mgr.save();
-		} catch (IOException e) {
-			sender.sendMessage("Failed to write regions file: " + e.getMessage());
+			BSutils.sendMessage(pl, ChatColor.GREEN + "Region '" + id + "' removed.");
+
+			try {
+				mgr.save();
+			} catch (IOException e) {
+				BSutils.sendMessage(pl, ChatColor.RED + "Failed to write regions file: " + e.getMessage());
+			}
 		}
+		return true;
+	}
+
+	public Collection<Region> getAll() {
+		ArrayList<Region> all = new ArrayList<Region>();
+		for (RegionManager r : globalRegionManager.getAll()) {
+			all.addAll(r.getRegions().values());
+		}
+		return all;
+	}
+
+	public Set<Entry<String, RegionManager>> getAllRegionManagers() {
+		return globalRegionManager.getAllEntries();
 	}
 } // end class BSRegions
 

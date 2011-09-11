@@ -19,7 +19,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package me.jascotty2.lib.bukkit.commands;
 
 import java.lang.reflect.InvocationTargetException;
@@ -176,8 +175,11 @@ public abstract class CommandManager {
 
 			if (checkHasPermission(player, childMethod)) {
 				Command childCmd = childMethod.getAnnotation(Command.class);
-
-				allowedCommands.add(childCmd.aliases()[0]);
+				if (childCmd.aliases().length > 1) {
+					allowedCommands.add(childCmd.aliases()[0]);
+				} else if (childCmd.commands().length > 1) {
+					allowedCommands.add(childCmd.commands()[0]);
+				} 
 			}
 		}
 

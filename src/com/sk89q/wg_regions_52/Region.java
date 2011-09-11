@@ -40,15 +40,11 @@ public abstract class Region implements Comparable<Region> {
     private String id;
     
     /**
-     * Priority.
-     */
-    private int priority = 0;
-    
-    /**
      * Holds the curParent.
      */
     private Region parent;
-    
+
+	private String extraInfo = null;
     /**
      * Construct a new instance of this region.
      *
@@ -65,6 +61,14 @@ public abstract class Region implements Comparable<Region> {
         return id;
     }
 
+	public String getInfo(){
+		return extraInfo;
+	}
+
+	public void setInfo(String extraInfo) {
+		this.extraInfo = extraInfo;
+	}
+	
     /**
      * Get the lower point of the cuboid.
      *
@@ -79,20 +83,6 @@ public abstract class Region implements Comparable<Region> {
      */
     public abstract BlockVector getMaximumPoint();
 
-    /**
-     * @return the priority
-     */
-    public int getPriority() {
-        return priority;
-    }
-
-    /**
-     * @param priority the priority to setFlag
-     */
-    public void setPriority(int priority) {
-        this.priority = priority;
-    }
-    
     /**
      * @return the curParent
      */
@@ -151,15 +141,7 @@ public abstract class Region implements Comparable<Region> {
      * @return
      */
     public int compareTo(Region other) {
-        if (id.equals(other.id)) {
-            return 0;
-        } else if (priority == other.priority) {
-            return 1;
-        } else if (priority > other.priority) {
-            return -1;
-        } else {
-            return 1;
-        }
+		return id.compareToIgnoreCase(other.getId());
     }
 
     /**

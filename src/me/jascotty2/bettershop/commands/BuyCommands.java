@@ -55,7 +55,7 @@ public class BuyCommands {
 
 	@Command(
 	commands = {"shopbuy", "sbuy", "buy"},
-	aliases = {"b", "sb"},
+	aliases = {"buy", "b", "sb"},
 	desc = "Buy an item from the shop",
 	usage = "<item> [amount]",
 	permissions = {"BetterShop.user.buy"})
@@ -108,7 +108,7 @@ public class BuyCommands {
 
 	@Command(
 	commands = {"shopbuyall", "sbuyall", "buyall"},
-	aliases = {"ba", "ball"},
+	aliases = {"buyall", "ba", "ball"},
 	desc = "Buy all that you can of an item from the shop",
 	usage = "<item> [amount]",
 	permissions = {"BetterShop.user.buy"})
@@ -121,7 +121,7 @@ public class BuyCommands {
 
 	@Command(
 	commands = {"shopbuystack", "sbuystack", "sbuys", "buys"},
-	aliases = {"bs", "buystack"},
+	aliases = {"buystack", "bs"},
 	desc = "Buy an item from the shop",
 	usage = "<item> [amount]",
 	permissions = {"BetterShop.user.buy"})
@@ -170,7 +170,7 @@ public class BuyCommands {
 
 	@Command(
 	commands = {"shopbuyagain", "sbuyagain", "buyagain", "sba"},
-	aliases = {"b!", "buy!"},
+	aliases = {"buyagain", "b!", "buy!"},
 	desc = "Repeat the last purchase action the player did",
 	usage = "",
 	permissions = {"BetterShop.user.buy"})

@@ -20,7 +20,7 @@ package com.sk89q.wg_regions_52.managers;
 
 import com.sk89q.wg_regions_52.databases.YAMLDatabase;
 import java.io.File;
-import java.io.FileNotFoundException;
+//import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -42,170 +42,172 @@ import me.jascotty2.bettershop.utils.BetterShopLogger;
  */
 public class GlobalRegionManager {
 
-    /**
-     * Reference to the plugin.
-     */
-    private Server bukkitServer;
-    protected File pluginFolder = null;
-    /**
-     * Map of managers per-world.
-     */
-    private HashMap<String, RegionManager> managers;
-    /**
-     * Stores the list of modification dates for the world files. This allows
-     * WorldGuard to reload files as needed.
-     */
-    private HashMap<String, Long> lastModified;
+	/**
+	 * Reference to the plugin.
+	 */
+	private Server bukkitServer;
+	protected File pluginFolder = null;
+	/**
+	 * Map of managers per-world.
+	 */
+	private HashMap<String, RegionManager> managers;
+	/**
+	 * Stores the list of modification dates for the world files. This allows
+	 * WorldGuard to reload files as needed.
+	 */
+	private HashMap<String, Long> lastModified;
 
-    /**
-     * Construct the object.
-     * 
-     * @param server reference to the bukkit server
-     * @param pluginFolder where the worlds folder will be saved
-     */
-    public GlobalRegionManager(Server server, File pluginFolder) {
-        this.bukkitServer = server;
-        this.pluginFolder = pluginFolder;
-        managers = new HashMap<String, RegionManager>();
-        lastModified = new HashMap<String, Long>();
-    }
+	/**
+	 * Construct the object.
+	 *
+	 * @param server reference to the bukkit server
+	 * @param pluginFolder where the worlds folder will be saved
+	 */
+	public GlobalRegionManager(Server server, File pluginFolder) {
+		this.bukkitServer = server;
+		this.pluginFolder = pluginFolder;
+		managers = new HashMap<String, RegionManager>();
+		lastModified = new HashMap<String, Long>();
 
-    /**
-     * Unload region information.
-     */
-    public void unload() {
-        managers.clear();
-        lastModified.clear();
-    }
+		(new File(pluginFolder, "regions")).mkdirs();
+	}
 
-    /**
-     * Get the path for a world's regions file.
-     * 
-     * @param name
-     * @return
-     */
-    protected File getPath(String name) {
-        return new File(pluginFolder, "regions" + File.separator + name + ".yml");
-    }
+	/**
+	 * Unload region information.
+	 */
+	public void unload() {
+		managers.clear();
+		lastModified.clear();
+	}
 
-    /**
-     * Unload region information for a world.
-     * 
-     * @param name
-     */
-    public void unload(String name) {
-        final RegionManager manager = managers.get(name);
+	/**
+	 * Get the path for a world's regions file.
+	 *
+	 * @param name
+	 * @return
+	 */
+	protected File getPath(String name) {
+		return new File(pluginFolder, "regions" + File.separator + name + ".yml");
+	}
 
-        if (manager != null) {
-            managers.remove(name);
-            lastModified.remove(name);
-        }
-    }
+	/**
+	 * Unload region information for a world.
+	 *
+	 * @param name
+	 */
+	public void unload(String name) {
+		final RegionManager manager = managers.get(name);
 
-    /**
-     * Unload all region information.
-     */
-    public void unloadAll() {
-        managers.clear();
-        lastModified.clear();
-    }
+		if (manager != null) {
+			managers.remove(name);
+			lastModified.remove(name);
+		}
+	}
 
-    /**
-     * Load region information for a world.
-     * 
-     * @param world
-     * @return 
-     */
-    public RegionManager load(World world) {
-        final String name = world.getName();
-        final File file = getPath(name);
+	/**
+	 * Unload all region information.
+	 */
+	public void unloadAll() {
+		managers.clear();
+		lastModified.clear();
+	}
 
-        try {
-            // Create a manager
-            RegionManager manager = new FlatRegionManager(new YAMLDatabase(file));
-            managers.put(name, manager);
-            manager.load();
+	/**
+	 * Load region information for a world.
+	 *
+	 * @param world
+	 * @return
+	 */
+	public RegionManager load(World world) {
+		final String name = world.getName();
+		final File file = getPath(name);
+		RegionManager manager = null;
 
+		try {
+			// Create a manager
+			manager = new FlatRegionManager(new YAMLDatabase(file));
+			managers.put(name, manager);
+			if (file.exists()) {
+				manager.load();
+				
+				BetterShopLogger.Log(manager.getRegions().size()
+						+ " regions loaded for '" + name + "'");
+				// Store the last modification date so we can track changes
+				lastModified.put(name, file.lastModified());
+			}
 
-            BetterShopLogger.Log(manager.getRegions().size()
-                    + " regions loaded for '" + name + "'");
+			return manager;
+			//} catch (FileNotFoundException e) {
+		} catch (IOException e) {
+			BetterShopLogger.Log(Level.WARNING, "Failed to load regions from file "
+					+ file.getAbsolutePath() + " : " + e.getMessage());
+		}
 
-            // Store the last modification date so we can track changes
-            lastModified.put(name, file.lastModified());
+		return manager;
+	}
 
-            return manager;
-        } catch (FileNotFoundException e) {
-        } catch (IOException e) {
-            BetterShopLogger.Log(Level.WARNING, "Failed to load regions from file "
-                    + file.getAbsolutePath() + " : " + e.getMessage());
-        }
+	/**
+	 * Preloads region managers for all worlds.
+	 */
+	public void preload() {
+		// Load regions
+		for (final World world : bukkitServer.getWorlds()) {
+			load(world);
+		}
+	}
 
-        // @TODO: THIS CREATES PROBLEMS!!
-        return null;
-    }
+	/**
+	 * Reloads the region information from file when region databases
+	 * have changed.
+	 */
+	public void reloadChanged() {
+		for (final String name : managers.keySet()) {
+			final File file = getPath(name);
 
-    /**
-     * Preloads region managers for all worlds.
-     */
-    public void preload() {
-        // Load regions
-        for (final World world : bukkitServer.getWorlds()) {
-            load(world);
-        }
-    }
+			Long oldDate = lastModified.get(name);
 
-    /**
-     * Reloads the region information from file when region databases
-     * have changed.
-     */
-    public void reloadChanged() {
-        for (final String name : managers.keySet()) {
-            final File file = getPath(name);
+			if (oldDate == null) {
+				oldDate = 0L;
+			}
 
-            Long oldDate = lastModified.get(name);
+			try {
+				if (file.lastModified() > oldDate) {
+					final World world = bukkitServer.getWorld(name);
 
-            if (oldDate == null) {
-                oldDate = 0L;
-            }
+					if (world != null) {
+						load(world);
+					}
+				}
+			} catch (Exception e) {
+			}
+		}
+	}
 
-            try {
-                if (file.lastModified() > oldDate) {
-                    final World world = bukkitServer.getWorld(name);
+	/**
+	 * Get the region manager for a particular world.
+	 *
+	 * @param world
+	 * @return
+	 */
+	public RegionManager get(World world) {
+		RegionManager manager = managers.get(world.getName());
+		if (manager == null) {
+			manager = load(world);
+		}
+		return manager;
+	}
 
-                    if (world != null) {
-                        load(world);
-                    }
-                }
-            } catch (Exception e) {
-            }
-        }
-    }
-
-    /**
-     * Get the region manager for a particular world.
-     * 
-     * @param world
-     * @return
-     */
-    public RegionManager get(World world) {
-        RegionManager manager = managers.get(world.getName());
-        if (manager == null) {
-            manager = load(world);
-        }
-        return manager;
-    }
-
-	public Collection<RegionManager> getAll(){
+	public Collection<RegionManager> getAll() {
 		return managers.values();
 	}
-	
-	public Set<Entry<String, RegionManager>> getAllEntries(){
+
+	public Set<Entry<String, RegionManager>> getAllEntries() {
 		return managers.entrySet();
 	}
 
 	public boolean hasRegion(Location loc) {
-        final World world = loc.getWorld();
-        final RegionManager mgr = get(world);
-        return mgr != null && mgr.getApplicableRegions(loc).size() > 0;
-    }
+		final World world = loc.getWorld();
+		final RegionManager mgr = get(world);
+		return mgr != null && mgr.getApplicableRegions(loc).size() > 0;
+	}
 }

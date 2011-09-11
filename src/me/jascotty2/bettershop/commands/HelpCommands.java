@@ -39,7 +39,7 @@ public class HelpCommands {
 
 	@Command(
 	commands = {"shophelp", "shelp"},
-	aliases = {"?", "help"},
+	aliases = {"help", "?"},
 	desc = "Lists available commands",
 	permissions = {"BetterShop.user.help"})
 	public static boolean help(CommandSender player, String[] s) {

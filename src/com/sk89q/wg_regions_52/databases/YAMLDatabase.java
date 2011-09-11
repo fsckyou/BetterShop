@@ -87,14 +87,17 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
                     //logger.warning("Unknown region type for region '" + id + '"');
                     continue;
                 }
-                
-                final Integer priority = checkNonNull(node.getInt("priority"));
-                region.setPriority(priority);
+
                 regs.put(id, region);
-                
+
                 final String parentId = node.getString("parent");
                 if (parentId != null) {
                     parentSets.put(region, parentId);
+                }
+
+                final String info = node.getString("info");
+                if (info != null) {
+                    region.setInfo(info);
                 }
             } catch (NullPointerException e) {
                 //logger.warning("Missing data for region '" + id + '"');
@@ -159,11 +162,13 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
                 node.setProperty("type", region.getClass().getCanonicalName());
             }
 
-            node.setProperty("priority", region.getPriority());
             final Region parent = region.getParent();
             if (parent != null) {
                 node.setProperty("parent", parent.getId());
             }
+			if(region.getInfo() != null){
+				node.setProperty("info", region.getInfo());
+			}
         }
         
         config.setHeader("#\r\n" +

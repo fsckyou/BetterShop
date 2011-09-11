@@ -17,14 +17,19 @@
  */
 package me.jascotty2.bettershop.regionshops;
 
+import com.sk89q.wg_regions_52.Region;
+import com.sk89q.wg_regions_52.managers.RegionManager;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import me.jascotty2.bettershop.BetterShop;
 import me.jascotty2.bettershop.shop.Shop;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -42,6 +47,7 @@ public class RegionShopManager {
 			try {
 				regions = new BSRegions(BetterShop.getPlugin().getServer(),
 						BetterShop.getPlugin().getDataFolder());
+				regions.load();
 				if (p != null && p instanceof WorldEditPlugin) {
 					BSRegions.worldEdit = (WorldEditPlugin) p;
 				}
@@ -57,6 +63,7 @@ public class RegionShopManager {
 		}
 
 		int numErrors = 0;
+		// TODO: allow multiple shop definitions..
 		{
 			Shop s = new Shop();
 			if (!s.load(null)) {
@@ -64,6 +71,18 @@ public class RegionShopManager {
 				++numErrors;
 			}
 			shops.put(null, s);
+		}
+		if (regions != null) {
+			for (Entry<String, RegionManager> m : regions.getAllRegionManagers()) {
+				for (Region r : m.getValue().getRegions().values()) {//regions.getAll()) {//
+					if (!shops.containsKey(r.getInfo())) {
+						BetterShopLogger.Warning("invalid shop defined in region " + r.getId() + " (removed)");
+						regions.remove(null, null, m.getKey() + ":" + r.getId());
+					} else {
+						shops.put(r.getId(), shops.get(r.getInfo()));
+					}
+				}
+			}
 		}
 		return numErrors;
 	}
@@ -79,6 +98,21 @@ public class RegionShopManager {
 		boolean isRegion = inShopRegion(loc);
 		return BetterShop.getConfig().useRegionCommandShop() && isRegion
 				|| BetterShop.getConfig().useGlobalCommandShop() && !isRegion;
+	}
+
+	/**
+	 * Primarily for admin commands, if a shop exists in this area
+	 * @param loc
+	 * @return
+	 */
+	public boolean locationHasShop(Location loc) {
+		if (BetterShop.getConfig().useCommandShopGlobal()) {
+			return true;
+		} else if (BetterShop.getConfig().useRegionCommandShop()) {
+			return inShopRegion(loc);
+		} else {
+			return !inShopRegion(loc);
+		}
 	}
 
 	public boolean inShopRegion(Location loc) {
@@ -106,10 +140,33 @@ public class RegionShopManager {
 	}
 
 	public boolean addRegion(String regionName, Player player) {
-		if (regions != null) {
-			//regions
+		return addRegion(regionName, null, player);
+	}
+
+	public boolean addRegion(String regionName, String shopName, Player player) {
+		if (regions != null && shops.containsKey(shopName)) {
+			if (regions.define(player, regionName)) {
+				shops.put(regionName, shops.get(shopName));
+				return true;
+			}
 		}
 		return false;
+	}
+
+	public boolean removeRegion(CommandSender sender, String regionName) {
+		if (regions == null) {
+			return false;
+		}
+		return regions.remove(sender,
+				sender instanceof Player ? ((Player) sender).getWorld() : null, regionName);
+	}
+
+	public String[] getRegionList(World w, int page, int pazesize) {
+		return regions == null ? new String[0] : regions.list(w, pazesize, page);
+	}
+
+	public int numRegions() {
+		return regions == null ? 0 : regions.getAll().size();
 	}
 
 	public void checkRestock() {

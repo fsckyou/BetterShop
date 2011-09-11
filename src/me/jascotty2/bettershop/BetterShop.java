@@ -150,14 +150,6 @@ public class BetterShop extends JavaPlugin {
 		pm.registerEvent(Event.Type.PLUGIN_ENABLE, pListener,
 				Event.Priority.Monitor, this);
 
-		// spout listeners
-		if (keyListener != null) {
-			pm.registerEvent(Event.Type.CUSTOM_EVENT, keyListener,
-					Event.Priority.Normal, this);
-			pm.registerEvent(Event.Type.CUSTOM_EVENT, buttonListener,
-					Event.Priority.Normal, this);
-		}
-
 		BetterShopLogger.Info(pdfFile.getName() + " version "
 				+ pdfFile.getVersion() + " is enabled!");
 
@@ -200,7 +192,9 @@ public class BetterShop extends JavaPlugin {
 		}
 		lastCommand = (sender instanceof Player ? "player:" : "console:") + commandName + " " + argStr;
 
-		if (sender instanceof Player && Str.isIn(commandName,
+		if (sender instanceof Player && 
+				(!shopManager.locationHasShop(((Player) sender).getLocation())
+				|| (Str.isIn(commandName,
 				new String[]{"shopbuy", "shopbuyall", "shopbuystack",
 					"shopsell", "shopsellall", "shopsellstack", /*
 				 * "shoplist",
@@ -210,7 +204,7 @@ public class BetterShop extends JavaPlugin {
 				 * "shopadd",
 				 * "shopremove"
 				 */})
-				&& !commandShopEnabled(((Player) sender).getLocation())) {
+				&& !commandShopEnabled(((Player) sender).getLocation())))) {
 			BSutils.sendMessage(sender, config.getString("regionShopDisabled"));
 			return true;
 		}
@@ -322,6 +316,10 @@ public class BetterShop extends JavaPlugin {
 
 	public static BSTransactionLog getTransactions(CommandSender player) {
 		return getShop(player).transactions;
+	}
+
+	public static Shop getMainShop() {
+		return shopManager.getShop((String) null);
 	}
 
 	public static Shop getShop(Location l) {
