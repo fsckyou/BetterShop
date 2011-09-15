@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 Jacob Scott <jascottytechie@gmail.com>
- * Description: type of database the plugin should use
+ * Description: setting for how the command shop is used
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 package me.jascotty2.bettershop.enums;
 
-public enum DBType {
-
-	FLATFILE, MYSQL, //SQLITE
-}
+public enum CommandShopMode {
+	
+	GLOBAL, REGIONS, BOTH, NONE
+} // end class CommandShopMode

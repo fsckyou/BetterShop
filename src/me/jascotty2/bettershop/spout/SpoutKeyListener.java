@@ -60,6 +60,7 @@ public class SpoutKeyListener extends InputListener {
 		keys.put("\t", "TAB");
 	}
 	Keyboard listenKey = null;
+	boolean keyPressError = false;
 
 	public SpoutKeyListener() {
 		reloadKey();
@@ -84,6 +85,7 @@ public class SpoutKeyListener extends InputListener {
 			}
 		} catch (Exception e) {
 			BetterShopLogger.Log(Level.WARNING, "Invalid Key in Spout Config: defaulting to 'B'");
+			listenKey = Keyboard.KEY_B;
 		}
 	}
 
@@ -91,17 +93,23 @@ public class SpoutKeyListener extends InputListener {
 	public void onKeyPressedEvent(KeyPressedEvent event) {
 		if (!BetterShop.getConfig().spoutEnabled) {
 			return;
-		} else if (event.getKey() == Keyboard.KEY_ESCAPE) {
-			SpoutPopupDisplay.closePopup(event.getPlayer());
-		} else if (event.getKey() == listenKey) {
-			if (BSPermissions.hasPermission(event.getPlayer(), BetterShopPermission.USER_SPOUT, true)) {
-				if (BetterShop.commandShopEnabled(event.getPlayer().getLocation())) {
-					SpoutPopupDisplay.popup(event.getPlayer(), event.getScreenType());
-				} else {
-					BSutils.sendMessage(event.getPlayer(),
-							BetterShop.getConfig().getString("regionShopDisabled"));
+		}
+		try {
+			if (event.getKey() == Keyboard.KEY_ESCAPE) {
+				SpoutPopupDisplay.closePopup(event.getPlayer());
+			} else if (event.getKey() == listenKey) {
+				if (BSPermissions.hasPermission(event.getPlayer(), BetterShopPermission.USER_SPOUT, true)) {
+					if (BetterShop.commandShopEnabled(event.getPlayer().getLocation())) {
+						SpoutPopupDisplay.popup(event.getPlayer(), event.getScreenType());
+					} else {
+						BSutils.sendMessage(event.getPlayer(),
+								BetterShop.getConfig().getString("regionShopDisabled"));
+					}
 				}
 			}
+		} catch (Exception e) {
+			BetterShopLogger.Severe("Unexpected error in KeyListener", e, !keyPressError);
+			keyPressError = true;
 		}
 	}
 } // end class SpoutKeyListener

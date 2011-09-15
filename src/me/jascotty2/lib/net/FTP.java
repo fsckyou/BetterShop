@@ -158,6 +158,7 @@ class FTPupload {
 			}
 			cconn.close(); // section 3.2.5 of RFC1738
 		} catch (IOException ex) {
+			return false;
 		}
 
 		return true;

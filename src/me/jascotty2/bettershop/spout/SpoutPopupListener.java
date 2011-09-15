@@ -17,6 +17,7 @@
  */
 package me.jascotty2.bettershop.spout;
 
+import me.jascotty2.bettershop.utils.BetterShopLogger;
 import org.getspout.spoutapi.event.screen.ButtonClickEvent;
 import org.getspout.spoutapi.event.screen.ScreenListener;
 import org.getspout.spoutapi.event.screen.SliderDragEvent;
@@ -27,30 +28,46 @@ import org.getspout.spoutapi.event.screen.TextFieldChangeEvent;
  */
 public class SpoutPopupListener extends ScreenListener {
 
-	public SpoutPopupListener() {
-	} // end default constructor
-
+	private boolean buttonError = false,
+			sliderError = false,
+			textError = false;
+	
 	@Override
 	public void onButtonClick(ButtonClickEvent event) {
-		SpoutPopupDisplay d = SpoutPopupDisplay.getPopup(event.getPlayer());
-		if (d != null) {
-			d.buttonPress(event.getButton());
+		try{
+			SpoutPopupDisplay d = SpoutPopupDisplay.getPopup(event.getPlayer());
+			if (d != null && event.getButton().isEnabled()) {
+				d.buttonPress(event.getButton());
+			}
+		} catch (Exception e) {
+			BetterShopLogger.Severe("Unexpected error in PopupListener", e, !buttonError);
+			buttonError = true;
 		}
 	}
 
 	@Override
 	public void onSliderDrag(SliderDragEvent event) {
-		SpoutPopupDisplay d = SpoutPopupDisplay.getPopup(event.getPlayer());
-		if (d != null) {
-			d.sliderChanged(event.getSlider());
+		try {
+			SpoutPopupDisplay d = SpoutPopupDisplay.getPopup(event.getPlayer());
+			if (d != null) {
+				d.sliderChanged(event.getSlider());
+			}
+		} catch (Exception e) {
+			BetterShopLogger.Severe("Unexpected error in PopupListener", e, !sliderError);
+			sliderError = true;
 		}
 	}
 	
 	@Override
 	public void onTextFieldChange(TextFieldChangeEvent event){
-		SpoutPopupDisplay d = SpoutPopupDisplay.getPopup(event.getPlayer());
-		if (d != null) {
-			d.textChanged(event);
+		try {
+			SpoutPopupDisplay d = SpoutPopupDisplay.getPopup(event.getPlayer());
+			if (d != null) {
+				d.textChanged(event);
+			}
+		} catch (Exception e) {
+			BetterShopLogger.Severe("Unexpected error in PopupListener", e, !textError);
+			textError = true;
 		}
 	}
 } // end class SpoutPopupListener

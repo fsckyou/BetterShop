@@ -1,7 +1,7 @@
 name: BetterShop
 #main: com.nhksos.jjfs85.BetterShop.BetterShop
 main: me.jascotty2.bettershop.BetterShop
-version: 2.0 alpha
+version: 2.0 beta
 website: http://github.com/BetterShop/BetterShop
 author: jascotty2 (and jjfs85 and lologarithm)
 description: >

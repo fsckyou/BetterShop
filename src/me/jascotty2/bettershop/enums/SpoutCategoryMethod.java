@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 Jacob Scott <jascottytechie@gmail.com>
- * Description: type of database the plugin should use
+ * Description: which category options are avaliable
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package me.jascotty2.bettershop.enums;
 
-public enum DBType {
+public enum SpoutCategoryMethod {
 
-	FLATFILE, MYSQL, //SQLITE
+	NONE, TABBED, CYCLE
 }

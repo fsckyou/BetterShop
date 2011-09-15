@@ -25,10 +25,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftWolf;
-import org.bukkit.entity.Creature;
-import org.bukkit.entity.CreatureType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -176,7 +173,6 @@ public class CreatureItem extends JItem {
         Location loc = owner.getLocation();
 
         LivingEntity c = owner.getWorld().spawnCreature(loc, toSpawn);
-
 
         if (c instanceof CraftWolf) {
             ((CraftWolf) c).setOwner(owner);

@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package me.jascotty2.bettershop;
 
 import me.jascotty2.lib.io.CheckInput;
@@ -30,7 +29,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
+import me.jascotty2.bettershop.enums.CommandShopMode;
 import me.jascotty2.bettershop.enums.DBType;
+import me.jascotty2.bettershop.enums.SpoutCategoryMethod;
 import me.jascotty2.bettershop.shop.ShopConfig;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 
@@ -38,6 +39,8 @@ import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
 
 public class BSConfig {
+
+// <editor-fold defaultstate="collapsed" desc="Settings Variables">
 
 	// chat messages
 	private final HashMap<String, String> stringMap = new HashMap<String, String>();
@@ -77,7 +80,7 @@ public class BSConfig {
 	public String activeSignColor = "blue"; // automatically changed to \u00A7 format
 	public static long signInteractWait = 1000; // wait before another action allowed
 	// global or region shops
-	public CommShopMode commandShopMode = CommShopMode.GLOBAL;
+	public CommandShopMode commandShopMode = CommandShopMode.GLOBAL;
 	////// database information
 	private DBType databaseType = DBType.FLATFILE;
 	/// database caching (MySQL only)
@@ -108,15 +111,13 @@ public class BSConfig {
 	// spout-related
 	public boolean spoutEnabled = true;
 	private String spoutKey = "B";
+	public boolean largeSpoutMenu = true,
+			spoutUsePages = false;
+	public SpoutCategoryMethod spoutCategories = SpoutCategoryMethod.NONE;
 	// discount permissions groups
 	HashMap<String, Double> groups = new HashMap<String, Double>();
 	public final ShopConfig mainShopConfig = new ShopConfig();
-
-	public enum CommShopMode {
-
-		GLOBAL, REGIONS, BOTH, NONE
-	}
-
+// </editor-fold>
 	public BSConfig() {
 	}
 
@@ -203,7 +204,10 @@ public class BSConfig {
 							"sendAllLog"});
 				allKeys.put("spout", new String[]{
 							"enabled",
-							"key"});
+							"key",
+							"largeMenu",
+							"usePages",
+							"categories"});
 				allKeys.put("MySQL", new String[]{
 							"useMySQL",
 							"database",
@@ -442,14 +446,14 @@ public class BSConfig {
 				if (cShopMode != null) {
 					if (cShopMode.equalsIgnoreCase("disabled")
 							|| cShopMode.equalsIgnoreCase("none")) {
-						commandShopMode = CommShopMode.NONE;
+						commandShopMode = CommandShopMode.NONE;
 					} else if (cShopMode.equalsIgnoreCase("regions")
 							|| cShopMode.equalsIgnoreCase("region")) {
-						commandShopMode = CommShopMode.REGIONS;
+						commandShopMode = CommandShopMode.REGIONS;
 					} else if (cShopMode.equalsIgnoreCase("both")) {
-						commandShopMode = CommShopMode.BOTH;
+						commandShopMode = CommandShopMode.BOTH;
 					} else {
-						commandShopMode = CommShopMode.GLOBAL;
+						commandShopMode = CommandShopMode.GLOBAL;
 					}
 				}
 
@@ -482,7 +486,19 @@ public class BSConfig {
 
 			if ((n = config.getNode("spout")) != null) {
 				spoutEnabled = n.getBoolean("enabled", spoutEnabled);
+				largeSpoutMenu = n.getBoolean("largeMenu", largeSpoutMenu);
+				spoutUsePages = n.getBoolean("usePages", spoutUsePages);
 				setSpoutKey(n.getString("key", spoutKey));
+				String c = n.getString("categories");
+				if (c != null) {
+					if (c.equalsIgnoreCase("cycle")) {
+						spoutCategories = SpoutCategoryMethod.CYCLE;
+					} else if (c.equalsIgnoreCase("tab") || c.equalsIgnoreCase("tabbed")) {
+						spoutCategories = SpoutCategoryMethod.TABBED;
+					} else {
+						spoutCategories = SpoutCategoryMethod.NONE;
+					}
+				}
 			}
 
 			// groups
@@ -583,7 +599,11 @@ public class BSConfig {
 				BetterShopLogger.Log(Level.SEVERE, String.format("strings section missing from configuration file %s", configname));
 			}
 			for (String k : stringMap.keySet()) {
-				stringMap.put(k, stringMap.get(k).replace("&", "\u00A7").replace("%", "%%"));
+				stringMap.put(k, stringMap.get(k).
+						replace("&&", "\t\n"). // so a '&' can still be used
+						replace("&", "\u00A7").
+						replace("\t\n", "&"). // replace the &
+						replace("%", "%%"));
 			}
 
 		} catch (Exception ex) {
@@ -681,19 +701,19 @@ public class BSConfig {
 	}
 
 	public boolean useGlobalCommandShop() {
-		return commandShopMode == CommShopMode.GLOBAL || commandShopMode == CommShopMode.BOTH;
+		return commandShopMode == CommandShopMode.GLOBAL || commandShopMode == CommandShopMode.BOTH;
 	}
 
 	public boolean useRegionCommandShop() {
-		return commandShopMode == CommShopMode.REGIONS || commandShopMode == CommShopMode.BOTH;
+		return commandShopMode == CommandShopMode.REGIONS || commandShopMode == CommandShopMode.BOTH;
 	}
 
 	public boolean useCommandShop() {
-		return commandShopMode != CommShopMode.NONE;
+		return commandShopMode != CommandShopMode.NONE;
 	}
 
 	public boolean useCommandShopGlobal() {
-		return commandShopMode == CommShopMode.BOTH;
+		return commandShopMode == CommandShopMode.BOTH;
 	}
 
 	public String getActiveSignColor() {

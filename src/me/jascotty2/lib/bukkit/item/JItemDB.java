@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import me.jascotty2.lib.util.ArrayManip;
 import org.bukkit.Material;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.inventory.ItemStack;
@@ -36,6 +37,7 @@ public class JItemDB {
 	private final static Logger logger = Logger.getLogger("Minecraft");
 	protected static HashMap<String, JItem> items = new HashMap<String, JItem>();
 	protected static HashMap<Integer, Kit> kits = new HashMap<Integer, Kit>();
+	protected static List<String> itemCategories = new ArrayList<String>();
 	protected static boolean dbLoaded = false;
 
 	public static boolean load() {
@@ -230,7 +232,8 @@ public class JItemDB {
 					List<String> cats = itemdb.getKeys("categories");
 					for (String c : cats) {
 						String itms = n.getString(c);
-						if (c != null) {
+						if (c != null && itms != null) {
+							itemCategories.add(c);
 							for (String i : itms.split(",")) {
 								i = i.trim();
 								if (i.length() > 0) {
@@ -264,13 +267,30 @@ public class JItemDB {
 	private static void loadDefaultItems() {
 		items.clear();
 		// all entities
+		CreatureType ordered[] = {
+			CreatureType.CHICKEN, CreatureType.COW,
+			CreatureType.CREEPER, CreatureType.GHAST,
+			CreatureType.GIANT, CreatureType.MONSTER,
+			CreatureType.PIG, CreatureType.PIG_ZOMBIE,
+			CreatureType.SHEEP, CreatureType.SKELETON,
+			CreatureType.SLIME, CreatureType.SPIDER,
+			CreatureType.SQUID, CreatureType.ZOMBIE,
+			CreatureType.WOLF};
+		int i = 0;
+		for (; i < ordered.length; ++i) {
+			items.put((4000 + i) + ":0", new CreatureItem(ordered[i]));
+		}
+		// now check for existing entities that aren't in the ordered array
 		for (CreatureType c : CreatureType.values()) {
-			items.put((4000 + c.ordinal()) + ":0", new CreatureItem(c));
+			if (ArrayManip.indexOf(ordered, c) == -1) {
+				items.put((4000 + (i++)) + ":0", new CreatureItem(c));
+				System.out.println("New Entity: (" + (4000 + (i-1)) + ") " + c.getName());
+			}
 		}
 		// now add hard-coded entries, including subtypes
-		for (JItems i : JItems.values()) {
-			if (i.ID() >= 0) {
-				items.put(i.IdDatStr(), new JItem(i));
+		for (JItems it : JItems.values()) {
+			if (it.ID() >= 0) {
+				items.put(it.IdDatStr(), new JItem(it));
 			}
 		}
 		// add all items in Material.values() aren't in JItems (upgrade-proof)
@@ -460,6 +480,10 @@ public class JItemDB {
 			}
 		}
 		return found.toArray(new JItem[0]);
+	}
+
+	public static String[] getCategories() {
+		return itemCategories.toArray(new String[0]);
 	}
 
 	public static String GetItemName(ItemStack search) {

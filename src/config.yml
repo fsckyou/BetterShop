@@ -100,6 +100,21 @@ spout:
     # what key to bring up the display
     key: b
 
+    # if the menu listing should use names for buttons
+    #    (if false, will just be clickable images)
+    largeMenu: true
+
+    # for the menu listing, if should use whole pages
+    #		(if false, each page scrolls the list over by 1)
+    usePages: true
+
+    # if you want to use categories, how to use them
+    # options:
+    # tab / tabbed : categories use top row of listing on the screen
+    # cycle : button above the exit button to cycle through categories
+    # none (default) : no category selection
+    categories: none
+
 discountGroups:
     # groups are defined using permissions
     # BetterShop.discount.(NAME)

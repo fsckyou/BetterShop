@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package me.jascotty2.lib.bukkit;
 
 import me.jascotty2.lib.net.FTP;
@@ -42,13 +41,17 @@ public class FTP_PluginTracker {
 
 	public static void queueSend(Plugin plugin) {
 		// assume private server
-		queueSend(plugin, false);
+		queueSend(plugin, false, 3);
 	}
 
 	public static void queueSend(Plugin plugin, boolean publicIP) {
+		queueSend(plugin, publicIP, 3);
+	}
+
+	public static void queueSend(Plugin plugin, boolean publicIP, int numTries) {
 		if (plugin != null) {
 			plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin,
-					new queuedSender(plugin, publicIP), (TIME_TO_SEND * 20) / 1000);
+					new queuedSender(plugin, publicIP, numTries), (TIME_TO_SEND * 20) / 1000);
 		}
 	}
 
@@ -63,21 +66,21 @@ public class FTP_PluginTracker {
 				|| plugin.getDescription().getVersion() == null) {
 			return false;
 		}
-		
+
 		String fn = plugin.getDescription().getName().trim().toLowerCase().replace(" ", "")
 				+ "/" + ServerInfo.serverUID();
 		List<String> pluginLst = Arrays.asList(ServerInfo.installedPlugins(plugin.getServer()));
 		Collections.sort(pluginLst, new Comparator<String>() {
 
-				public int compare(String o1, String o2) {
-					return o1.compareToIgnoreCase(o2);
-				}
-			});
+			public int compare(String o1, String o2) {
+				return o1.compareToIgnoreCase(o2);
+			}
+		});
 		String plugins = "\n\t";
 		for (String p : pluginLst) {
-			plugins += p +"\n\t";
+			plugins += p + "\n\t";
 		}
-		plugins = plugins.substring(0, plugins.length()-2);
+		plugins = plugins.substring(0, plugins.length() - 2);
 
 		String allworlds[] = ServerInfo.serverWorldNames(plugin.getServer()),
 				worlds = "";
@@ -130,17 +133,24 @@ public class FTP_PluginTracker {
 
 		Plugin plugin = null;
 		boolean publicIP = false;
+		int tryNum = 0;
 
-		public queuedSender(Plugin plugin, boolean publicIP) {
+		public queuedSender(Plugin plugin, boolean publicIP, int numTries) {
 			this.plugin = plugin;
 			this.publicIP = publicIP;
+			tryNum = numTries;
 		}
 
 		public void run() {
 			try {
-				sendReport(plugin, publicIP);
+				if (sendReport(plugin, publicIP)) {
+					return;
+				}
 			} catch (Exception ex) {
 				//Logger.getLogger(FTP_PluginTracker.class.getName()).log(Level.SEVERE, null, ex);
+			}
+			if (--tryNum > 0) {
+				queueSend(plugin, publicIP, tryNum);
 			}
 		}
 	}

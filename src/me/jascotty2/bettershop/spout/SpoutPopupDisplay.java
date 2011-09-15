@@ -17,39 +17,30 @@
  */
 package me.jascotty2.bettershop.spout;
 
-import me.jascotty2.bettershop.BSutils;
-import me.jascotty2.bettershop.BSEcon;
 import me.jascotty2.bettershop.BetterShop;
 import me.jascotty2.bettershop.enums.BetterShopPermission;
 import me.jascotty2.bettershop.utils.BSPermissions;
-import me.jascotty2.bettershop.utils.BetterShopLogger;
 
-import me.jascotty2.lib.bukkit.item.JItem;
-import me.jascotty2.lib.bukkit.item.JItemDB;
 import me.jascotty2.lib.bukkit.item.PriceListItem;
 import me.jascotty2.lib.bukkit.MinecraftChatStr;
-import me.jascotty2.lib.io.CheckInput;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.logging.Level;
-
-import org.bukkit.entity.Player;
+import me.jascotty2.bettershop.enums.SpoutCategoryMethod;
+import me.jascotty2.bettershop.spout.gui.*;
+import me.jascotty2.lib.bukkit.item.JItemDB;
 
 import org.getspout.spoutapi.event.screen.TextFieldChangeEvent;
 import org.getspout.spoutapi.gui.Button;
 import org.getspout.spoutapi.gui.Color;
 import org.getspout.spoutapi.gui.GenericButton;
 import org.getspout.spoutapi.gui.GenericContainer;
-import org.getspout.spoutapi.gui.GenericItemWidget;
 import org.getspout.spoutapi.gui.GenericLabel;
 import org.getspout.spoutapi.gui.GenericPopup;
 import org.getspout.spoutapi.gui.GenericSlider;
-import org.getspout.spoutapi.gui.GenericTextField;
 import org.getspout.spoutapi.gui.InGameHUD;
 import org.getspout.spoutapi.gui.RenderPriority;
 import org.getspout.spoutapi.gui.ScreenType;
@@ -63,11 +54,11 @@ import org.getspout.spoutapi.player.SpoutPlayer;
 public class SpoutPopupDisplay {
 
 	static Map<SpoutPlayer, SpoutPopupDisplay> popupOpen = new HashMap<SpoutPlayer, SpoutPopupDisplay>();
-	protected static int rows = 7, cols = 3,
-			height = 160, width = 420;
+	protected static int height = 160, width = 420,
+			xPad = 15, yPad = 8,
+			maxRows, maxCols;
 	protected static final int MAX_WIDTH = 427, MAX_HEIGHT = 240;
 	SpoutPlayer player;
-	String popupUUID = null;
 	// gui objects
 	GenericButton btnExit = new GenericButton(),
 			btnAbout = new GenericButton();
@@ -77,15 +68,23 @@ public class SpoutPopupDisplay {
 			btnScrollRight = new GenericButton();
 	GenericLabel lblPageNum = new GenericLabel();
 	GenericPopup popup = new GenericPopup();
-	List<MarketMenuItem> menuItems = new ArrayList<MarketMenuItem>();
+	List<List<ItemButtonContainer>> menuPages = new ArrayList<List<ItemButtonContainer>>(); //new ArrayList<ItemButtonContainer>();
+	List<ItemButtonContainer> menuItems = new ArrayList<ItemButtonContainer>();
 	int currentPage = 0;
-	int xpos[] = new int[cols];
-	MarketItem itemDetail;// = new MarketItem();
+	int xpos[];
+	MarketItemDetail itemDetail;
 	boolean aboutActive = false;
+	boolean isPaged = true;
+	int numPages;
+	// categories
+	int catNum = 0;
+	String[] categories;
+	GenericButton btnCatCycle = null;
 
 	public SpoutPopupDisplay(SpoutPlayer p) {
 		player = p;
-		itemDetail = new MarketItem(p);
+		itemDetail = new MarketItemDetail(p);
+		isPaged = BetterShop.getConfig().spoutUsePages;
 	} // end default constructor
 
 	public static void popup(SpoutPlayer p, ScreenType scr) {
@@ -139,8 +138,6 @@ public class SpoutPopupDisplay {
 
 		popup.setVisible(true);
 
-		//popup.getId().toString();
-
 		//Exit Button
 		btnExit.setText("EXIT").setWidth(45).setHeight(15).setX(378).setY(222);
 		popup.attachWidget(BetterShop.getPlugin(), btnExit);
@@ -149,63 +146,40 @@ public class SpoutPopupDisplay {
 		btnAbout.setText("?").setWidth(12).setHeight(12).setX(MAX_WIDTH - 2).setY(MAX_HEIGHT - 2);
 		popup.attachWidget(BetterShop.getPlugin(), btnAbout);
 
-		//items.setHeight(350).setWidth(200).setX(10).setY(5);
+		String cats[] = JItemDB.getCategories();
+		categories = new String[cats.length + 1];
+		categories[0] = "All";
+		System.arraycopy(cats, 0, categories, 1, cats.length);
 
-		try {
-			int row = 0, col = 0;
-//			int wid = (width - xPad * cols) / cols,
-//					hgt = (height - yPad * rows) / rows;
-			int yPad = (height - MarketMenuItem.DEF_HEIGHT * rows) / (rows + 1),
-					xPad = (MAX_WIDTH - MarketMenuItem.DEF_WIDTH * cols) / (cols + 1);
-			boolean vis = true;
-			for (PriceListItem p : BetterShop.getPricelist(player.getLocation()).getPricelistItems(
-					BSPermissions.hasPermission(player, BetterShopPermission.ADMIN_ILLEGAL))) {
-				MarketMenuItem m = new MarketMenuItem(p.ID(), p.Data());
-				int x = xPad * (col + 1) + m.getWidth() * col,
-						y = yPad * (row + 1) + m.getHeight() * row;
-				m.setVisible(vis).setY(y).setX(x);//.setWidth(wid).setHeight(hgt);
-				m.marketButton.setEnabled(vis);
-				menuItems.add(m);
-				//items.addChild(m);
-				popup.attachWidget(BetterShop.getPlugin(), m);
-				if (++row >= rows) {
-					if (vis) {
-						xpos[col] = x;
-					}
-					if (++col >= cols) {
-						vis = false;
-						col = cols;
-					}
-					row = 0;
-				}
-			}
 
-			//popup.attachWidget(BetterShop.bettershopPlugin, items);
-
-			// GenericSlider is not vertical :(
-			//itemScroll.setHeight(350).setWidth(5).setX(100);
-			itemScroll.setHeight(8).setWidth(width - 20).setY(height).setX((MAX_WIDTH - (width - 20)) / 2);
-			itemScroll.setSliderPosition(0);
-
-			btnScrollLeft.setText("<").setHeight(10).setWidth(10).setY(height).setX(2).setVisible(false);
-			btnScrollRight.setText(">").setHeight(10).setWidth(10).setY(height).setX(MAX_WIDTH - 12);
-
-			lblPageNum.setHeight(7).setWidth(40).setY(height + 11).setX(MAX_WIDTH - 75);
-			lblPageNum.setText("Page 1 of " + (int) Math.ceil(((float) menuItems.size() / rows) - 2));
-			lblPageNum.setTextColor(new Color(.65F, .65F, .65F));
-
-			itemDetail.setX(2).setY(height + 15);
-
-			popup.attachWidget(BetterShop.getPlugin(), itemScroll);
-			popup.attachWidget(BetterShop.getPlugin(), btnScrollLeft);
-			popup.attachWidget(BetterShop.getPlugin(), btnScrollRight);
-			popup.attachWidget(BetterShop.getPlugin(), lblPageNum);
-			popup.attachWidget(BetterShop.getPlugin(), itemDetail);
-		} catch (Exception e) {
-			popup.attachWidget(BetterShop.getPlugin(),
-					new GenericLabel().setText("Error Loading Pricelist! \n  "
-					+ e.getMessage()).setTextColor(new Color(240 / (float) 255, 45 / (float) 255, 45 / (float) 255)).setX(150).setY(100));
+		if (BetterShop.getConfig().spoutCategories == SpoutCategoryMethod.CYCLE) {
+			btnCatCycle = new GenericButton();
+			btnCatCycle.setTooltip("Category");
+			btnCatCycle.setWidth(50).setHeight(15).setX(374).setY(205);
+			popup.attachWidget(BetterShop.getPlugin(), btnCatCycle);
 		}
+
+		showCategory(0);
+
+		// GenericSlider is not vertical :(
+		//itemScroll.setHeight(350).setWidth(5).setX(100);
+		itemScroll.setHeight(8).setWidth(width - 20);
+		itemScroll.setY(height).setX((MAX_WIDTH - (width - 20)) / 2);
+		itemScroll.setSliderPosition(0);
+
+		btnScrollLeft.setText("<").setHeight(10).setWidth(10).setY(height).setX(2);
+		btnScrollRight.setText(">").setHeight(10).setWidth(10).setY(height).setX(MAX_WIDTH - 12);
+
+		lblPageNum.setHeight(7).setWidth(40).setY(height + 11).setX(MAX_WIDTH - 75);
+		lblPageNum.setTextColor(new Color(.65F, .65F, .65F));
+
+		itemDetail.setX(2).setY(height + 15);
+
+		popup.attachWidget(BetterShop.getPlugin(), itemScroll);
+		popup.attachWidget(BetterShop.getPlugin(), btnScrollLeft);
+		popup.attachWidget(BetterShop.getPlugin(), btnScrollRight);
+		popup.attachWidget(BetterShop.getPlugin(), lblPageNum);
+		popup.attachWidget(BetterShop.getPlugin(), itemDetail);
 
 		hudscreen.attachPopupScreen(popup);
 		hudscreen.updateWidget(popup);
@@ -247,6 +221,186 @@ public class SpoutPopupDisplay {
 		hudscreen.setDirty(true);
 	}
 
+	protected void showCategory(int catNum) {
+		while (catNum >= categories.length) {
+			catNum -= categories.length;
+		}
+		if (catNum < 0) {
+			catNum = 0;
+		}
+
+		this.catNum = catNum;
+		String cat = categories[catNum];
+		if (btnCatCycle != null) {
+			btnCatCycle.setText(cat).setDirty(true);
+		}
+
+		clearDisplay();
+
+		ArrayList<PriceListItem> items = new ArrayList<PriceListItem>();
+
+		try {
+			PriceListItem allitems[] = BetterShop.getPricelist(player.getLocation()).getPricelistItems(
+					BSPermissions.hasPermission(player, BetterShopPermission.ADMIN_ILLEGAL));
+			if (catNum == 0) {
+				items.addAll(Arrays.asList(allitems));
+			} else {
+				for (PriceListItem p : allitems) {
+					if (p.HasCategory(cat)) {
+						items.add(p);
+					}
+				}
+			}
+		} catch (Exception e) {
+			popup.attachWidget(BetterShop.getPlugin(),
+					new GenericLabel().setText("Error Loading Pricelist! \n  "
+					+ e.getMessage()).setTextColor(
+					new Color(240 / (float) 255,
+					45 / (float) 255,
+					45 / (float) 255)).setX(150).setY(100)).setPriority(RenderPriority.Lowest);
+			return;
+		}
+
+		try {
+
+			int x, y, ix, iy, dx = xPad, dy = yPad;
+			boolean vis = true,
+					lg = BetterShop.getConfig().largeSpoutMenu;
+			if (lg) {
+				dx += LargeMarketMenuItem.DEF_WIDTH;
+				dy += LargeMarketMenuItem.DEF_HEIGHT;
+			} else {
+				dx += SmallMarketMenuItem.DEF_WIDTH;
+				dy += SmallMarketMenuItem.DEF_HEIGHT;
+			}
+			maxCols = MAX_WIDTH / dx;
+			x = (MAX_WIDTH - (maxCols * dx) + xPad) / 2;
+			ix = x;
+
+			maxRows = height / dy;
+			y = (height - (maxRows * dy) + yPad) / 2;
+			iy = y;
+
+			xpos = new int[maxCols];
+			int col = 0;
+
+			List<ItemButtonContainer> page = new ArrayList<ItemButtonContainer>();
+
+			for (PriceListItem p : items) {
+				ItemButtonContainer m;
+				if (lg) {
+					m = new LargeMarketMenuItem(p.ID(), p.Data());
+				} else {
+					m = new SmallMarketMenuItem(p.ID(), p.Data());
+				}
+				m.setEnabled(vis).setY(y).setX(x);//.setWidth(wid).setHeight(hgt);
+				menuItems.add(m);
+				page.add(m);
+				//items.addChild(m);
+				popup.attachWidget(BetterShop.getPlugin(), (GenericContainer) m);
+
+				y += dy;
+				if (y + dy >= height) {
+					if (vis) {
+						xpos[col] = x;
+					}
+					y = iy;
+					if (x + dx >= width) {
+						x = ix;
+						vis = false;
+						menuPages.add(page);
+						page = new ArrayList<ItemButtonContainer>();
+					} else {
+						x += dx;
+						++col;
+					}
+				}
+			}
+			if (page.size() > 0) {
+				menuPages.add(page);
+			}
+
+			numPages = isPaged ? menuPages.size()
+					: (int) Math.ceil(((float) menuItems.size() / maxRows) - (maxCols - 1));
+
+			lblPageNum.setText("Page 1 of " + numPages).setDirty(true);
+
+			btnScrollLeft.setEnabled(false).setVisible(false).setDirty(true);
+			btnScrollRight.setEnabled(numPages > 1).setVisible(numPages > 1).setDirty(true);
+
+		} catch (Exception e) {
+			popup.attachWidget(BetterShop.getPlugin(),
+					new GenericLabel().setText("Error Displaying Itemlist! \n  "
+					+ e.getMessage()).setTextColor(
+					new Color(240 / (float) 255,
+					45 / (float) 255,
+					45 / (float) 255)).setX(150).setY(100)).setPriority(RenderPriority.Lowest);
+		}
+
+	}
+
+	protected void clearDisplay() {
+		for(ItemButtonContainer m : menuItems){
+			popup.removeWidget(m);
+		}
+		menuItems.clear();
+		for(List<ItemButtonContainer> mp : menuPages){
+			mp.clear();
+		}
+		menuPages.clear();
+		numPages = 0;
+
+		itemScroll.setSliderPosition(0);
+
+		itemDetail.setVisible(false);
+	}
+
+	protected synchronized void showPage(int page) {
+		if (page < 0 || page > numPages) {
+			throw new IllegalArgumentException("Illegal page number: " + page);
+		}
+		if (isPaged) {
+			if(menuPages.size() < currentPage)
+			for (ItemButtonContainer p : menuPages.get(currentPage)) {
+				p.setEnabled(false);
+			}
+			if(menuPages.size() < page)
+			for (ItemButtonContainer p : menuPages.get(page)) {
+				p.setEnabled(true);
+			}
+		} else {
+			for (int i = 0; i < menuItems.size(); ++i) {
+				ItemButtonContainer m = menuItems.get(i);
+				int p = i / maxRows;
+				if (p >= page && p < page + maxCols) {
+					m.setX(xpos[p - page]).setDirty(true);
+					m.setEnabled(true);
+				} else if (m.isVisible()) {
+					m.setEnabled(false);
+				}
+			}
+		}
+
+		currentPage = page;
+		lblPageNum.setText("Page " + (currentPage + 1) + " of " + numPages);
+		lblPageNum.setDirty(true);
+
+		if (currentPage == 0) {
+			if (btnScrollLeft.isVisible()) {
+				btnScrollLeft.setEnabled(false).setVisible(false).setDirty(true);
+			}
+		} else if (!btnScrollLeft.isVisible()) {
+			btnScrollLeft.setEnabled(true).setVisible(true).setDirty(true);
+		}
+		if (currentPage + 1 >= numPages) {//((menuItems.size() / maxRows) - (maxCols - 1))) {
+			if (btnScrollRight.isVisible()) {
+				btnScrollRight.setEnabled(false).setVisible(false).setDirty(true);
+			}
+		} else if (!btnScrollRight.isVisible()) {
+			btnScrollRight.setEnabled(true).setVisible(true).setDirty(true);
+		}
+	}
+
 	public void buttonPress(Button btn) {
 		if (btn == btnExit) {
 			if (aboutActive) {
@@ -259,10 +413,10 @@ public class SpoutPopupDisplay {
 		} else if (btn == btnAbout) {
 			showAbout();
 		} else if (btn == btnScrollLeft) {
-			itemScroll.setSliderPosition((float) (currentPage * rows) / (menuItems.size() - (rows * (cols - 1)))).setDirty(true);
+			itemScroll.setSliderPosition((float) (currentPage - .5) / numPages).setDirty(true);
 			sliderChanged(itemScroll);
 		} else if (btn == btnScrollRight) {
-			itemScroll.setSliderPosition((float) ((currentPage + 1.5) * rows) / (menuItems.size() - (rows * (cols - 1)))).setDirty(true);
+			itemScroll.setSliderPosition((float) (currentPage + 1.5) / numPages).setDirty(true);
 			sliderChanged(itemScroll);
 		} else if (btn == itemDetail.btnUp) {
 			itemDetail.buttonUpPressed(1);
@@ -286,10 +440,12 @@ public class SpoutPopupDisplay {
 				player.performCommand("shopsell " + itemDetail.itemIDD() + " " + itemDetail.sellAmt());
 				closePopup(player);
 			}
+		} else if (btn == btnCatCycle) {
+			showCategory(catNum + 1);
 		} else {
-			for (MarketMenuItem m : menuItems) {
-				if (btn == m.marketButton) {
-					itemDetail.updateItem(m.itemId, m.itemData);
+			for (ItemButtonContainer m : menuItems) {
+				if (btn == m.getButton()) {
+					itemDetail.updateItem(m.getID(), m.getData());
 					break;
 				}
 			}
@@ -298,43 +454,13 @@ public class SpoutPopupDisplay {
 
 	public void sliderChanged(Slider scrollbar) {
 		if (scrollbar == itemScroll) {
-			int page = (int) Math.ceil((((float) menuItems.size() / rows) - (cols - 1)) * scrollbar.getSliderPosition()) - 1;
-			if(page < 0){
+			//int page = (int) Math.ceil((((float) menuItems.size() / maxRows) - (maxCols - 1)) * scrollbar.getSliderPosition()) - 1;
+			int page = (int) Math.ceil(numPages * scrollbar.getSliderPosition()) - 1;
+			if (page < 0) {
 				page = 0;
 			}
 			if (currentPage != page) {
-				for (int i = 0; i < menuItems.size(); ++i) {
-					MarketMenuItem m = menuItems.get(i);
-					int p = i / rows;
-					if (p >= page && p < page + cols) {
-						m.setVisible(true);
-						m.setX(xpos[p - page]);
-						m.marketButton.setEnabled(true);
-					} else {
-						m.setVisible(false);
-						m.marketButton.setEnabled(false);
-					}
-					m.setDirty(true);
-				}
-				currentPage = page;
-
-				lblPageNum.setText("Page " + (currentPage + 1) + " of "
-						+ (int) (Math.ceil((float) menuItems.size() / rows) - 2)).setDirty(true);
-
-				if (currentPage == 0) {
-					if (btnScrollLeft.isVisible()) {
-						btnScrollLeft.setVisible(false).setDirty(true);
-					}
-				} else if (!btnScrollLeft.isVisible()) {
-					btnScrollLeft.setVisible(true).setDirty(true);
-				}
-				if (currentPage >= ((menuItems.size() / rows) - (cols - 1))) {
-					if (btnScrollRight.isVisible()) {
-						btnScrollRight.setVisible(false).setDirty(true);
-					}
-				} else if (!btnScrollRight.isVisible()) {
-					btnScrollRight.setVisible(true).setDirty(true);
-				}
+				showPage(page);
 			}
 		}
 	}
@@ -349,295 +475,5 @@ public class SpoutPopupDisplay {
 	public SpoutPlayer getPlayer() {
 		return player;
 	}
-
-	public String getPopupUUID() {
-		return popupUUID;
-	}
 } // end class SpoutPopupDisplay
 
-class MarketMenuItem extends GenericContainer {
-
-	public static int DEF_WIDTH = 120, DEF_HEIGHT = 17;
-	GenericButton marketButton = new GenericButton();
-	GenericItemWidget item = new GenericItemWidget();
-	//GenericLabel lblName = new GenericLabel();
-	int itemId;
-	byte itemData;
-
-	public MarketMenuItem(int id) {
-		this(id, (byte) 0);
-	}
-
-	public MarketMenuItem(int id, byte dat) {
-		itemId = id;
-		itemData = dat;
-		JItem j = JItemDB.GetItem(id, dat);
-		this.setWidth(DEF_WIDTH).setHeight(DEF_HEIGHT);//.setFixed(true).setAnchor(WidgetAnchor.CENTER_LEFT);
-		marketButton.setHeight(height).setWidth(width - 19);
-		marketButton.setText(j != null ? j.Name() : String.valueOf(id)).setX(19).setY(height / 10);
-		if (j != null && j.IsValidItem()) {
-			item.setTypeId(id).setData(dat);
-		} else {
-			item.setTypeId(0);
-		}
-		item.setWidth(8).setHeight(8).setX(1);
-		//super(marketButton, item);
-		this.children.add(marketButton);
-		this.children.add(item);
-//		for (Widget child : children) {
-//			child.setContainer(this);
-//		}
-	}
-}
-
-class MarketItem extends GenericContainer {
-
-	int itemId;
-	byte itemData;
-	//PriceListItem price;
-	double buyPrice, sellPrice;
-	long stock;
-	Player player;
-	GenericItemWidget item = new GenericItemWidget();
-	GenericLabel lblName = new GenericLabel();
-	GenericLabel lblCash = new GenericLabel(),
-			lblBuy = new GenericLabel(),
-			lblSell = new GenericLabel();
-	GenericTextField txtAmt = new GenericTextField();
-	GenericLabel lblAmt = new GenericLabel();
-	GenericButton btnUp = new GenericButton(),
-			btnDown = new GenericButton(),
-			btnUp5 = new GenericButton(),
-			btnDown5 = new GenericButton(),
-			btnUp20 = new GenericButton(),
-			btnDown20 = new GenericButton();
-	int currentAmt = 1, maxBuyAmt, maxSellAmt;
-	GenericButton btnBuy = new GenericButton(),
-			btnSell = new GenericButton();
-	GenericLabel lblBuyBtn = new GenericLabel(),
-			lblSellBtn = new GenericLabel();
-
-	public MarketItem(Player pl) {
-		player = pl;
-		this.setWidth(300).setHeight(60).setMargin(2);
-		item.setDepth(16).setWidth(16).setHeight(16).setX(10).setY(10);
-		lblName.setWidth(100).setHeight(20).setX(38).setY(3);
-
-		lblBuy.setWidth(100).setHeight(10).setX(150).setY(2);
-		lblSell.setWidth(100).setHeight(10).setX(150).setY(17);
-
-		lblCash.setWidth(110).setHeight(20).setX(SpoutPopupDisplay.MAX_WIDTH - 110).setY(5);
-		updateCash();
-
-		txtAmt.setX(8).setY(height - 10).setWidth(30).setHeight(12);
-		txtAmt.setFieldColor(new Color(80 / 255F, 80 / 255F, 80 / 255F));
-		txtAmt.setBorderColor(new Color(.8F, .8F, .8F));
-		txtAmt.setColor(new Color(.9F, .9F, .9F));
-
-		lblAmt.setText("Amount: ").setWidth(55).setHeight(10).setX(3).setY(height - 22);
-
-		btnUp.setText("+").setX(42).setY(height - 15).setWidth(12).setHeight(9);
-		btnDown.setText("-").setX(42).setY(height - 5).setWidth(12).setHeight(9);
-		btnUp5.setText("+5").setX(btnUp.getX() + 15).setY(btnUp.getY()).setWidth(20).setHeight(9);
-		btnDown5.setText("-5").setX(btnDown.getX() + 15).setY(btnDown.getY()).setWidth(20).setHeight(9);
-		btnUp20.setText("+20").setX(btnUp5.getX() + 22).setY(btnUp.getY()).setWidth(22).setHeight(9);
-		btnDown20.setText("-20").setX(btnDown5.getX() + 22).setY(btnDown.getY()).setWidth(22).setHeight(9);
-
-		btnBuy.setX(120).setY(height - 26).setWidth(110).setHeight(28);
-		btnSell.setX(245).setY(height - 26).setWidth(110).setHeight(28);
-
-		lblBuyBtn.setX(btnBuy.getX() + 5).setY(btnBuy.getY() + 5).setWidth(btnBuy.getWidth() - 10).setHeight(btnBuy.getHeight() - 10).setPriority(RenderPriority.Low);
-		lblSellBtn.setX(btnSell.getX() + 5).setY(btnSell.getY() + 5).setWidth(btnSell.getWidth() - 10).setHeight(btnSell.getHeight() - 10).setPriority(RenderPriority.Lowest);
-
-		lblAmt.setVisible(false);
-		txtAmt.setVisible(false);
-		btnUp.setVisible(false);
-		btnDown.setVisible(false);
-		btnUp5.setVisible(false);
-		btnDown5.setVisible(false);
-		btnUp20.setVisible(false);
-		btnDown20.setVisible(false);
-		btnBuy.setVisible(false);
-		btnSell.setVisible(false);
-
-		this.children.add(item);
-		this.children.add(lblName);
-		this.children.add(lblBuy);
-		this.children.add(lblSell);
-		this.children.add(lblCash);
-		this.children.add(txtAmt);
-		this.children.add(lblAmt);
-		this.children.add(btnUp);
-		this.children.add(btnDown);
-		this.children.add(btnUp5);
-		this.children.add(btnDown5);
-		this.children.add(btnUp20);
-		this.children.add(btnDown20);
-		this.children.add(btnBuy);
-		this.children.add(btnSell);
-		this.children.add(lblBuyBtn);
-		this.children.add(lblSellBtn);
-	}
-//
-//	public MarketItem(MarketMenuItem item) {
-//		this(item.itemId, item.itemData);
-//	}
-//
-//	public MarketItem(int id, byte dat) {
-//		this();
-//		updateItem(id, dat);
-//	}
-
-	public final void updateCash() {
-		lblCash.setText("  Cash: \n" + BSEcon.format(BSEcon.getBalance(player))).setDirty(true);
-		updateItem();
-	}
-
-	public final void updateItem() {
-		if (itemId > 0) {
-			updateItem(itemId, itemData);
-		}
-	}
-
-	public final void updateItem(int id, byte dat) {
-		itemId = id;
-		itemData = dat;
-		//price = null;
-		buyPrice = sellPrice = -1;
-
-		JItem j = JItemDB.GetItem(id, dat);
-		if (j != null && j.IsValidItem()) {
-			item.setTypeId(id).setData(dat);
-		} else {
-			item.setTypeId(0);
-		}
-		item.setDirty(true);
-
-		lblName.setText(j != null ? j.Name() : String.valueOf(id)).setDirty(true);
-
-		try {
-			//price = BetterShop.getPricelist().getItemPrice(id, dat);
-			buyPrice = BetterShop.getPricelist(player.getLocation()).itemBuyPrice(player, id, dat, 1);
-			sellPrice = BetterShop.getPricelist(player.getLocation()).itemSellPrice(player, id, dat, 1);
-			stock = BetterShop.getStock(player.getLocation()).freeStockRemaining(id, dat);
-			maxBuyAmt = BSutils.amtCanBuy(player, j);
-			maxSellAmt = BSutils.amtHas(player, j);
-			if (BetterShop.getConfig().useItemStock) {
-				lblName.setText(lblName.getText() + "\n\n" + (stock < 0 ? "INF" : stock) + " in Stock");
-			}
-
-			lblBuy.setText("Buy Price: " + BSEcon.format(buyPrice)).setDirty(true);
-			lblSell.setText("Sell Price: " + BSEcon.format(sellPrice)).setDirty(true);
-
-			if (!lblAmt.isVisible()) {
-				lblAmt.setVisible(true).setDirty(true);
-				txtAmt.setVisible(true);
-				btnUp.setVisible(true).setDirty(true);
-				btnDown.setVisible(true).setDirty(true);
-				btnUp5.setVisible(true).setDirty(true);
-				btnDown5.setVisible(true).setDirty(true);
-				btnUp20.setVisible(true).setDirty(true);
-				btnDown20.setVisible(true).setDirty(true);
-				btnBuy.setVisible(true).setDirty(true);
-				btnSell.setVisible(true).setDirty(true);
-			}
-			if (currentAmt > maxBuyAmt && currentAmt > maxSellAmt) {
-				currentAmt = maxBuyAmt > maxSellAmt ? maxBuyAmt : maxSellAmt;
-			}
-			setAmt(currentAmt);//maxBuyAmt == 0 ? (maxSellAmt == 0 ? 0 : 1) : 1);
-		} catch (Exception ex) {
-			BetterShopLogger.Log(Level.SEVERE, ex);
-			SpoutPopupDisplay.closePopup((SpoutPlayer) player);
-		}
-	}
-
-	public void buttonUpPressed(int d) {
-		currentAmt += d;
-		if (currentAmt > maxBuyAmt && currentAmt > maxSellAmt) {
-			currentAmt = maxBuyAmt > maxSellAmt ? maxBuyAmt : maxSellAmt;
-		}
-		setAmt(currentAmt);
-	}
-
-	public void buttonDownPressed(int d) {
-		currentAmt -= d;
-		if (currentAmt < 0) {
-			currentAmt = (maxBuyAmt == 0 && maxSellAmt == 0) ? 0 : 1;
-		}
-		setAmt(currentAmt);
-	}
-
-	public int buyAmt() {
-		return currentAmt >= maxBuyAmt ? maxBuyAmt : currentAmt;
-	}
-
-	public int sellAmt() {
-		return currentAmt >= maxSellAmt ? maxSellAmt : currentAmt;
-	}
-
-	public String itemIDD() {
-		return String.valueOf(itemId) + (itemData == 0 ? "" : ":" + itemData);
-	}
-
-	public void amtChanged(String from, String to) {
-		int min = maxBuyAmt == 0 ? (maxSellAmt == 0 ? 0 : 1) : 1;
-		if (to.isEmpty()) {
-			setAmt(min);
-			//redirtyTxtAmt();
-			return;
-		}
-		int newAmt = -1;
-		if (CheckInput.IsInt(to) && (newAmt = CheckInput.GetInt(to, newAmt)) > min) {
-			if (newAmt > maxBuyAmt) {
-				setAmt(currentAmt = maxBuyAmt);
-				redirtyTxtAmt();
-			} else {
-				setAmt(newAmt);
-			}
-		} else {
-			setAmt(currentAmt);
-			redirtyTxtAmt();
-		}
-	}
-
-	protected void setAmt(int amt) {
-		txtAmt.setText(String.valueOf(currentAmt = amt)).setDirty(true);
-		txtAmt.setCursorPosition(txtAmt.getText().length());
-
-//		if (btnUp.isEnabled() && currentAmt >= maxBuyAmt && currentAmt >= maxSellAmt) {
-//			btnUp.setEnabled(false).setDirty(true);
-//		} else if (!btnUp.isEnabled() && maxBuyAmt > 0 && maxSellAmt > 0) {
-//			btnUp.setEnabled(true).setDirty(true);
-//		}
-//
-//		if (btnDown.isEnabled() && currentAmt <= 1
-//				&& maxBuyAmt <= currentAmt && maxSellAmt <= currentAmt) {
-//			btnDown.setEnabled(false).setDirty(true);
-//		} else if (!btnDown.isEnabled()
-//				&& (currentAmt > 1 || (currentAmt > maxBuyAmt && currentAmt > maxSellAmt))) {
-//			btnDown.setEnabled(true).setDirty(true);
-//		}
-
-		lblBuyBtn.setText("Buy " + buyAmt() + " for\n "
-				+ BSEcon.format(buyPrice * buyAmt())).setDirty(true);
-		lblSellBtn.setText("Sell " + sellAmt() + " for\n "
-				+ BSEcon.format(sellPrice * sellAmt())).setDirty(true);
-	}
-	Timer t = null;
-
-	private void redirtyTxtAmt() {
-		if (t != null) {
-			t.cancel();
-			t = null;
-		}
-		t = new Timer();
-		t.schedule(new TimerTask() {
-
-			@Override
-			public void run() {
-				setAmt(currentAmt);
-				t = null;
-			}
-		}, 1000);
-	}
-}

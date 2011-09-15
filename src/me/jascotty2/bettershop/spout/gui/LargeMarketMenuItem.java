@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 Jacob Scott <jascottytechie@gmail.com>
- * Description: type of database the plugin should use
+ * Description: ( TODO )
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,9 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.jascotty2.bettershop.enums;
+package me.jascotty2.bettershop.spout.gui;
 
-public enum DBType {
+public class LargeMarketMenuItem extends ItemButtonContainer {
 
-	FLATFILE, MYSQL, //SQLITE
-}
+	public static int DEF_WIDTH = 125, DEF_HEIGHT = 17;
+
+	public LargeMarketMenuItem(int id) {
+		this(id, (byte) 0);
+	}
+
+	public LargeMarketMenuItem(int id, byte dat) {
+		super(id, dat);
+		this.setWidth(DEF_WIDTH).setHeight(DEF_HEIGHT);//.setFixed(true).setAnchor(WidgetAnchor.CENTER_LEFT);
+		marketButton.setHeight(height).setWidth(width - 19);
+		marketButton.setText(itemName).setX(19).setY(0);
+		picItem.setWidth(8).setHeight(8).setY(1);
+	}
+
+} // end class LargeMenuMarketItem
