@@ -26,11 +26,14 @@ import me.jascotty2.lib.bukkit.MinecraftChatStr;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import me.jascotty2.bettershop.enums.SpoutCategoryMethod;
 import me.jascotty2.bettershop.spout.gui.*;
+import me.jascotty2.lib.bukkit.item.JItem;
 import me.jascotty2.lib.bukkit.item.JItemDB;
 
 import org.getspout.spoutapi.event.screen.TextFieldChangeEvent;
@@ -54,9 +57,8 @@ import org.getspout.spoutapi.player.SpoutPlayer;
 public class SpoutPopupDisplay {
 
 	static Map<SpoutPlayer, SpoutPopupDisplay> popupOpen = new HashMap<SpoutPlayer, SpoutPopupDisplay>();
-	protected static int height = 160, width = 420,
-			xPad = 15, yPad = 8,
-			maxRows, maxCols;
+	protected static int xPad = 15, yPad = 8;
+	int height = 160, width = 420, maxRows, maxCols;
 	protected static final int MAX_WIDTH = 427, MAX_HEIGHT = 240;
 	SpoutPlayer player;
 	// gui objects
@@ -79,7 +81,12 @@ public class SpoutPopupDisplay {
 	// categories
 	int catNum = 0;
 	String[] categories;
+	// cycle
 	GenericButton btnCatCycle = null;
+	// tabbed
+	int tabPage = 0, tabSize = 60, tabXpad = 5, tabPageSize = (MAX_WIDTH - 20) / (tabSize + tabXpad);
+	GenericButton btnTabLeft, btnTabRight;
+	List<GenericButton> tabButtons = new ArrayList<GenericButton>();
 
 	public SpoutPopupDisplay(SpoutPlayer p) {
 		player = p;
@@ -157,6 +164,33 @@ public class SpoutPopupDisplay {
 			btnCatCycle.setTooltip("Category");
 			btnCatCycle.setWidth(50).setHeight(15).setX(374).setY(205);
 			popup.attachWidget(BetterShop.getPlugin(), btnCatCycle);
+		} else if (BetterShop.getConfig().spoutCategories == SpoutCategoryMethod.TABBED) {
+			btnTabLeft = new GenericButton();
+			btnTabRight = new GenericButton();
+			btnTabLeft.setText("<").setHeight(10).setWidth(10).setY(4).setX(2);
+			btnTabLeft.setEnabled(false).setVisible(false);
+			btnTabRight.setText(">").setHeight(10).setWidth(10).setY(4).setX(MAX_WIDTH - 12);
+			btnTabRight.setEnabled(false).setVisible(false);
+
+			popup.attachWidget(BetterShop.getPlugin(), btnTabLeft);
+			popup.attachWidget(BetterShop.getPlugin(), btnTabRight);
+
+			int x = 20;
+			boolean vis = true;
+			for (String c : categories) {
+				GenericButton tab = new GenericButton(c);
+				tab.setHeight(10).setWidth(tabSize).setY(4).setX(x);
+				tab.setEnabled(vis).setVisible(vis);
+				x += tabSize + 5;
+				if (x + tabSize >= MAX_WIDTH - 15) {
+					x = 20;
+					vis = false;
+					btnTabRight.setEnabled(true).setVisible(true);
+				}
+				tabButtons.add(tab);
+				popup.attachWidget(BetterShop.getPlugin(), tab);
+			}
+			height -= 15;
 		}
 
 		showCategory(0);
@@ -233,6 +267,12 @@ public class SpoutPopupDisplay {
 		String cat = categories[catNum];
 		if (btnCatCycle != null) {
 			btnCatCycle.setText(cat).setDirty(true);
+		} else if (BetterShop.getConfig().spoutCategories == SpoutCategoryMethod.TABBED) {
+			for (int c = 0; c < tabButtons.size(); ++c) {
+				tabButtons.get(c).setTextColor(
+						c == catNum ? new Color(.95F, .95F, .95F)//.95F, .35F, .35F)//(float) 33 / 255, (float) 25 / 255, (float) 210 / 255)
+						: new Color(.7F, .7F, .7F)).setDirty(true);
+			}
 		}
 
 		clearDisplay();
@@ -248,6 +288,17 @@ public class SpoutPopupDisplay {
 				for (PriceListItem p : allitems) {
 					if (p.HasCategory(cat)) {
 						items.add(p);
+					}
+				}
+				if(catNum > 0 && BetterShop.getConfig().spoutCatCustomSort){
+					final List<JItem> catItems = JItemDB.getCategory(cat);
+					if(catItems != null){
+						Collections.sort(items, new Comparator<PriceListItem>() {
+
+							public int compare(PriceListItem o1, PriceListItem o2) {
+								return catItems.indexOf(o1) - catItems.indexOf(o2);
+							}
+						});
 					}
 				}
 			}
@@ -279,6 +330,9 @@ public class SpoutPopupDisplay {
 
 			maxRows = height / dy;
 			y = (height - (maxRows * dy) + yPad) / 2;
+			if (BetterShop.getConfig().spoutCategories == SpoutCategoryMethod.TABBED) {
+				y += 15;
+			}
 			iy = y;
 
 			xpos = new int[maxCols];
@@ -340,11 +394,11 @@ public class SpoutPopupDisplay {
 	}
 
 	protected void clearDisplay() {
-		for(ItemButtonContainer m : menuItems){
+		for (ItemButtonContainer m : menuItems) {
 			popup.removeWidget(m);
 		}
 		menuItems.clear();
-		for(List<ItemButtonContainer> mp : menuPages){
+		for (List<ItemButtonContainer> mp : menuPages) {
 			mp.clear();
 		}
 		menuPages.clear();
@@ -360,13 +414,15 @@ public class SpoutPopupDisplay {
 			throw new IllegalArgumentException("Illegal page number: " + page);
 		}
 		if (isPaged) {
-			if(menuPages.size() < currentPage)
-			for (ItemButtonContainer p : menuPages.get(currentPage)) {
-				p.setEnabled(false);
+			if (currentPage < menuPages.size()) {
+				for (ItemButtonContainer p : menuPages.get(currentPage)) {
+					p.setEnabled(false);
+				}
 			}
-			if(menuPages.size() < page)
-			for (ItemButtonContainer p : menuPages.get(page)) {
-				p.setEnabled(true);
+			if (page < menuPages.size()) {
+				for (ItemButtonContainer p : menuPages.get(page)) {
+					p.setEnabled(true);
+				}
 			}
 		} else {
 			for (int i = 0; i < menuItems.size(); ++i) {
@@ -399,6 +455,34 @@ public class SpoutPopupDisplay {
 		} else if (!btnScrollRight.isVisible()) {
 			btnScrollRight.setEnabled(true).setVisible(true).setDirty(true);
 		}
+	}
+
+	protected synchronized void showCatPage(int page) {
+		int pageStart = page * tabPageSize;
+		if (pageStart > tabButtons.size()) {
+			throw new IllegalArgumentException("Illegal tab page number: " + page);
+		}
+		int p = 0;
+		for (GenericButton b : tabButtons) {
+			if (p >= pageStart && p < pageStart + tabPageSize) {
+				b.setEnabled(true).setVisible(true).setDirty(true);
+			} else if (b.isVisible()) {
+				b.setEnabled(false).setVisible(false).setDirty(true);
+			}
+			++p;
+		}
+		if (page * tabPageSize >= tabButtons.size()) {
+			btnTabRight.setEnabled(false).setVisible(false).setDirty(true);
+		} else if (!btnTabRight.isVisible()) {
+			btnTabRight.setEnabled(true).setVisible(true).setDirty(true);
+		}
+
+		if (page <= 0) {
+			btnTabLeft.setEnabled(false).setVisible(false).setDirty(true);
+		} else {
+			btnTabLeft.setEnabled(true).setVisible(true).setDirty(true);
+		}
+		tabPage = page;
 	}
 
 	public void buttonPress(Button btn) {
@@ -442,11 +526,23 @@ public class SpoutPopupDisplay {
 			}
 		} else if (btn == btnCatCycle) {
 			showCategory(catNum + 1);
+		} else if (btn == btnTabLeft) {
+			showCatPage(tabPage - 1);
+		} else if (btn == btnTabRight) {
+			showCatPage(tabPage + 1);
 		} else {
+			int cat = 0;
+			for (GenericButton b : tabButtons) {
+				if (btn == b) {
+					showCategory(cat);
+					return;
+				}
+				++cat;
+			}
 			for (ItemButtonContainer m : menuItems) {
 				if (btn == m.getButton()) {
 					itemDetail.updateItem(m.getID(), m.getData());
-					break;
+					return;
 				}
 			}
 		}

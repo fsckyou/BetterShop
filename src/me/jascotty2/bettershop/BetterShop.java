@@ -167,9 +167,6 @@ public class BetterShop extends JavaPlugin {
 
 		shopManager.closeAll();
 
-		BetterShopLogger.CloseCommandLog();
-		BetterShopErrorTracker.messenger = null;
-
 		if (signShop != null) {
 			signShop.save();
 			signShop.stopProtecting();
@@ -178,6 +175,9 @@ public class BetterShop extends JavaPlugin {
 
 		keyListener = null;
 		buttonListener = null;
+
+		BetterShopLogger.CloseCommandLog();
+		BetterShopErrorTracker.messenger = null;
 
 		BetterShopLogger.Fine("disabled");
 	}

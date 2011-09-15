@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import me.jascotty2.lib.util.ArrayManip;
@@ -35,9 +36,10 @@ import org.bukkit.util.config.ConfigurationNode;
 public class JItemDB {
 
 	private final static Logger logger = Logger.getLogger("Minecraft");
-	protected static HashMap<String, JItem> items = new HashMap<String, JItem>();
-	protected static HashMap<Integer, Kit> kits = new HashMap<Integer, Kit>();
+	protected static Map<String, JItem> items = new HashMap<String, JItem>();
+	protected static Map<Integer, Kit> kits = new HashMap<Integer, Kit>();
 	protected static List<String> itemCategories = new ArrayList<String>();
+	protected static Map<String, List<JItem>> itemCategoryItemlist = new HashMap<String, List<JItem>>();
 	protected static boolean dbLoaded = false;
 
 	public static boolean load() {
@@ -229,22 +231,28 @@ public class JItemDB {
 				if (n == null) {
 					logger.log(Level.WARNING, String.format("\'categories\' not found in %s", itemFile.getName()));
 				} else {
+					itemCategories.clear();
+					itemCategoryItemlist.clear();
 					List<String> cats = itemdb.getKeys("categories");
 					for (String c : cats) {
 						String itms = n.getString(c);
 						if (c != null && itms != null) {
-							itemCategories.add(c);
-							for (String i : itms.split(",")) {
+							String list[] = itms.split(",");
+							ArrayList<JItem> categoryItems = new ArrayList<JItem>();
+							for (String i : list) {
 								i = i.trim();
 								if (i.length() > 0) {
 									JItem it = findItem(i);
 									if (it != null) {
 										it.AddCategory(c);
+										categoryItems.add(it);
 									} else {
 										catErr += i + ", ";
 									}
 								}
 							}
+							itemCategories.add(c);
+							itemCategoryItemlist.put(c, categoryItems);
 						}
 					}
 					if (catErr.length() > 0) {
@@ -484,6 +492,10 @@ public class JItemDB {
 
 	public static String[] getCategories() {
 		return itemCategories.toArray(new String[0]);
+	}
+
+	public static List<JItem> getCategory(String cat) {
+		return itemCategoryItemlist.get(cat);
 	}
 
 	public static String GetItemName(ItemStack search) {

@@ -112,12 +112,14 @@ public class BSConfig {
 	public boolean spoutEnabled = true;
 	private String spoutKey = "B";
 	public boolean largeSpoutMenu = true,
-			spoutUsePages = false;
+			spoutUsePages = false,
+			spoutCatCustomSort = true;
 	public SpoutCategoryMethod spoutCategories = SpoutCategoryMethod.NONE;
 	// discount permissions groups
 	HashMap<String, Double> groups = new HashMap<String, Double>();
 	public final ShopConfig mainShopConfig = new ShopConfig();
 // </editor-fold>
+
 	public BSConfig() {
 	}
 
@@ -207,7 +209,8 @@ public class BSConfig {
 							"key",
 							"largeMenu",
 							"usePages",
-							"categories"});
+							"categories",
+							"useSort"});
 				allKeys.put("MySQL", new String[]{
 							"useMySQL",
 							"database",
@@ -499,6 +502,7 @@ public class BSConfig {
 						spoutCategories = SpoutCategoryMethod.NONE;
 					}
 				}
+				spoutCatCustomSort = n.getBoolean("useSort", spoutCatCustomSort);
 			}
 
 			// groups
@@ -782,7 +786,9 @@ public class BSConfig {
 				+ useDynamicPricing + "," + sellcraftables + ","
 				+ String.format("%2.3f", sellcraftableMarkup) + ","
 				+ b(woolsellweight) + ","
-				+ spoutEnabled + "," + spoutKey;
+				+ spoutEnabled + "," + spoutKey + ","
+				+ largeSpoutMenu + "," + spoutUsePages + ","
+				+ spoutCatCustomSort + "," + spoutCategories.name();
 	}
 
 	public static int indexOf(String array[], String search) {

@@ -71,11 +71,11 @@ public class MarketItemDetail extends GenericContainer {
 
 	public MarketItemDetail(Player pl) {
 		player = pl;
-		this.setWidth(300).setHeight(60).setMargin(2);
-		item.setDepth(16).setWidth(16).setHeight(16).setX(10).setY(10);
-		lblName.setWidth(100).setHeight(20).setX(38).setY(8);
+		this.setWidth(300).setHeight(70).setMargin(2);
+		item.setDepth(16).setWidth(16).setHeight(16).setX(10).setY(5);
+		lblName.setWidth(100).setHeight(20).setX(38).setY(3);
 
-		lblBuy.setWidth(100).setHeight(10).setX(150).setY(8);
+		lblBuy.setWidth(100).setHeight(10).setX(150).setY(3);
 		lblSell.setWidth(100).setHeight(10).setX(150).setY(18);
 
 		lblCash.setWidth(110).setHeight(20).setX(MAX_WIDTH - 110).setY(8);
@@ -136,14 +136,24 @@ public class MarketItemDetail extends GenericContainer {
 		
 		lblAmt.setVisible(vis);
 		txtAmt.setVisible(vis);
+
+		lblName.setVisible(vis);
+
+		lblBuy.setVisible(vis);
+		lblSell.setVisible(vis);
+
 		btnUp.setVisible(vis);
 		btnDown.setVisible(vis);
 		btnUp5.setVisible(vis);
 		btnDown5.setVisible(vis);
 		btnUp20.setVisible(vis);
 		btnDown20.setVisible(vis);
+
 		btnBuy.setVisible(vis);
 		btnSell.setVisible(vis);
+		
+		lblBuyBtn.setVisible(vis);
+		lblSellBtn.setVisible(vis);
 
 		this.setDirty(true);
 		return this;

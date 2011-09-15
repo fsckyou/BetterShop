@@ -115,6 +115,9 @@ spout:
     # none (default) : no category selection
     categories: none
 
+    #if using categories, is should use the orger defined in itemsdb.yml
+    useSort: true
+
 discountGroups:
     # groups are defined using permissions
     # BetterShop.discount.(NAME)

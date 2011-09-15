@@ -46,54 +46,75 @@ class BSPluginListener extends ServerListener {
 
 	public BSPluginListener(BetterShop plugin) {
 		shop = plugin;
+		PluginManager pm = plugin.getServer().getPluginManager();
+		checkPermissions(pm.getPlugin("Permissions"));
+		checkMIM(pm.getPlugin("MinecraftIM"));
+		checkSpout(pm.getPlugin("Spout"));
+		checkHelp(pm.getPlugin("Help"));
 	}
 
 	@Override
 	public void onPluginEnable(PluginEnableEvent event) {
-		if (event.getPlugin().isEnabled()) { // double-checking enabled
+		if (event.getPlugin().isEnabled()) { // double-checking if enabled
 			String pName = event.getPlugin().getDescription().getName();
 			if (pName.equals("Help")) {
-				if (event.getPlugin() instanceof Help) {
-					HelpCommands.registerHelp(event.getPlugin());
-					BetterShopLogger.Info("'Help' support enabled.");
-				}
+				checkHelp(event.getPlugin());
 			} else if (pName.equals("MinecraftIM")) {
-				if (event.getPlugin() instanceof MinecraftIM) {
-					BetterShopErrorTracker.messenger = (MinecraftIM) event.getPlugin();
-					BetterShopLogger.Info("linked to MinecraftIM");
-				}
+				checkMIM(event.getPlugin());
 			} else if (pName.equals("Permissions")) {
-				if (event.getPlugin() instanceof Permissions) {
-					BSPermissions.permissionsPlugin = (Permissions) event.getPlugin();
-					BetterShopLogger.Log("Attached to Permissions.");
-				}
+				checkPermissions(event.getPlugin());
 			} else if (pName.equals("Spout")) {
-				if (event.getPlugin() instanceof Spout) {
-
-					BetterShopLogger.Log("Spout Found! :)");
-//				File spFile = new File(test.getClass().getProtectionDomain().getCodeSource().getLocation().getPath().
-//				replace("%20", " ").replace("%25", "%"));
-					try {
-						Plugin bp = BetterShop.getPlugin();
-						//bp.super.getClassLoader().loadClass(event.getPlugin().getDescription().getMain());
-						//JavaPlugin.class.getClassLoader().loadClass(event.getPlugin().getDescription().getMain());
-						((JavaPlugin) bp).getClass().getClassLoader().loadClass(event.getPlugin().getDescription().getMain());
-						BetterShop.keyListener = new SpoutKeyListener();
-						BetterShop.buttonListener = new SpoutPopupListener();
-
-						// spout listeners
-						PluginManager pm = shop.getServer().getPluginManager();
-						pm.registerEvent(Event.Type.CUSTOM_EVENT, BetterShop.keyListener,
-								Event.Priority.Normal, shop);
-						pm.registerEvent(Event.Type.CUSTOM_EVENT, BetterShop.buttonListener,
-								Event.Priority.Normal, shop);
-
-					} catch (ClassNotFoundException ex) {
-						BetterShopLogger.Severe("Error loading Spout!", ex);
-					}
-				}
+				checkSpout(event.getPlugin());
 			} else {
 				BetterShop.economy.onPluginEnable(event);
+			}
+		}
+	}
+
+	public final void checkMIM(Plugin p) {
+		if (p instanceof MinecraftIM) {
+			BetterShopErrorTracker.messenger = (MinecraftIM) p;
+			BetterShopLogger.Info("linked to MinecraftIM");
+		}
+	}
+
+	public final void checkHelp(Plugin p) {
+		if (p instanceof Help) {
+			HelpCommands.registerHelp(p);
+			BetterShopLogger.Info("'Help' support enabled.");
+		}
+	}
+
+	public final void checkPermissions(Plugin p) {
+		if (p instanceof Permissions) {
+			BSPermissions.permissionsPlugin = (Permissions) p;
+			BetterShopLogger.Log("Attached to Permissions.");
+		}
+	}
+
+	public final void checkSpout(Plugin p) {
+		if (p instanceof Spout) {
+
+			BetterShopLogger.Log("Spout Found! :)");
+//				File spFile = new File(test.getClass().getProtectionDomain().getCodeSource().getLocation().getPath().
+//				replace("%20", " ").replace("%25", "%"));
+			try {
+				Plugin bp = BetterShop.getPlugin();
+				//bp.super.getClassLoader().loadClass(event.getPlugin().getDescription().getMain());
+				//JavaPlugin.class.getClassLoader().loadClass(event.getPlugin().getDescription().getMain());
+				((JavaPlugin) bp).getClass().getClassLoader().loadClass(p.getDescription().getMain());
+				BetterShop.keyListener = new SpoutKeyListener();
+				BetterShop.buttonListener = new SpoutPopupListener();
+
+				// spout listeners
+				PluginManager pm = shop.getServer().getPluginManager();
+				pm.registerEvent(Event.Type.CUSTOM_EVENT, BetterShop.keyListener,
+						Event.Priority.Normal, shop);
+				pm.registerEvent(Event.Type.CUSTOM_EVENT, BetterShop.buttonListener,
+						Event.Priority.Normal, shop);
+
+			} catch (ClassNotFoundException ex) {
+				BetterShopLogger.Severe("Error loading Spout!", ex);
 			}
 		}
 	}
@@ -110,21 +131,12 @@ class BSPluginListener extends ServerListener {
 			} else if (pName.equals("Permissions")) {
 				if (event.getPlugin() instanceof Permissions) {
 					BSPermissions.permissionsPlugin = (Permissions) event.getPlugin();
-					BetterShopLogger.Log("Attached to Permissions.");
+					BetterShopLogger.Log("Permissions disabled.");
 				}
 			} else if (pName.equals("Spout")) {
-				BetterShopLogger.Log("Spout Found! :)");
-//				File spFile = new File(test.getClass().getProtectionDomain().getCodeSource().getLocation().getPath().
-//				replace("%20", " ").replace("%25", "%"));
-				try {
-					//Plugin bp = BetterShop.getPlugin();
-					//bp.super.getClassLoader().loadClass(test.getDescription().getMain());
-					JavaPlugin.class.getClassLoader().loadClass(event.getPlugin().getDescription().getMain());
-					BetterShop.keyListener = new SpoutKeyListener();
-					BetterShop.buttonListener = new SpoutPopupListener();
-				} catch (ClassNotFoundException ex) {
-					BetterShopLogger.Severe("Error loading Spout!", ex);
-				}
+				BetterShop.keyListener = null;
+				BetterShop.buttonListener = null;
+				BetterShopLogger.Log("Spout disabled.");
 			} else {
 				BetterShop.economy.onPluginDisable(event);
 			}
