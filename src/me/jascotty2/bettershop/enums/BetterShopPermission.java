@@ -48,6 +48,10 @@ public enum BetterShopPermission {
 	 */
 	USER_SPOUT("BetterShop.user.spout"),
 	/**
+	 * allow a user to use the a chest shop
+	 */
+	USER_CHEST("BetterShop.user.chest"),
+	/**
 	 * generic admin permissions
 	 */
 	ADMIN("BetterShop.admin"),
@@ -86,7 +90,11 @@ public enum BetterShopPermission {
 	/**
 	 * ability to add/remove shop regions
 	 */
-	ADMIN_REGION("BetterShop.admin.region");
+	ADMIN_REGION("BetterShop.admin.region"),
+	/**
+	 * ability to add/remove shop chests
+	 */
+	ADMIN_CHESTS("BetterShop.admin.chests");
 	String permissionNode = null;
 
 	BetterShopPermission(String per) {

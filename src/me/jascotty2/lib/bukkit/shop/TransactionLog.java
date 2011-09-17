@@ -29,6 +29,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -224,7 +225,7 @@ public class TransactionLog {
                 recentTotalTransactions.clear();
                 if (flatFile != null && flatFile.exists()) {
                     try {
-                        ArrayList<String[]> actFile = FileIO.loadCSVFile(flatFile);
+                        List<String[]> actFile = FileIO.loadCSVFile(flatFile);
                         for (int n = 0; n < actFile.size(); ++n) {//String[] line : actFile) {
                             String[] line = actFile.get(n);
                             if (line.length >= 8) {
@@ -256,7 +257,7 @@ public class TransactionLog {
                 if (totalsFlatFile != null && totalsFlatFile.exists()) {
                     totalTransactions.clear();
                     try {
-                        ArrayList<String[]> actFile = FileIO.loadCSVFile(totalsFlatFile);
+                        List<String[]> actFile = FileIO.loadCSVFile(totalsFlatFile);
                         for (int n = 0; n < actFile.size(); ++n) {//String[] line : actFile) {
                             String[] line = actFile.get(n);
                             if (line.length >= 6) {

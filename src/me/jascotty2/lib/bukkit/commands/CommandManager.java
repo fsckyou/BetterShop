@@ -300,7 +300,7 @@ public abstract class CommandManager {
 	 * @throws CommandException
 	 */
 	public void executeMethod(CommandSender player, String cmd, String[] args, Method parent, int level) throws CommandException {
-
+		//System.out.println(cmd + "  " + Str.concatStr(args, " ") + "  " + parent);
 		Map<String, Method> map = commands.get(parent);
 		Method method = map.get(cmd.toLowerCase());
 

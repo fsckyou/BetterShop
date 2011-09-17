@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import me.jascotty2.bettershop.BSEcon;
 import me.jascotty2.bettershop.BSutils;
 import me.jascotty2.bettershop.BetterShop;
+import me.jascotty2.bettershop.shop.Shop;
 import me.jascotty2.bettershop.spout.SpoutPopupDisplay;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 import me.jascotty2.lib.bukkit.item.JItem;
@@ -68,9 +69,12 @@ public class MarketItemDetail extends GenericContainer {
 			btnSell = new GenericButton();
 	GenericLabel lblBuyBtn = new GenericLabel(),
 			lblSellBtn = new GenericLabel();
+	
+	final Shop displayShop;
 
 	public MarketItemDetail(Player pl) {
 		player = pl;
+		displayShop = BetterShop.getShop(player);
 		this.setWidth(300).setHeight(70).setMargin(2);
 		item.setDepth(16).setWidth(16).setHeight(16).setX(10).setY(5);
 		lblName.setWidth(100).setHeight(20).setX(38).setY(3);
@@ -121,16 +125,7 @@ public class MarketItemDetail extends GenericContainer {
 		this.children.add(lblBuyBtn);
 		this.children.add(lblSellBtn);
 	}
-//
-//	public MarketItemDetail(LargeMarketMenuItem item) {
-//		this(item.itemId, item.itemData);
-//	}
-//
-//	public MarketItemDetail(int id, byte dat) {
-//		this();
-//		updateItem(id, dat);
-//	}
-
+	
 	@Override
 	public final Container setVisible(boolean vis){
 		
@@ -190,11 +185,10 @@ public class MarketItemDetail extends GenericContainer {
 		lblName.setText(j != null ? j.Name() : String.valueOf(id)).setDirty(true);
 
 		try {
-			//price = BetterShop.getPricelist().getItemPrice(id, dat);
-			buyPrice = BetterShop.getPricelist(player.getLocation()).itemBuyPrice(player, id, dat, 1);
-			sellPrice = BetterShop.getPricelist(player.getLocation()).itemSellPrice(player, id, dat, 1);
-			stock = BetterShop.getStock(player.getLocation()).freeStockRemaining(id, dat);
-			maxBuyAmt = BSutils.amtCanBuy(player, j);
+			buyPrice = displayShop.pricelist.itemBuyPrice(player, id, dat, 1);
+			sellPrice = displayShop.pricelist.itemSellPrice(player, id, dat, 1);
+			stock = displayShop.stock.getItemAmount(id, dat);
+			maxBuyAmt = displayShop.pricelist.getAmountCanBuy(player, j);
 			maxSellAmt = BSutils.amtHas(player, j);
 			if (BetterShop.getConfig().useItemStock) {
 				lblName.setText(lblName.getText() + "\n\n" + (stock < 0 ? "INF" : stock) + " in Stock");

@@ -79,16 +79,17 @@ public class BSSignShop extends PlayerListener {
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, this, Event.Priority.Normal, bs);
 		pm.registerEvent(Event.Type.BLOCK_BREAK, checkSigns, Event.Priority.Normal, bs);
 		pm.registerEvent(Event.Type.BLOCK_PLACE, checkSigns, Event.Priority.Normal, bs);
+		
+		pm.registerEvent(Event.Type.ENTITY_EXPLODE, checkSigns.tntBlock, Event.Priority.Low, bs);
 	}
 	
 	@Override
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		if (event.isCancelled()) {
+		if (event.isCancelled() || !BetterShop.getConfig().signShopEnabled) {
 			return;
 		}
 		//if(event.getAction() == Action.RIGHT_CLICK_BLOCK) event.getPlayer().getWorld().strikeLightning(event.getClickedBlock().getLocation());
-		if (BetterShop.getConfig().signShopEnabled
-				&& event.getClickedBlock() != null
+		if (event.getClickedBlock() != null
 				&& (event.getClickedBlock().getType() == Material.WALL_SIGN
 				|| event.getClickedBlock().getType() == Material.SIGN_POST)) {
 			Sign clickedSign = (Sign) event.getClickedBlock().getState();

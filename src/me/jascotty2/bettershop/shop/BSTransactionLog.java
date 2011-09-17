@@ -29,11 +29,13 @@ import me.jascotty2.bettershop.utils.BetterShopLogger;
 
 public class BSTransactionLog extends TransactionLog {
 
+	final Shop shop;
 	private BSPriceList pricelist;
 
-	public BSTransactionLog(BSPriceList pricelist) {
+	public BSTransactionLog(Shop shop) {
 		super();
-		this.pricelist = pricelist;
+		this.shop = shop;
+		this.pricelist = shop.pricelist;
 	} // end default constructor
 
     public final boolean load() {

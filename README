@@ -13,6 +13,9 @@ In-Game Commands:
 /shop restore 			<file> 			clear shop & load from saved backup file
 /shop restock						manually update stock (if enabled)
 /shop update 						OP-only command that forces update & restarts server plugins
+/shop region define		<name>			uses the player's WorldEdit selection to define a shop region
+/shop region remove		<name>			remove a region definition
+/shop region list		[page]			list current regions
 /shophelp (shelp)		[command]		shows you all the commands you can use, or more help on [command]
 /shoplist (sl,slist)		[pagenum]		shows a listing of items for sale (if -1, all, or full given, will show full list. (for console use))
 /shopitems (sitems)					show full listing of items in shop, without prices
@@ -76,6 +79,8 @@ buystack can be given multiple items, or number of stacks: "/buystack wool 5" or
 shopsellall can be given multiple items (/sell all cobble gravel flint dirt)
 plural-insensitive items: if not found, will check if plural & remove "s"
 not just items can be bought anymore: can now buy LivingEntities, like dogs (wolf)
+item categories
+- can search for items by category (in shoplist)
 signs can be used for buying & selling
 - first line: [BetterShop] (not case-sensitive)
 - second line: action: buy [amt], buyall, buystack, sell [amt], sellall, sellstack
@@ -84,13 +89,18 @@ signs can be used for buying & selling
 - to activate, someone with BetterShop.admin.makesign must left-click the sign.. the first line will change color when active
 - left-click for price check (or activate), right-click to buy/sell
 - if a unauthorized player destroys a block a sign is on, is canceled
-item categories
-- can search for items by category (in shoplist)
+chests can also be used as a shop interface
+- to define a chest, point at the chest & type "/shop chest define"
+- automatically detects double-chests
+- multiple users can use the same chest shop
+- - each user gets a customized chest screen
+- - items in the display show either max stack, or max of that item the user can afford
 players using Spout (if installed & enabled) can use a GUI Menu for buying & selling
 - default button is 'b'
 - displays items in shop in top half
 - item detail below with # in stock, buy/sell price, & buttons to buy & sell
 - amount to buy/sell can be set in text box or with up/down buttons
+- item categories can also be used in the display
 
 
 === administration
@@ -123,6 +133,8 @@ can use permissions to define discounts for certain users
 - nodes defined in config under discountGroups
 - ex: discountGroups:
           VIP: 10   # gives 10% discount to players with BetterShop.discount.VIP
+support for bukkit permissions
+- built-in support for "BetterShop.(user|admin).*" nodes, so you don't have to add all of the other nodes
 
 
 There are two ways to add things to the shop:
@@ -149,6 +161,7 @@ BetterShop.user.help		view ingame help menu
 BetterShop.user.buy		buy items from the shop
 BetterShop.user.sell		sell items to the shop
 BetterShop.user.spout		for spout screen access
+BetterShop.user.chest		allow a user to use the a chest shop
 BetterShop.admin.add		add/edit items to/in the shop
 BetterShop.admin.remove		remove items from the shop
 BetterShop.admin.load		reload configuration & pricelist
@@ -157,6 +170,8 @@ BetterShop.admin.illegal	gives the ability to purchase 'illegal' items
 BetterShop.admin.backup		backing up and restoring the pricelist
 BetterShop.admin.restock	manually restock (if item stock is enabled)
 BetterShop.admin.makesign	make/remove a bettershop sign
+BetterShop.admin.region		define/remove shop regions
+BetterShop.admin.chests		define/remove chest shops
 
 ===============================================================================
 TODO (items are removed as they're added)
@@ -166,7 +181,6 @@ calculated/derived item prices
 /shopvalue item[@amount] item  	to show the current trade value for two items
 discount system: users or groups can be charged less/more for an item or all items (sell prices also affected)
 dynamic market pricing, based off of logged market activity
-region shops (items added while in a region defined as a shop are only added to that shop)
 add option for amount in stock for surplus decreases how much item is worth to the shop
 add pages for /shopitems
 more descriptive kit listing, similar to shoplist:
@@ -186,6 +200,8 @@ user-owned shops (signs, linked to chests?) ?
 4th line for configurable prices or shop profit owner
 daily profit caps for selling to the shop
 allow selling using categories (& buying also?)
+multiple shop definitions for various regions?
+
 
 === Removed (not going to implement)
 persistentMySQL: if false, will disconnect from db when now using it (use if have a high cacheUpdate)
@@ -201,6 +217,44 @@ items as currency (if no economy plugin)
 ===============================================================================
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
+
+Version 2.0 - ?
+near-complete rewrite
+- more modular, should be easier to add new features
+added region-based shop support
+- just main shop for now
+- config modes: 
+- - shop.commandShop: global
+- - - regions are areas where command-based shop access is disabled
+- - shop.commandShop: regions
+- - - globally disabled, except for within regions
+- - shop.commandShop: both
+- - - allows command-based shop access from anywhere
+- - shop.commandShop: none
+- - - cannot use commands (or spout) to use the shop
+- regions are defined by first selecting a region in worldguard
+- - after regions have been defined, can put the WorldEdit.jar in the lib folder
+now checks from 2 mirrors (still on git)
+- not really needed, but the code behind it looks cleaner
+finally adopted some license to support open development.
+- now the source is licenced under the GNU General Public License
+- http://www.gnu.org/licenses/gpl.txt
+added pages menu option (default) so spout scrolling goes by page, not column
+added a fix for a spout button error
+fixed a spout error where may show amount stock can sell, not buy
+added category switching (spout)
+- can use 'cycle' for a button to cycle through the categories (shows more per-page)
+- or use 'tabbed' for buttons at the top that can be selected
+chest shop interface added :D
+- to define a chest, point at the chest & type "/shop chest define"
+- automatically detects double-chests
+- multiple users can use the same chest shop
+- - each user gets a customized chest screen
+- - items in the display show either max stack, or max of that item the user can afford
+tnt explosion cancelation settings for sign/chest shop added
+- should be more efficient than prior method
+commandlog format moved in config & added more formatting options
+
 
 Version 1.6.7.1 - 9/4/11
 added support for bukkit permissions

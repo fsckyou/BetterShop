@@ -277,9 +277,9 @@ public class BetterShopLogger extends Logger {
 	}
 
 	static String commandLogStr(String playername, String command) {
-		String time[] = (new java.text.SimpleDateFormat("kk:hh:mm:ss:a:z:Z")).format(new java.util.Date()).split(":");
-
-		return BetterShop.getConfig().getString("commandlog").
+		String time[] = (new java.text.SimpleDateFormat("kk:hh:mm:ss:a:z:Z:yyyy:MM:ww:DD:dd:EEE")).
+				format(new java.util.Date()).split(":");
+		return BetterShop.getConfig().getString("logformat").
 				replace("<H>", time[0]).
 				replace("<h>", time[1]).
 				replace("<m>", time[2]).
@@ -287,6 +287,12 @@ public class BetterShopLogger extends Logger {
 				replace("<a>", time[4]).
 				replace("<z>", time[5]).
 				replace("<Z>", time[6]).
+				replace("<y>", time[7]).
+				replace("<M>", time[8]).
+				replace("<w>", time[9]).
+				replace("<D>", time[10]).
+				replace("<d>", time[11]).
+				replace("<E>", time[12]).
 				replace("<t>", "\t").
 				replace("<e>", String.valueOf((int) (System.currentTimeMillis() / 1000))).
 				replace("<u>", playername).replace("<user>", playername).

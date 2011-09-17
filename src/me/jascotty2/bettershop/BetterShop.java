@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package me.jascotty2.bettershop;
 
 import java.util.Collection;
@@ -46,6 +45,7 @@ import org.bukkit.Location;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
+import me.jascotty2.bettershop.chestshop.BSChestShop;
 import me.jascotty2.bettershop.shop.Shop;
 
 import me.jascotty2.lib.bukkit.item.JItemDB;
@@ -68,6 +68,7 @@ public class BetterShop extends JavaPlugin {
 	protected final static BSConfig config = new BSConfig();
 	protected final static RegionShopManager shopManager = new RegionShopManager();
 	protected static BSSignShop signShop = null;
+	protected static BSChestShop chestShop = null;
 	protected static BSEcon economy = new BSEcon();
 	private BSPluginListener pListener = null;
 	// for animal/monster purchases
@@ -132,11 +133,21 @@ public class BetterShop extends JavaPlugin {
 		if (config.signShopEnabled && !signShop.load()) {
 			BetterShopLogger.Severe("cannot load sign shop database", false);
 		}
-		if (config.signShopEnabled && config.tntSignDestroyProtection) {
+		if (config.signShopEnabled && config.signWEprotection) {
 			signShop.startProtecting();
 		}
 
 		signShop.registerEvents();
+
+
+		chestShop = new BSChestShop(this);
+
+		if (config.chestShopEnabled && !chestShop.load()) {
+			BetterShopLogger.Severe("cannot load chest shop database", false);
+		}
+
+		chestShop.registerEvents();
+
 
 		// for monster purchasing
 		PluginManager pm = getServer().getPluginManager();
@@ -161,25 +172,34 @@ public class BetterShop extends JavaPlugin {
 	}
 
 	public void onDisable() {
-		// NOTE: All registered events are automatically unregistered when a
-		// plugin is disabled
-		lastCommand = "(disabling)";
+		// NOTE: All registered events are automatically unregistered when a plugin is disabled
+		try {
+			lastCommand = "(disabling)";
 
-		shopManager.closeAll();
+			shopManager.closeAll();
 
-		if (signShop != null) {
-			signShop.save();
-			signShop.stopProtecting();
+			if (signShop != null) {
+				signShop.save();
+				signShop.stopProtecting();
+			}
+			signShop = null;
+
+			if (chestShop != null) {
+				chestShop.save();
+			}
+			chestShop = null;
+
+			keyListener = null;
+			buttonListener = null;
+
+			BetterShopLogger.CloseCommandLog();
+			BetterShopErrorTracker.messenger = null;
+
+			BetterShopLogger.Fine("disabled");
+
+		} catch (Throwable t) {
+			BetterShopLogger.Severe("error disabling..", t, false);
 		}
-		signShop = null;
-
-		keyListener = null;
-		buttonListener = null;
-
-		BetterShopLogger.CloseCommandLog();
-		BetterShopErrorTracker.messenger = null;
-
-		BetterShopLogger.Fine("disabled");
 	}
 
 	@Override
@@ -192,8 +212,8 @@ public class BetterShop extends JavaPlugin {
 		}
 		lastCommand = (sender instanceof Player ? "player:" : "console:") + commandName + " " + argStr;
 
-		if (sender instanceof Player && 
-				(!shopManager.locationHasShop(((Player) sender).getLocation())
+		if (sender instanceof Player
+				&& (!shopManager.locationHasShop(((Player) sender).getLocation())
 				|| (Str.isIn(commandName,
 				new String[]{"shopbuy", "shopbuyall", "shopbuystack",
 					"shopsell", "shopsellall", "shopsellstack", /*
@@ -230,13 +250,13 @@ public class BetterShop extends JavaPlugin {
 		try {
 			commandManager.execute(sender, commandName, args);
 			return true;
-		} catch (MissingNestedCommandException e){
+		} catch (MissingNestedCommandException e) {
 			//BSutils.sendMessage(sender, ChatColor.RED + e.getMessage());
 			BSutils.sendMessage(sender, ChatColor.RED + e.getUsage());
 		} catch (CommandUsageException e) {
 			BSutils.sendMessage(sender, ChatColor.RED + e.getMessage());
 			BSutils.sendMessage(sender, ChatColor.RED + e.getUsage());
-        } catch (WrappedCommandException e) {
+		} catch (WrappedCommandException e) {
 			BetterShopLogger.Severe("Unexpected Error executing a command", e.getCause());
 			BSutils.sendMessage(sender, ChatColor.RED + "Problem Executing Command!");
 		} catch (CommandException e) {
@@ -251,7 +271,8 @@ public class BetterShop extends JavaPlugin {
 			BSutils.sendMessage(sender, ChatColor.RED + "Unexpected Error executing command");
 			return true;
 		}
-		HelpCommands.help(sender, ArrayManip.arrayConcat(new String[]{command.getName()}, args));
+		//TODO: help can get help from any command.
+		//HelpCommands.help(sender, ArrayManip.arrayConcat(new String[]{command.getName()}, args));
 		return true;
 	}
 
@@ -292,6 +313,10 @@ public class BetterShop extends JavaPlugin {
 
 	public static BSSignShop getSignShop() {
 		return signShop;
+	}
+
+	public static BSChestShop getChestShop() {
+		return chestShop;
 	}
 
 	public static BSItemStock getStock(Location l) {
@@ -338,7 +363,7 @@ public class BetterShop extends JavaPlugin {
 		return shopManager.getShops();
 	}
 
-	public static RegionShopManager getShopManager(){
+	public static RegionShopManager getShopManager() {
 		return shopManager;
 	}
 
@@ -389,7 +414,7 @@ public class BetterShop extends JavaPlugin {
 		}
 		return errors;
 	}
-	
+
 	public static class ServerReload extends TimerTask {
 
 		Server reload = null;

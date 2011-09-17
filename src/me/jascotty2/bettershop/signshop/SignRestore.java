@@ -30,6 +30,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityListener;
 
 /**
  * @author jacob
@@ -40,6 +42,7 @@ public class SignRestore extends BlockListener implements Runnable {
 	final Server server;
 	final SignDB signs;
 	int taskID = -1;
+	final TNTblock tntBlock;
 
 	public SignRestore(Plugin p, SignDB signs) {
 		if (p == null || signs == null) {
@@ -48,6 +51,7 @@ public class SignRestore extends BlockListener implements Runnable {
 		plugin = p;
 		server = p.getServer();
 		this.signs = signs;
+		tntBlock = new TNTblock(p, signs);
 	}
 
 	public void start(long wait) {
@@ -109,3 +113,28 @@ public class SignRestore extends BlockListener implements Runnable {
 }
 // end class SignRestore
 
+
+class TNTblock extends EntityListener {
+
+	final Plugin plugin;
+	final Server server;
+	final SignDB signs;
+
+	TNTblock(Plugin p, SignDB signs) {
+		plugin = p;
+		server = p.getServer();
+		this.signs = signs;
+	}
+
+	@Override
+	public void onEntityExplode(EntityExplodeEvent event) {
+		if (BetterShop.getConfig().signTNTprotection) {
+			for (Block b : event.blockList()) {
+				if (signs.signExists(b.getLocation())) {
+					event.setCancelled(true);
+					return;
+				}
+			}
+		}
+	}
+}

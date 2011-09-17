@@ -169,7 +169,7 @@ public class ItemStock {
                 isLoaded = false;
 
                 try {
-                    ArrayList<String[]> actFile = FileIO.loadCSVFile(flatFile);
+                    List<String[]> actFile = FileIO.loadCSVFile(flatFile);
                     for (int n = 0; n < actFile.size(); ++n) {//String[] line : actFile) {
                         String[] line = actFile.get(n);
                         if (line.length == 4) {

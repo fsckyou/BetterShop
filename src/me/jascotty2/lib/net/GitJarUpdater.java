@@ -63,6 +63,11 @@ public abstract class GitJarUpdater extends FileDownloader {
 	 * ex. "http://cloud.github.com/downloads/BetterShop/BetterShop/BetterShop.jar"
 	 */
 	public abstract String getDownloadLinkUrl(int attempt);
+	
+	/**
+	 * @return the jar file that is to be updated
+	 */
+	public abstract File getJarFile();
 
 	public boolean isUpToDate(String thisVersion, Date thisFile, long maxDiff, Logger log) {
 		int i = 0;
@@ -220,11 +225,6 @@ public abstract class GitJarUpdater extends FileDownloader {
 			}
 		}
 		return true;
-	}
-
-	public static File getJarFile() {
-		return new File(GitJarUpdater.class.getProtectionDomain().getCodeSource().getLocation().getPath().
-				replace("%20", " ").replace("%25", "%"));
 	}
 
 	public void downloadUpdate() throws MalformedURLException, IOException {

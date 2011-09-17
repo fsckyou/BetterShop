@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2011 Jacob Scott <jascottytechie@gmail.com>
- * Description: intermediary command for others
- * 
+ * Description: ( TODO )
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -11,29 +11,28 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package me.jascotty2.bettershop.chestshop;
 
-package me.jascotty2.bettershop.commands;
+import org.getspout.spoutapi.event.inventory.InventoryCloseEvent;
+import org.getspout.spoutapi.event.inventory.InventoryListener;
 
-import me.jascotty2.lib.bukkit.commands.Command;
-import me.jascotty2.lib.bukkit.commands.NestedCommand;
-import org.bukkit.command.CommandSender;
+public class ChestShopInventoryListenerSpout extends InventoryListener {
 
-/**
- * @author jacob
- */
-public class ShopCommand {
+	final BSChestShop callback;
 
-	@Command(
-	commands = {"shop", "bettershop", "bshop"},
-	desc = "General shop commands")
-	@NestedCommand({HelpCommands.class, AdminCommands.class, ListCommands.class,
-		BuyCommands.class, SellCommands.class, 
-		RegionCommands.class, ChestCommands.class})
-	public static void shop(CommandSender player, String[] s) {
+	public ChestShopInventoryListenerSpout(BSChestShop callback) {
+		this.callback = callback;
 	}
 
-} // end class ShopCommand
+	@Override
+	public void onInventoryClose(InventoryCloseEvent event) {
+		if ((event.getPlayer() != null)) {
+			callback.chestClose(event.getPlayer());
+		}
+	}
+} // end class ChestShopPlayerListener
+

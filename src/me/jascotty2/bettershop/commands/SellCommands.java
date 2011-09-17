@@ -145,11 +145,11 @@ public class SellCommands {
 			} else if (CheckInput.IsInt(s[1])) {
 				amtSold = CheckInput.GetInt(s[1], 1);
 				if (amtSold > amtHas) {
-					BSutils.sendMessage(player, String.format(
+					BSutils.sendMessage(player, 
 							BetterShop.getConfig().getString("donthave").
-							replace("<hasamt>", "%1$d").
-							replace("<amt>", "%2$d").
-							replace("<item>", "%3$s"), amtHas, amtSold, toSell.coloredName()));
+							replace("<hasamt>", String.valueOf(amtHas)).
+							replace("<amt>", String.valueOf(amtSold)).
+							replace("<item>", toSell.coloredName()));
 					amtSold = amtHas;
 				} else if (amtSold <= 0) {
 					BSutils.sendMessage(player, BetterShop.getConfig().getString("nicetry"));

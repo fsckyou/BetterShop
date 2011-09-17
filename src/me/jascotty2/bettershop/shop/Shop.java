@@ -30,9 +30,9 @@ public class Shop {
 	protected String name;
 
     public Shop() {
-		pricelist = new BSPriceList(config);
-		stock = new BSItemStock(pricelist);
-		transactions = new BSTransactionLog(pricelist);
+		pricelist = new BSPriceList(this);
+		stock = new BSItemStock(this);
+		transactions = new BSTransactionLog(this);
     } // end default constructor
 
 	public boolean load(String shopName){

@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.logging.Level;
 import me.jascotty2.lib.io.CheckInput;
+import me.jascotty2.lib.io.FileIO;
 import me.jascotty2.lib.net.GitJarUpdater;
 
 /**
@@ -180,6 +181,11 @@ public class Updater extends GitJarUpdater {
 				}
 			}
 		}
+	}
+
+	@Override
+	public File getJarFile() {
+		return FileIO.getJarFile(BetterShop.class);
 	}
 
 	/*

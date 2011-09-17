@@ -65,10 +65,10 @@ public class SignDB {
 		server = sv;
 	}
 
-	public boolean load() {
+	public synchronized boolean load() {
 		if (BSConfig.signDBFile.exists()) {
 			try {
-				ArrayList<String[]> signdb = FileIO.loadCSVFile(BSConfig.signDBFile);
+				List<String[]> signdb = FileIO.loadCSVFile(BSConfig.signDBFile);
 				for (String[] s : signdb) {
 					if (s.length >= 5 && server.getWorld(s[0]) != null) {
 						signs.put(new Location(server.getWorld(s[0]),
@@ -78,7 +78,7 @@ public class SignDB {
 					}
 				}
 				// now scan & double-check these are all signs (and have correct color)
-				for (Location l : signs.keySet().toArray(new Location[0])) {
+				for (Location l : signs.keySet()){
 					if (!(l.getBlock().getState() instanceof Sign)) {
 						signs.remove(l);
 					} else {
@@ -140,7 +140,7 @@ public class SignDB {
 		return true;
 	}
 
-	public boolean save() {
+	public synchronized boolean save() {
 		try {
 			if (delaySaver != null) {
 				delaySaver.cancel();

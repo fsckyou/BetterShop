@@ -113,6 +113,8 @@ class BSPluginListener extends ServerListener {
 				pm.registerEvent(Event.Type.CUSTOM_EVENT, BetterShop.buttonListener,
 						Event.Priority.Normal, shop);
 
+				BetterShop.chestShop.registerSpout(true);
+
 			} catch (ClassNotFoundException ex) {
 				BetterShopLogger.Severe("Error loading Spout!", ex);
 			}
@@ -136,6 +138,7 @@ class BSPluginListener extends ServerListener {
 			} else if (pName.equals("Spout")) {
 				BetterShop.keyListener = null;
 				BetterShop.buttonListener = null;
+				BetterShop.chestShop.registerSpout(false);
 				BetterShopLogger.Log("Spout disabled.");
 			} else {
 				BetterShop.economy.onPluginDisable(event);

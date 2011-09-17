@@ -158,7 +158,6 @@ public class SpoutPopupDisplay {
 		categories[0] = "All";
 		System.arraycopy(cats, 0, categories, 1, cats.length);
 
-
 		if (BetterShop.getConfig().spoutCategories == SpoutCategoryMethod.CYCLE) {
 			btnCatCycle = new GenericButton();
 			btnCatCycle.setTooltip("Category");

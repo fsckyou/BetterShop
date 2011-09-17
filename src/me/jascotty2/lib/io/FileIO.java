@@ -25,13 +25,14 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author jacob
  */
 public class FileIO {
 
-    public static ArrayList<String[]> loadCSVFile(File toLoad) throws FileNotFoundException, IOException {
+    public static List<String[]> loadCSVFile(File toLoad) throws FileNotFoundException, IOException {
         ArrayList<String[]> ret = new ArrayList<String[]>();
         if (toLoad.exists() && toLoad.isFile() && toLoad.canRead()) {
             FileReader fstream = null;
@@ -49,6 +50,24 @@ public class FileIO {
         }
         return ret;
     }
+
+	public static List<String> loadFile(File toLoad) throws FileNotFoundException, IOException {
+		ArrayList<String> ret = new ArrayList<String>();
+		if (toLoad.exists() && toLoad.isFile() && toLoad.canRead()) {
+            FileReader fstream = null;
+            fstream = new FileReader(toLoad.getAbsolutePath());
+            BufferedReader in = new BufferedReader(fstream);
+            try {
+                int n = 0;
+                for (String line = null; (line = in.readLine()) != null && line.length() > 0; ++n) {
+                    ret.add(line);
+                }
+            } finally {
+                in.close();
+            }
+        }
+        return ret;
+	}
 
     public static boolean saveFile(File toSave, String[] lines) throws IOException {
         if (!toSave.exists() && !toSave.createNewFile()) {
@@ -132,5 +151,11 @@ public class FileIO {
         }
         return false;
     }
+
+	public static File getJarFile(Class jarClass) {
+		return new File(jarClass.getProtectionDomain().getCodeSource().getLocation().getPath().
+				replace("%20", " ").replace("%25", "%"));
+	}
+
 } // end class CSV
 

@@ -41,7 +41,6 @@ import org.bukkit.util.config.ConfigurationNode;
 public class BSConfig {
 
 // <editor-fold defaultstate="collapsed" desc="Settings Variables">
-
 	// chat messages
 	private final HashMap<String, String> stringMap = new HashMap<String, String>();
 	// files used by plugin
@@ -69,16 +68,23 @@ public class BSConfig {
 	public boolean allowbuyillegal = true, //if someone without BetterShop.admin.illegal can buy illegal items
 			usemaxstack = true, //whether maxstack should be honored
 			buybacktools = true, //used tools can be bought back?
-			buybackenabled = true, //shop buys items from users?
-			signShopEnabled = true,
-			signItemColor = false, //color the names of items on signs?
-			signItemColorBWswap = false,// swap black & white item colors?
-			signDestroyProtection = true,
-			tntSignDestroyProtection = false;
+			buybackenabled = true; //shop buys items from users?
 	public int maxEntityPurchase = 3; // max can purchase at a time
 	// sign settings
+	public boolean signShopEnabled = true,
+			signDestroyProtection = true,
+			signWEprotection = false,
+			signTNTprotection = true,
+			tntSignDestroyProtection = false,
+			signItemColor = false, //color the names of items on signs?
+			signItemColorBWswap = false;// swap black & white item colors?;;
 	public String activeSignColor = "blue"; // automatically changed to \u00A7 format
 	public static long signInteractWait = 1000; // wait before another action allowed
+	// chest shop
+	public String chestShopText = "BetterShop Chest Shop";
+	public boolean chestShopEnabled = true,
+			chestDestroyProtection = true,
+			chestTNTprotection = true;
 	// global or region shops
 	public CommandShopMode commandShopMode = CommandShopMode.GLOBAL;
 	////// database information
@@ -133,7 +139,7 @@ public class BSConfig {
 		stringMap.put("permdeny", "OI! You don't have permission to do that!");
 		stringMap.put("unkitem", "What is &f<item>&2?");
 		stringMap.put("nicetry", "...Nice try!");
-		stringMap.put("commandlog", "<H>:<m>:<s> <user> <t> > <c>");
+		stringMap.put("logformat", "<H>:<m>:<s> <user> <t> > <c>");
 		// # shopadd messages
 		stringMap.put("paramerror", "Oops... something wasn't right there.");
 		stringMap.put("addmsg", "&f[<item>&f]&2 added to the shop. Buy: &f<buyprice>&2 Sell: &f<sellprice>");
@@ -181,14 +187,18 @@ public class BSConfig {
 				HashMap<String, String[]> allKeys = new HashMap<String, String[]>();
 				allKeys.put("shop", new String[]{
 							"ItemsPerPage", "publicmarket",
-							"logcommands", "commandLogFile",
+							"logcommands", "commandLogFile", "logformat",
 							"allowbuyillegal", "usemaxstack",
 							"buybacktools", "buybackenabled", "maxEntityPurchase",
 							"signShops",
 							"activeSignColor", "signItemColor",
 							"signItemColorBWswap",
 							"signDestroyProtection",
+							"weSignDestroyProtection",
 							"tntSignDestroyProtection",
+							"chestShops",
+							"chestDestroyProtection",
+							"tntChestDestroyProtection",
 							"commandShop",
 							"customsort",
 							"defaultItemColor",
@@ -271,7 +281,8 @@ public class BSConfig {
 							"lowstock",
 							"maxstock",
 							"highstock"});
-				String allowNull[] = new String[]{"shop.customsort", "shop.BOSBank", "shop.currencyName"};
+				String allowNull[] = new String[]{
+					"shop.customsort", "shop.BOSBank", "shop.currencyName"};
 
 				String missing = "", unused = "";
 				for (String k : allKeys.keySet()) {
@@ -430,6 +441,7 @@ public class BSConfig {
 				if (n.getString("commandLogFile") != null) {
 					commandFilename = n.getString("commandLogFile");
 				}
+				stringMap.put("logformat", n.getString("logformat", stringMap.get("logformat")));
 
 				allowbuyillegal = n.getBoolean("allowbuyillegal", allowbuyillegal);
 				usemaxstack = n.getBoolean("usemaxstack", usemaxstack);
@@ -440,8 +452,12 @@ public class BSConfig {
 				signShopEnabled = n.getBoolean("signShops", signShopEnabled);
 				activeSignColor = n.getString("activeSignColor", activeSignColor);
 				signDestroyProtection = n.getBoolean("signDestroyProtection", signDestroyProtection);
-				tntSignDestroyProtection = n.getBoolean("tntSignDestroyProtection", tntSignDestroyProtection);
-
+				signWEprotection = n.getBoolean("weSignDestroyProtection", signWEprotection);
+				signTNTprotection = n.getBoolean("tntSignDestroyProtection", signTNTprotection);
+				
+				chestShopEnabled = n.getBoolean("chestShops", chestShopEnabled);
+				chestTNTprotection = n.getBoolean("tntChestDestroyProtection", chestTNTprotection);
+				
 				signItemColor = n.getBoolean("signItemColor", signItemColor);
 				signItemColorBWswap = n.getBoolean("signItemColorBWswap", signItemColorBWswap);
 

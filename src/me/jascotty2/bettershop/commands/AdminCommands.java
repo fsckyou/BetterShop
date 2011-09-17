@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package me.jascotty2.bettershop.commands;
 
 import java.io.File;
@@ -33,6 +32,7 @@ import me.jascotty2.bettershop.shop.Shop;
 import me.jascotty2.bettershop.utils.BSPermissions;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 import me.jascotty2.lib.bukkit.commands.Command;
+import me.jascotty2.lib.bukkit.commands.NestedCommand;
 import me.jascotty2.lib.bukkit.item.JItem;
 import me.jascotty2.lib.bukkit.item.JItemDB;
 import me.jascotty2.lib.bukkit.item.PriceListItem;
@@ -50,8 +50,7 @@ public class AdminCommands {
 
 	final static SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy_MM_dd_HH-mm-ss");
 
-	@Command(
-	commands = {"shopload"},
+	@Command(commands = {"shopload"},
 	aliases = {"load", "reload"},
 	desc = "Reload Shop & Settings",
 	permissions = {"BetterShop.admin.load"})
@@ -64,8 +63,7 @@ public class AdminCommands {
 		return player != null || err == 0;
 	}
 
-	@Command(
-	commands = {"shopadd", "sadd"},
+	@Command(commands = {"shopadd", "sadd"},
 	aliases = {"add", "ad"},
 	desc = "Add an item to, or update an item in, the price list",
 	usage = "[item] [buy-price] [sell-price]",
@@ -145,8 +143,7 @@ public class AdminCommands {
 		return true;
 	}
 
-	@Command(
-	commands = {"shopremove", "sremove"},
+	@Command(commands = {"shopremove", "sremove"},
 	aliases = {"remove", "rm"},
 	desc = "Remove an item from the price list",
 	usage = "[item]",
@@ -184,8 +181,7 @@ public class AdminCommands {
 
 	}
 
-	@Command(
-	commands = {},
+	@Command(commands = {},
 	aliases = {"restock"},
 	desc = "Restock the Shop's Stock of Items",
 	usage = "[item [item ...]]",
@@ -197,8 +193,7 @@ public class AdminCommands {
 		sender.sendMessage("Stock set to initial values");
 	}
 
-	@Command(
-	commands = {},
+	@Command(commands = {},
 	aliases = {"backup"},
 	desc = "Backup the pricelist to a csv file",
 	usage = "[filename]",
@@ -256,8 +251,7 @@ public class AdminCommands {
 		return false;
 	}
 
-	@Command(
-	commands = {},
+	@Command(commands = {},
 	aliases = {"import"},
 	desc = "import items to pricelist from a csv file",
 	usage = "[filename]",
@@ -305,8 +299,7 @@ public class AdminCommands {
 		return true;
 	}
 
-	@Command(
-	commands = {},
+	@Command(commands = {},
 	aliases = {"restore"},
 	desc = "restore a pricelist from a csv file",
 	usage = "[filename]",
@@ -354,8 +347,7 @@ public class AdminCommands {
 		return true;
 	}
 
-	@Command(
-	commands = {},
+	@Command(commands = {},
 	aliases = {"update"},
 	desc = "Download & Install an update from git",
 	usage = "",
@@ -382,8 +374,7 @@ public class AdminCommands {
 		}
 	}
 
-	@Command(
-	commands = {},
+	@Command(commands = {},
 	aliases = {"version", "v", "ver"},
 	desc = "Check the current version",
 	permissions = {"BetterShop.admin.info", "jascotty2", "jjfs85"})
@@ -397,6 +388,30 @@ public class AdminCommands {
 			BSutils.sendMessage(sender, "Newer Version Avaliable");
 		}
 
+	}
+
+	@Command(commands = {},
+	aliases = {"define", "d", "def"},
+	desc = "generic define command")
+	@NestedCommand({Commands.class})
+	public static void define(CommandSender sender, String[] s) {
+	}
+
+	public static class Commands {
+
+		@Command(commands = {},
+		aliases = {"chest", "c", "ch"},
+		desc = "define a new chest shop")
+		public static void chest(CommandSender sender, String[] s) {
+			ChestCommands.Commands.define(sender, s);
+		}
+
+		@Command(commands = {},
+		aliases = {"region", "r", "reg"},
+		desc = "define a new shop region")
+		public static void region(CommandSender sender, String[] s) {
+			RegionCommands.Commands.define(sender, s);
+		}
 	}
 } // end class AdminCommands
 

@@ -33,11 +33,13 @@ import me.jascotty2.bettershop.utils.BetterShopLogger;
 public class BSItemStock extends ItemStock {
 
 	protected Date lastStock;
+	final Shop shop;
 	private BSPriceList pricelist;
 
-	public BSItemStock(BSPriceList pricelist) {
+	public BSItemStock(Shop shop) {
 		super();
-		this.pricelist = pricelist;
+		this.shop = shop;
+		this.pricelist = shop.pricelist;
 	} // end default constructor
 
 	public final boolean load() {

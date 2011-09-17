@@ -346,15 +346,14 @@ public class BuyCommands {
 				BetterShopLogger.Log(Level.SEVERE, ex);
 			}
 		} else {
-			BSutils.sendMessage(player, String.format(BetterShop.getConfig().getString("insuffunds").
-					replace("<item>", "%1$s").
-					replace("<amt>", "%2$d").
-					replace("<total>", "%3$01.2f").
-					replace("<curr>", "%5$s").
-					replace("<priceper>", "%4$01.2f").
-					replace("<totcur>", "%6$s"), toBuy.coloredName(),
-					amt, cost, unitPrice, BetterShop.getConfig().currency(),
-					BSEcon.format(unitPrice)));
+			BSutils.sendMessage(player,
+					BetterShop.getConfig().getString("insuffunds").
+					replace("<item>", toBuy.coloredName()).
+					replace("<amt>", String.valueOf(amt)).
+					replace("<total>", String.valueOf(unitPrice * amt)).
+					replace("<curr>", BetterShop.getConfig().currency()).
+					replace("<priceper>", String.valueOf(unitPrice)).
+					replace("<totcur>", BSEcon.format(unitPrice * amt)));
 		}
 		return ret;
 	}

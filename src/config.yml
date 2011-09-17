@@ -37,6 +37,25 @@ shop:
     logcommands: false
     # if logging commands, where to save
     commandLogFile: Commands.log
+    # the format used when logging commands (if enabled)
+    # <H> 24-hour format hour
+    # <h> 12-hour format hour
+    # <m> minute
+    # <s> second
+    # <e> epoch time (seconds since 1 January 1970 0:00:00 UTC)
+    # <a> am/pm
+    # <z> timezone (eg. GMT)
+    # <Z>	RFC 822 time zone	(eg. -0800)
+    # <t> tab character
+    # <y>	Year	(1996)
+    # <M>	Month in year	(July -> 07)
+    # <w>	Week in year
+    # <D>	Day in year
+    # <d>	Day in month
+    # <E>	Day in week (Tue)
+    # <user> username
+    # <c> bettershop command executed
+    logformat: "<M>/<d> <H>:<m>:<s> <user> <t> > <c>"
 
     #item buying behavior
     #if someone without BetterShop.admin.illegal can buy illegal items
@@ -62,8 +81,17 @@ shop:
     signItemColorBWswap: false
     # don't allow signs to be destroyed by unauthorized players?
     signDestroyProtection: true
+    # scan for removed signs? (mainly WorldEdit)
+    weSignDestroyProtection: false
     # scan for destroyed signs?
-    tntSignDestroyProtection: false
+    tntSignDestroyProtection: true
+
+    # chest based shops enabled?
+    chestShops: true
+    # don't allow chest to be destroyed by unauthorized players?
+    chestDestroyProtection: true
+    # protect chests from being destroyed by tnt?
+    tntChestDestroyProtection: true
     # command-based shop mode
     # modes: GLOBAL, REGIONS, BOTH, NONE (default: global)
     # GLOBAL: regions are areas where command-based shop access is disabled
@@ -279,19 +307,6 @@ strings:
     nicetry: "...Nice try!"
     # nicetry is shown when someone tries to beat the system. Like /shopbuy diamond 0.
     
-    # commandlog is the format used when logging commands (if enabled)
-    # <H> 24-hour format hour
-    # <h> 12-hour format hour
-    # <m> minute
-    # <s> second
-    # <e> epoch time (seconds since 1 January 1970 0:00:00 UTC)
-    # <a> am/pm
-    # <z> timezone (eg. GMT)
-    # <Z>	RFC 822 time zone	(eg. -0800)
-    # <t> tab character
-    # <user> username
-    # <c> bettershop command executed
-    commandlog: "<H>:<m>:<s> <user> <t> > <c>"
 #
 # shopadd messages
 ####
@@ -416,7 +431,7 @@ strings:
     # <total> - total paid
     # <curr> - iConomy currency
     # <totcur> - formatted total (like "1,800 Coins" instead of "1800 Coin")
-    buymsg: "Buying &f<amt> &2<item>&2 at &f<priceper> &2<curr> each... &f<total> &2<curr> total!"
+    buymsg: "Buying &f<amt> &2<item>&2 at &f<priceper> each... &f<totcur> total!"
     
     #public message is like buymsg, but shown to everyone (if enabled)
     # <player> - who bought from the store
@@ -445,7 +460,7 @@ strings:
     # <max> - how much they can buy
     # <curr> - iConomy currency
     # <totcur> - formatted total (like "1,800 Coins" instead of "1800 Coin")
-    insuffunds: "&4You don't have enough <curr>! &f<amt> &2<item> at &f<priceper> &2<curr> each = &c<total>"
+    insuffunds: "&4Insufficient Funds! &f<amt> &2<item> costs &c<total>!"
 
     # when tries to sell something the shop won't buy
     # <item> - what tried to buy

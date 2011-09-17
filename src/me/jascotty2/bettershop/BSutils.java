@@ -271,31 +271,4 @@ public class BSutils {
 		return canHold;
 	}
 
-	public static int amtCanBuy(Player player, JItem toBuy) {
-		int canHold = amtCanHold(player, toBuy);
-
-		if (canHold <= 0) {
-			return 0;
-		}
-
-		double price = BetterShop.getPricelist(player.getLocation()).itemBuyPrice(player, toBuy, 1);
-		if (price < 0) {
-			return 0;
-		} else if (price == 0) {
-			return -1;
-		}
-
-		double bal = BSEcon.getBalance(player);
-		if (bal < price * canHold) {
-			canHold = (int) (bal / price);
-		}
-
-		long stock = BetterShop.getStock(player.getLocation()).freeStockRemaining(toBuy);
-		if (stock > 0 && canHold > stock) {
-			canHold = (int) stock;
-		}
-
-		return canHold;
-	}
-
 }
