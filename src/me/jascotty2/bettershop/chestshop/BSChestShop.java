@@ -199,6 +199,12 @@ public class BSChestShop extends PlayerListener {
 		}
 	}
 
+	public synchronized void closeAllChests(){
+		for(Player p  : openPlayers.keySet().toArray(new Player[0])){
+			chestClose(p);
+		}
+	}
+	
 	void chestClose(Player player) {
 		if (!openPlayers.containsKey(player)) {
 			return;

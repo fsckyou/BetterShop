@@ -17,11 +17,10 @@
  */
 package me.jascotty2.bettershop;
 
-import java.util.Collection;
+import me.jascotty2.bettershop.shop.Shop;
 import me.jascotty2.bettershop.shop.BSTransactionLog;
 import me.jascotty2.bettershop.shop.BSItemStock;
 import me.jascotty2.bettershop.shop.BSPriceList;
-import me.jascotty2.bettershop.signshop.BSSignShop;
 import me.jascotty2.bettershop.spout.SpoutKeyListener;
 import me.jascotty2.bettershop.spout.SpoutPopupListener;
 import me.jascotty2.bettershop.utils.BetterShopErrorTracker;
@@ -29,6 +28,8 @@ import me.jascotty2.bettershop.utils.BetterShopLogger;
 import me.jascotty2.bettershop.commands.BSCommandManager;
 import me.jascotty2.bettershop.commands.HelpCommands;
 import me.jascotty2.bettershop.regionshops.RegionShopManager;
+import me.jascotty2.bettershop.signshop.BSSignShop;
+import me.jascotty2.bettershop.chestshop.BSChestShop;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -44,9 +45,8 @@ import org.bukkit.Location;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Collection;
 import java.util.logging.Level;
-import me.jascotty2.bettershop.chestshop.BSChestShop;
-import me.jascotty2.bettershop.shop.Shop;
 
 import me.jascotty2.lib.bukkit.item.JItemDB;
 import me.jascotty2.lib.bukkit.item.CreatureItem.EntityListen;
@@ -187,6 +187,7 @@ public class BetterShop extends JavaPlugin {
 
 			if (chestShop != null) {
 				chestShop.save();
+				chestShop.closeAllChests();
 			}
 			chestShop = null;
 
