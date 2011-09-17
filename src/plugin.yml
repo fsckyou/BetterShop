@@ -1,19 +1,26 @@
 name: BetterShop
-#main: com.nhksos.jjfs85.BetterShop.BetterShop
 main: me.jascotty2.bettershop.BetterShop
 version: 2.0 beta
 website: http://github.com/BetterShop/BetterShop
 author: jascotty2 (and jjfs85 and lologarithm)
 description: >
-             BetterShop is a command-based shop for Bukkit.
-             It uses iConomy or BOSEcon for the economic backbone,
-             and can use Permissions, Help, and MinecraftIM
+             BetterShop is a global command-based shop for Bukkit.
+             Supports Permissions, iConomy, BOSEconomy, MultiCurrency, 
+             EssensialsEco, Help, MinecraftIM, and Spout
+             the ulitmate goal of this plugin is to be the most expandable shop plugin avaliable
+             currently supports MySQL or csv databases,
+             can use stock, transaction logs, command logs, legal item restrictions,
+             colored item listing, customizable shop sorting, item categories,
+             customizable item names & aliases, customizable user messages,
+             automatic error reporting (if something goes wrong),
+             customizable kits for sale, update checking & auto updating,
+             region-based shop modes, sign shops, chest shops, spout gui shop menu,
+             and more (hopefully) to come! :)
 commands:
   shop:
     description: Command Alias / Admin Command
     usage: /<command> [check|list|buy|sell|add|remove|[re]load|help]
     aliases: [bettershop,bshop]
-    permission: Bettershop
   shopcheck:
     description: Check prices for an item
     usage: /<command> [item]
@@ -110,6 +117,7 @@ permissions:
       BetterShop.user.buy: true
       BetterShop.user.sell: true
       BetterShop.user.spout: true
+      BetterShop.user.chest: true
   BetterShop.user.list:
     description: look through shop listing of prices
   BetterShop.user.check:
@@ -122,6 +130,8 @@ permissions:
     description: sell items to the shop
   BetterShop.user.spout:
     description: allow a user to use the spout gui menu
+  BetterShop.user.chest:
+    description: allow a user to use the a chest shop
   BetterShop.admin.*:
     description: all admin permissions
     default: op
@@ -134,6 +144,7 @@ permissions:
       BetterShop.admin.backup: true
       BetterShop.admin.restock: true
       BetterShop.admin.makesign: true
+      BetterShop.admin.chests: true
   BetterShop.admin.add:
     description: add/edit items to/in the shop
   BetterShop.admin.remove:
@@ -150,4 +161,6 @@ permissions:
     description: manually restock (if item stock is enabled)
   BetterShop.admin.makesign:
     description: ability to add/remove shop signs
+  BetterShop.admin.chests:
+    description: ability to add/remove chest shops
     

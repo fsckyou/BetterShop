@@ -94,18 +94,22 @@ public class SpoutPopupDisplay {
 		isPaged = BetterShop.getConfig().spoutUsePages;
 	} // end default constructor
 
+	public static void popup(SpoutPlayer p){
+		popup(p, null);
+	}
+	
 	public static void popup(SpoutPlayer p, ScreenType scr) {
 		if (popupOpen.containsKey(p)) {
 			closePopup(p);
 			return;
 		}
-		if ((scr != null)
+		if (((scr != null)
 				&& ((scr == ScreenType.GAME_SCREEN)
 				|| (scr == ScreenType.PLAYER_INVENTORY)
 				|| (scr == ScreenType.DISPENSER_INVENTORY)
 				|| (scr == ScreenType.FURNACE_INVENTORY)
 				|| (scr == ScreenType.WORKBENCH_INVENTORY)
-				|| (scr == ScreenType.CUSTOM_SCREEN))) {
+				|| (scr == ScreenType.CUSTOM_SCREEN))) || scr == null) {
 			BetterShop.checkRestock();
 			SpoutPopupDisplay d = new SpoutPopupDisplay(p);
 			//System.out.println(p.getMainScreen().getHeight() + " x " + p.getMainScreen().getWidth());

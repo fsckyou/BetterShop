@@ -77,8 +77,8 @@ public class ChestListener extends BlockListener /*implements Runnable*/ {
 	@Override
 	public void onBlockBreak(BlockBreakEvent event) {
 		if (chestsBD.savedChestExists(event.getBlock().getLocation())) {
-			if (BetterShop.getConfig().signDestroyProtection
-					&& !BSPermissions.hasPermission(event.getPlayer(), BetterShopPermission.ADMIN_MAKESIGN, true)) {
+			if (BetterShop.getConfig().chestDestroyProtection
+					&& !BSPermissions.hasPermission(event.getPlayer(), BetterShopPermission.ADMIN_CHESTS, true)) {
 				event.setCancelled(true);
 			} else {
 				chestsBD.remove(event.getBlock().getLocation());

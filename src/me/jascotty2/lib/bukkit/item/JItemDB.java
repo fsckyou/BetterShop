@@ -275,15 +275,32 @@ public class JItemDB {
 	private static void loadDefaultItems() {
 		items.clear();
 		// all entities
-		CreatureType ordered[] = {
-			CreatureType.CHICKEN, CreatureType.COW,
-			CreatureType.CREEPER, CreatureType.GHAST,
-			CreatureType.GIANT, CreatureType.MONSTER,
-			CreatureType.PIG, CreatureType.PIG_ZOMBIE,
-			CreatureType.SHEEP, CreatureType.SKELETON,
-			CreatureType.SLIME, CreatureType.SPIDER,
-			CreatureType.SQUID, CreatureType.ZOMBIE,
-			CreatureType.WOLF};
+		CreatureType ordered[];
+		try {
+			CreatureType t = CreatureType.CAVE_SPIDER;
+			// success, is a 1.8 server
+			ordered = new CreatureType[]{
+						CreatureType.CHICKEN, CreatureType.COW,
+						CreatureType.CREEPER, CreatureType.GHAST,
+						CreatureType.GIANT, CreatureType.MONSTER,
+						CreatureType.PIG, CreatureType.PIG_ZOMBIE,
+						CreatureType.SHEEP, CreatureType.SKELETON,
+						CreatureType.SLIME, CreatureType.SPIDER,
+						CreatureType.SQUID, CreatureType.ZOMBIE,
+						CreatureType.WOLF,
+						CreatureType.CAVE_SPIDER, CreatureType.ENDERMAN, CreatureType.SILVERFISH};
+		} catch (Throwable t) {
+			// assume 1.7
+			ordered = new CreatureType[]{
+						CreatureType.CHICKEN, CreatureType.COW,
+						CreatureType.CREEPER, CreatureType.GHAST,
+						CreatureType.GIANT, CreatureType.MONSTER,
+						CreatureType.PIG, CreatureType.PIG_ZOMBIE,
+						CreatureType.SHEEP, CreatureType.SKELETON,
+						CreatureType.SLIME, CreatureType.SPIDER,
+						CreatureType.SQUID, CreatureType.ZOMBIE,
+						CreatureType.WOLF};
+		}
 		int i = 0;
 		for (; i < ordered.length; ++i) {
 			items.put((4000 + i) + ":0", new CreatureItem(ordered[i]));
@@ -292,7 +309,7 @@ public class JItemDB {
 		for (CreatureType c : CreatureType.values()) {
 			if (ArrayManip.indexOf(ordered, c) == -1) {
 				items.put((4000 + (i++)) + ":0", new CreatureItem(c));
-				System.out.println("New Entity: (" + (4000 + (i-1)) + ") " + c.getName());
+				System.out.println("New Entity: (" + (4000 + (i - 1)) + ") " + c.getName());
 			}
 		}
 		// now add hard-coded entries, including subtypes
@@ -578,36 +595,35 @@ public class JItemDB {
 			}
 		}
 	}
-
-	public static void main(String[] args) {
-		//JItemDB.load(new java.io.File("../../../../BetterShop/src/itemsdb.yml"));
-		JItemDB.load(new java.io.File("/media/Data/Jacob/Programs/Java/Bukkit Plugins/BetterShop/src/itemsdb.yml"));
-		me.jascotty2.lib.io.ConsoleInput c = new me.jascotty2.lib.io.ConsoleInput();
-		String in = "";
-		while ((in = c.GetString("\n> ")).length() > 0) {
-			JItem i = findItem(in);
-			if (i == null) {
-				JItem is[] = JItemDB.getItemsByCategory(in);
-				if (is != null && is.length > 0) {
-					System.out.println("found in category: ");
-					for (JItem i2 : is) {
-						System.out.println(i2);
-					}
-				} else {
-					in = c.GetString("not found.. input the id# ");//, 0, 10000);
-					i = findItem(in);
-					if (i == null) {
-						System.out.println("invalid #");
-					} else {
-						System.out.println(i + ": " + i.Aliases());
-					}
-				}
-			} else {
-				System.out.println("found: " + in + "==" + i);
-				for (JItem i2 : findItems(in)) {
-					System.out.println("found2: " + i2);
-				}
-			}
-		}
-	}
+//	public static void main(String[] args) {
+//		//JItemDB.load(new java.io.File("../../../../BetterShop/src/itemsdb.yml"));
+//		JItemDB.load(new java.io.File("/media/Data/Jacob/Programs/Java/Bukkit Plugins/BetterShop/src/itemsdb.yml"));
+//		me.jascotty2.lib.io.ConsoleInput c = new me.jascotty2.lib.io.ConsoleInput();
+//		String in = "";
+//		while ((in = c.GetString("\n> ")).length() > 0) {
+//			JItem i = findItem(in);
+//			if (i == null) {
+//				JItem is[] = JItemDB.getItemsByCategory(in);
+//				if (is != null && is.length > 0) {
+//					System.out.println("found in category: ");
+//					for (JItem i2 : is) {
+//						System.out.println(i2);
+//					}
+//				} else {
+//					in = c.GetString("not found.. input the id# ");//, 0, 10000);
+//					i = findItem(in);
+//					if (i == null) {
+//						System.out.println("invalid #");
+//					} else {
+//						System.out.println(i + ": " + i.Aliases());
+//					}
+//				}
+//			} else {
+//				System.out.println("found: " + in + "==" + i);
+//				for (JItem i2 : findItems(in)) {
+//					System.out.println("found2: " + i2);
+//				}
+//			}
+//		}
+//	}
 }

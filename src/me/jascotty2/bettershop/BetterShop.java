@@ -69,7 +69,7 @@ public class BetterShop extends JavaPlugin {
 	protected final static RegionShopManager shopManager = new RegionShopManager();
 	protected static BSSignShop signShop = null;
 	protected static BSChestShop chestShop = null;
-	protected static BSEcon economy = new BSEcon();
+	protected static BSEcon economy;
 	private BSPluginListener pListener = null;
 	// for animal/monster purchases
 	public final EntityListen entityListener = new EntityListen();
@@ -125,6 +125,7 @@ public class BetterShop extends JavaPlugin {
 				Updater.Check();
 			}
 		}
+		economy = new BSEcon(this);
 		if (shopManager.load() > 0) {
 			BetterShopLogger.Severe("Error while enabling Shop");
 		}
@@ -369,6 +370,10 @@ public class BetterShop extends JavaPlugin {
 
 	public static boolean commandShopEnabled(Location loc) {
 		return shopManager.isCommandShopEnabled(loc);
+	}
+
+	public static boolean spoutEnabled(){
+		return buttonListener != null;
 	}
 
 	public static int reload(CommandSender sender) {

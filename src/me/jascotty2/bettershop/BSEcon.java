@@ -18,8 +18,8 @@
 
 package me.jascotty2.bettershop;
 
-import com.nijikokun.register_21.payment.Method;
-import com.nijikokun.register_21.payment.Methods;
+import com.nijikokun.register_21_2.payment.Method;
+import com.nijikokun.register_21_2.payment.Methods;
 import java.util.Map.Entry;
 import me.jascotty2.bettershop.utils.BSPermissions;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
@@ -27,6 +27,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.event.server.ServerListener;
+import org.bukkit.plugin.PluginManager;
 
 /**
  * @author jacob
@@ -39,11 +40,18 @@ public class BSEcon extends ServerListener {
 	// iconomy seems to throw alot of errors...
 	// this is to only display one
 	static boolean _pastBalanceErr = false;
+	BetterShop plugin;
+	PluginManager pm;
+	
+	public BSEcon(BetterShop plugin){
+		this.plugin = plugin;
+		pm = plugin.getServer().getPluginManager();
+	}
 
 	@Override
 	public void onPluginDisable(PluginDisableEvent event) {
 		// Check to see if the plugin thats being disabled is the one we are using
-		if (_econMethods != null && _econMethods.hasMethod() && _econMethods.checkDisabled(event.getPlugin())) {
+		if (_econMethods != null && Methods.hasMethod() && Methods.checkDisabled(event.getPlugin())) {
 			economyMethod = null;
 			methodName = null;
 			BetterShopLogger.Log(" Economy Plugin was disabled.");
@@ -52,9 +60,9 @@ public class BSEcon extends ServerListener {
 
 	@Override
 	public void onPluginEnable(PluginEnableEvent event) {
-		if (!_econMethods.hasMethod()) {
-			if (_econMethods.setMethod(event.getPlugin())) {
-				economyMethod = _econMethods.getMethod();
+		if (!Methods.hasMethod()) {
+			if (Methods.setMethod(pm)){
+				economyMethod = Methods.getMethod();
 				methodName = economyMethod.getName() + " v" + economyMethod.getVersion();
 				BetterShopLogger.Log("Using " + methodName + " for economy");
 			}

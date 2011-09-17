@@ -57,11 +57,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import me.jascotty2.lib.util.Str;
 
 /**
  * @author jacob
  */
 public class BSChestShop extends PlayerListener {
+
+	final static int chestStrLen = 16; // 1.8 won't allow many chars :(
 
 	final static long chestProtectDelay = 5000;
 	protected final BetterShop plugin;
@@ -142,21 +145,22 @@ public class BSChestShop extends PlayerListener {
 		Chest other = ChestManip.otherChest(open.getBlock());
 		ItemStack[] chestShopItems = open.getInventory().getContents();
 		IInventory chestShop;
+		String chestTxt = Str.strTrim(BetterShop.getConfig().chestShopText.
+				replace("<e>", isEditing ? BetterShop.getConfig().chestEditText : ""), chestStrLen);
 		if (other != null) {
 			ItemStack[] chestShopItems2 = other.getInventory().getContents();
 			if (open == ChestManip.topChest(open)) {
-				chestShop = new InventoryLargeChest(BetterShop.getConfig().chestShopText + (isEditing ? " (Editing)" : ""),
+				chestShop = new InventoryLargeChest(chestTxt,
 						new InventorySmallChest("", isEditing ? chestShopItems : canAfford(p, loc, chestShopItems)),
 						new InventorySmallChest("", isEditing ? chestShopItems2 : canAfford(p, loc, chestShopItems2)));
 			} else {
-				chestShop = new InventoryLargeChest(BetterShop.getConfig().chestShopText + (isEditing ? " (Editing)" : ""),
+				chestShop = new InventoryLargeChest(chestTxt,
 						new InventorySmallChest("", isEditing ? chestShopItems2 : canAfford(p, loc, chestShopItems2)),
 						new InventorySmallChest("", isEditing ? chestShopItems : canAfford(p, loc, chestShopItems)));
 			}
 		} else {
 			chestShop = new InventorySmallChest(
-					BetterShop.getConfig().chestShopText + (isEditing ? " (Editing)" : ""),
-					isEditing ? chestShopItems : canAfford(p, loc, chestShopItems));
+					chestTxt, isEditing ? chestShopItems : canAfford(p, loc, chestShopItems));
 		}
 		// Get the EntityPlayer handle from the sender
 		EntityPlayer entityplayer = ((CraftPlayer) p).getHandle();

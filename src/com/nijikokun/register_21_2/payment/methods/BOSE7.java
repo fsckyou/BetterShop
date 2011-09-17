@@ -1,6 +1,6 @@
-package com.nijikokun.register_21.payment.methods;
+package com.nijikokun.register_21_2.payment.methods;
 
-import com.nijikokun.register_21.payment.Method;
+import com.nijikokun.register_21_2.payment.Method;
 import cosine.boseconomy.BOSEconomy;
 import org.bukkit.plugin.Plugin;
 
@@ -25,6 +25,10 @@ public class BOSE7 implements Method {
 
     public String getVersion() {
         return "0.7.0";
+    }
+    
+    public int fractionalDigits() {
+    	return this.BOSEconomy.getFractionalDigits();
     }
 
     public String format(double amount) {

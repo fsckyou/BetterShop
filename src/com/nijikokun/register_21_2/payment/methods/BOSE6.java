@@ -1,6 +1,6 @@
-package com.nijikokun.register_21.payment.methods;
+package com.nijikokun.register_21_2.payment.methods;
 
-import com.nijikokun.register_21.payment.Method;
+import com.nijikokun.register_21_2.payment.Method;
 import cosine.boseconomy.BOSEconomy;
 import org.bukkit.plugin.Plugin;
 
@@ -11,6 +11,7 @@ import org.bukkit.plugin.Plugin;
  * @copyright (c) 2011
  * @license AOL license <http://aol.nexua.org>
  */
+@SuppressWarnings("deprecation")
 public class BOSE6 implements Method {
     private BOSEconomy BOSEconomy;
 
@@ -24,6 +25,10 @@ public class BOSE6 implements Method {
 
     public String getVersion() {
         return "0.6.2";
+    }
+    
+    public int fractionalDigits() {
+    	return 0;
     }
 
     public String format(double amount) {
@@ -75,7 +80,7 @@ public class BOSE6 implements Method {
             this.BOSEconomy = bOSEconomy;
         }
 
-        public double balance() {
+		public double balance() {
             return (double) this.BOSEconomy.getPlayerMoney(this.name);
         }
 

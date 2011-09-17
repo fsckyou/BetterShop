@@ -85,6 +85,8 @@ public class BSConfig {
 	public boolean chestShopEnabled = true,
 			chestDestroyProtection = true,
 			chestTNTprotection = true;
+	public String chestText = "BetterShop Chest Shop <e>",
+			chestEditText = "(Editing)";
 	// global or region shops
 	public CommandShopMode commandShopMode = CommandShopMode.GLOBAL;
 	////// database information
@@ -199,6 +201,8 @@ public class BSConfig {
 							"chestShops",
 							"chestDestroyProtection",
 							"tntChestDestroyProtection",
+							"chestText",
+							"chestEditText",
 							"commandShop",
 							"customsort",
 							"defaultItemColor",
@@ -456,7 +460,11 @@ public class BSConfig {
 				signTNTprotection = n.getBoolean("tntSignDestroyProtection", signTNTprotection);
 				
 				chestShopEnabled = n.getBoolean("chestShops", chestShopEnabled);
+				chestDestroyProtection = n.getBoolean("chestDestroyProtection", chestDestroyProtection);
 				chestTNTprotection = n.getBoolean("tntChestDestroyProtection", chestTNTprotection);
+				
+				chestText = n.getString("chestText", chestText);
+				chestEditText = n.getString("chestEditText", chestEditText);
 				
 				signItemColor = n.getBoolean("signItemColor", signItemColor);
 				signItemColorBWswap = n.getBoolean("signItemColorBWswap", signItemColorBWswap);

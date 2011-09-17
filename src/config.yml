@@ -92,6 +92,13 @@ shop:
     chestDestroyProtection: true
     # protect chests from being destroyed by tnt?
     tntChestDestroyProtection: true
+    # custom chest name
+    # <e> if the user is editing the chest
+    # note: as of mc 1.8, chests cannot be more than 16 characters long :(
+    #					so the plugin will automattically trim to 16 chars
+    chestText: "BetterShop Chest Shop <e>"
+    # how the edit str is displayed
+    chestEditText: "(Editing)"
     # command-based shop mode
     # modes: GLOBAL, REGIONS, BOTH, NONE (default: global)
     # GLOBAL: regions are areas where command-based shop access is disabled
