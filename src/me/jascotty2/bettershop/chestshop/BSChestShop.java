@@ -503,7 +503,7 @@ public class BSChestShop extends PlayerListener {
 	}
 
 	public boolean save() {
-		return chestsDB.save();
+		return !chestsDB.isChanged() || chestsDB.save();
 	}
 
 	public boolean saveDelayActive() {

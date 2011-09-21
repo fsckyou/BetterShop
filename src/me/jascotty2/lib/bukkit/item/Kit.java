@@ -97,12 +97,11 @@ public class Kit extends JItem {
     }
 
     public final void AddItem(JItem toAdd) {
-        if (toAdd == null) {
-            return;
-        }
-        KitItem t = new KitItem(toAdd, 1);
-        if (t.itemAmount > 0) {
-            kititems.add(t);
+        if (toAdd != null) {
+			KitItem t = new KitItem(toAdd, 1);
+			if (t.itemAmount > 0) {
+				kititems.add(t);
+			}
         }
     }
 

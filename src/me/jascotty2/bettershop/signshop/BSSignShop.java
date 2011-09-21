@@ -50,6 +50,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerListener;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
@@ -173,18 +174,19 @@ public class BSSignShop extends PlayerListener {
 										if (i != null) {
 											numCheck = ItemStackManip.count(event.getPlayer().getInventory().getContents(), i);
 										} else {
-											List<ItemStockEntry> sellable = SellCommands.getCanSell(event.getPlayer(), false, null);
+											List<ItemStack> sellable = SellCommands.getCanSell(event.getPlayer(), false, null);
 											int tt = 0;
-											for (ItemStockEntry ite : sellable) {
-												PriceListItem tprice = shop.pricelist.getItemPrice(JItemDB.findItem(ite.name));
+											for (ItemStack ite : sellable) {
+												JItem it = JItemDB.findItem(ite);
+												PriceListItem tprice = shop.pricelist.getItemPrice(it);
 												if (tprice != null) { // double-check..
-													tt += ite.amount;
-													price.buy += tprice.buy > 0 ? tprice.buy * ite.amount : 0;
-													price.sell += tprice.sell > 0 ? tprice.sell * ite.amount : 0;
+													tt += ite.getAmount();
+													price.buy += tprice.buy > 0 ? tprice.buy * ite.getAmount() : 0;
+													price.sell += tprice.sell > 0 ? tprice.sell * ite.getAmount() : 0;
 													if (pname.length() > 1) {
-														pname += ", " + ite.name;
+														pname += ", " + it.coloredName();
 													} else {
-														pname += ite.name;
+														pname += it.coloredName();
 													}
 												}
 											}

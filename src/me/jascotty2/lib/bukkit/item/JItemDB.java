@@ -165,7 +165,7 @@ public class JItemDB {
 									} else {
 										// kits are numbered starting at 5000
 										kit.itemId = 4999 + CheckInput.GetInt(k.substring(3), 0);
-										if (kit.itemId == 4999) {
+										if (kit.itemId <= 4999) {
 											logger.log(Level.WARNING, String.format("%s is an invalid kit number. (Must start at 1)", k));
 											continue;  //next kit node
 										}

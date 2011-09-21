@@ -29,6 +29,8 @@ import java.util.logging.Level;
 import me.jascotty2.bettershop.BSConfig;
 import me.jascotty2.bettershop.BetterShop;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
+import me.jascotty2.lib.bukkit.item.JItemDB;
+import org.bukkit.inventory.ItemStack;
 
 public class BSItemStock extends ItemStock {
 
@@ -116,6 +118,11 @@ public class BSItemStock extends ItemStock {
 				&& ((new Date()).getTime() - lastStock.getTime()) / 1000 > pricelist.config.restock) {
 			restock(true);
 		}
+	}
+
+	public long freeStockRemaining(ItemStack check) {
+		JItem c = JItemDB.GetItem(check);
+		return c != null ? freeStockRemaining(c.ID(), c.Data()) : -1;
 	}
 
 	public long freeStockRemaining(JItem check) {

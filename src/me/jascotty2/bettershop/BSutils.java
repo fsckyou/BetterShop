@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 import me.jascotty2.lib.bukkit.MinecraftChatStr;
+import me.jascotty2.lib.bukkit.inventory.ItemStackManip;
 //import org.bukkit.Server;
 //import org.bukkit.plugin.Plugin;
 //import org.bukkit.plugin.PluginManager;
@@ -255,20 +256,12 @@ public class BSutils {
 	}
 
 	public static int amtCanHold(Player player, JItem toBuy) {
-		int canHold = 0, maxStack = BetterShop.getConfig().usemaxstack ? toBuy.getMaxStackSize() : 64;
 		if (!toBuy.isEntity()) {
-			PlayerInventory inv = player.getInventory();
-			// don't search armor slots
-			for (int i = 0; i <= 35; ++i) {
-				ItemStack it = inv.getItem(i);
-				if (it == null || (toBuy.equals(it) && it.getAmount() < maxStack) || it.getAmount() == 0) {
-					canHold += maxStack - it.getAmount();
-				}
-			}
+			return ItemStackManip.amountCanHold(player.getInventory().getContents(),
+					toBuy, !BetterShop.getConfig().usemaxstack);
 		} else {
-			canHold = BetterShop.getConfig().maxEntityPurchase;
+			return BetterShop.getConfig().maxEntityPurchase;
 		}
-		return canHold;
 	}
 
 }

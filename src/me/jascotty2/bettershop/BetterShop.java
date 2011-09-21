@@ -17,6 +17,8 @@
  */
 package me.jascotty2.bettershop;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import me.jascotty2.bettershop.shop.Shop;
 import me.jascotty2.bettershop.shop.BSTransactionLog;
 import me.jascotty2.bettershop.shop.BSItemStock;
@@ -262,10 +264,18 @@ public class BetterShop extends JavaPlugin {
 			BSutils.sendMessage(sender, ChatColor.RED + e.getMessage());
 			BSutils.sendMessage(sender, ChatColor.RED + e.getUsage());
 		} catch (WrappedCommandException e) {
-			BetterShopLogger.Severe("Unexpected Error executing a command", e.getCause());
+			Throwable t = e.getCause();
+			if(t instanceof SQLException){
+				BetterShopLogger.Severe("Problem with MySQL Connection", t, false);
+			} else if(t instanceof IOException){
+				BetterShopLogger.Severe("Problem with File Access", t, false);
+			} else {
+				BetterShopLogger.Severe("Error executing a command", t, false);
+			}
 			BSutils.sendMessage(sender, ChatColor.RED + "Problem Executing Command!");
+			return true;
 		} catch (CommandException e) {
-			BetterShopLogger.Warning(e);
+			//BetterShopLogger.Warning(e);
 			BSutils.sendMessage(sender, ChatColor.RED + /*"Problem Executing Command!"*/ e.getMessage());
 		} catch (Exception e) {
 			BetterShopLogger.Severe("Unexpected Error executing a command", e, false);

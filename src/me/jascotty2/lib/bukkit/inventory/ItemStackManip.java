@@ -180,18 +180,15 @@ public class ItemStackManip {
 				for (int itn = 0; itn < kititems.length; ++itn) {
 					numtoadd = kititems[itn].itemAmount;
 					int maxStack = !extraStack || noStack.contains(kititems[itn].ID()) ? kititems[itn].MaxStackSize() : 64;
-					for (int i = 0; i < invCopy.length; ++i) {
+					for (int i = 0; i < invCopy.length && numtoadd > 0; ++i) {
 						if (invCopy[i] == null || invCopy[i].getAmount() == 0) {
 							invCopy[i] = kititems[itn].toItemStack();
+							invCopy[i].setAmount(numtoadd);
+							numtoadd -= numtoadd;
 						} else if (invCopy[i].getAmount() < maxStack && kititems[itn].iequals(invCopy[i])) {
 							int d = maxStack < numtoadd ? maxStack : numtoadd;
-							//System.out.println("can place " + kititems[itn] + " at " + i + " : " + invCopy[i]);
 							invCopy[i].setAmount(invCopy[i].getAmount() + d);
 							numtoadd -= d;
-							//System.out.println(invCopy[i]);
-							if (numtoadd <= 0) {
-								break;
-							}
 						}
 					}
 					if (numtoadd > 0) {
@@ -212,6 +209,34 @@ public class ItemStackManip {
 			}
 		}
 		return amt;
+	}
+
+	public static ItemStack[] remove(ItemStack[] items, ItemStack check) {
+		return remove(items, check, 0);
+	}
+
+	public static ItemStack[] remove(ItemStack[] items, ItemStack check, int start) {
+		if (items != null) {
+			int total = check.getAmount();
+			for (int i = start; i < items.length && total > 0; ++i) {
+				if (items[i] != null) {
+					if (items[i].getType() == check.getType()
+							&& (items[i].getData() == null
+							|| items[i].getData().getData() == check.getData().getData())) {
+						int a = items[i].getAmount();
+						if (total < a) {
+							items[i].setAmount(a - total);
+							total = 0;
+						} else {
+							items[i] = null;
+							total -= a;
+						}
+						return items;
+					}
+				}
+			}
+		}
+		return items;
 	}
 
 	public static ItemStack[] remove(ItemStack[] items, Material check) {
@@ -272,6 +297,28 @@ public class ItemStackManip {
 		return items;
 	}
 
+	public static ItemStack[] remove(ItemStack[] items, ItemStack[] search) {
+		return remove(items, search, 0);
+	}
+
+	public static ItemStack[] remove(ItemStack[] items, ItemStack[] search, int start) {
+		for (ItemStack i : search) {
+			remove(items, i, start);
+		}
+		return items;
+	}
+
+	public static ItemStack[] remove(ItemStack[] items, List<ItemStack> search) {
+		return remove(items, search, 0);
+	}
+
+	public static ItemStack[] remove(ItemStack[] items, List<ItemStack> search, int start) {
+		for (ItemStack i : search) {
+			remove(items, i, start);
+		}
+		return items;
+	}
+
 	public static ItemStack[] add(ItemStack[] items, JItem toAdd, int amt) {
 		return add(items, toAdd, amt, false);
 	}
@@ -282,7 +329,12 @@ public class ItemStackManip {
 		} else if (toAdd == null) {
 			return items;
 		} else if (toAdd.IsValidItem()) {
-			return add(items, toAdd.toItemStack(amt));
+			int mx = !extraStack || noStack.contains(toAdd.ID()) ? toAdd.MaxStackSize() : 64;
+			while(amt > 0){
+				add(items, toAdd.toItemStack(amt > mx ? mx : amt), extraStack);
+				amt -= mx;
+			}
+			return items;
 		} else if (toAdd.isKit()) {
 			Kit kit = toAdd instanceof Kit ? (Kit) toAdd : JItemDB.getKit(toAdd);
 			Kit.KitItem kititems[] = kit.getKitItems();
@@ -292,16 +344,15 @@ public class ItemStackManip {
 				for (int itn = 0; itn < kit.numItems(); ++itn) {
 					numtoadd = kititems[itn].itemAmount;
 					int maxStack = !extraStack || noStack.contains(kititems[itn].ID()) ? kititems[itn].MaxStackSize() : 64;
-					for (int i = 0; i < items.length; ++i) {
+					for (int i = 0; i < items.length && numtoadd > 0; ++i) {
 						if (items[i] == null || items[i].getAmount() == 0) {
 							items[i] = kititems[itn].toItemStack();
+							items[i].setAmount(numtoadd);
+							numtoadd -= numtoadd;
 						} else if (items[i].getAmount() < maxStack && kititems[itn].iequals(items[i])) {
 							int d = maxStack < numtoadd ? maxStack : numtoadd;
 							items[i].setAmount(items[i].getAmount() + d);
 							numtoadd -= d;
-							if (numtoadd <= 0) {
-								break;
-							}
 						}
 					}
 					if (numtoadd > 0) {
@@ -338,10 +389,10 @@ public class ItemStackManip {
 		int amt = toAdd.getAmount();
 		boolean firstRun = true;
 		for (int i = 0; i < items.length; ++i) {
-			if (items[i] == null || items[i].getAmount() == 0) {
+			if (!firstRun && (items[i] == null || items[i].getAmount() == 0)) {
 				items[i] = toAdd;
 				return items;
-			} else if (!firstRun && items[i].getTypeId() == toAdd.getTypeId()) {
+			} else if (items[i] != null && items[i].getTypeId() == toAdd.getTypeId()) {
 				int mx = !extraStack || noStack.contains(items[i].getTypeId())
 						? JItems.getMaxStack(items[i]) : 64;
 				if (items[i].getAmount() < mx) {
@@ -368,26 +419,19 @@ public class ItemStackManip {
 	 * @return
 	 */
 	public static List<ItemStack> itemStackSummary(ItemStack[] items) {
+		return itemStackSummary(items, 0);
+	}
+
+	public static List<ItemStack> itemStackSummary(ItemStack[] items, int start) {
 		ArrayList<ItemStack> summ = new ArrayList<ItemStack>();
 		if (items != null) {
-			for (ItemStack i : items) {
-//				boolean found = false;
-//				for (ItemStack s : summ) {
-//					if (i.getTypeId() == s.getTypeId() && i.getDurability() == s.getDurability()) {
-//						s.setAmount(s.getAmount() + i.getAmount());
-//						found = true;
-//						break;
-//					}
-//				}
-//				if (!found) {
-//					summ.add(new ItemStack(i.getTypeId(), i.getAmount(), i.getDurability()));
-//				}
-				if (i != null) {
-					int iti = indexOf(summ, i);
+			for (int i = start; i < items.length; ++i) {
+				if (items[i] != null) {
+					int iti = indexOf(summ, items[i]);
 					if (iti < 0) {
-						summ.add(i.clone());
+						summ.add(items[i].clone());
 					} else {
-						summ.get(iti).setAmount(summ.get(iti).getAmount() + i.getAmount());
+						summ.get(iti).setAmount(summ.get(iti).getAmount() + items[i].getAmount());
 					}
 				}
 			}

@@ -28,7 +28,6 @@ import me.jascotty2.bettershop.utils.BSPermissions;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 import me.jascotty2.lib.bukkit.MinecraftChatStr;
 import me.jascotty2.lib.bukkit.commands.Command;
-import me.jascotty2.lib.bukkit.item.ItemStockEntry;
 import me.jascotty2.lib.bukkit.item.JItem;
 import me.jascotty2.lib.bukkit.item.JItemDB;
 import me.jascotty2.lib.bukkit.item.PriceListItem;
@@ -36,6 +35,7 @@ import me.jascotty2.lib.io.CheckInput;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * @author jacob
@@ -196,22 +196,23 @@ public class ListCommands {
 
 		try {
 			if (s[0].equalsIgnoreCase("all")) {
-				List<ItemStockEntry> sellable = SellCommands.getCanSell((Player) player, false, null);
+				List<ItemStack> sellable = SellCommands.getCanSell((Player) player, false, null);
 				if (!sellable.isEmpty()) {
 					PriceListItem price = new PriceListItem();
 					price.buy = price.sell = 0;
 					String name = "("; // price.name = "(";
 					int numCheck = 0;
-					for (ItemStockEntry ite : sellable) {
-						numCheck += ite.amount;
-						PriceListItem tprice = shop.pricelist.getItemPrice(JItemDB.findItem(ite.name));
+					for (ItemStack ite : sellable) {
+						numCheck += ite.getAmount();
+						JItem it = JItemDB.findItem(ite);
+						PriceListItem tprice = shop.pricelist.getItemPrice(it);
 						if (tprice != null) {
 							price.buy += tprice.buy > 0 ? tprice.buy : 0;
 							price.sell += tprice.sell > 0 ? tprice.sell : 0;
 							if (name.length() > 1) {
-								name += ", " + ite.name;
+								name += ", " + it.coloredName();
 							} else {
-								name += ite.name;
+								name += it.coloredName();
 							}
 						}
 					}
@@ -235,6 +236,8 @@ public class ListCommands {
 							price.sell >= 0 ? BSEcon.format(price.sell) : "No",
 							"?",
 							numCheck));
+				} else {
+					BSutils.sendMessage(player, "no sellabel items in your inventory");
 				}
 				return true;
 			} else {

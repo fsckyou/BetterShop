@@ -48,6 +48,7 @@ public class ChestDB {
 	public final static long signDBsaveWait = 30000; // don't save immediately, wait (30s)
 	List<Location> chests = new ArrayList<Location>();
 	Map<Location, ItemStack[]> savedChests = new HashMap<Location, ItemStack[]>();
+	boolean changed = false;
 	private DelayedSaver delaySaver = null;
 	final Server server;
 
@@ -107,7 +108,7 @@ public class ChestDB {
 				file.add(l.getWorld().getName() + ","
 						+ l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ());
 			}
-			return FileIO.saveFile(BSConfig.chestDBFile, file);
+			return FileIO.saveFile(BSConfig.chestDBFile, file) && !(changed = false);
 		} catch (Exception e) {
 			BetterShopLogger.Log(Level.SEVERE, e);
 		}
@@ -128,6 +129,7 @@ public class ChestDB {
 				chests.add(other.getBlock().getLocation());
 				savedChests.put(other.getBlock().getLocation(), other.getInventory().getContents());
 			}
+			changed = true;
 			delaySave();
 		}
 	}
@@ -138,6 +140,7 @@ public class ChestDB {
 //		if(l.getBlock().getState() instanceof Chest){
 //			((Chest)l.getBlock().getState()).getInventory().clear();
 //		}
+		changed = true;
 		delaySave();
 	}
 
@@ -180,6 +183,10 @@ public class ChestDB {
 		public void run() {
 			save();
 		}
+	}
+
+	public boolean isChanged() {
+		return changed;
 	}
 
 } // end class ChestDB
