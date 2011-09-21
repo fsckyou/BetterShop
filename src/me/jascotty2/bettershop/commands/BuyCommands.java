@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import me.jascotty2.bettershop.shop.Shop;
 import me.jascotty2.lib.bukkit.commands.Command;
+import me.jascotty2.lib.bukkit.inventory.ItemStackManip;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -363,45 +364,7 @@ public class BuyCommands {
 		PlayerInventory inv = player.getInventory();
 		KitItem items[] = toBuy.getKitItems();
 
-		int maxBuy = 0;
-
-		ItemStack invCopy[] = new ItemStack[36];
-		for (int i = 0; i <= 35; ++i) {
-			invCopy[i] = new ItemStack(inv.getItem(i).getType(), inv.getItem(i).getAmount(), inv.getItem(i).getDurability());
-		}
-
-		while (true) {
-			int numtoadd = 0;
-			for (int itn = 0; itn < toBuy.numItems(); ++itn) {
-				numtoadd = items[itn].itemAmount;
-				int maxStack = BetterShop.getConfig().usemaxstack ? items[itn].getMaxStackSize() : 64;
-				// don't search armor slots
-				for (int i = 0; i <= 35; ++i) {
-					//if (items[itn].equals(new JItem(invCopy[i])) ||  (invCopy[i].getAmount() == 0 && invCopy[i].getAmount()<maxStack)) {
-					if ((items[itn].iequals(invCopy[i]) && invCopy[i].getAmount() < maxStack)
-							|| invCopy[i].getAmount() == 0) {
-						//System.out.println("can place " + items[itn] + " at " + i + " : " + invCopy[i]);
-						invCopy[i].setTypeId(items[itn].ID());
-						invCopy[i].setDurability(items[itn].Data());
-						invCopy[i].setAmount(invCopy[i].getAmount() + (maxStack < numtoadd ? maxStack : numtoadd));
-						numtoadd -= maxStack < numtoadd ? maxStack : numtoadd;
-						//System.out.println(invCopy[i]);
-						if (numtoadd <= 0) {
-							break;
-						}
-					}
-				}
-				if (numtoadd > 0) {
-					break;
-				}
-			}
-			if (numtoadd <= 0) {
-				//System.out.println("1 added: " + maxBuy);
-				++maxBuy;
-			} else {
-				break;
-			}
-		}
+		int maxBuy = ItemStackManip.amountCanHold(inv.getContents(), toBuy, !BetterShop.getConfig().usemaxstack);
 
 		if (amt > maxBuy) {
 			BSutils.sendMessage(player, String.format(BetterShop.getConfig().getString("outofroom").
@@ -444,34 +407,9 @@ public class BuyCommands {
 		double cost = amt * unitPrice;
 		if (cost == 0 || BSEcon.debit(player, cost)) {
 			try {
-				for (int num = 0; num < amt; ++num) {
-					int numtoadd = 0;
-					for (int itn = 0; itn < toBuy.numItems(); ++itn) {
-						numtoadd = items[itn].itemAmount;
-						int maxStack = BetterShop.getConfig().usemaxstack ? items[itn].getMaxStackSize() : 64;
-						// don't search armor slots
-						for (int i = 0; i <= 35; ++i) {
-							if ((items[itn].iequals(inv.getItem(i)) && inv.getItem(i).getAmount() < maxStack) || inv.getItem(i).getAmount() == 0) {
-								//System.out.println("placing " + items[itn] + " at " + i + " (" + inv.getItem(i) + ")");
-								inv.setItem(i, items[itn].toItemStack(inv.getItem(i).getAmount() + (maxStack < numtoadd ? maxStack : numtoadd)));
-								numtoadd -= maxStack < numtoadd ? maxStack : numtoadd;
-								//System.out.println(inv.getItem(i));
-								if (numtoadd <= 0) {
-									break;
-								}
-							}
-						}
-						if (numtoadd > 0) {
-							System.out.println("failed to add " + items[itn] + "!");
-							break;
-						}
-					}
-					if (numtoadd > 0) {
-						System.out.println("early exit while adding!");
-						BSutils.broadcastMessage(player, "An Error occurred.. contact an admin to resolve this issue");
-						break;
-					}
-				}
+				
+				inv.setContents(ItemStackManip.add(player.getInventory().getContents(), toBuy, amt));
+
 				if (BetterShop.getConfig().useItemStock) {
 					BetterShop.getStock(player.getLocation()).changeItemAmount(toBuy.ID(), toBuy.Name(), -amt);
 				}

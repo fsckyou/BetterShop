@@ -63,12 +63,12 @@ public class SellCommands {
 		if (BSutils.anonymousCheck(player)) {
 			return true;
 		} // "sell all", "sell all [item]" moved to own method ("sell [item] all" kept here)
-		else if (s.length == 1 && s[0].equalsIgnoreCase("all")) {
-			return sellall(player, null);
+		else if (s.length >= 1 && s[0].equalsIgnoreCase("all")) {
+			String[] newArgs = new String[s.length - 1];
+			System.arraycopy(s, 1, newArgs, 0, newArgs.length);
+			return sellall(player, newArgs);
 		} else if (s.length == 2) {
-			if (s[0].equalsIgnoreCase("all")) {
-				return sellall(player, new String[]{s[1]});
-			} else if (s[1].equalsIgnoreCase("all")) {
+			if (s[1].equalsIgnoreCase("all")) {
 				return sellall(player, new String[]{s[0]});
 			} else if (CheckInput.IsInt(s[0]) && !CheckInput.IsInt(s[1])) {
 				// swap two indicies
@@ -484,27 +484,27 @@ public class SellCommands {
 				if (toSell != null) {
 					int amtLeft = (int) ite.amount;
 					for (int i = (onlyInv ? 9 : 0); i <= 35; ++i) {
-						JItem it = JItemDB.GetItem(its[i]);
-						if (it != null && it.equals(toSell)) {
-							if (shop.pricelist.isForSale(it) && (!it.IsTool()
+						//JItem it = JItemDB.GetItem(its[i]);
+						if (its[i] != null && toSell.equals(its[i])) {
+							if (shop.pricelist.isForSale(its[i]) && (!toSell.IsTool()
 									|| (its[i].getDurability() == 0 || BetterShop.getConfig().buybacktools))) {
 								int amt = its[i].getAmount();
 								if (amtLeft < amt) {
-									inv.setItem(i, it.toItemStack(amt - amtLeft));
+									inv.getItem(i).setAmount(amt - amtLeft);//.setItem(i, it.toItemStack(amt - amtLeft));
 									amt = amtLeft;
 								} else {
 									inv.setItem(i, null);
 								}
 
-								credit += it.IsTool() ? (shop.pricelist.itemSellPrice(player, it, amt)
-										* (1 - ((double) its[i].getDurability() / it.MaxDamage())))
-										: shop.pricelist.itemSellPrice(player, it, amt);
+								credit += toSell.IsTool() ? (shop.pricelist.itemSellPrice(player, toSell, amt)
+										* (1 - ((double) its[i].getDurability() / toSell.MaxDamage())))
+										: shop.pricelist.itemSellPrice(player, toSell, amt);
 
 								amtSold += amt;
 								amtLeft -= amt;
 								if (amtLeft <= 0) {
 									if (shop.config.useStock()) {
-										shop.stock.changeItemAmount(it, ite.amount);
+										shop.stock.changeItemAmount(toSell, ite.amount);
 									}
 									break;
 								}

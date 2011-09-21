@@ -72,28 +72,28 @@ class BSPluginListener extends ServerListener {
 	}
 
 	public final void checkMIM(Plugin p) {
-		if (p instanceof MinecraftIM) {
+		if (BetterShopErrorTracker.messenger == null && p instanceof MinecraftIM) {
 			BetterShopErrorTracker.messenger = (MinecraftIM) p;
 			BetterShopLogger.Info("linked to MinecraftIM");
 		}
 	}
 
 	public final void checkHelp(Plugin p) {
-		if (p instanceof Help) {
+		if (!HelpCommands.helpPluginEnabled && p instanceof Help) {
 			HelpCommands.registerHelp(p);
 			BetterShopLogger.Info("'Help' support enabled.");
 		}
 	}
 
 	public final void checkPermissions(Plugin p) {
-		if (p instanceof Permissions) {
+		if (BSPermissions.permissionsPlugin == null && p instanceof Permissions) {
 			BSPermissions.permissionsPlugin = (Permissions) p;
 			BetterShopLogger.Log("Attached to Permissions.");
 		}
 	}
 
 	public final void checkSpout(Plugin p) {
-		if (p instanceof Spout) {
+		if (BetterShop.keyListener == null && p instanceof Spout) {
 
 			BetterShopLogger.Log("Spout Found! :)");
 //				File spFile = new File(test.getClass().getProtectionDomain().getCodeSource().getLocation().getPath().

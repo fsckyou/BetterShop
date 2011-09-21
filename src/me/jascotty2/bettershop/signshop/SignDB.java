@@ -55,6 +55,7 @@ public class SignDB {
 	HashMap<Location, JItem> signs = new HashMap<Location, JItem>();
 	HashMap<Location, Sign> savedSigns = new HashMap<Location, Sign>();
 	HashMap<Location, BlockState> signBlocks = new HashMap<Location, BlockState>();
+	boolean changed = false;
 	private SignSaver delaySaver = null;
 	final Server server;
 
@@ -65,7 +66,7 @@ public class SignDB {
 		server = sv;
 	}
 
-	public synchronized boolean load() {
+	public boolean load() {
 		if (BSConfig.signDBFile.exists()) {
 			try {
 				List<String[]> signdb = FileIO.loadCSVFile(BSConfig.signDBFile);
@@ -140,7 +141,7 @@ public class SignDB {
 		return true;
 	}
 
-	public synchronized boolean save() {
+	public boolean save() {
 		try {
 			if (delaySaver != null) {
 				delaySaver.cancel();
@@ -151,12 +152,12 @@ public class SignDB {
 		}
 		try {
 			ArrayList<String> file = new ArrayList<String>();
-			for (Location l : signs.keySet()) {
+			for (Location l : signs.keySet().toArray(new Location[0])) {
 				file.add(l.getWorld().getName() + ","
 						+ l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() + ","
 						+ (signs.get(l) != null ? signs.get(l).IdDatStr() : " "));
 			}
-			return FileIO.saveFile(BSConfig.signDBFile, file);
+			return FileIO.saveFile(BSConfig.signDBFile, file) && !(changed = false);
 		} catch (Exception e) {
 			BetterShopLogger.Log(Level.SEVERE, e);
 		}
@@ -171,6 +172,7 @@ public class SignDB {
 			if (a != null) {
 				signBlocks.put(a.getLocation(), a.getState());
 			}
+			changed = true;
 			delaySave();
 		}
 	}
@@ -182,6 +184,8 @@ public class SignDB {
 		if (b != null) {
 			signBlocks.remove(b.getLocation());
 		}
+		changed = true;
+		delaySave();
 	}
 
 	public boolean signExists(Location l) {
@@ -285,5 +289,10 @@ public class SignDB {
 		}
 		return null;
 	}
+
+	public boolean isChanged() {
+		return changed;
+	}
+	
 } // end class SignDB
 

@@ -49,6 +49,7 @@ public class BSConfig {
 	public final static File configfile = new File(pluginFolder, configname);
 	public final static File itemDBFile = new File(pluginFolder, "itemsdb.yml");
 	public final static File signDBFile = new File(pluginFolder, "signs.dat");
+	public final static File chestDBFile = new File(pluginFolder, "chests.dat");
 	///// plugin settings
 	public boolean checkUpdates = true,
 			sendErrorReports = true,
@@ -254,39 +255,10 @@ public class BSConfig {
 							"maxStock",
 							"noOverStock",
 							"restock"});
-				allKeys.put("strings", new String[]{
-							"prefix",
-							"permdeny",
-							"unkitem",
-							"nicetry",
-							"paramerror",
-							"addmsg",
-							"chgmsg",
-							"removemsg",
-							"pricecheck",
-							"multipricecheck",
-							"multipricechecksell",
-							"multipricecheckbuy",
-							"nolisting",
-							"listhead",
-							"listing",
-							"listtail",
-							"buymsg",
-							"publicbuymsg",
-							"outofroom",
-							"insuffunds",
-							"notforsale",
-							"illegalbuy",
-							"donthave",
-							"donotwant",
-							"sellmsg",
-							"publicsellmsg",
-							"outofstock",
-							"lowstock",
-							"maxstock",
-							"highstock"});
+				allKeys.put("strings", stringMap.keySet().toArray(new String[0]));
 				String allowNull[] = new String[]{
-					"shop.customsort", "shop.BOSBank", "shop.currencyName"};
+					"shop.customsort", "shop.BOSBank", "shop.currencyName",
+					"strings.listtail"};
 
 				String missing = "", unused = "";
 				for (String k : allKeys.keySet()) {

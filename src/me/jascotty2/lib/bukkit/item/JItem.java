@@ -339,9 +339,8 @@ public class JItem {
     }
 
     public boolean equals(ItemStack i) {
-        return item != null ? item.equals(i)
-                : i != null && itemId == i.getTypeId()
-                && (IsTool() || itemDat == i.getDurability());
+        return i != null && (item != null ? item.equals(i)
+                : itemId == i.getTypeId() && (IsTool() || itemDat == i.getDurability()));
     }
 
     public boolean equals(ItemStockEntry i) {

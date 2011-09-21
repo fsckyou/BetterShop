@@ -22,7 +22,7 @@ import me.jascotty2.bettershop.utils.BetterShopLogger;
 
 import me.jascotty2.lib.io.FileIO;
 import me.jascotty2.lib.io.CheckInput;
-import me.jascotty2.lib.bukkit.item.ChestManip;
+import me.jascotty2.lib.bukkit.inventory.ChestManip;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -59,9 +59,9 @@ public class ChestDB {
 	}
 
 	public synchronized boolean load() {
-		if (BSConfig.signDBFile.exists()) {
+		if (BSConfig.chestDBFile.exists()) {
 			try {
-				List<String[]> signdb = FileIO.loadCSVFile(BSConfig.signDBFile);
+				List<String[]> signdb = FileIO.loadCSVFile(BSConfig.chestDBFile);
 				for (String[] s : signdb) {
 					if (s.length >= 4 && server.getWorld(s[0]) != null) {
 						chests.add(new Location(server.getWorld(s[0]),
@@ -107,7 +107,7 @@ public class ChestDB {
 				file.add(l.getWorld().getName() + ","
 						+ l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ());
 			}
-			return FileIO.saveFile(BSConfig.signDBFile, file);
+			return FileIO.saveFile(BSConfig.chestDBFile, file);
 		} catch (Exception e) {
 			BetterShopLogger.Log(Level.SEVERE, e);
 		}

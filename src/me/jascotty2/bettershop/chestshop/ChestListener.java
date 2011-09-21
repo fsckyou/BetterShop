@@ -22,7 +22,7 @@ import me.jascotty2.bettershop.BSutils;
 import me.jascotty2.bettershop.BetterShop;
 import me.jascotty2.bettershop.utils.BSPermissions;
 import me.jascotty2.bettershop.enums.BetterShopPermission;
-import me.jascotty2.lib.bukkit.item.ChestManip;
+import me.jascotty2.lib.bukkit.inventory.ChestManip;
 import org.bukkit.Server;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;

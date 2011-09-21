@@ -244,7 +244,7 @@ public enum JItems {
 	PORK("Raw Porkchop", 319),
 	GRILLED_PORK("Cooked Porkchop", 320, "319@8+263=8, 319@3+5@2=3"), // intentionally less-than-perfect conversion
 	PAINTING("Painting", 321, "280@8+15"),
-	GOLDEN_APPLE("Golden Apple", 322, "260+41@8", 1),
+	GOLDEN_APPLE("Golden Apple", 322, "260+41@8"),
 	SIGN("Sign", 323, "280+5@6", 1),
 	WOOD_DOOR("Wooden Door", 324, "5@6", 1),
 	BUCKET("Bucket", 325, "265@3", 1),
@@ -271,8 +271,8 @@ public enum JItems {
 	FISHING_ROD("Fishing Rod", 346, "280@3+287@2", 33),
 	WATCH("Clock", 347, "266@4+331"),
 	GLOWSTONE_DUST("Glowstone Dust", 348),
-	RAW_FISH("Raw Fish", 349, 1),
-	COOKED_FISH("Cooked Fish", 350, "349@6+263=6", 1), // intentionally less-than-perfect conversion
+	RAW_FISH("Raw Fish", 349),
+	COOKED_FISH("Cooked Fish", 350, "349@8+263=8"),
 	INK_SACK("Ink Sac", 351),
 	RED_DYE("Red Dye", 351, (byte) 1, "38=2"),
 	GREEN_DYE("Green Dye", 351, (byte) 2, "81@8+263=8, 81@3+5@2=3"),
@@ -294,7 +294,7 @@ public enum JItems {
 	CAKE("Cake", 354, "335@3+353@2+344+296@3", 1),
 	BED("Bed", 355, "5@3+35@3", 1),
 	DIODE("Redstone Repeater", 356, "1@3+76@2+331"),
-	COOKIE("Cookie", 357, "296@2+351:3", 8),
+	COOKIE("Cookie", 357, "296@2+351:3"),
 	MAP("Map", 358, "339@8+345"),
 	SHEARS("Shears", 359, "265@2", (short) 239),
 	MELON_SLICE("Melon Slice", 360),
@@ -655,6 +655,16 @@ public enum JItems {
 			}
 		}
 		return null;
+	}
+
+	public static int getMaxStack(int id, byte dat){
+		JItems i = getItem(id, dat);
+		return i == null ? 64 : i.MaxStackSize();
+	}
+
+	public static int getMaxStack(ItemStack it){
+		JItems i = getItem(it.getTypeId(), it.getData() == null ? 0 : it.getData().getData());
+		return i == null ? 64 : i.MaxStackSize();
 	}
 
 	@Override

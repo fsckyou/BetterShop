@@ -33,6 +33,7 @@ shop:
     ItemsPerPage: 9
     # broadcast all transactions publicly?
     publicmarket: false
+
     # if all commands should be logged
     logcommands: false
     # if logging commands, where to save
@@ -99,6 +100,7 @@ shop:
     chestText: "BetterShop Chest Shop <e>"
     # how the edit str is displayed
     chestEditText: "(Editing)"
+
     # command-based shop mode
     # modes: GLOBAL, REGIONS, BOTH, NONE (default: global)
     # GLOBAL: regions are areas where command-based shop access is disabled
@@ -496,8 +498,8 @@ strings:
     # <priceper> - sell value per item
     # <total> - total recieved
     # <curr> - iConomy currency
-    # <totcur> - formatted total (like "1,800 Coins" instead of "1800 Coin") iConomy.getBank().format(
-    sellmsg: "Selling &f<amt> &2<item>&2 at &f<priceper> &2<curr> each... &f<total> &2<curr> total!"
+    # <totcur> - formatted total (like "1,800 Coins" instead of "1800 Coin")
+    sellmsg: "Selling &f<amt> &2<item>&2 at &f<priceper> each... &f<totcur> total!"
 
     #public message is like sellmsg, but shown to everyone (if enabled)
     # <player> - who bought from the store

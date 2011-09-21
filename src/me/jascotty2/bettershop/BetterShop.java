@@ -46,11 +46,11 @@ import org.bukkit.Location;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Collection;
-import java.util.logging.Level;
 
 import me.jascotty2.lib.bukkit.item.JItemDB;
 import me.jascotty2.lib.bukkit.item.CreatureItem.EntityListen;
 import me.jascotty2.lib.bukkit.commands.CommandException;
+import me.jascotty2.lib.bukkit.commands.CommandPermissionsException;
 import me.jascotty2.lib.bukkit.commands.CommandUsageException;
 import me.jascotty2.lib.bukkit.commands.MissingNestedCommandException;
 import me.jascotty2.lib.bukkit.commands.WrappedCommandException;
@@ -177,8 +177,6 @@ public class BetterShop extends JavaPlugin {
 		try {
 			lastCommand = "(disabling)";
 
-			shopManager.closeAll();
-
 			if (signShop != null) {
 				signShop.save();
 				signShop.stopProtecting();
@@ -190,6 +188,8 @@ public class BetterShop extends JavaPlugin {
 				chestShop.closeAllChests();
 			}
 			chestShop = null;
+
+			shopManager.closeAll();
 
 			keyListener = null;
 			buttonListener = null;
@@ -252,6 +252,9 @@ public class BetterShop extends JavaPlugin {
 		try {
 			commandManager.execute(sender, commandName, args);
 			return true;
+		}catch (CommandPermissionsException e) {
+			// message already sent to player
+			return true;
 		} catch (MissingNestedCommandException e) {
 			//BSutils.sendMessage(sender, ChatColor.RED + e.getMessage());
 			BSutils.sendMessage(sender, ChatColor.RED + e.getUsage());
@@ -280,12 +283,10 @@ public class BetterShop extends JavaPlugin {
 
 	public static void setLastCommand(String lastCommand) {
 		StackTraceElement stm[] = (new Exception()).getStackTrace();
-		if (stm[1].getClass().getPackage().getName().startsWith(BetterShop.class.getPackage().getName())) {
+		if (stm[1].toString().startsWith(BetterShop.class.getPackage().getName())) {
 			BetterShop.lastCommand = lastCommand;
 		} else {
-			BetterShopLogger.Warning("Stranger Attempted to modify last command");
-			System.out.println(stm[1].getClass().getPackage().getName());
-			BetterShopLogger.Log(Level.INFO, new Exception());
+			BetterShopLogger.Warning("Stranger Attempted to modify last command: " + stm[1].toString());
 		}
 	}
 

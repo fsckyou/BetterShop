@@ -908,6 +908,15 @@ entities:
     entity14:
         name: Wolf
         aliases: dog
+    entity15:
+        name: Cave Spider
+        aliases: cspider
+    entity16:
+        name: Enderman
+        aliases: endermen
+    entity17:
+        name: Silverfish
+        aliases: sliverfish, stonefish
 
 # accepted are item names (and id:data), names (but names must be updated if changed), and aliases
 categories:
@@ -918,7 +927,7 @@ categories:
     weapons: 261, 262, 267, 268, 272, 276, 283
     wool: "35, 35:12, 35:10, 35:2, 35:11, 35:3, 35:9, 35:13, 35:5, 35:4, 35:1, 35:14, 35:6, 35:8, 35:7, 35:15"
     dye: "351:15, 351:3, 351:5, 351:13, 351:4, 351:12, 351:6, 351:2, 351:11, 351:14, 351:1, 351:9, 351:7, 351:8, 351"
-    dye: "351, 351:1, 351:2, 351:3, 351:4, 351:5, 351:6, 351:7, 351:8, 351:9, 351:10, 351:11, 351:12, 351:13, 351:14, 351:15"
+    #dye: "351, 351:1, 351:2, 351:3, 351:4, 351:5, 351:6, 351:7, 351:8, 351:9, 351:10, 351:11, 351:12, 351:13, 351:14, 351:15"
     entities: 4000, 4001, 4002, 4003, 4004, 4005, 4006, 4007, 4008, 4009, 4010, 4011, 4012, 4013, 4014
     kits: 5000, 5001, 5002
 

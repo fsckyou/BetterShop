@@ -20,7 +20,6 @@ package me.jascotty2.bettershop.signshop;
 
 import me.jascotty2.lib.util.Str;
 import me.jascotty2.lib.io.CheckInput;
-import me.jascotty2.lib.bukkit.item.ChestManip;
 import me.jascotty2.lib.bukkit.item.JItem;
 import me.jascotty2.lib.bukkit.item.JItemDB;
 import me.jascotty2.lib.bukkit.item.ItemStockEntry;
@@ -41,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import me.jascotty2.bettershop.shop.Shop;
+import me.jascotty2.lib.bukkit.inventory.ItemStackManip;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -171,7 +171,7 @@ public class BSSignShop extends PlayerListener {
 										price.sell *= numCheck;
 									} else {
 										if (i != null) {
-											numCheck = ChestManip.itemAmount(event.getPlayer().getInventory().getContents(), i);
+											numCheck = ItemStackManip.count(event.getPlayer().getInventory().getContents(), i);
 										} else {
 											List<ItemStockEntry> sellable = SellCommands.getCanSell(event.getPlayer(), false, null);
 											int tt = 0;
@@ -402,7 +402,7 @@ public class BSSignShop extends PlayerListener {
 	}
 
 	public boolean save() {
-		return signsd.save();
+		return !signsd.isChanged() || signsd.save();
 	}
 
 	public boolean saveDelayActive() {

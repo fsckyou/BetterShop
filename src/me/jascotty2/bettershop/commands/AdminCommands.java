@@ -190,7 +190,7 @@ public class AdminCommands {
 		//TODO:
 		// if item[s] specified, restock only those
 		BetterShop.restock();
-		sender.sendMessage("Stock set to initial values");
+		BSutils.sendMessage(sender, "Stock set to initial values");
 	}
 
 	@Command(commands = {},

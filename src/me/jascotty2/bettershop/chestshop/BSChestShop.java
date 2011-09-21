@@ -26,7 +26,7 @@ import me.jascotty2.bettershop.shop.Shop;
 import me.jascotty2.bettershop.utils.BSPermissions;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 
-import me.jascotty2.lib.bukkit.item.ChestManip;
+import me.jascotty2.lib.bukkit.inventory.ChestManip;
 import me.jascotty2.lib.bukkit.item.JItem;
 import me.jascotty2.lib.bukkit.item.JItemDB;
 import me.jascotty2.lib.bukkit.shop.UserTransaction;
@@ -53,10 +53,10 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import me.jascotty2.lib.bukkit.inventory.ItemStackManip;
 import me.jascotty2.lib.util.Str;
 
 /**
@@ -168,7 +168,7 @@ public class BSChestShop extends PlayerListener {
 		entityplayer.a(chestShop);
 
 		// save a copy of the chest's current inventory
-		openPlayers.put(p, copy(chestShop.getContents()));
+		openPlayers.put(p, ItemStackManip.copy(chestShop.getContents()));
 		openChests.put(p, chestShop);
 		openChestLocations.put(p, loc);
 		if (isEditing) {
@@ -210,7 +210,7 @@ public class BSChestShop extends PlayerListener {
 			return;
 		}
 		ItemStack[] preItems = openPlayers.get(player),
-				newItems = copy(openChests.get(player).getContents());//player.getInventory().getContents();
+				newItems = ItemStackManip.copy(openChests.get(player).getContents());//player.getInventory().getContents();
 		Location shopLocation = openChestLocations.get(player);
 		openPlayers.remove(player);
 		openChests.remove(player);
@@ -237,7 +237,7 @@ public class BSChestShop extends PlayerListener {
 			// init shop
 			Shop shop = BetterShop.getShop(shopLocation);
 			// find the differences
-			List<ItemStack> changedItems = itemStackDifferences(preItems, newItems);
+			List<ItemStack> changedItems = ItemStackManip.itemStackDifferences(preItems, newItems);
 			// records
 			List<UserTransaction> transactions = new LinkedList<UserTransaction>();
 			// name of item(s) sold
@@ -434,110 +434,6 @@ public class BSChestShop extends PlayerListener {
 			//Chest open = (Chest) b.getState();
 			ChestManip.setContents((Chest) b.getState(), edited);
 		}
-	}
-
-	List<ItemStack> itemStackSummary(ItemStack[] items) {
-		ArrayList<ItemStack> summ = new ArrayList<ItemStack>();
-		if (items != null) {
-			for (ItemStack i : items) {
-				if (i != null) {
-					int iti = indexOf(summ, i);//summ.indexOf(i);
-					if (iti < 0) {
-						summ.add(i.clone());
-					} else {
-						summ.get(iti).setAmount(summ.get(iti).getAmount() + i.getAmount());
-					}
-				}
-			}
-		}
-		return summ;
-	}
-
-	/**
-	 * checks for differences between two itemstack arrays <br/>
-	 * result amounts are second - first <br/>
-	 * if there are less of an item in the second, the result will have a negative amount
-	 * @param stack1 first to compare against
-	 * @param stack2 second to check for differences
-	 * @return list of results
-	 */
-	List<ItemStack> itemStackDifferences(ItemStack[] stack1, ItemStack[] stack2) {
-		ArrayList<ItemStack> changedItems = new ArrayList<ItemStack>();
-		if (stack1 == null) {
-			changedItems.addAll(Arrays.asList(stack1));
-			return changedItems;
-		} else if (stack2 == null) {
-			changedItems.addAll(Arrays.asList(stack2));
-			return changedItems;
-		}
-		// first, compile list of items before shopping
-		List<ItemStack> oldInventory = itemStackSummary(stack1);
-		// and after
-		List<ItemStack> newInventory = itemStackSummary(stack2);
-		// list of differences
-
-		// find those items that have changed / removed to the second
-		for (ItemStack i : oldInventory) {
-			int iti = indexOf(newInventory, i);
-			if (iti >= 0) {
-				// in second: check for changes
-				if (i.getAmount() != newInventory.get(iti).getAmount()) {
-					i.setAmount(newInventory.get(iti).getAmount() - i.getAmount());
-					changedItems.add(i);
-				}
-			} else {
-				// not in the second
-				i.setAmount(-i.getAmount());
-				changedItems.add(i);
-			}
-		}
-		// check for items added to the second
-		for (ItemStack i : newInventory) {
-			if (indexOf(oldInventory, i) == -1) {
-				// not in the first
-				changedItems.add(i);
-			}
-		}
-		return changedItems;
-	}
-
-	/**
-	 * ignoring amount, find the index of an itemstack in a list
-	 * @param source list to search
-	 * @param search search criteria
-	 * @return index, or -1 if not found
-	 */
-	private int indexOf(List<ItemStack> source, ItemStack search) {
-		int ind = 0;
-		if (search == null) {
-			for (ItemStack i : source) {
-				if (i == null) {
-					return ind;
-				}
-				++ind;
-			}
-		} else {
-			for (ItemStack i : source) {
-				if (i != null && i.getType() == search.getType()
-						&& (i.getData() == null || (i.getData().getData() == search.getData().getData()))) {
-					return ind;
-				}
-				++ind;
-			}
-		}
-		return -1;
-	}
-
-	private ItemStack[] copy(net.minecraft.server.ItemStack[] minecraftItemStack) {
-		ItemStack[] invCpy = new ItemStack[minecraftItemStack.length];
-		for (int i = 0; i < minecraftItemStack.length; ++i) {
-			invCpy[i] = minecraftItemStack[i] == null ? null
-					: new ItemStack(minecraftItemStack[i].getItem().id,
-					minecraftItemStack[i].count,
-					(short) minecraftItemStack[i].damage,
-					(byte) minecraftItemStack[i].getData());
-		}
-		return invCpy;
 	}
 
 	ItemStack[] canAfford(Player p, Location shopLoc, ItemStack[] source) {
