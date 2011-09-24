@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package me.jascotty2.lib.util;
 
 import java.io.IOException;
@@ -92,7 +91,7 @@ public class Str extends OutputStream {
 	}
 
 	public static String concatStr(Collection<?> strSet, int start, String sep) {
-		if (strSet.isEmpty() || start >= strSet.size()) {
+		if (strSet == null || strSet.isEmpty() || start >= strSet.size()) {
 			return "";
 		}
 		StringBuilder ret = new StringBuilder();
@@ -112,7 +111,7 @@ public class Str extends OutputStream {
 	}
 
 	public static String concatStr(Collection<?> strSet, int start, String sep, int length) {
-		if (strSet.isEmpty() || start >= strSet.size() || length <= 0) {
+		if (strSet == null || strSet.isEmpty() || start >= strSet.size() || length <= 0) {
 			return "";
 		}
 		StringBuilder ret = new StringBuilder();
@@ -120,10 +119,62 @@ public class Str extends OutputStream {
 		//for(int i=0; i<strSet.size(); ++i){
 		for (Object o : strSet) {
 			if (++i > start) {
-				ret.append(o.toString());
+				ret.append(o == null ? "null" : o.toString());
 				if (++l > length) {
 					break;
 				} else if (i < strSet.size()) {
+					ret.append(sep);
+				}
+			}
+		}
+		return ret.toString();
+	}
+
+	public static String concatStr(Object[] strSet) {
+		return concatStr(strSet, 0, "");
+	}
+
+	public static String concatStr(Object[] strSet, String sep) {
+		return concatStr(strSet, 0, sep);
+	}
+
+	public static String concatStr(Object[] strSet, int start) {
+		return concatStr(strSet, start, "");
+	}
+
+	public static String concatStr(Object[] strSet, int start, String sep) {
+		if (strSet == null || start >= strSet.length) {
+			return "";
+		}
+		StringBuilder ret = new StringBuilder();
+		int i = 0;
+		//for(int i=0; i<strSet.size(); ++i){
+		for (Object o : strSet) {
+			if (++i > start) {
+				//ret.append(o.toString());
+				//ret.append(String.valueOf(o));
+				ret.append(o == null ? "null" : o.toString());
+				if (i < strSet.length) {
+					ret.append(sep);
+				}
+			}
+		}
+		return ret.toString();
+	}
+
+	public static String concatStr(Object[] strSet, int start, String sep, int length) {
+		if (strSet == null || start >= strSet.length || length <= 0) {
+			return "";
+		}
+		StringBuilder ret = new StringBuilder();
+		int i = 0, l = 0;
+		//for(int i=0; i<strSet.size(); ++i){
+		for (Object o : strSet) {
+			if (++i > start) {
+				ret.append(o == null ? "null" : o.toString());
+				if (++l > length) {
+					break;
+				} else if (i < strSet.length) {
 					ret.append(sep);
 				}
 			}

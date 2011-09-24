@@ -100,6 +100,9 @@ shop:
     chestText: "BetterShop Chest Shop <e>"
     # how the edit str is displayed
     chestEditText: "(Editing)"
+    # if an extra (empty) bar should be added to the bottom of a chest shop
+    #		this can make it possible to sell to a full chest
+    chestSellBar: false
 
     # command-based shop mode
     # modes: GLOBAL, REGIONS, BOTH, NONE (default: global)
@@ -367,7 +370,7 @@ strings:
     # when amount is specified
     # <amt> - how many items looked up
     multipricecheck: "Price check! <amt> &f[<item>&f]&2 Buy: &f<buyprice> &2Sell: &f<sellprice>"
-    # for signs
+    # for signs (note: <avail> doesn't work, and can't display buyprice/buycur in the sell string)
     multipricechecksell: "Price check! <amt> &f[<item>&f]&2 Sell: &f<sellcur>"
 
     multipricecheckbuy: "Price check! <amt> &f[<item>&f]&2 Buy: &f<buycur>"

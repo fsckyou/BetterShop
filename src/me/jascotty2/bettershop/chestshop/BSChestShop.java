@@ -57,6 +57,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import me.jascotty2.lib.bukkit.inventory.ItemStackManip;
+import me.jascotty2.lib.util.ArrayManip;
 import me.jascotty2.lib.util.Str;
 
 /**
@@ -65,7 +66,6 @@ import me.jascotty2.lib.util.Str;
 public class BSChestShop extends PlayerListener {
 
 	final static int chestStrLen = 16; // 1.8 won't allow many chars :(
-
 	final static long chestProtectDelay = 5000;
 	protected final BetterShop plugin;
 	final ChestDB chestsDB;
@@ -142,6 +142,7 @@ public class BSChestShop extends PlayerListener {
 		}
 		chestClose(p);
 		Location loc = open.getBlock().getLocation();
+		//System.out.println("opening chest at " + loc.getBlockX() + ", " + loc.getBlockZ());
 		Chest other = ChestManip.otherChest(open.getBlock());
 		ItemStack[] chestShopItems = open.getInventory().getContents();
 		IInventory chestShop;
@@ -149,14 +150,30 @@ public class BSChestShop extends PlayerListener {
 				replace("<e>", isEditing ? BetterShop.getConfig().chestEditText : ""), chestStrLen);
 		if (other != null) {
 			ItemStack[] chestShopItems2 = other.getInventory().getContents();
-			if (open == ChestManip.topChest(open)) {
-				chestShop = new InventoryLargeChest(chestTxt,
-						new InventorySmallChest("", isEditing ? chestShopItems : canAfford(p, loc, chestShopItems)),
-						new InventorySmallChest("", isEditing ? chestShopItems2 : canAfford(p, loc, chestShopItems2)));
+			if (isEditing) {
+				if (open == ChestManip.topChest(open)) {
+					chestShop = new InventoryLargeChest(chestTxt,
+							new InventorySmallChest("", chestShopItems),
+							new InventorySmallChest("", chestShopItems2));
+				} else {
+					chestShop = new InventoryLargeChest(chestTxt,
+							new InventorySmallChest("", chestShopItems2),
+							new InventorySmallChest("", chestShopItems));
+				}
 			} else {
+				ItemStack[] comb = open == ChestManip.topChest(open)
+						? ArrayManip.arrayConcat(chestShopItems, chestShopItems2)
+						: ArrayManip.arrayConcat(chestShopItems2, chestShopItems);
+				ItemStack[] afford = canAfford(p, loc, comb);
+				
+				if(BetterShop.getConfig().chestSellBar){
+					afford = ArrayManip.arrayConcat(afford, new ItemStack[9]);
+				}
+				
 				chestShop = new InventoryLargeChest(chestTxt,
-						new InventorySmallChest("", isEditing ? chestShopItems2 : canAfford(p, loc, chestShopItems2)),
-						new InventorySmallChest("", isEditing ? chestShopItems : canAfford(p, loc, chestShopItems)));
+						new InventorySmallChest("", ArrayManip.arraySub(afford, 0, chestShopItems.length)),
+						new InventorySmallChest("", ArrayManip.arraySub(afford, chestShopItems.length, afford.length)));
+			
 			}
 		} else {
 			chestShop = new InventorySmallChest(
@@ -199,12 +216,12 @@ public class BSChestShop extends PlayerListener {
 		}
 	}
 
-	public synchronized void closeAllChests(){
-		for(Player p  : openPlayers.keySet().toArray(new Player[0])){
+	public synchronized void closeAllChests() {
+		for (Player p : openPlayers.keySet().toArray(new Player[0])) {
 			chestClose(p);
 		}
 	}
-	
+
 	void chestClose(Player player) {
 		if (!openPlayers.containsKey(player)) {
 			return;
@@ -262,7 +279,7 @@ public class BSChestShop extends PlayerListener {
 						BSutils.sendMessage(player, BetterShop.getConfig().getString("donotwant").
 								replace("<item>", toSell.coloredName()));
 						continue;
-					}else if (toSell.IsTool()){
+					} else if (toSell.IsTool()) {
 						credit *= (1 - ((double) i.getDurability() / toSell.MaxDamage()));
 					}
 					// now check the remaining stock can sell back
@@ -326,7 +343,7 @@ public class BSChestShop extends PlayerListener {
 							if (amt > maxStack) {
 								amt = maxStack;
 							}
-							if(it.IsTool()){
+							if (it.IsTool()) {
 								inv[i] = new ItemStack(t.itemNum, t.amount, (short) t.damage);
 							} else {
 								inv[i] = new ItemStack(t.itemNum, t.amount, (byte) t.itemSub);
@@ -431,6 +448,7 @@ public class BSChestShop extends PlayerListener {
 		}
 		Block b = l.getBlock();
 		if (b.getState() instanceof Chest) {
+			//System.out.println("saving chest at " + l.getBlockX() + ", " + l.getBlockZ());
 			//Chest open = (Chest) b.getState();
 			ChestManip.setContents((Chest) b.getState(), edited);
 		}
@@ -451,11 +469,8 @@ public class BSChestShop extends PlayerListener {
 					int max = pricelist.getAmountCanBuy(p, it);
 					int maxSize = BetterShop.getConfig().usemaxstack ? it.getMaxStackSize() : 64;
 					if (max < 0) {
-						max = Integer.MAX_VALUE;
+						max = maxSize; // Integer.MAX_VALUE;
 					} else if (max > 0) {
-						if (max > maxSize) {
-							max = maxSize;
-						}
 						if (used.containsKey(it.IdDatStr())) {
 							int u = used.get(it.IdDatStr());
 							max -= u;
@@ -464,11 +479,14 @@ public class BSChestShop extends PlayerListener {
 							used.put(it.IdDatStr(), maxSize);
 						}
 					}
+					if (max > maxSize) {
+						max = maxSize;
+					}
 					if (max <= 0) {
 						copy[i] = null;
 					} else {
 						copy[i] = source[i].clone();
-						copy[i].setAmount(maxSize);
+						copy[i].setAmount(max);
 					}
 				}
 			}
@@ -513,7 +531,6 @@ public class BSChestShop extends PlayerListener {
 	public int numChests() {
 		return chestsDB.getSavedChests().size();
 	}
-
 	HashMap<Player, Integer> playerUpdate = new HashMap<Player, Integer>();
 
 	private void delayUpdate(Player p) {

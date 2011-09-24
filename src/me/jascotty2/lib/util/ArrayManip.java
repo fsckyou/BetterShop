@@ -114,27 +114,42 @@ public class ArrayManip {
 	}
 
 	@SuppressWarnings("unchecked")
-	public synchronized static <T> T[] arrayConcat(T arr1[], T arr2[]) {
-		if (arr1 == null || arr1.length == 0) {
-			return arr2 == null ? (T[]) new Object[0] : arr2;
-		} else if (arr2 == null || arr2.length == 0) {
-			return arr1 == null ? (T[]) new Object[0] : arr1;
+	public static <T> T[] arrayConcat(T arr1[], T arr2[]) {
+		if (arr1 == null && arr2 == null){
+			return null;
+		} else if(arr1 == null || arr1.length == 0){
+			return arr2;
+		} else if(arr2 == null || arr2.length == 0){
+			return arr1;
 		}
-//        T ret[] = (T[]) new Object[arr1.length + arr2.length];
-//        int i = 0;
-//        for (; i < arr1.length; ++i) {
-//            ret[i] = arr1[i];//Array.set(ret, i, arr1[i]);//
-//        }
-//        for (int n = 0; n < arr2.length; ++i, ++n) {
-//            //System.out.println("saving " + n + " (" + arr2[n] + ")");
-//            ret[i] = arr2[n];//Array.set(ret, i, arr2[n]);//
-//        }
+//		Object ret[] = new Object[arr1.length + arr2.length];
+//		System.arraycopy(arr1, 0, ret, 0, arr1.length);
+//		System.arraycopy(arr2, 0, ret, arr1.length, arr2.length);
+//		return (T[]) ret;
 		T[] ret = (T[]) Array.newInstance(arr1.getClass().getComponentType(), arr1.length + arr2.length);
 		System.arraycopy(arr1, 0, ret, 0, arr1.length);
-		System.arraycopy(arr2, 0, ret, arr1.length - 1, arr2.length);
+		System.arraycopy(arr2, 0, ret, arr1.length, arr2.length);
 		return ret;
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <T> T[] arraySub(T arr[], int startIndex, int endIndex) {
+		if(arr == null){
+			return null;
+		} else if(startIndex >= arr.length){
+			throw new IllegalArgumentException("startIndex is greater than the array");
+		} else if(endIndex > arr.length){
+			throw new IllegalArgumentException("endIndex is greater than the array");
+		} else if(startIndex < 0){
+			throw new IllegalArgumentException("startIndex cannot be negative");
+		} else if(endIndex < startIndex){
+			throw new IllegalArgumentException("startIndex is greater than the endIndex");
+		}
+		T[] ret = (T[]) Array.newInstance(arr.getClass().getComponentType(), endIndex - startIndex);
+		System.arraycopy(arr, startIndex, ret, 0, ret.length);
+		return ret;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public synchronized static <T> int indexOf(T array[], T search) {
 		if (array == null || array.length == 0) {

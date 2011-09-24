@@ -30,8 +30,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import me.jascotty2.lib.util.Str;
 
 /**
  * @author jacob
@@ -65,9 +67,9 @@ public class TransactionLog {
             //System.out.println("adding " + rec + "  (" + transactions.size());
             if (MySQLconnection != null) {
                 try {
-                    MySQLconnection.runUpdate("INSERT INTO " + transLogTablename
-                            + String.format(" VALUES(UNIX_TIMESTAMP(), '%s', %d, %d, '%s', %d, %d, %.2f);",
-                            rec.user, rec.itemNum, rec.itemSub, rec.name, rec.amount, rec.sold ? 1 : 0, rec.price));
+                    MySQLconnection.runUpdate("INSERT INTO `" + transLogTablename
+                            + String.format(Locale.US, "` VALUES(UNIX_TIMESTAMP(), '%s', %d, %d, '%s', %d, %d, %.2f);",
+                            Str.strTrim(rec.user, 50), rec.itemNum, rec.itemSub, Str.strTrim(rec.name, 25), rec.amount, rec.sold ? 1 : 0, rec.price));
                 } catch (SQLException e) {
                     throw new SQLException("Error inserting transaction data", e);
                 }
@@ -100,22 +102,22 @@ public class TransactionLog {
             if (MySQLconnection != null) {// && MySQLconnection.isConnected()
                 try {
                     if (MySQLconnection.getQuery(
-                            String.format("SELECT * FROM %s WHERE ID='%d' AND SUB='%d';",
+                            String.format("SELECT * FROM `%s` WHERE ID='%d' AND SUB='%d';",
                             recordTablename, rec.itemNum, rec.itemSub)).first()) {
                         // exists: update
                         if (rec.sold) {
                             MySQLconnection.runUpdate(
-                                    String.format("UPDATE %s SET SOLD = SOLD + %d, LAST=UNIX_TIMESTAMP() WHERE ID='%d' AND SUB='%d';",
+                                    String.format("UPDATE `%s` SET SOLD = SOLD + %d, LAST=UNIX_TIMESTAMP() WHERE ID='%d' AND SUB='%d';",
                                     recordTablename, rec.amount, rec.itemNum, rec.itemSub));
                         } else {
                             MySQLconnection.runUpdate(
-                                    String.format("UPDATE %s SET BOUGHT = BOUGHT + %d, LAST=UNIX_TIMESTAMP()  WHERE ID='%d' AND SUB='%d';",
+                                    String.format("UPDATE `%s` SET BOUGHT = BOUGHT + %d, LAST=UNIX_TIMESTAMP()  WHERE ID='%d' AND SUB='%d';",
                                     recordTablename, rec.amount, rec.itemNum, rec.itemSub));
                         }
                     } else {
                         MySQLconnection.runUpdate(
-                                String.format("INSERT INTO %s VALUES(%d, %d, '%s', %d, %d, UNIX_TIMESTAMP());",
-                                recordTablename, rec.itemNum, rec.itemSub, rec.name,
+                                String.format("INSERT INTO `%s` VALUES(%d, %d, '%s', %d, %d, UNIX_TIMESTAMP());",
+                                recordTablename, rec.itemNum, rec.itemSub, Str.strTrim(rec.name, 25),
                                 rec.sold ? rec.amount : 0, rec.sold ? 0 : rec.amount));
                     }
                 } catch (SQLException ex) {
@@ -148,8 +150,8 @@ public class TransactionLog {
         if (MySQLconnection != null) {
             try {
                 //BetterShopLogger.Log("DELETE FROM " + BetterShop.getConfig().sql_database + "." + BetterShop.getConfig().transLogTablename + " WHERE UNIX_TIMESTAMP() - DATE > " + BetterShop.getConfig().userTansactionLifespan + ";");
-                MySQLconnection.runUpdate("DELETE FROM " + transLogTablename
-                        + " WHERE UNIX_TIMESTAMP() - DATE > " + userTansactionLifespan + ";");
+                MySQLconnection.runUpdate("DELETE FROM `" + transLogTablename
+                        + "` WHERE UNIX_TIMESTAMP() - DATE > " + userTansactionLifespan + ";");
             } catch (SQLException e) {
                 throw new SQLException("Error while removing old records", e);
             }
@@ -194,7 +196,7 @@ public class TransactionLog {
                 if (MySQLconnection.isConnected()) {
                     try {
                         ResultSet table = MySQLconnection.getQuery(
-                                "SELECT * FROM " + transLogTablename + "  ORDER BY DATE ASC;");
+                                "SELECT * FROM `" + transLogTablename + "` ORDER BY DATE ASC;");
 
                         for (table.beforeFirst(); table.next();) {
                             transactions.add(new UserTransaction(table.getInt(1), table.getString(2),
@@ -291,8 +293,8 @@ public class TransactionLog {
             return false;
         }
         try {
-            MySQLconnection.runUpdate("CREATE TABLE " + transLogTablename
-                    + "(DATE  INTEGER UNSIGNED   NOT NULL," // DEFAULT UNIX_TIMESTAMP()
+            MySQLconnection.runUpdate("CREATE TABLE `" + transLogTablename
+                    + "`(DATE  INTEGER UNSIGNED   NOT NULL," // DEFAULT UNIX_TIMESTAMP()
                     + "USER  VARCHAR(50) NOT NULL,"
                     + "ID    INTEGER  NOT NULL,"
                     + "SUB   INTEGER  NOT NULL,"

@@ -81,12 +81,12 @@ public class ChestManip {
 		} else {
 			ItemStack iss[] = new ItemStack[27 * 2];
 			// return with the top portion first
-			if (topChest(chest) == otherChest) {
-				System.arraycopy(otherChest.getInventory().getContents(), 0, iss, 0, 27);
-				System.arraycopy(chest.getInventory().getContents(), 0, iss, 27, 27);
-			} else {
+			if (topChest(chest) == chest) {
 				System.arraycopy(chest.getInventory().getContents(), 0, iss, 0, 27);
 				System.arraycopy(otherChest.getInventory().getContents(), 0, iss, 27, 27);
+			} else {
+				System.arraycopy(otherChest.getInventory().getContents(), 0, iss, 0, 27);
+				System.arraycopy(chest.getInventory().getContents(), 0, iss, 27, 27);
 			}
 			return iss;
 		}
@@ -104,7 +104,11 @@ public class ChestManip {
 		return chestItems;
 	}
 
-	public synchronized static void setContents(Chest chest, ItemStack iss[]) {
+	public static void setContents(Chest chest, ItemStack iss[]) {
+		setContents(chest, iss, true);
+	}
+
+	public synchronized static void setContents(Chest chest, ItemStack iss[], boolean useOrder) {
 		if(chest == null) return;
 		if(iss.length == 27) {
 			chest.getInventory().setContents(iss);
@@ -117,33 +121,33 @@ public class ChestManip {
 			if (otherChest == null) {
 				chest.getInventory().setContents(iss1);
 			} else {
-				if (topChest(chest) == otherChest) {
-					otherChest.getInventory().setContents(iss1);
-					chest.getInventory().setContents(iss2);
-				} else {
+				if (!useOrder || topChest(chest) == chest) {
 					chest.getInventory().setContents(iss1);
 					otherChest.getInventory().setContents(iss2);
+				} else {
+					otherChest.getInventory().setContents(iss1);
+					chest.getInventory().setContents(iss2);
 				}
 			}
 		}
 	}
-
+	
 	public synchronized static void addContents(Chest chest, ItemStack is) {
 		Chest otherChest = otherChest(chest.getBlock());
 		if (otherChest == null) {
 			chest.getInventory().addItem(is);
 		} else {
-			if (topChest(chest) == otherChest) {
-				if (!ItemStackManip.is_full(otherChest.getInventory().getContents(), is)) {
-					otherChest.getInventory().addItem(is);
-				} else {
-					chest.getInventory().addItem(is);
-				}
-			} else { // if (!is_full(chest.getInventory().getContents(), is)) {
+			if (topChest(chest) == chest) {
 				if (!ItemStackManip.is_full(chest.getInventory().getContents(), is)) {
 					chest.getInventory().addItem(is);
 				} else {
 					otherChest.getInventory().addItem(is);
+				}
+			} else { // if (!is_full(chest.getInventory().getContents(), is)) {
+				if (!ItemStackManip.is_full(otherChest.getInventory().getContents(), is)) {
+					otherChest.getInventory().addItem(is);
+				} else {
+					chest.getInventory().addItem(is);
 				}
 			}
 		}
@@ -194,8 +198,8 @@ public class ChestManip {
 	public static Chest topChest(Chest c) {
 		if(c == null) return null;
 		Chest otherChest = otherChest(c.getBlock());
-		if (otherChest != null && otherChest.getX() < c.getX()
-				|| otherChest.getZ() < c.getZ()) {
+		if (otherChest != null && (otherChest.getX() < c.getX()
+				|| otherChest.getZ() < c.getZ())) {
 			return otherChest;
 		} else {
 			return c;

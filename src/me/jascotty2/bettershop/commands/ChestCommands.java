@@ -50,7 +50,6 @@ public class ChestCommands {
 			}
 			Player p = (Player) player;
 			Block b = p.getTargetBlock(null, 5);
-			System.out.println();
 			if (b.getType() == Material.CHEST) {
 				if (BetterShop.getChestShop().defineChestShop(b)) {
 					BSutils.sendMessage(p, "Chest is now a Shop");
@@ -73,7 +72,6 @@ public class ChestCommands {
 			}
 			Player p = (Player) player;
 			Block b = p.getTargetBlock(null, 5);
-			System.out.println();
 			if (b.getType() == Material.CHEST) {
 				if (BetterShop.getChestShop().hasChestShop(b)) {
 					BetterShop.getChestShop().openChest(p, (Chest) b.getState(), true);
@@ -96,7 +94,6 @@ public class ChestCommands {
 			}
 			Player p = (Player) player;
 			Block b = p.getTargetBlock(null, 5);
-			System.out.println();
 			if (b.getType() == Material.CHEST) {
 				if (BetterShop.getChestShop().removeChestShop(b)) {
 					BSutils.sendMessage(p, "Chest is no longer a Shop");

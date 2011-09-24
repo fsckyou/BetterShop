@@ -199,5 +199,39 @@ public class CheckInput {
 		// will throw it's own exception
 		return new BigInteger(str);
 	}
+
+	/**
+	 * attempts to extract a number from within a string <br/>
+	 * ex. "$5.03", "5.03 Dollars" <br/>
+	 * if there are multiple, will only return the first
+	 * @param input
+	 * @param onError
+	 * @return
+	 */
+	public static double ExtractDouble(String input, double onError) {
+		int numStart = -1, numEnd = input.length() - 1;
+		boolean dec = false;
+		for (int i = 0; i < input.length(); ++i) {
+			if ((Character.isDigit(input.charAt(i))
+					|| (input.charAt(i) == '.' && !dec && (dec = true)))) {
+				if (numStart < 0) {
+					numStart = i;
+				}
+			} else if (numStart >= 0) {
+				numEnd = i - 1;
+				break;
+			}
+		}
+		if (numStart > 0 && input.charAt(numStart - 1) == '.') {
+			--numStart;
+		}
+		if (numStart > 0 && input.charAt(numStart - 1) == '-') {
+			--numStart;
+		}
+		if (numStart >= 0) {
+			return GetDouble(input.substring(numStart, numEnd + 1), onError);
+		}
+		return onError;
+	}
 } // end class CheckInput
 

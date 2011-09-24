@@ -24,8 +24,6 @@ import me.jascotty2.bettershop.utils.BetterShopLogger;
 import me.jascotty2.lib.io.FileIO;
 import me.jascotty2.lib.io.CheckInput;
 import me.jascotty2.lib.bukkit.item.JItem;
-import me.jascotty2.lib.bukkit.item.JItemDB;
-import me.jascotty2.lib.bukkit.MinecraftChatStr;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -52,7 +50,7 @@ import org.bukkit.block.Sign;
 public class SignDB {
 
 	public final static long signDBsaveWait = 30000; // don't save immediately, wait (30s)
-	HashMap<Location, JItem> signs = new HashMap<Location, JItem>();
+	HashMap<Location, ShopSign> signs = new HashMap<Location, ShopSign>();
 	HashMap<Location, Sign> savedSigns = new HashMap<Location, Sign>();
 	HashMap<Location, BlockState> signBlocks = new HashMap<Location, BlockState>();
 	boolean changed = false;
@@ -70,64 +68,67 @@ public class SignDB {
 		if (BSConfig.signDBFile.exists()) {
 			try {
 				List<String[]> signdb = FileIO.loadCSVFile(BSConfig.signDBFile);
-				for (String[] s : signdb) {
-					if (s.length >= 5 && server.getWorld(s[0]) != null) {
-						signs.put(new Location(server.getWorld(s[0]),
-								CheckInput.GetDouble(s[1], 0),
-								CheckInput.GetDouble(s[2], 0),
-								CheckInput.GetDouble(s[3], 0)), JItemDB.findItem(s[4]));
-					}
-				}
-				// now scan & double-check these are all signs (and have correct color)
-				for (Location l : signs.keySet()){
-					if (!(l.getBlock().getState() instanceof Sign)) {
-						signs.remove(l);
-					} else {
-						try {
+				try {
+					for (String[] s : signdb) {
+						if (s.length >= 4 && server.getWorld(s[0]) != null) {
+							try {
+								Location l = new Location(server.getWorld(s[0]),
+										CheckInput.GetDouble(s[1], 0),
+										CheckInput.GetDouble(s[2], 0),
+										CheckInput.GetDouble(s[3], 0));
+								if (l.getBlock().getState() instanceof Sign
+										&& ChatColor.stripColor(((Sign) l.getBlock().getState()).getLine(0)).equalsIgnoreCase("[BetterShop]")) {
+									Sign checkSign = (Sign) l.getBlock().getState();
+									ShopSign signInfo = new ShopSign(checkSign);
+									signs.put(l, signInfo);
 
-							Sign checkSign = (Sign) l.getBlock().getState();
-							// save sign
-							savedSigns.put(l.clone(), checkSign);//plugin.getServer().getWorld(l.getWorld().getName()).getBlockAt(l));
-							// save block that anchors it
-							if (l.getBlock().getType() == Material.SIGN_POST) {
-								signBlocks.put(l.getBlock().getRelative(BlockFace.DOWN).getLocation(),
-										l.getBlock().getRelative(BlockFace.DOWN).getState());
-							} else {
-								Block a = getSignAnchor(l.getBlock());
-								if (a != null) {
-									signBlocks.put(a.getLocation(), a.getState());
-								}
-							}
+									// save sign
+									savedSigns.put(l.clone(), checkSign);
 
-							// check color
-							boolean up = false;
-							if (!checkSign.getLine(0).startsWith(BetterShop.getConfig().activeSignColor)) {
-								checkSign.setLine(0, BetterShop.getConfig().activeSignColor + MinecraftChatStr.uncoloredStr(checkSign.getLine(0)));
-								up = true;
-							}
-							if (BetterShop.getConfig().signItemColor) {
-								JItem i = signs.get(l);
-								if (i != null && i.color != null && !checkSign.getLine(2).startsWith(i.color)) {
-									if (BetterShop.getConfig().signItemColorBWswap && ChatColor.BLACK.toString().equals(i.color)) {
-										checkSign.setLine(2, ChatColor.WHITE + MinecraftChatStr.uncoloredStr(checkSign.getLine(2)));
-									} else if (BetterShop.getConfig().signItemColorBWswap && ChatColor.WHITE.toString().equals(i.color)) {
-										checkSign.setLine(2, ChatColor.BLACK + MinecraftChatStr.uncoloredStr(checkSign.getLine(2)));
+									// save block that anchors it
+									if (l.getBlock().getType() == Material.SIGN_POST) {
+										signBlocks.put(l.getBlock().getRelative(BlockFace.DOWN).getLocation(),
+												l.getBlock().getRelative(BlockFace.DOWN).getState());
 									} else {
-										checkSign.setLine(2, i.color + MinecraftChatStr.uncoloredStr(checkSign.getLine(2)));
+										Block a = getSignAnchor(l.getBlock());
+										if (a != null) {
+											signBlocks.put(a.getLocation(), a.getState());
+										}
 									}
-									up = true;
-								}
-							}
 
-							if (up) {
-								checkSign.update();
+									boolean up = false;
+									if (!checkSign.getLine(0).startsWith(BetterShop.getConfig().activeSignColor)) {
+										checkSign.setLine(0, BetterShop.getConfig().activeSignColor + ChatColor.stripColor(checkSign.getLine(0)));
+										up = true;
+									}
+									if (BetterShop.getConfig().signItemColor) {
+										JItem i = signInfo.getItem();
+										if (i != null && i.color != null && !checkSign.getLine(2).startsWith(i.color)) {
+											if (BetterShop.getConfig().signItemColorBWswap && ChatColor.BLACK.toString().equals(i.color)) {
+												checkSign.setLine(2, ChatColor.WHITE + ChatColor.stripColor(checkSign.getLine(2)));
+											} else if (BetterShop.getConfig().signItemColorBWswap && ChatColor.WHITE.toString().equals(i.color)) {
+												checkSign.setLine(2, ChatColor.BLACK + ChatColor.stripColor(checkSign.getLine(2)));
+											} else {
+												checkSign.setLine(2, i.color + ChatColor.stripColor(checkSign.getLine(2)));
+											}
+											up = true;
+										}
+									}
+
+									if (up) {
+										checkSign.update();
+									}
+								}
+							} catch (Exception e) {
+								BetterShopLogger.Severe("Invalid Sign while Loading: " + e.getMessage(), false);
 							}
-						} catch (Exception e) {
-							BetterShopLogger.Log(Level.SEVERE, "Unexpected Error while Loading Signs", e, false);
-							signs.remove(l);
 						}
 					}
+
+				} catch (Exception e) {
+					BetterShopLogger.Log(Level.SEVERE, "Unexpected Error while Loading Signs", e, false);
 				}
+
 				return true;
 			} catch (FileNotFoundException ex) {
 				BetterShopLogger.Log(Level.SEVERE, ex, false);
@@ -154,8 +155,7 @@ public class SignDB {
 			ArrayList<String> file = new ArrayList<String>();
 			for (Location l : signs.keySet().toArray(new Location[0])) {
 				file.add(l.getWorld().getName() + ","
-						+ l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() + ","
-						+ (signs.get(l) != null ? signs.get(l).IdDatStr() : " "));
+						+ l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ());
 			}
 			return FileIO.saveFile(BSConfig.signDBFile, file) && !(changed = false);
 		} catch (Exception e) {
@@ -164,9 +164,15 @@ public class SignDB {
 		return false;
 	}
 
-	public void setSign(Location l, JItem i) {
-		if (l != null) {
-			signs.put(l.clone(), i);
+	public void setSign(Location l) {
+		if (l != null && l.getBlock().getState() instanceof Sign) {
+			setSign(l, new ShopSign((Sign) l.getBlock().getState()));
+		}
+	}
+
+	public void setSign(Location l, ShopSign s) {
+		if (l != null && s != null && l.getBlock().getState() instanceof Sign) {
+			signs.put(l.clone(), s);
 			savedSigns.put(l.clone(), (Sign) l.getBlock().getState());
 			Block a = getSignAnchor(l.getBlock());
 			if (a != null) {
@@ -192,7 +198,7 @@ public class SignDB {
 		return signs.containsKey(l);
 	}
 
-	public JItem getSignItem(Location l) {
+	public ShopSign getSignShop(Location l) {
 		return signs.get(l);
 	}
 
@@ -223,11 +229,12 @@ public class SignDB {
 		delaySaver.start(signDBsaveWait);
 	}
 
-	public boolean saveDelayActive(){
+	public boolean saveDelayActive() {
 		return delaySaver != null;
 	}
-	
+
 	protected class SignSaver extends TimerTask {
+
 		public void start(long wait) {
 			(new Timer()).schedule(this, wait);
 		}
@@ -238,10 +245,8 @@ public class SignDB {
 		}
 	}
 
-
 //	final static BlockFace checkFaces[] = new BlockFace[]{BlockFace.SELF, BlockFace.UP,
 //		BlockFace.NORTH, BlockFace.SOUTH, BlockFace.WEST, BlockFace.EAST};
-
 	public static ArrayList<Block> getSigns(Block b) {
 		ArrayList<Block> list = new ArrayList<Block>();
 		if (b.getState() instanceof Sign) {
@@ -293,6 +298,5 @@ public class SignDB {
 	public boolean isChanged() {
 		return changed;
 	}
-	
 } // end class SignDB
 

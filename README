@@ -16,6 +16,9 @@ In-Game Commands:
 /shop region define		<name>			uses the player's WorldEdit selection to define a shop region
 /shop region remove		<name>			remove a region definition
 /shop region list		[page]			list current regions
+/shop chest define					set the chest in the crosshairs to a shop chest
+/shop chest edit					open the shop chest for editing
+/shop chest remove					remove the chest shop status
 /shophelp (shelp)		[command]		shows you all the commands you can use, or more help on [command]
 /shoplist (sl,slist)		[pagenum]		shows a listing of items for sale (if -1, all, or full given, will show full list. (for console use))
 /shopitems (sitems)					show full listing of items in shop, without prices
@@ -179,7 +182,6 @@ TODO (items are removed as they're added)
 
 calculated/derived item prices
 /shopvalue item[@amount] item  	to show the current trade value for two items
-discount system: users or groups can be charged less/more for an item or all items (sell prices also affected)
 dynamic market pricing, based off of logged market activity
 add option for amount in stock for surplus decreases how much item is worth to the shop
 add pages for /shopitems
@@ -193,13 +195,10 @@ craftables' stock is tied to source material stock (if using sell craftables)
 make LivingEntities follow the owner around?
 change buystock if itemStock is enabled so that if trying to buy multiple stacks (buystack item 20) and stock runs out to stop buying (stop showing "out of stock")
 individually-customizable restock stock values per-item
-chest shop interface ? 
 automatically add missing config nodes (preserving comments) when upgrading
 add a simple builtin economy system, if none found?
 user-owned shops (signs, linked to chests?) ?
-4th line for configurable prices or shop profit owner
 daily profit caps for selling to the shop
-allow selling using categories (& buying also?)
 multiple shop definitions for various regions?
 
 
@@ -218,7 +217,7 @@ items as currency (if no economy plugin)
 Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
-Version 2.0 - ?
+Version 2.0 - 9/24/11
 near-complete rewrite
 - more modular, should be easier to add new features
 added region-based shop support
@@ -251,9 +250,25 @@ chest shop interface added :D
 - multiple users can use the same chest shop
 - - each user gets a customized chest screen
 - - items in the display show either max stack, or max of that item the user can afford
+- setting for "chestSellBar", which allows selling to a chest which is full (without buying anything)
 tnt explosion cancelation settings for sign/chest shop added
 - should be more efficient than prior method
 commandlog format moved in config & added more formatting options
+updated Register methods (fixes iCo6 errors)
+added a rudimentary spell check routine
+- if an item name doesn't match at first, and there is 1 match for closeness, returns that item
+sign shop handling rewrote
+- should be more efficient 
+- can now define custom prices for transactions
+- - 4th line contains cost, doen't have to just be a number
+- - - "1.23", "$1.23", "1.23 Dollars", "$1.23 total" are all acceptable
+- - for a given amount, define the total cost
+- - if using "sellall" or "buyall", define unit cost
+categories have been implemented in buy & sell
+- can sell all items in a category, or buy an amount of each item in a category
+- ex. "/sellall food"
+sign & chest shops are protected from endermenv (if shop.(sign & chest)DestroyProtection = true)
+sql routines updated for foreign locales
 
 
 Version 1.6.7.1 - 9/4/11

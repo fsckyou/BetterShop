@@ -18,7 +18,6 @@
 package me.jascotty2.bettershop.commands;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -84,11 +83,14 @@ public class SellCommands {
 		usersellHistory.put(((Player) player).getDisplayName(), "shopsell " + Str.concatStr(s, " "));
 		// expected syntax: item [amount]
 
-		JItem toSell = JItemDB.findItem(s[0]);
+		JItem toSell = JItemDB.isCategory(s[0]) ? null : JItemDB.findItem(s[0]), sellCat[] = null;
 		if (toSell == null) {
-			BSutils.sendMessage(player, BetterShop.getConfig().getString("unkitem").
-					replace("<item>", s[0]));
-			return;
+			sellCat = JItemDB.getItemsByCategory(s[0]);
+			if (sellCat == null || sellCat.length == 0) {
+				BSutils.sendMessage(player, BetterShop.getConfig().getString("unkitem").
+						replace("<item>", s[0]));
+				return;
+			}
 		} else if (toSell.ID() == 0) {
 			BSutils.sendMessage(player, toSell.coloredName() + " Cannot be Sold");//, toSell.coloredName());
 			return;
@@ -98,18 +100,36 @@ public class SellCommands {
 		} else if (toSell.isEntity()) {
 			BSutils.sendMessage(player, "Entities cannot be sold");
 			return;
+		} else {
+			try {
+				if (!BetterShop.getShop((Player) player).pricelist.isForSale(toSell)) {
+					BSutils.sendMessage(player, BetterShop.getConfig().getString("donotwant").
+							replace("<item>", toSell.coloredName()));
+					return;
+				}
+			} catch (Exception e) {
+				throw new WrappedCommandException(e);
+			}
 		}
-		if (!CheckInput.IsInt(s[1])) {
-			BSutils.sendMessage(player, s[1] + " is definitely not a number.");
+
+		int amtSell = 1;
+		if (s.length > 1) {
+			if (!CheckInput.IsInt(s[1])) {
+				BSutils.sendMessage(player, s[1] + " is definitely not a number.");
+			}
+			amtSell = CheckInput.GetInt(s[1], 0);
 		}
-		int amtSell = CheckInput.GetInt(s[1], 0);
 
 		if (amtSell <= 0) {
 			BSutils.sendMessage(player, BetterShop.getConfig().getString("nicetry"));
 			return;
 		}
 		try {
-			sellItems((Player) player, false, toSell, amtSell);
+			if (toSell == null) {
+				sellItems((Player) player, false, sellCat, amtSell);
+			} else {
+				sellItems((Player) player, false, toSell, amtSell);
+			}
 		} catch (Exception ex) {
 			throw new WrappedCommandException(ex);
 		}
@@ -182,9 +202,10 @@ public class SellCommands {
 					onlyInv = true;
 					st = 1;
 				}
+				//ArrayList<JItem> sell = new ArrayList<JItem>();
 				toSell = new JItem[s.length - st];
 				for (int i = st; i < s.length; ++i) {
-					toSell[i - st] = JItemDB.findItem(s[i]);
+					toSell[i - st] = JItemDB.isCategory(s[i]) ? null : JItemDB.findItem(s[i]);
 					if (toSell[i - st] == null) {
 						JItem cts[] = JItemDB.getItemsByCategory(s[i]);
 						if (cts != null && cts.length > 0) {
@@ -205,6 +226,16 @@ public class SellCommands {
 					} else if (toSell[i - st].isEntity()) {
 						BSutils.sendMessage(player, "Entities cannot be sold");
 						toSell[i - st] = null;
+					} else {
+						try {
+							if (!BetterShop.getShop((Player) player).pricelist.isForSale(toSell[i - st])) {
+								BSutils.sendMessage(player, BetterShop.getConfig().getString("donotwant").
+										replace("<item>", toSell[i - st].coloredName()));
+								toSell[i - st] = null;
+							}
+						} catch (Exception e) {
+							throw new WrappedCommandException(e);
+						}
 					}
 				}
 			} // "[All Sellable]"
@@ -237,11 +268,11 @@ public class SellCommands {
 
 	public static List<ItemStack> getCanSell(Player player, boolean onlyInv, JItem[] toSell) throws SQLException, Exception {
 		List<ItemStack> items = ItemStackManip.itemStackSummary(
-				player.getInventory().getContents(), onlyInv ? 9 : 0);
+				player.getInventory().getContents(), toSell, onlyInv ? 9 : 0);
 		Shop shop = BetterShop.getShop(player);
 
-		ArrayList<String> notwant = new ArrayList<String>();
-		if (toSell.length == 0) {
+//		ArrayList<String> notwant = new ArrayList<String>();
+		if (toSell == null || toSell.length == 0 || (toSell.length == 1 && toSell[0] == null)) {
 			// null is a wildcard for all
 			toSell = null;
 		} else if (toSell != null) {
@@ -250,7 +281,7 @@ public class SellCommands {
 				if (toSell[i] != null
 						&& (!shop.pricelist.isForSale(toSell[i])
 						|| (toSell[i].IsTool() && !BetterShop.getConfig().buybacktools))) {
-					notwant.add(toSell[i].coloredName());
+//					notwant.add(toSell[i].coloredName());
 					toSell[i] = null;
 				}
 			}
@@ -303,47 +334,85 @@ public class SellCommands {
 
 		if (items.isEmpty() && !overstock) {
 			BSutils.sendMessage(player, "You Don't have any "
-					+ (toSell == null ? "Sellable Items" :
-						(toSell.length == 1 ? toSell[0].coloredName() : "of those items")));
+					+ (toSell == null ? "Sellable Items"
+					: (toSell.length == 1 ? toSell[0].coloredName() : /*Str.concatStr(toSell, ",")*/ "of those items")));
 		}
-		if (notwant.size() > 0) {
-			BSutils.sendMessage(player, BetterShop.getConfig().getString("donotwant").
-					replace("<item>", notwant.size() > 1
-					? "(" + Str.concatStr(notwant.toArray(new String[0]), ", ") + ")"
-					: notwant.get(0)));
-		}
+//		if (notwant.size() > 0) {
+//			BSutils.sendMessage(player, BetterShop.getConfig().getString("donotwant").
+//					replace("<item>", notwant.size() > 1
+//					? "(" + Str.concatStr(notwant.toArray(new String[0]), ", ") + ")"
+//					: notwant.get(0)));
+//		}
 		return items;
 	}
 
 	public static double sellItems(Player player, boolean onlyInv, JItem item, int amt) throws SQLException, Exception {
-		List<ItemStack> sellable = getCanSell((Player) player, onlyInv, new JItem[]{item});
+		return sellItems(player, onlyInv, new JItem[]{item}, amt, -1);
+	}
+
+	public static double sellItems(Player player, boolean onlyInv, JItem item, int amt, double customPrice) throws SQLException, Exception {
+		return sellItems(player, onlyInv, new JItem[]{item}, amt, customPrice);
+	}
+
+	public static double sellItems(Player player, boolean onlyInv, JItem[] items, int amt) throws SQLException, Exception {
+		return sellItems(player, onlyInv, items, amt, -1);
+	}
+
+	public static double sellItems(Player player, boolean onlyInv, JItem[] items, int amt, double customPrice) throws SQLException, Exception {
+		List<ItemStack> sellable = getCanSell((Player) player, onlyInv, items);
 		// should be at least one item
 		if (!sellable.isEmpty()) {
 			if (amt > 0) {
-				int amtHas = 0;
-				for (ItemStack i : sellable) {
-					amtHas += i.getAmount();
-					if (i.getAmount() > amt) {
-						i.setAmount(amt);
-						amt = 0;
-					} else {
-						amt -= i.getAmount();
+				int amtLeft[] = new int[items.length],
+						totalLeft = 0;
+				for (int i = 0; i < items.length; ++i) {
+					amtLeft[i] = amt;
+				}
+				int amtHas = 0, i = 0;
+				String itemN = "";
+				for (JItem it : items) {
+					if (it != null) {
+						itemN += it.coloredName() + ", ";
+						for (ItemStack is : sellable) {
+							if (it.equals(is)) {
+								totalLeft += amt;
+								amtHas += is.getAmount();
+								if (is.getAmount() > amtLeft[i]) {
+									is.setAmount(amtLeft[i]);
+									amtLeft[i] = 0;
+									break;
+								} else {
+									amtLeft[i] -= is.getAmount();
+								}
+							}
+						}
+					}
+					++i;
+				}
+				if (itemN.length() > 0) {
+					itemN = itemN.substring(0, itemN.length() - 2);
+					if (itemN.contains(",")) {
+						itemN = "(" + itemN + ")";
 					}
 				}
-				if (amt > 0) {
+				if (totalLeft - amtHas > 0) { // not enough to sell
 					BSutils.sendMessage(player,
 							BetterShop.getConfig().getString("donthave").
 							replace("<hasamt>", String.valueOf(amtHas)).
-							replace("<amt>", String.valueOf(amt + amtHas)).
-							replace("<item>", item.coloredName()));
+							replace("<amt>", String.valueOf(totalLeft)).
+							replace("<item>", itemN));
 				}
 			}
-			return sellItems(player, onlyInv, sellable);
+			return sellItems(player, onlyInv, sellable, customPrice);
 		}
 		return 0;
 	}
 
 	public static double sellItems(Player player, boolean onlyInv, List<ItemStack> sellable) throws SQLException, Exception {
+		return sellItems(player, onlyInv, sellable, -1);
+	}
+
+	public static double sellItems(Player player, boolean onlyInv, List<ItemStack> sellable, double customPrice) throws SQLException, Exception {
 
 		if (sellable == null) {
 			sellable = getCanSell((Player) player, onlyInv, null);
@@ -384,9 +453,9 @@ public class SellCommands {
 						inv[i] = null;
 					}
 
-					price += selling.IsTool() ? (shop.pricelist.itemSellPrice(player, selling, amt)
+					price += selling.IsTool() ? ((customPrice >= 0 ? customPrice * amt : shop.pricelist.itemSellPrice(player, selling, amt))
 							* (1 - ((double) inv[i].getDurability() / selling.MaxDamage())))
-							: shop.pricelist.itemSellPrice(player, selling, amt);
+							: (customPrice >= 0 ? customPrice * amt : shop.pricelist.itemSellPrice(player, selling, amt));
 
 					amtSold += amt;
 					amtLeft -= amt;

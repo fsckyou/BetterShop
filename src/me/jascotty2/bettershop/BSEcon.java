@@ -18,8 +18,8 @@
 
 package me.jascotty2.bettershop;
 
-import com.nijikokun.register_21_2.payment.Method;
-import com.nijikokun.register_21_2.payment.Methods;
+import com.nijikokun.register_1_3.payment.Method;
+import com.nijikokun.register_1_3.payment.Methods;
 import java.util.Map.Entry;
 import me.jascotty2.bettershop.utils.BSPermissions;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
@@ -54,6 +54,7 @@ public class BSEcon extends ServerListener {
 		if (_econMethods != null && Methods.hasMethod() && Methods.checkDisabled(event.getPlugin())) {
 			economyMethod = null;
 			methodName = null;
+			Methods.reset();
 			BetterShopLogger.Log(" Economy Plugin was disabled.");
 		}
 	}
@@ -61,7 +62,7 @@ public class BSEcon extends ServerListener {
 	@Override
 	public void onPluginEnable(PluginEnableEvent event) {
 		if (!Methods.hasMethod()) {
-			if (Methods.setMethod(pm)){
+			if (Methods.setMethod(pm) && Methods.hasMethod()){
 				economyMethod = Methods.getMethod();
 				methodName = economyMethod.getName() + " v" + economyMethod.getVersion();
 				BetterShopLogger.Log("Using " + methodName + " for economy");
@@ -147,7 +148,7 @@ public class BSEcon extends ServerListener {
 
 	public static boolean credit(Player player, double amount) {
 		if (amount <= 0) {
-			return amount == 0 || debit(player, amount);
+			return amount == 0 || debit(player, -amount);
 		}
 		if (BSEcon.active()) {
 			try {
@@ -179,7 +180,7 @@ public class BSEcon extends ServerListener {
 
 	public static boolean debit(Player player, double amount) {
 		if (amount <= 0) {
-			return amount == 0 || credit(player, amount);
+			return amount == 0 || credit(player, -amount);
 		} else if(getBalance(player) < amount){
 			return false;
 		}

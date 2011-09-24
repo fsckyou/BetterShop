@@ -33,6 +33,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import me.jascotty2.lib.mysql.MySQL;
@@ -196,6 +197,9 @@ public class PriceList {
 							String fields[] = line.replace(";", ",").replace(",,", ", ,").split(",");
 
 							if (fields.length > 4) {
+								if(n == 0 && fields[0].equals("id")){
+									continue;
+								}
 								JItem plItem = JItemDB.findItem(fields[0] + ":" + (fields[1].equals(" ") ? "0" : fields[1]));
 								if (plItem != null) {
 									//priceList.add(new PriceListItem(plItem, fields[2].length() == 0 ? -1 : CheckInput.GetDouble(fields[2], -1), fields[3].length() == 0 ? -1 : CheckInput.GetDouble(fields[3], -1)));
@@ -315,7 +319,8 @@ public class PriceList {
 					out.newLine();
 					for (PriceListItem i : priceList) {
 						// names provided for others to easily edit db
-						out.write(i.ID() + "," + i.Data() + "," + i.buy + "," + i.sell + "," + i.Name());
+						//out.write(i.ID() + "," + i.Data() + "," + i.buy + "," + i.sell + "," + i.Name());
+						out.write(String.format(Locale.US, "%d,%d,%.2f,%.2f,%s", i.ID(), i.Data(), i.buy, i.sell, i.Name()));
 						out.newLine();
 					}
 					out.flush();
@@ -438,6 +443,42 @@ public class PriceList {
 		}
 		//if itemExists, tempCache will contain the item
 		return itemExists(i) && tempCache.sell >= 0;//getSellPrice(i) >= 0;
+	}
+
+	public boolean canBuy(String s) throws SQLException, Exception{
+		if (tempCache != null && tempCache.Name().equals(s)) {
+			// has been retrieved recently
+			return tempCache.buy >= 0;
+		}
+		//if itemExists, tempCache will contain the item
+		return itemExists(s) && tempCache.buy >= 0;
+	}
+	
+	public boolean canBuy(JItem i) throws SQLException, Exception {
+		if (tempCache != null && tempCache.equals(i)) {
+			// has been retrieved recently
+			return tempCache.buy >= 0;
+		}
+		//if itemExists, tempCache will contain the item
+		return itemExists(i) && tempCache.buy >= 0;
+	}
+
+	public boolean canBuy(ItemStack i) throws SQLException, Exception {
+		if (tempCache != null && tempCache.equals(i)) {
+			// has been retrieved recently
+			return tempCache.buy >= 0;
+		}
+		//if itemExists, tempCache will contain the item
+		return itemExists(i) && tempCache.buy >= 0;
+	}
+
+	public boolean canBuy(ItemStockEntry i) throws SQLException, Exception {
+		if (tempCache != null && tempCache.ID() == i.itemNum && tempCache.Data() == i.itemSub) {
+			// has been retrieved recently
+			return tempCache.buy >= 0;
+		}
+		//if itemExists, tempCache will contain the item
+		return itemExists(i) && tempCache.buy >= 0;
 	}
 
 	public double getSellPrice(ItemStack i) throws SQLException, Exception {

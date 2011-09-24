@@ -35,7 +35,7 @@ public class BetterShopErrorTracker {
 	static final long minSendWait = 3600; // min time before a send expires (seconds)
 	static final FTPErrorReporter errorReporter = new FTPErrorReporter(
 			"bettershopftp", // username
-			"5Vm-9hr_y4@8u5", // password
+			"5Vm-9hr_y4e@8u5", // password
 			"nas.boldlygoingnowhere.org", // hostname
 			2500); // maxfilesize
 

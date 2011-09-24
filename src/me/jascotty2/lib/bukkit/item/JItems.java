@@ -180,7 +180,7 @@ public enum JItems {
 	IRON_PICKAXE("Iron Pickaxe", 257, "280@2+265@3", (short) 251),
 	IRON_AXE("Iron Axe", 258, "280@2+265@3", (short) 251),
 	FLINT_AND_STEEL("Flint And Steel", 259, "318+265", (short) 65),
-	APPLE("Apple", 260, 1),
+	APPLE("Apple", 260),
 	BOW("Bow", 261, "280@3+287@3", 1),
 	ARROW("Arrow", 262, "280+318+288"),
 	COAL("Coal", 263),

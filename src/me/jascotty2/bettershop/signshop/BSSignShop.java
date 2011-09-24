@@ -15,16 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package me.jascotty2.bettershop.signshop;
 
-import me.jascotty2.lib.util.Str;
-import me.jascotty2.lib.io.CheckInput;
 import me.jascotty2.lib.bukkit.item.JItem;
 import me.jascotty2.lib.bukkit.item.JItemDB;
 import me.jascotty2.lib.bukkit.item.ItemStockEntry;
-import me.jascotty2.lib.bukkit.item.PriceListItem;
-import me.jascotty2.lib.bukkit.MinecraftChatStr;
 import me.jascotty2.bettershop.utils.BSPermissions;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 import me.jascotty2.bettershop.enums.BetterShopPermission;
@@ -35,7 +30,6 @@ import me.jascotty2.bettershop.BetterShop;
 import me.jascotty2.bettershop.commands.BuyCommands;
 import me.jascotty2.bettershop.commands.SellCommands;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -72,325 +66,232 @@ public class BSSignShop extends PlayerListener {
 
 	} // end default constructor
 
-	public void registerEvents(){
+	public void registerEvents() {
 		Plugin bs = BetterShop.getPlugin();
 		PluginManager pm = bs.getServer().getPluginManager();
-		
+
 		// for sign events
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, this, Event.Priority.Normal, bs);
 		pm.registerEvent(Event.Type.BLOCK_BREAK, checkSigns, Event.Priority.Normal, bs);
 		pm.registerEvent(Event.Type.BLOCK_PLACE, checkSigns, Event.Priority.Normal, bs);
-		
-		pm.registerEvent(Event.Type.ENTITY_EXPLODE, checkSigns.tntBlock, Event.Priority.Low, bs);
+
+		pm.registerEvent(Event.Type.ENTITY_EXPLODE, checkSigns.blockBreakBlock, Event.Priority.Low, bs);
+		pm.registerEvent(Event.Type.ENDERMAN_PICKUP, checkSigns.blockBreakBlock, Event.Priority.Low, bs);
 	}
-	
+
 	@Override
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.isCancelled() || !BetterShop.getConfig().signShopEnabled) {
 			return;
 		}
-		//if(event.getAction() == Action.RIGHT_CLICK_BLOCK) event.getPlayer().getWorld().strikeLightning(event.getClickedBlock().getLocation());
+
 		if (event.getClickedBlock() != null
 				&& (event.getClickedBlock().getType() == Material.WALL_SIGN
 				|| event.getClickedBlock().getType() == Material.SIGN_POST)) {
 			Sign clickedSign = (Sign) event.getClickedBlock().getState();
-			if (MinecraftChatStr.uncoloredStr(clickedSign.getLine(0)).equalsIgnoreCase("[BetterShop]")) {
+			Player player = event.getPlayer();
+			if (ChatColor.stripColor(clickedSign.getLine(0)).equalsIgnoreCase(ShopSign.SIGN_TEXT)) {
 				BetterShop.setLastCommand("Sign: [" + clickedSign.getLine(1) + "][" + clickedSign.getLine(2) + "][" + clickedSign.getLine(3) + "]");
 				try {
-					Long lt = playerInteractTime.get(event.getPlayer());
+					event.setCancelled(event.getAction() == Action.RIGHT_CLICK_BLOCK);
+					// sign click flood protect
+					Long lt = playerInteractTime.get(player);
 					if (lt != null && System.currentTimeMillis() - lt < BSConfig.signInteractWait) {
-						event.setCancelled(event.getAction() == Action.RIGHT_CLICK_BLOCK);
 						return;
 					}
-					playerInteractTime.put(event.getPlayer(), System.currentTimeMillis());
-					boolean canEdit = BSPermissions.hasPermission(event.getPlayer(),
-							BetterShopPermission.ADMIN_MAKESIGN);
+					playerInteractTime.put(player, System.currentTimeMillis());
+					// general sign info
 					Shop shop = BetterShop.getShop(event.getClickedBlock().getLocation());
-					String action = MinecraftChatStr.uncoloredStr(clickedSign.getLine(1)).trim().replace("  ", " ");
-					if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-						//event.setCancelled(!canEdit);
-						// if sign is registered, update prices
-						if (signsd.signExists(event.getClickedBlock().getLocation())) {
-							try {
-								JItem i = signsd.getSignItem(event.getClickedBlock().getLocation());
-								boolean isInv = false;
-								if (i == null) {
-									String in = ((Sign) event.getClickedBlock().getState()).getLine(2).toLowerCase().replaceAll(" ", "");
-									isInv = in.equals("inv");
-									if (!isInv && in.length() > 0) {
-										if (in.equals("hand")
-												|| in.equals("inhand")) {
-											if (event.getPlayer().getItemInHand() == null
-													|| event.getPlayer().getItemInHand().getAmount() == 0) {
+					ShopSign signInfo = signsd.getSignShop(event.getClickedBlock().getLocation());
+					boolean run = event.getAction() == Action.RIGHT_CLICK_BLOCK;
+					if (signInfo != null) {
+						// pricecheck
+						String itemN = signInfo.getItem() != null ? signInfo.getItem().coloredName() : "";
+						try {
+							int numCheck = 0;
+							double total = 0;
+							if (signInfo.isBuy) {
+								if (signInfo.item != null) {
+									if (run) {
+//										if (signInfo.amount > 0) {// not all
+											BuyCommands.buyItem(player, signInfo.item, signInfo.amount, signInfo.getCustomPrice());
+//										} else {
+//											BuyCommands.buyAllItem(player, signInfo.item, signInfo.getCustomPrice());
+//										}
+										player.updateInventory(); // may be depricated, but only thing i can get to work :(
+										return;
+									}
+									if (signInfo.getCustomPrice() >= 0) {
+										int canHold = BSutils.amtCanHold(player, signInfo.item);
+										int canAfford = 0;
+										double bal = BSEcon.getBalance(player);
+										long stock = -1;
+										try {
+											stock = shop.stock.getItemAmount(signInfo.item);
+										} catch (Exception ex) {
+											BetterShopLogger.Severe("Error in Stock Database", ex, false);
+										}
+
+										long amt = signInfo.getCustomPrice() == 0 ? Long.MAX_VALUE
+												: (long) (bal / signInfo.getCustomPrice());
+										if (amt > stock) {
+											amt = stock;
+										}
+										if (amt > Integer.MAX_VALUE) {
+											canAfford = Integer.MAX_VALUE;
+										} else {
+											canAfford = (int) amt;
+										}
+										numCheck = canAfford > canHold ? canHold : canAfford;
+									} else {
+										numCheck = shop.pricelist.getAmountCanBuy(player, signInfo.item);
+									}
+									if (signInfo.amount > 0) { // not all
+										if (numCheck > signInfo.amount) {
+											numCheck = signInfo.amount;
+										}
+									}
+									if (numCheck == 0 && shop.config.useStock() && shop.stock.getItemAmount(signInfo.item) == 0) {
+										BSutils.sendMessage(player, BetterShop.getConfig().getString("outofstock").
+												replace("<item>", signInfo.item.coloredName()));
+										return;
+									}
+									total = signInfo.getCustomPrice() >= 0 ? signInfo.getCustomPrice() * numCheck
+											: shop.pricelist.itemBuyPrice(player, signInfo.item, numCheck);
+								} else {
+									// category
+									List<ItemStockEntry> buy = BuyCommands.getCanBuy(player, signInfo.catItems, signInfo.getCustomPrice());
+									JItem[] toBuy = new JItem[buy.size()];
+									int n = 0;
+									for (ItemStockEntry it : buy) {
+										if (signInfo.amount > 0) { // not all
+											if (it.amount > signInfo.amount) {
+												it.amount = signInfo.amount;
+											}
+										}
+										JItem j = JItemDB.GetItem(it.itemNum, (byte) it.itemSub);
+										toBuy[n++] = j;
+										itemN += j.coloredName() + ", ";
+										if (run) {
+											//BuyCommands.buyItem(player, JItemDB.GetItem(it.itemNum, (byte) it.itemSub), (int) it.amount, signInfo.getCustomPrice());
+										} else {
+											numCheck += it.amount;
+											total += signInfo.getCustomPrice() >=0 ? signInfo.getCustomPrice() * it.amount :
+												shop.pricelist.itemBuyPrice(player, it.itemNum, (byte) it.itemSub, (int) it.amount);
+										}
+									}
+									if (run) {
+										BuyCommands.buyItem(player, toBuy, signInfo.amount, signInfo.getCustomPrice());
+										player.updateInventory(); // may be depricated, but only thing i can get to work :(
+										return;
+									}
+									if (itemN.length() > 0) {
+										itemN = itemN.substring(0, itemN.length() - 2);
+										if (itemN.contains(",")) {
+											itemN = "(" + itemN + ")";
+										}
+									}
+								}
+							} else {
+								// selling
+								if (signInfo.item != null) {
+									numCheck = ItemStackManip.count(event.getPlayer().getInventory().getContents(), signInfo.item);
+									if (signInfo.amount > 0 && numCheck > signInfo.amount) {
+										numCheck = signInfo.amount;
+									}
+									if (run) {
+										SellCommands.sellItems(player, signInfo.isInv, signInfo.item, numCheck, signInfo.getCustomPrice());
+										player.updateInventory(); // may be depricated, but only thing i can get to work :(
+										return;
+									}
+									total = signInfo.getCustomPrice() >=0 ? signInfo.getCustomPrice() * numCheck :
+										shop.pricelist.itemSellPrice(player, signInfo.item, numCheck);
+								} else {
+									if(run){
+										if (signInfo.catItems != null) {
+											SellCommands.sellItems(player, signInfo.isInv, 
+													signInfo.catItems, -1, signInfo.getCustomPrice());
+										} else if (signInfo.inHand) {
+											ItemStack hand = player.getItemInHand();
+											if (hand == null || hand.getAmount() == 0) {
 												BSutils.sendMessage(event.getPlayer(), "you don't have anything in your hand");
 												return;
 											}
-											i = JItemDB.findItem(event.getPlayer().getItemInHand());
+											SellCommands.sellItems(player, signInfo.isInv, 
+													JItemDB.GetItem(hand), -1, signInfo.getCustomPrice());
+										} else {
+											SellCommands.sellItems(player, signInfo.isInv, 
+													null, signInfo.getCustomPrice());
 										}
-									}
-								}
-								String amt = action.contains(" ") ? action.substring(action.lastIndexOf(' ')).trim() : "1";
-								if (action.endsWith("all")) {
-									amt = "all";
-								}
-								if (!(amt.equalsIgnoreCase("all") || CheckInput.IsInt(amt))) {
-									BSutils.sendMessage(event.getPlayer(), "invalid amount");
-									return;
-								}
-								boolean canBuyIllegal = BetterShop.getConfig().allowbuyillegal || BSPermissions.hasPermission(event.getPlayer(), BetterShopPermission.ADMIN_ILLEGAL, false);
-								boolean isBuy = action.toLowerCase().startsWith("buy");
-
-								PriceListItem price = null;
-								String pname = "";
-								if (i != null) {
-									price = shop.pricelist.getItemPrice(i);
-									if (price == null) {
-										BSutils.sendMessage(event.getPlayer(), i.Name() + " cannot be bought or sold");
+										player.updateInventory(); // may be depricated, but only thing i can get to work :(
 										return;
-									}
-									pname = i.coloredName();
-								} else {
-									price = new PriceListItem();
-									price.buy = price.sell = 0;
-									pname = "(";
-								}
-
-								int numCheck = 1;
-								if (amt.equalsIgnoreCase("all")) {
-									if (isBuy) {
-										// numCheck = ChestManip.canHold(event.getPlayer().getInventory().getContents(),
-										//         i, BetterShop.getConfig().usemaxstack);
-										//ArrayList<ItemStockEntry> sold = new ArrayList<ItemStockEntry>();
-										ArrayList<ItemStockEntry> inv = BSutils.getTotalInventory(event.getPlayer(), false);
-										int ipos = inv.indexOf(new ItemStockEntry(i));
-										if (ipos >= 0) {
-											numCheck += (int) inv.get(ipos).amount;
-										} else {
-											numCheck = 0;
-										}
-										price.buy *= numCheck;
-										price.sell *= numCheck;
 									} else {
-										if (i != null) {
-											numCheck = ItemStackManip.count(event.getPlayer().getInventory().getContents(), i);
+										List<ItemStack> sellable;
+										if (signInfo.catItems != null) {
+											sellable = SellCommands.getCanSell(player, signInfo.isInv, signInfo.catItems);
+										} else if (signInfo.inHand) {
+											ItemStack hand = player.getItemInHand();
+											if (hand == null || hand.getAmount() == 0) {
+												BSutils.sendMessage(event.getPlayer(), "you don't have anything in your hand");
+												return;
+											}
+											sellable = SellCommands.getCanSell(player, signInfo.isInv, new JItem[]{JItemDB.GetItem(hand)});
 										} else {
-											List<ItemStack> sellable = SellCommands.getCanSell(event.getPlayer(), false, null);
-											int tt = 0;
-											for (ItemStack ite : sellable) {
-												JItem it = JItemDB.findItem(ite);
-												PriceListItem tprice = shop.pricelist.getItemPrice(it);
-												if (tprice != null) { // double-check..
-													tt += ite.getAmount();
-													price.buy += tprice.buy > 0 ? tprice.buy * ite.getAmount() : 0;
-													price.sell += tprice.sell > 0 ? tprice.sell * ite.getAmount() : 0;
-													if (pname.length() > 1) {
-														pname += ", " + it.coloredName();
-													} else {
-														pname += it.coloredName();
-													}
+											sellable = SellCommands.getCanSell(player, signInfo.isInv, null);
+										}
+										for (ItemStack ite : sellable) {
+											if (signInfo.amount > 0) { // not all
+												if (ite.getAmount() > signInfo.amount) {
+													ite.setAmount(signInfo.amount);
 												}
 											}
-											pname += ")";
-											numCheck = tt;
+											numCheck += ite.getAmount();
+											JItem it = JItemDB.GetItem(ite);
+											itemN += it.coloredName() + ", ";
+											total += signInfo.getCustomPrice() >= 0 ? signInfo.getCustomPrice() * ite.getAmount() :
+												shop.pricelist.itemSellPrice(player, it.ID(), it.Data(), ite.getAmount());
 										}
 									}
-								} else {
-									numCheck = CheckInput.GetInt(amt, 1);
-								}
-
-								BSutils.sendMessage(event.getPlayer(), String.format(
-										BetterShop.getConfig().getString(isBuy ? "multipricecheckbuy" : "multipricechecksell"). //numCheck == 1 ? "pricecheck" : "multipricecheck"
-										replace("<buyprice>", "%1$s").
-										replace("<sellprice>", "%2$s").
-										replace("<item>", "%3$s").
-										replace("<curr>", "%4$s").
-										replace("<buycur>", "%5$s").
-										replace("<sellcur>", "%6$s").
-										replace("<avail>", "%7$s").
-										replace("<amt>", "%8$s"),
-										(price.IsLegal() || canBuyIllegal) && price.buy >= 0 ? price.buy : "No",
-										price.sell >= 0 ? price.sell : "No",
-										pname,
-										BetterShop.getConfig().currency(),
-										(price.IsLegal() || canBuyIllegal) && price.buy >= 0
-										? BSEcon.format(price.buy) : "No",
-										price.sell >= 0 ? BSEcon.format(price.sell) : "No",
-										!shop.config.useStock() || shop.stock.getItemAmount(i) < 0 ? "INF" : shop.stock.getItemAmount(i),
-										numCheck));
-
-							} catch (Exception ex) {
-								BetterShopLogger.Log(Level.SEVERE, ex);
-								BSutils.sendMessage(event.getPlayer(), "Failed to lookup the price");
-							}
-						} else if (canEdit) {// else, (if has permission) add sign
-							if (Str.count(action, " ") > 1
-									|| (action.contains(" ") && !Str.startIsIn(action, new String[]{
-										"buy ", "buyall ", "buystack ",
-										"sell ", "sellall ", "sellstack "}))
-									|| (!action.contains(" ") && !Str.startIsIn(action, new String[]{
-										"buy", "buyall", "buystack",
-										"sell", "sellall", "sellstack"}))) {
-								BSutils.sendMessage(event.getPlayer(), "invalid action");
-								return;
-							}
-							String amt = action.contains(" ") ? action.substring(action.lastIndexOf(' ')).trim() : "1";
-							if (action.endsWith("all")) {
-								amt = "all";
-							}
-							if (!(amt.equalsIgnoreCase("all") || CheckInput.GetInt(amt, -1) > 0)) {
-								BSutils.sendMessage(event.getPlayer(), "invalid amount");
-								return;
-							}
-							String in = MinecraftChatStr.uncoloredStr(clickedSign.getLine(2)).replace(" ", "").toLowerCase();
-							JItem toAdd[] = new JItem[]{JItemDB.findItem(in)};
-							if (toAdd != null && toAdd[0] == null && clickedSign.getLine(2).length() > 0) {
-								if (!(in.equals("inv")
-										|| in.equals("hand")
-										|| in.equals("inhand"))) {
-									toAdd = JItemDB.findItems(clickedSign.getLine(2));
-								} else {
-									toAdd = new JItem[1];
 								}
 							}
-							if (toAdd == null) {
-								BSutils.sendMessage(event.getPlayer(), "error");
-								return;
-							} else if (toAdd.length == 0 || (toAdd[0] == null && !action.startsWith("sellall"))) {
-								BSutils.sendMessage(event.getPlayer(), "no matching items");
-								return;
-							} else if (toAdd.length > 1) {
-								BSutils.sendMessage(event.getPlayer(), "more than one matching items");
-								return;
-							} else if (toAdd[0] != null && toAdd[0].ID() <= 0) {
-								BSutils.sendMessage(event.getPlayer(), toAdd[0].Name() + " cannot be bought or sold");
-								return;
-							} else if (toAdd[0] != null && action.startsWith("sell")) {
-								if (toAdd[0].isEntity()) {
-									BSutils.sendMessage(event.getPlayer(), "entities cannot be sold");
-									return;
-								} else if (toAdd[0].isKit()) {
-									BSutils.sendMessage(event.getPlayer(), "kits cannot be sold");
-									return;
-								} else if (!shop.pricelist.isForSale(toAdd[0])) {
-									BSutils.sendMessage(event.getPlayer(), "item cannot be sold");
-									return;
-								}
-							} else if (action.startsWith("buy")
-									&& !(in.equals("hand") || in.equals("inhand"))) {
-								if (toAdd[0] == null) { //  && !amt.equalsIgnoreCase("all")
-									BSutils.sendMessage(event.getPlayer(), "must provide an item to buy");
-									return;
-								} else if (shop.pricelist.getBuyPrice(toAdd[0]) < 0) {
-									BSutils.sendMessage(event.getPlayer(), "item cannot be bought");
-									return;
+							if(itemN.endsWith(", ")){
+								itemN = itemN.substring(0, itemN.length() - 2);
+								if(itemN.contains(",")){
+									itemN = "(" + itemN + ")";
 								}
 							}
-							// all checks passed: create sign
-							signsd.setSign(event.getClickedBlock().getLocation(), toAdd[0]);
-							clickedSign.setLine(0, BetterShop.getConfig().activeSignColor + MinecraftChatStr.uncoloredStr(clickedSign.getLine(0)));
+							BSutils.sendMessage(event.getPlayer(),
+									BetterShop.getConfig().getString(signInfo.isBuy ? "multipricecheckbuy" : "multipricechecksell"). //numCheck == 1 ? "pricecheck" : "multipricecheck"
+									replace(signInfo.isBuy ? "<buyprice>" : "<sellprice>", String.format("%.2f", total /*numCheck > 0 ? total / numCheck : 0*/)).
+									replace("<item>", itemN).
+									replace("<curr>", BetterShop.getConfig().currency()).
+									replace(signInfo.isBuy ? "<buycur>" : "<sellcur>", BSEcon.format(total /*numCheck > 0 ? total / numCheck : 0*/)).
+									replace("<amt>", String.valueOf(numCheck)));
 
-							if (toAdd[0] != null && toAdd[0].color != null) {
-								if (BetterShop.getConfig().signItemColorBWswap && ChatColor.BLACK.toString().equals(toAdd[0].color)) {
-									clickedSign.setLine(2, ChatColor.WHITE.toString() + clickedSign.getLine(2));
-								} else if (BetterShop.getConfig().signItemColorBWswap && ChatColor.WHITE.toString().equals(toAdd[0].color)) {
-									clickedSign.setLine(2, ChatColor.BLACK.toString() + clickedSign.getLine(2));
-								} else {
-									clickedSign.setLine(2, toAdd[0].color + clickedSign.getLine(2));
-								}
-							}
-
-							clickedSign.update();
-							BSutils.sendMessage(event.getPlayer(), "new sign created");
-
-
-						} else {
-							// let them know they can't make a sign
-							BSPermissions.hasPermission(event.getPlayer(), BetterShopPermission.ADMIN_MAKESIGN, true);
+						} catch (Exception ex) {
+							BetterShopLogger.Log(Level.SEVERE, ex);
+							BSutils.sendMessage(event.getPlayer(), "Failed to lookup the price");
 						}
-					} else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-						if (signsd.signExists(event.getClickedBlock().getLocation())) {
-							event.setCancelled(true);
-							//buildStopper.stopPlace(event.getClickedBlock().getRelative(event.getBlockFace()).getLocation());
-							try {
-								JItem i = signsd.getSignItem(event.getClickedBlock().getLocation());
 
-								boolean isInv = false;
-								if (i == null) {
-									String in = ((Sign) event.getClickedBlock().getState()).getLine(2).toLowerCase().replaceAll(" ", "");
-									isInv = in.equals("inv");
-									if (!isInv && in.length() > 0) {
-										if (in.equals("hand")
-												|| in.equals("inhand")) {
-											if (event.getPlayer().getItemInHand() == null
-													|| event.getPlayer().getItemInHand().getAmount() == 0) {
-												BSutils.sendMessage(event.getPlayer(), "you don't have anything in your hand");
-												return;
-											}
-											i = JItemDB.findItem(event.getPlayer().getItemInHand());
-										}
-									}
-								}
-								if (i != null && !BetterShop.getConfig().allowbuyillegal && !i.IsLegal()
-										&& !BSPermissions.hasPermission(event.getPlayer(), BetterShopPermission.ADMIN_ILLEGAL, true)) {
-									return;
-								}
-								String amt = action.contains(" ") ? action.substring(action.lastIndexOf(' ')).trim() : "1";
-								if (action.endsWith("all")) {
-									amt = "all";
-								} else if (action.contains("stack")) {
-									if (i == null) {
-										BSutils.sendMessage(event.getPlayer(), "Invalid Sign..");
-										return;
-									}
-									amt = String.valueOf(i.getMaxStackSize());
-								}
-								if (!(amt.equalsIgnoreCase("all") || CheckInput.GetInt(amt, -1) > 0)) {
-									BSutils.sendMessage(event.getPlayer(), "invalid amount");
-									return;
-								}
-								boolean isBuy = action.toLowerCase().startsWith("buy");
-								if ((!isBuy && !BSPermissions.hasPermission(event.getPlayer(), BetterShopPermission.USER_SELL, true))
-										|| isBuy && !BSPermissions.hasPermission(event.getPlayer(), BetterShopPermission.USER_BUY, true)) {
-									return;
-								}
+					} else if (BSPermissions.hasPermission(event.getPlayer(),
+							BetterShopPermission.ADMIN_MAKESIGN, true)) {
+						// sign is not a shopsign: (if has permission) add sign
+						try {
+							ShopSign newSign = new ShopSign(clickedSign);
 
-								if (i != null) {
-									if (isBuy) {
-										if (shop.pricelist.getBuyPrice(i) < 0) {
-											BSutils.sendMessage(event.getPlayer(), "item cannot be bought");
-											return;
-										}
-									} else {
-										if (shop.pricelist.getSellPrice(i) < 0) {
-											BSutils.sendMessage(event.getPlayer(), "item cannot be sold");
-											return;
-										}
-									}
-								}
+							// all checks passed: create sign
+							signsd.setSign(event.getClickedBlock().getLocation(), newSign);
+							newSign.updateColor();
 
-								if (amt.equalsIgnoreCase("all")) {
-									if (isBuy) {
-										BuyCommands.buyAllItem(event.getPlayer(), i);
-									} else {
-										SellCommands.sellItems(event.getPlayer(), isInv, i, -1);
-									}
-								} else {
-									if (isBuy) {
-										BuyCommands.buyItem(event.getPlayer(), i, CheckInput.GetInt(amt, 0));
-									} else {
-										SellCommands.sellItems(event.getPlayer(), isInv, i, CheckInput.GetInt(amt, 0));
-									}
-								}
+							BSutils.sendMessage(event.getPlayer(), "new sign created" +
+									(newSign.getCustomPrice() >=0 ? " with a custom price of "
+									+ BSEcon.format(newSign.getCustomPrice()) + " each" : ""));
 
-							} catch (Exception ex) {
-								BetterShopLogger.Log(Level.SEVERE, ex);
-							}
-							// may be depricated, but only thing i can get to work :(
-							event.getPlayer().updateInventory();
-						} else {
-							BSutils.sendMessage(event.getPlayer(), "this is not a legal sign");
+						} catch (Exception e) {
+							BSutils.sendMessage(player, e.getMessage());
 						}
 					}
+
 				} catch (Exception e) {
 					BetterShopLogger.Log(Level.SEVERE, e);
 					event.getPlayer().sendMessage("An Error Occured");
@@ -411,7 +312,7 @@ public class BSSignShop extends PlayerListener {
 		return signsd.saveDelayActive();
 	}
 
-	public int numSigns(){
+	public int numSigns() {
 		return signsd.getSavedSigns().size();
 	}
 

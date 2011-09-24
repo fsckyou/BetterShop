@@ -26,6 +26,7 @@ import java.sql.SQLException;
 
 import java.util.LinkedList;
 import java.util.List;
+import me.jascotty2.lib.util.Str;
 
 public class MySQLItemStock extends MySQL {
 
@@ -83,7 +84,7 @@ public class MySQLItemStock extends MySQL {
 			try {
 				//BetterShopLogger.Log(Level.INFO, String.format("SELECT * FROM %s WHERE NAME='%s';", BetterShop.getConfig().sql_tableName, name));
 				ResultSet table = getQuery(String.format(
-						"SELECT * FROM `%s` WHERE NAME='%s';", sql_tableName, name));
+						"SELECT * FROM `%s` WHERE NAME='%s';", sql_tableName, Str.strTrim(name, 25)));
 				if (table.first()) {
 					ItemStockEntry ret = new ItemStockEntry();
 					ret.itemNum = table.getInt(1);
@@ -138,7 +139,7 @@ public class MySQLItemStock extends MySQL {
 			try {
 				runUpdate(
 						String.format("UPDATE `%s` SET AMT='%d' WHERE NAME='%s';",
-						sql_tableName, amt, itemName));
+						sql_tableName, amt, Str.strTrim(itemName, 25)));
 				/* or:
 				String.format("UPDATE %s SET BUY=%f1.2, SELL=%f1.2 WHERE ID='%d' AND SUB='%d';",
 				buy, sell, itemInfo.getItemTypeId(), itemInfo.getData())).executeUpdate();
@@ -153,7 +154,7 @@ public class MySQLItemStock extends MySQL {
 				try {
 					runUpdate(
 							String.format("INSERT INTO `%s` VALUES(%d, %d, '%s', '%d');", sql_tableName,
-							toAdd.ID(), toAdd.Data(), toAdd.Name(), amt));
+							toAdd.ID(), toAdd.Data(), Str.strTrim(toAdd.Name(), 25), amt));
 					return true;
 				} catch (SQLException ex) {
 					throw new SQLException("Error executing INSERT on " + sql_tableName, ex);
@@ -187,7 +188,7 @@ public class MySQLItemStock extends MySQL {
 				//logger.log(Level.INFO, String.format("INSERT INTO %s VALUES(%d, %d, '%s', %1.2f, %1.2f);", sql_tableName, item.itemId, (int)item.itemData, item.name, buy, sell)
 				runUpdate(
 						String.format("INSERT INTO `%s` VALUES(%d, %d, '%s', %d);", sql_tableName,
-						id, dat, name, amt));
+						id, dat, Str.strTrim(name, 25), amt));
 				//return true;
 			} catch (SQLException ex) {
 				throw new SQLException("Error executing INSERT on " + sql_tableName, ex);
@@ -200,7 +201,7 @@ public class MySQLItemStock extends MySQL {
 			try {
 				//logger.log(Level.INFO, String.format("SELECT * FROM %s WHERE NAME='%s';", sql_tableName, item));
 				ResultSet table = getQuery(
-						String.format("SELECT * FROM `%s` WHERE NAME='%s';", sql_tableName, item));
+						String.format("SELECT * FROM `%s` WHERE NAME='%s';", sql_tableName, Str.strTrim(item, 25)));
 				return table.first();
 			} catch (SQLException ex) {
 				throw new SQLException("Error executing SELECT on " + sql_tableName, ex);
@@ -233,7 +234,7 @@ public class MySQLItemStock extends MySQL {
 		if (isConnected()) {
 			try {
 				runUpdate(String.format(
-						"DELETE FROM `%s` WHERE NAME='%s';", sql_tableName, item));
+						"DELETE FROM `%s` WHERE NAME='%s';", sql_tableName, Str.strTrim(item, 25)));
 			} catch (SQLException ex) {
 				throw new SQLException("Error executing DELETE on " + sql_tableName, ex);
 			}

@@ -85,7 +85,8 @@ public class BSConfig {
 	public String chestShopText = "BetterShop Chest Shop";
 	public boolean chestShopEnabled = true,
 			chestDestroyProtection = true,
-			chestTNTprotection = true;
+			chestTNTprotection = true,
+			chestSellBar = false;
 	public String chestText = "BetterShop Chest Shop <e>",
 			chestEditText = "(Editing)";
 	// global or region shops
@@ -142,7 +143,7 @@ public class BSConfig {
 		stringMap.put("permdeny", "OI! You don't have permission to do that!");
 		stringMap.put("unkitem", "What is &f<item>&2?");
 		stringMap.put("nicetry", "...Nice try!");
-		stringMap.put("logformat", "<H>:<m>:<s> <user> <t> > <c>");
+		stringMap.put("logformat", "<M>/<d> <H>:<m>:<s> <user> <t> > <c>");
 		// # shopadd messages
 		stringMap.put("paramerror", "Oops... something wasn't right there.");
 		stringMap.put("addmsg", "&f[<item>&f]&2 added to the shop. Buy: &f<buyprice>&2 Sell: &f<sellprice>");
@@ -199,7 +200,7 @@ public class BSConfig {
 							"signDestroyProtection",
 							"weSignDestroyProtection",
 							"tntSignDestroyProtection",
-							"chestShops",
+							"chestShops", "chestSellBar", 
 							"chestDestroyProtection",
 							"tntChestDestroyProtection",
 							"chestText",
@@ -258,7 +259,7 @@ public class BSConfig {
 				allKeys.put("strings", stringMap.keySet().toArray(new String[0]));
 				String allowNull[] = new String[]{
 					"shop.customsort", "shop.BOSBank", "shop.currencyName",
-					"strings.listtail"};
+					"strings.listtail", "strings.logformat"};
 
 				String missing = "", unused = "";
 				for (String k : allKeys.keySet()) {
@@ -432,6 +433,7 @@ public class BSConfig {
 				signTNTprotection = n.getBoolean("tntSignDestroyProtection", signTNTprotection);
 				
 				chestShopEnabled = n.getBoolean("chestShops", chestShopEnabled);
+				chestSellBar = n.getBoolean("chestSellBar", chestSellBar);
 				chestDestroyProtection = n.getBoolean("chestDestroyProtection", chestDestroyProtection);
 				chestTNTprotection = n.getBoolean("tntChestDestroyProtection", chestTNTprotection);
 				
@@ -596,7 +598,7 @@ public class BSConfig {
 					}
 				}
 			} else {
-				BetterShopLogger.Log(Level.SEVERE, String.format("strings section missing from configuration file %s", configname));
+				BetterShopLogger.Log(Level.SEVERE, String.format("strings section missing from configuration file %s", configname), false);
 			}
 			for (String k : stringMap.keySet()) {
 				stringMap.put(k, stringMap.get(k).

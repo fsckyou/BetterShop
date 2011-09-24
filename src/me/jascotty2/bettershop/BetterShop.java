@@ -64,7 +64,7 @@ import me.jascotty2.lib.util.Str;
  */
 public class BetterShop extends JavaPlugin {
 
-	public final static String lastUpdatedStr = "09/04/11 21:50 -0500"; // "MM/dd/yy HH:mm Z"
+	public final static String lastUpdatedStr = "09/24/11 03:00 -0500"; // "MM/dd/yy HH:mm Z"
 	public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
 	protected static Plugin bettershopPlugin = null;
 	protected final static BSConfig config = new BSConfig();
@@ -270,7 +270,7 @@ public class BetterShop extends JavaPlugin {
 			} else if(t instanceof IOException){
 				BetterShopLogger.Severe("Problem with File Access", t, false);
 			} else {
-				BetterShopLogger.Severe("Error executing a command", t, false);
+				BetterShopLogger.Severe("Error executing a command", t);
 			}
 			BSutils.sendMessage(sender, ChatColor.RED + "Problem Executing Command!");
 			return true;

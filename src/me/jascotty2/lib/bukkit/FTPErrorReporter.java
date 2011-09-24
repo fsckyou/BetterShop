@@ -90,14 +90,14 @@ public class FTPErrorReporter {
 			errorMessage = (error.getMessage() != null && error.getMessage().length() > 0 ? error.getMessage() : "") + "\n";
 		}
 
-		String allplugins[] = ServerInfo.installedPlugins(plugin.getServer()),
-				plugins = "";
-		for (int i = 0; i < allplugins.length; ++i) {
-			plugins += allplugins[i];
-			if (i + 1 < allplugins.length) {
-				plugins += ", ";
-			}
-		}
+//		String allplugins[] = ServerInfo.installedPlugins(plugin.getServer()),
+//				plugins = "";
+//		for (int i = 0; i < allplugins.length; ++i) {
+//			plugins += allplugins[i];
+//			if (i + 1 < allplugins.length) {
+//				plugins += ", ";
+//			}
+//		}
 
 		return SendNewText(
 				plugin.getDescription().getName()
@@ -109,7 +109,7 @@ public class FTPErrorReporter {
 				+ "Machine: " + System.getProperty("os.name") + " " + System.getProperty("os.arch") + "\n"
 				+ "Bukkit: " + ServerInfo.getBukkitVersion(true) + "\n" //plugin.getServer().getVersion() + " (" + ServerInfo.getBukkitRunTimeSpan() + ")\n"
 				//ServerInfo.getBukkitVersion(true) + "\n"
-				+ "Plugins (" + allplugins.length + ") " + plugins + "\n"
+//				+ "Plugins (" + allplugins.length + ") " + plugins + "\n"
 				+ (lastAction != null ? "Last action: " + lastAction + "\n" : "")
 				+ (moreInfo != null && !moreInfo.isEmpty() ? moreInfo + "\n" : "")
 				+ "Message: " + errorMessage

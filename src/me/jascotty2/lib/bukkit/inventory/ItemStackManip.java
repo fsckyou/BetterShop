@@ -387,14 +387,15 @@ public class ItemStackManip {
 	 */
 	public static ItemStack[] add(ItemStack[] items, ItemStack toAdd, boolean extraStack) {
 		int amt = toAdd.getAmount();
+		int mx = !extraStack || noStack.contains(toAdd.getTypeId())
+						? JItems.getMaxStack(toAdd) : 64;
 		boolean firstRun = true;
 		for (int i = 0; i < items.length; ++i) {
 			if (!firstRun && (items[i] == null || items[i].getAmount() == 0)) {
 				items[i] = toAdd;
+				items[i].setAmount(amt);
 				return items;
 			} else if (items[i] != null && items[i].getTypeId() == toAdd.getTypeId()) {
-				int mx = !extraStack || noStack.contains(items[i].getTypeId())
-						? JItems.getMaxStack(items[i]) : 64;
 				if (items[i].getAmount() < mx) {
 					if (mx - items[i].getAmount() >= amt) {
 						items[i].setAmount(items[i].getAmount() + amt);
@@ -427,6 +428,23 @@ public class ItemStackManip {
 		if (items != null) {
 			for (int i = start; i < items.length; ++i) {
 				if (items[i] != null) {
+					int iti = indexOf(summ, items[i]);
+					if (iti < 0) {
+						summ.add(items[i].clone());
+					} else {
+						summ.get(iti).setAmount(summ.get(iti).getAmount() + items[i].getAmount());
+					}
+				}
+			}
+		}
+		return summ;
+	}
+
+	public static List<ItemStack> itemStackSummary(ItemStack[] items, JItem[] search, int start) {
+		ArrayList<ItemStack> summ = new ArrayList<ItemStack>();
+		if (items != null) {
+			for (int i = start; i < items.length; ++i) {
+				if (items[i] != null && (search == null || JItem.contains(search, items[i]))) {
 					int iti = indexOf(summ, items[i]);
 					if (iti < 0) {
 						summ.add(items[i].clone());
@@ -514,6 +532,31 @@ public class ItemStackManip {
 		return -1;
 	}
 
+	/**
+	 * ignoring amount, find the index of an itemstack in a list
+	 * @param source list to search
+	 * @param search search criteria
+	 * @return index, or -1 if not found
+	 */
+	public static int indexOf(List<ItemStack> source, JItem search) {
+		int ind = 0;
+		if (search == null) {
+			for (ItemStack i : source) {
+				if (i == null) {
+					return ind;
+				}
+				++ind;
+			}
+		} else {
+			for (ItemStack i : source) {
+				if (search.equals(i)) {
+					return ind;
+				}
+				++ind;
+			}
+		}
+		return -1;
+	}
 	/**
 	 * makes a copy of a minecraft ItemStack as a bukkit ItemStack
 	 * @param minecraftItemStack

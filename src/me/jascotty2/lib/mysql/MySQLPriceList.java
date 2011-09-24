@@ -26,6 +26,8 @@ import java.sql.SQLException;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import me.jascotty2.lib.util.Str;
 
 public class MySQLPriceList extends MySQL {
 
@@ -67,7 +69,7 @@ public class MySQLPriceList extends MySQL {
 			try {
 				//BetterShopLogger.Log(Level.INFO, String.format("SELECT * FROM %s WHERE NAME='%s';", BetterShop.getConfig().sql_tableName, name));
 				ResultSet table = getQuery(String.format(
-						"SELECT * FROM `%s` WHERE NAME='%s';", sql_tableName, name));
+						"SELECT * FROM `%s` WHERE NAME='%s';", sql_tableName, Str.strTrim(name, 25)));
 				if (table.first()) {
 					return new PriceListItem(
 							table.getInt(1), table.getByte(2), table.getString(3),
@@ -110,8 +112,8 @@ public class MySQLPriceList extends MySQL {
 		if (itemExists(itemName)) {
 			try {
 				runUpdate(
-						String.format("UPDATE `%s` SET BUY='%1.2f', SELL='%1.2f' WHERE NAME='%s';", sql_tableName,
-						buy, sell, itemName));
+						String.format(Locale.US, "UPDATE `%s` SET BUY='%1.2f', SELL='%1.2f' WHERE NAME='%s';", sql_tableName,
+						buy, sell, Str.strTrim(itemName, 25)));
 				/* or:
 				String.format("UPDATE %s SET BUY=%f1.2, SELL=%f1.2 WHERE ID='%d' AND SUB='%d';",
 				buy, sell, itemInfo.getItemTypeId(), itemInfo.getData())).executeUpdate();
@@ -125,8 +127,8 @@ public class MySQLPriceList extends MySQL {
 			if (toAdd != null) {
 				try {
 					runUpdate(
-							String.format("INSERT INTO `%s` VALUES(%d, %d, '%s', '%1.2f', '%1.2f');", sql_tableName,
-							toAdd.ID(), toAdd.Data(), toAdd.Name(), buy, sell));
+							String.format(Locale.US, "INSERT INTO `%s` VALUES(%d, %d, '%s', '%1.2f', '%1.2f');", sql_tableName,
+							toAdd.ID(), toAdd.Data(), Str.strTrim(toAdd.Name(), 25), buy, sell));
 					return true;
 				} catch (SQLException ex) {
 					throw new SQLException("Error executing INSERT on " + sql_tableName, ex);
@@ -141,7 +143,7 @@ public class MySQLPriceList extends MySQL {
 			try {
 				//java.util.logging.Logger.getAnonymousLogger().info(String.format("UPDATE %s SET BUY=%1.2f, SELL=%1.2f WHERE ID='%d' AND SUB='%d';", sql_tableName, buy, sell, item.ID(), (int) item.Data()));
 				runUpdate(
-						String.format("UPDATE `%s` SET BUY='%1.2f', SELL='%1.2f' WHERE ID='%d' AND SUB='%d';", sql_tableName,
+						String.format(Locale.US, "UPDATE `%s` SET BUY='%1.2f', SELL='%1.2f' WHERE ID='%d' AND SUB='%d';", sql_tableName,
 						buy, sell, item.ID(), (int) item.Data()));
 			} catch (SQLException ex) {
 				throw new SQLException("Error executing UPDATE on " + sql_tableName, ex);
@@ -151,8 +153,8 @@ public class MySQLPriceList extends MySQL {
 			try {
 				//java.util.logging.Logger.getAnonymousLogger().info(String.format("INSERT INTO %s VALUES(%d, %d, '%s', '%1.2f', '%1.2f');", sql_tableName, item.ID(), (int) item.Data(), item.Name(), buy, sell));
 				runUpdate(
-						String.format("INSERT INTO `%s` VALUES(%d, %d, '%s', '%1.2f', '%1.2f');", sql_tableName,
-						item.ID(), (int) item.Data(), item.Name(), buy, sell));
+						String.format(Locale.US, "INSERT INTO `%s` VALUES(%d, %d, '%s', '%1.2f', '%1.2f');", sql_tableName,
+						item.ID(), (int) item.Data(), Str.strTrim(item.Name(), 25), buy, sell));
 			} catch (SQLException ex) {
 				throw new SQLException("Error executing INSERT on " + sql_tableName, ex);
 			}
@@ -164,7 +166,7 @@ public class MySQLPriceList extends MySQL {
 			try {
 				//logger.log(Level.INFO, String.format("SELECT * FROM %s WHERE NAME='%s';", sql_tableName, item));
 				ResultSet table = getQuery(
-						String.format("SELECT * FROM `%s` WHERE NAME='%s';", sql_tableName, item));
+						String.format("SELECT * FROM `%s` WHERE NAME='%s';", sql_tableName, Str.strTrim(item, 25) ));
 				return table.first();
 			} catch (SQLException ex) {
 				throw new SQLException("Error executing SELECT on " + sql_tableName, ex);
@@ -193,7 +195,7 @@ public class MySQLPriceList extends MySQL {
 		if (isConnected()) {
 			try {
 				runUpdate(String.format(
-						"DELETE FROM `%s` WHERE NAME='%s';", sql_tableName, item));
+						"DELETE FROM `%s` WHERE NAME='%s';", sql_tableName, Str.strTrim(item, 25)));
 			} catch (SQLException ex) {
 				throw new SQLException("Error executing DELETE on " + sql_tableName, ex);
 			}
@@ -266,10 +268,6 @@ public class MySQLPriceList extends MySQL {
 			throw new SQLException("Error while creating table", e);
 		}
 		return true;
-	}
-
-	public String getDatabaseName() {
-		return sql_database;
 	}
 
 	public String getTableName() {

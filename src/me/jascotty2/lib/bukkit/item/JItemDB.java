@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import me.jascotty2.lib.util.ArrayManip;
+import me.jascotty2.lib.util.Str;
 import org.bukkit.Material;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.inventory.ItemStack;
@@ -35,6 +36,7 @@ import org.bukkit.util.config.ConfigurationNode;
 
 public class JItemDB {
 
+	protected static int MAX_LEVENSHTEIN_DIST = 3;
 	private final static Logger logger = Logger.getLogger("Minecraft");
 	protected static Map<String, JItem> items = new HashMap<String, JItem>();
 	protected static Map<Integer, Kit> kits = new HashMap<Integer, Kit>();
@@ -389,11 +391,75 @@ public class JItemDB {
 			it = GetItem(CheckInput.GetInt(s1, Integer.MIN_VALUE));
 		} else {
 			for (JItem i : items.values()) {
-				if (i != null
-						&& ((i.name != null && i.name.replace(" ", "").equalsIgnoreCase(s1))
+				if (i != null && (i.equals(s1) //&& ((i.name != null && i.name.replace(" ", "").equalsIgnoreCase(s1))
 						|| i.HasAlias(s1))) {
 					it = i;
 					break;
+				}
+			}
+		}
+
+		if (it == null) { // if no imediate result: check plurality
+			for (String ss : new String[]{
+						(s1.endsWith("s") ? s1.substring(0, s1.length() - 1) : null),
+						(s1.endsWith("es") ? s1.substring(0, s1.length() - 2) : null),
+						(s1.endsWith("ies") ? s1.substring(0, s1.length() - 3) + "y" : null)}) {
+				if (ss == null) {
+					break;
+				}
+				for (JItem i : items.values()) {
+					if (i != null && i.equals(ss) /* && i.name != null
+							&& (i.name.replace(" ", "").equalsIgnoreCase(ss) || i.HasAlias(ss))*/) {
+						it = i;
+						break;
+					}
+				}
+				if (it != null) {
+					break;
+				}
+			}
+		}
+
+		if (it == null) {
+			// still no result: now do a string compare
+			JItem match = null;
+			int matchDist = MAX_LEVENSHTEIN_DIST + 1, numMatch = 0;
+			for (JItem i : items.values()) {
+				if (i != null) { // double-checking..
+					int d = Str.getLevenshteinDistance(i.Name().replace(" ", ""), s1);
+					if (d < matchDist) {
+						match = i;
+						matchDist = d;
+						numMatch = 1;
+					} else if (d == matchDist) {
+						++numMatch;
+					}
+				}
+			}
+			if (numMatch == 1) {
+				it = match;
+			} else {
+				// now check aliases
+				match = null;
+				matchDist = MAX_LEVENSHTEIN_DIST + 1;
+				numMatch = 0;
+				for (JItem i : items.values()) {
+					if (i != null) { // double-checking..
+						int d = MAX_LEVENSHTEIN_DIST + 1;
+						for (String a : i.Aliases()) {
+							int d2 = Str.getLevenshteinDistance(a, s1);
+							if (d2 < d) {
+								d = d2;
+							}
+						}
+						if (d < matchDist) {
+							match = i;
+							matchDist = d;
+							numMatch = 1;
+						} else if (d == matchDist) {
+							++numMatch;
+						}
+					}
 				}
 			}
 		}
@@ -417,22 +483,6 @@ public class JItemDB {
 				return null;
 			} else {
 				return it;
-			}
-		}
-
-		// if no imediate result: check plurality
-		for (String ss : new String[]{
-					(s1.endsWith("s") ? s1.substring(0, s1.length() - 1) : null),
-					(s1.endsWith("es") ? s1.substring(0, s1.length() - 2) : null),
-					(s1.endsWith("ies") ? s1.substring(0, s1.length() - 3) + "y" : null)}) {
-			if (ss == null) {
-				break;
-			}
-			for (JItem i : items.values()) {
-				if (i != null && i.name != null
-						&& (i.name.replace(" ", "").equalsIgnoreCase(ss) || i.HasAlias(ss))) {
-					return i;
-				}
 			}
 		}
 
@@ -462,11 +512,11 @@ public class JItemDB {
 			}
 
 			for (JItem i : items.values()) {
-				if (i != null
+				if (i != null && !found.contains(i)
+						&& (i.equals(ss) /*
 						&& (i.name != null && i.name.replace(" ", "").toLowerCase().contains(ss)
-						|| i.HasAlias(ss)
-						|| (i.HasCategory(ss)))
-						&& !found.contains(i)) {
+						|| i.HasAlias(ss) */
+						|| (i.HasCategory(ss)))) {
 					found.add(i);
 				} else {
 					for (String suba : i.Aliases()) {
@@ -511,6 +561,31 @@ public class JItemDB {
 		return itemCategories.toArray(new String[0]);
 	}
 
+	public static boolean isCategory(String s) {
+		return itemCategories.contains(s);
+	}
+
+	public static boolean isCategory(String s, boolean permissive) {
+		if (!permissive) {
+			return itemCategories.contains(s);
+		}
+		for (String c : itemCategories) {
+			if (Str.getLevenshteinDistance(s.toLowerCase(), c.toLowerCase()) < 4) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static String findCategory(String s) {
+		for (String c : itemCategories) {
+			if (Str.getLevenshteinDistance(s.toLowerCase(), c.toLowerCase()) < MAX_LEVENSHTEIN_DIST) {
+				return c;
+			}
+		}
+		return null;
+	}
+
 	public static List<JItem> getCategory(String cat) {
 		return itemCategoryItemlist.get(cat);
 	}
@@ -536,6 +611,29 @@ public class JItemDB {
 		for (Kit k : kits.values()) {
 			if (k.ID() == id) {
 				return k.Name();
+			}
+		}
+//        CreatureItem c = CreatureItem.getCreature(id);
+//        if (c != null) {
+//            return c.name;
+//        }
+		return null;
+	}
+
+	public static String GetItemColoredName(ItemStack it) {
+		return it == null ? null : GetItemColoredName(it.getTypeId(), it.getData() == null ? 0 : it.getData().getData());
+	}
+
+	public static String GetItemColoredName(int id, byte dat) {
+
+		for (JItem i : items.values()) {
+			if (i.ID() == id && i.Data() == dat) {
+				return i.coloredName();
+			}
+		}
+		for (Kit k : kits.values()) {
+			if (k.ID() == id) {
+				return k.coloredName();
 			}
 		}
 //        CreatureItem c = CreatureItem.getCreature(id);

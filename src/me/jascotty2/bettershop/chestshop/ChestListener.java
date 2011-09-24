@@ -32,6 +32,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EndermanPickupEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityListener;
 
@@ -44,7 +45,7 @@ public class ChestListener extends BlockListener /*implements Runnable*/ {
 	final Plugin plugin;
 	final Server server;
 	final ChestDB chestsBD;
-	final TNTblock tntBlock;
+	final DamageBlocker blockBreakBlock;
 
 	public ChestListener(Plugin p, ChestDB chestsBD) {
 		if (p == null || chestsBD == null) {
@@ -53,12 +54,12 @@ public class ChestListener extends BlockListener /*implements Runnable*/ {
 		plugin = p;
 		server = p.getServer();
 		this.chestsBD = chestsBD;
-		tntBlock = new TNTblock(p, chestsBD);
+		blockBreakBlock = new DamageBlocker(p, chestsBD);
 	}
 
 	public void startProtect() {
 		plugin.getServer().getPluginManager().registerEvent(
-				Type.ENTITY_EXPLODE, tntBlock, Priority.Low, plugin);
+				Type.ENTITY_EXPLODE, blockBreakBlock, Priority.Low, plugin);
 	}
 
 	@Override
@@ -88,13 +89,13 @@ public class ChestListener extends BlockListener /*implements Runnable*/ {
 	}
 }
 
-class TNTblock extends EntityListener {
+class DamageBlocker extends EntityListener {
 
 	final Plugin plugin;
 	final Server server;
 	final ChestDB chestsBD;
 
-	TNTblock(Plugin p, ChestDB chestsBD) {
+	DamageBlocker(Plugin p, ChestDB chestsBD) {
 		plugin = p;
 		server = p.getServer();
 		this.chestsBD = chestsBD;
@@ -108,6 +109,16 @@ class TNTblock extends EntityListener {
 					event.setCancelled(true);
 					return;
 				}
+			}
+		}
+	}
+
+	@Override
+	public void onEndermanPickup(EndermanPickupEvent event) {
+		if (BetterShop.getConfig().signDestroyProtection) {
+			if (chestsBD.has(event.getBlock().getLocation())) {
+				event.setCancelled(true);
+				return;
 			}
 		}
 	}
