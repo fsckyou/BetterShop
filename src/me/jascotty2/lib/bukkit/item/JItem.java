@@ -21,6 +21,7 @@ import me.jascotty2.lib.bukkit.MinecraftChatStr;
 import me.jascotty2.lib.util.Str;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
@@ -333,7 +334,7 @@ public class JItem {
 		if (col == null) {
 			color = null;
 		}
-		color = MinecraftChatStr.getChatColor(col);
+		color = MinecraftChatStr.getChatColorStr(col, ChatColor.WHITE);
 		return color.length() > 0;
 	}
 

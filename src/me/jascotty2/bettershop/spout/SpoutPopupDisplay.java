@@ -243,7 +243,7 @@ public class SpoutPopupDisplay {
 		String lines[] = about.split("\n");
 		StringBuilder txt = new StringBuilder();
 		for (int i = 0; i < lines.length;) {
-			txt.append(MinecraftChatStr.strPadCenterChat(lines[i], 210, ' '));
+			txt.append(MinecraftChatStr.padCenter(lines[i], ' ', 210));
 			if (++i < lines.length) {
 				txt.append("\n");
 			}

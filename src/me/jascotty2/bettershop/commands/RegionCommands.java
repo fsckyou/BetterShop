@@ -85,10 +85,8 @@ public class RegionCommands {
 				return;
 			}
 			if (sender instanceof Player) {
-				BSutils.sendMessage(sender, MinecraftChatStr.strPadCenterChat(
-						" Shop Regions  page " + (page+1) + "/" + pages + " ",
-						MinecraftChatStr.chatwidth
-						- MinecraftChatStr.getStringWidth(BetterShop.getConfig().getString("prefix")), '-'));
+				BSutils.sendMessage(sender, MinecraftChatStr.padCenter(
+						" Shop Regions  page " + (page+1) + "/" + pages + " ", '-', MinecraftChatStr.chatwidth - MinecraftChatStr.getStringWidth(BetterShop.getConfig().getString("prefix"))));
 			} else {
 				BSutils.sendMessage(sender, Str.padCenter(
 						" Shop Regions  page " + (page+1) + "/" + pages + " ",

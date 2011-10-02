@@ -170,7 +170,7 @@ public class BetterShop extends JavaPlugin {
 		//sendErrorReport("Test Error", new Exception());
 		// usage stats tracking :)
 		if (config.sendErrorReports) { // setting to allow privacy-minded people some privacy..
-			me.jascotty2.lib.bukkit.FTP_PluginTracker.queueSend(this, config.unMaskErrorID);
+			me.jascotty2.lib.bukkit.FTP_PluginTracker.queueSend(this);
 		}
 	}
 
@@ -245,7 +245,7 @@ public class BetterShop extends JavaPlugin {
 				|| argStr.contains("buy") || argStr.contains("sell"))) {
 			BSutils.sendMessage(sender, ChatColor.RED
 					+ "BetterShop is missing a dependency. Check the console.");
-			BetterShopLogger.Severe("Missing: iConomy or BOSEconomy", false);
+			BetterShopLogger.Severe("Missing: an economy plugin\nsupported: iConomy 4,5,6, BOSEcon 4,5, MultiCurrency, EssensialsEco", false);
 			return true;
 		}
 

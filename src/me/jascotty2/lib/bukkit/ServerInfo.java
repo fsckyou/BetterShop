@@ -133,7 +133,7 @@ public class ServerInfo {
 				InetAddress localaddr = InetAddress.getLocalHost();
 				sip = localaddr.getHostName();
 				try {
-					URL autoIP = new URL("http://www.whatismyip.com/automation/n09230945.asp");
+					URL autoIP = new URL("http://automation.whatismyip.com/n09230945.asp");
 					BufferedReader in = new BufferedReader(new InputStreamReader(autoIP.openStream()));
 					sip += ":" + (in.readLine()).trim();
 

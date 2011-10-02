@@ -20,6 +20,7 @@ package me.jascotty2.lib.util;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.text.NumberFormat;
 import java.util.Collection;
 
 public class Str extends OutputStream {
@@ -32,6 +33,24 @@ public class Str extends OutputStream {
 	}
 
 	// Static Methods
+	static NumberFormat nf = NumberFormat.getInstance(),
+			cnf = NumberFormat.getCurrencyInstance();
+	public static String numFormat(long num){
+		return nf.format(num);
+	}
+
+	public static String numFormat(double num){
+		return nf.format(num);
+	}
+
+	public static String currencyFormat(long num){
+		return cnf.format(num);
+	}
+
+	public static String currencyFormat(double num){
+		return cnf.format(num);
+	}
+
 	public static String concatStr(String... str) {
 		return concatStr(str, 0, "");
 	}

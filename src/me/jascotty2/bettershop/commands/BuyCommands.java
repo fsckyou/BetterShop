@@ -519,7 +519,7 @@ public class BuyCommands {
 				continue;
 			}
 			long maxAmt = shop.config.useStock() ? shop.stock.getItemAmount(it) : -1;
-			int buyAmt = amt > maxAmt ? (int) maxAmt : amt;
+			int buyAmt = maxAmt > 0 && amt > maxAmt ? (int) maxAmt : amt;
 			amtBought += buyAmt;
 			double itemCost = customPrice >= 0 ? customPrice * amt
 					: shop.pricelist.itemBuyPrice(player, it, buyAmt);

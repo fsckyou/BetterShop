@@ -34,6 +34,7 @@ import me.jascotty2.bettershop.enums.DBType;
 import me.jascotty2.bettershop.enums.SpoutCategoryMethod;
 import me.jascotty2.bettershop.shop.ShopConfig;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
+import org.bukkit.ChatColor;
 
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
@@ -483,7 +484,7 @@ public class BSConfig {
 				hideHelp = n.getBoolean("hideHelp", hideHelp);
 
 			}
-			activeSignColor = MinecraftChatStr.getChatColor(activeSignColor);
+			activeSignColor = MinecraftChatStr.getChatColorStr(activeSignColor, ChatColor.BLUE);
 
 			if ((n = config.getNode("spout")) != null) {
 				spoutEnabled = n.getBoolean("enabled", spoutEnabled);

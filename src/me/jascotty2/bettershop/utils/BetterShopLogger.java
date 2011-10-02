@@ -43,7 +43,17 @@ public class BetterShopLogger extends Logger {
 		//super("Minecraft", null);
 		super(null, null);
 	}
+	/*
+	public class BetterShopLogger extends CustomLogger {
 
+	protected final static Logger logger = new BetterShopLogger();
+	public FileWriter commlog_fstream = null;
+	public BufferedWriter commlog_out = null;
+
+	BetterShopLogger() {
+		super("BetterShop", "Minecraft");
+	}*/
+	
 	@Override
 	public synchronized void log(Level level, String message, Object param) {
 		//super.log(level, message == null ? null : String.format(logFormat, message), param);

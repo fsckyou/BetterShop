@@ -90,35 +90,52 @@ public class MinecraftChatStr {
 	}
 
 	/**
+	 * pads str on the right with spaces (left-align)
+	 * @param str string to format
+	 * @param len spaces to pad
+	 * @return str with padding appended
+	 */
+	public static String padRight(String str, int len) {
+		return padRight(str, len, ' ');
+	}
+
+	/**
 	 * pads str on the right with pad (left-align)
 	 * @param str string to format
 	 * @param len spaces to pad
 	 * @param pad character to use when padding
 	 * @return str with padding appended
 	 */
-	public static String strPadRight(String str, int len, char pad) {
+	public static String padRight(String str, int len, char pad) {
 		// for purposes of this function, assuming a normal char to be 6
 		len *= 6;
 		len -= getStringWidth(str);
 		return str + Str.repeat(pad, len / getCharWidth(pad, 6));
 	}
 
-	public static String strPadRightChat(String str, int abslen, char pad) {
+	/**
+	 * pads str on the right to # of pixels
+	 * @param str string to format
+	 * @param pad character to use when padding
+	 * @param abslen pixels to space out
+	 * @return
+	 */
+	public static String padRight(String str, char pad, int abslen) {
 		abslen -= getStringWidth(str);
 		return str + Str.repeat(pad, abslen / getCharWidth(pad, 6));
 	}
 
-	public static String strPadRightChat(String str, int abslen) {
-		abslen -= getStringWidth(str);
-		return str + Str.repeat(' ', abslen / getCharWidth(' ', 6));
-	}
+//	public static String strPadRightChat(String str, int abslen) {
+//		abslen -= getStringWidth(str);
+//		return str + Str.repeat(' ', abslen / getCharWidth(' ', 6));
+//	}
 
-	public static String strPadRightChat(String str, char pad) {
+	public static String padRight(String str, char pad) {
 		int width = chatwidth - getStringWidth(str);
 		return str + Str.repeat(pad, width / getCharWidth(pad, 6));
 	}
 
-	public static String strPadRightChat(String str) {
+	public static String padRight(String str) {
 		int width = chatwidth - getStringWidth(str);
 		return str + Str.repeat(' ', width / getCharWidth(' ', 6));
 	}
@@ -130,29 +147,29 @@ public class MinecraftChatStr {
 	 * @param pad character to use when padding
 	 * @return str with padding prepended
 	 */
-	public static String strPadLeft(String str, int len, char pad) {
+	public static String padLeft(String str, int len, char pad) {
 		// for purposes of this function, assuming a normal char to be 6
 		len *= 6;
 		len -= getStringWidth(str);
 		return Str.repeat(pad, len / getCharWidth(pad, 6)) + str;
 	}
 
-	public static String strPadLeftChat(String str, int abslen, char pad) {
+	public static String padLeft(String str, char pad, int abslen) {
 		abslen -= getStringWidth(str);
 		return Str.repeat(pad, abslen / getCharWidth(pad, 6)).concat(str);
 	}
 
-	public static String strPadLeftChat(String str, int abslen) {
-		abslen -= getStringWidth(str);
-		return Str.repeat(' ', abslen / getCharWidth(' ', 6)).concat(str);
-	}
+//	public static String strPadLeftChat(String str, int abslen) {
+//		abslen -= getStringWidth(str);
+//		return Str.repeat(' ', abslen / getCharWidth(' ', 6)).concat(str);
+//	}
 
-	public static String strPadLeftChat(String str, char pad) {
+	public static String padLeft(String str, char pad) {
 		int width = chatwidth - getStringWidth(str);
 		return Str.repeat(pad, width / getCharWidth(pad, 6)).concat(str);
 	}
 
-	public static String strPadLeftChat(String str) {
+	public static String padLeft(String str) {
 		int width = chatwidth - getStringWidth(str);
 		return Str.repeat(' ', width / getCharWidth(' ', 6)).concat(str);
 	}
@@ -164,7 +181,7 @@ public class MinecraftChatStr {
 	 * @param pad character to use when padding
 	 * @return str centered with pad
 	 */
-	public static String strPadCenter(String str, int len, char pad) {
+	public static String padCenter(String str, int len, char pad) {
 		// for purposes of this function, assuming a normal char to be 6
 		len *= 6;
 		len -= getStringWidth(str);
@@ -174,7 +191,14 @@ public class MinecraftChatStr {
 		return Str.repeat(pad, prepad) + str + Str.repeat(pad, len / padwid);
 	}
 
-	public static String strPadCenterChat(String str, int abslen, char pad) {
+	/**
+	 * pads str on the left & right to # of pixels with pad (center-align)
+	 * @param str string to format
+	 * @param pad character to use when padding
+	 * @param abslen pixels to make the result string
+	 * @return
+	 */
+	public static String padCenter(String str, char pad, int abslen) {
 		abslen -= getStringWidth(str);
 		int padwid = getCharWidth(pad, 6);
 		int prepad = (abslen / padwid) / 2;
@@ -182,7 +206,7 @@ public class MinecraftChatStr {
 		return Str.repeat(pad, prepad) + str + Str.repeat(pad, abslen / padwid);
 	}
 
-	public static String strPadCenterChat(String str, char pad) {
+	public static String padCenter(String str, char pad) {
 		int width = chatwidth - getStringWidth(str);
 		int padwid = getCharWidth(pad, 6);
 		int prepad = (width / padwid) / 2;
@@ -305,7 +329,7 @@ public class MinecraftChatStr {
 		while (str.length() > 0) {
 			// find last char of first line
 			if (getStringWidth(str) <= chatwidth) {
-				return (ret.length() > 0 ? ret + "\n" + lastStrColor(ret) : "").concat(strPadLeftChat(str, tabChar));
+				return (ret.length() > 0 ? ret + "\n" + lastStrColor(ret) : "").concat(padLeft(str, tabChar));
 			}
 			String line1 = strChatTrim(str);
 			int lastPos = line1.length() - (ret.length() > 0 ? tab + 1 : 1);
@@ -316,7 +340,7 @@ public class MinecraftChatStr {
 				lastPos = line1.length() - (ret.length() > 0 ? tab + 1 : 1);
 			}
 			//ret += strPadLeftChat(str.substring(0, lastPos), tabChar);
-			ret += (ret.length() > 0 ? "\n" + lastStrColor(ret) : "") + strPadLeftChat(str.substring(0, lastPos), tabChar);
+			ret += (ret.length() > 0 ? "\n" + lastStrColor(ret) : "") + padLeft(str.substring(0, lastPos), tabChar);
 			str = str.substring(lastPos + 1);
 		}
 		return ret;
@@ -346,13 +370,13 @@ public class MinecraftChatStr {
 				lastPos = sepPos;
 			}
 			ret += str.substring(0, sepPos);
-			ret += strPadLeftChat(str.substring(sepPos, lastPos), chatwidth - getStringWidth(ret));
+			ret += padLeft(str.substring(sepPos, lastPos), ' ', chatwidth - getStringWidth(ret));
 			str = str.substring(lastPos + 1);
 		}
 		while (str.length() > 0) {
 			// find last char of first line
 			if (getStringWidth(str) <= chatwidth) {
-				return (ret.length() > 0 ? ret + "\n" + lastStrColor(ret) : "").concat(strPadLeftChat(str, tabChar));
+				return (ret.length() > 0 ? ret + "\n" + lastStrColor(ret) : "").concat(padLeft(str, tabChar));
 			}
 			line1 = strChatTrim(str);
 			int lastPos = line1.length() - (ret.length() > 0 ? tab + 1 : 1);
@@ -363,7 +387,7 @@ public class MinecraftChatStr {
 				lastPos = line1.length() - (ret.length() > 0 ? tab + 1 : 1);
 			}
 			//ret += strPadLeftChat(str.substring(0, lastPos), tabChar);
-			ret += (ret.length() > 0 ? "\n" + lastStrColor(ret) : "") + strPadLeftChat(str.substring(0, lastPos), tabChar);
+			ret += (ret.length() > 0 ? "\n" + lastStrColor(ret) : "") + padLeft(str.substring(0, lastPos), tabChar);
 			str = str.substring(lastPos + 1);
 		}
 		return ret;
@@ -394,7 +418,7 @@ public class MinecraftChatStr {
 				lastPos = sepPos;
 			}
 			ret += str.substring(0, sepPos);
-			ret += strPadLeftChat(str.substring(sepPos, lastPos), width - strLen(ret));
+			ret += padLeft(str.substring(sepPos, lastPos), ' ', width - strLen(ret));
 			str = str.substring(lastPos + 1);
 		}
 		while (str.length() > 0) {
@@ -458,19 +482,19 @@ public class MinecraftChatStr {
 
 				if (fm.equals("l")) {
 					if (minecraftChatFormat) {
-						input = strPadRight(input.substring(0, input.indexOf("<" + fm + ">")), input.indexOf("<" + fm + ">"), repl) + input.substring(input.indexOf("<" + fm + ">") + 3);
+						input = padRight(input.substring(0, input.indexOf("<" + fm + ">")), input.indexOf("<" + fm + ">"), repl) + input.substring(input.indexOf("<" + fm + ">") + 3);
 					} else {
 						input = Str.padRight(input.substring(0, input.indexOf("<" + fm + ">")), input.indexOf("<" + fm + ">"), repl) + input.substring(input.indexOf("<" + fm + ">") + 3);
 					}
 				} else if (fm.equals("c")) {
 					if (minecraftChatFormat) {
-						input = strPadCenter(input.substring(0, input.indexOf("<" + fm + ">")), input.indexOf("<" + fm + ">"), repl) + input.substring(input.indexOf("<" + fm + ">") + 3);
+						input = padCenter(input.substring(0, input.indexOf("<" + fm + ">")), input.indexOf("<" + fm + ">"), repl) + input.substring(input.indexOf("<" + fm + ">") + 3);
 					} else {
 						input = Str.padCenter(input.substring(0, input.indexOf("<" + fm + ">")), input.indexOf("<" + fm + ">"), repl) + input.substring(input.indexOf("<" + fm + ">") + 3);
 					}
 				} else {
 					if (minecraftChatFormat) {
-						input = strPadLeft(input.substring(0, input.indexOf("<" + fm + ">")), input.indexOf("<" + fm + ">"), repl) + input.substring(input.indexOf("<" + fm + ">") + 3);
+						input = padLeft(input.substring(0, input.indexOf("<" + fm + ">")), input.indexOf("<" + fm + ">"), repl) + input.substring(input.indexOf("<" + fm + ">") + 3);
 					} else {
 						input = Str.padLeft(input.substring(0, input.indexOf("<" + fm + ">")), input.indexOf("<" + fm + ">"), repl) + input.substring(input.indexOf("<" + fm + ">") + 3);
 					}
@@ -509,19 +533,19 @@ public class MinecraftChatStr {
 					if (line.indexOf("<" + fm + ">") != -1) {
 						if (fm.equals("l")) {
 							if (minecraftChatFormat) {
-								newinput.add(MinecraftChatStr.strPadRight(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl[i]) + line.substring(line.indexOf("<" + fm + ">") + 3));
+								newinput.add(MinecraftChatStr.padRight(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl[i]) + line.substring(line.indexOf("<" + fm + ">") + 3));
 							} else {
 								newinput.add(Str.padRight(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl[i]) + line.substring(line.indexOf("<" + fm + ">") + 3));
 							}
 						} else if (fm.equals("c")) {
 							if (minecraftChatFormat) {
-								newinput.add(MinecraftChatStr.strPadCenter(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl[i]) + line.substring(line.indexOf("<" + fm + ">") + 3));
+								newinput.add(MinecraftChatStr.padCenter(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl[i]) + line.substring(line.indexOf("<" + fm + ">") + 3));
 							} else {
 								newinput.add(Str.padCenter(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl[i]) + line.substring(line.indexOf("<" + fm + ">") + 3));
 							}
 						} else {
 							if (minecraftChatFormat) {
-								newinput.add(MinecraftChatStr.strPadLeft(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl[i]) + line.substring(line.indexOf("<" + fm + ">") + 3));
+								newinput.add(MinecraftChatStr.padLeft(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl[i]) + line.substring(line.indexOf("<" + fm + ">") + 3));
 							} else {
 								newinput.add(Str.padLeft(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl[i]) + line.substring(line.indexOf("<" + fm + ">") + 3));
 							}
@@ -536,12 +560,18 @@ public class MinecraftChatStr {
 		return input;
 	}
 
-	public static String getChatColor(String col) {
-		String def = ChatColor.WHITE.toString();//"\u00A70";
+	public static String getChatColorStr(String col, ChatColor def) {
+		ChatColor c = getChatColor(col);
+		return c != null ? c.toString() : (def != null ? def.toString() : null);
+	}
+	
+	public static ChatColor getChatColor(String col){
 		if (col == null || col.length() == 0) {
-			return def;
+			return null;
 		} else if (col.length() >= 2 && col.startsWith("\u00A7")) {
-			return col.substring(0, 2);
+			String c = col.substring(0, 2).toUpperCase();
+			int ic = "0123456789ABCDEF".indexOf(c);
+			return ChatColor.getByCode(ic);
 		}
 		col = col.toLowerCase().trim();
 		/*
@@ -563,39 +593,39 @@ public class MinecraftChatStr {
 		#       &f is white
 		 */
 		if (col.equalsIgnoreCase("black")) {
-			return ChatColor.BLACK.toString();//"\u00A70"; //String.format("\u00A7%x", 0x0);//
-		} else if (col.equals("blue") || col.equals("dark blue")) {
-			return ChatColor.DARK_BLUE.toString();//"\u00A71"; // String.format("\u00A7%x", 0x1);//
+			return ChatColor.BLACK;//"\u00A70"; //String.format("\u00A7%x", 0x0);//
+		} else if (col.equals("dark blue")) {
+			return ChatColor.DARK_BLUE;//"\u00A71"; // String.format("\u00A7%x", 0x1);//
 		} else if (col.equals("green") || col.equals("dark green")) {
-			return ChatColor.DARK_GREEN.toString();//"\u00A72"; // String.format("\u00A7%x", 0x2);//
-		} else if (col.equals("sky blue") || col.equals("dark sky blue") || col.equals("aqua")) {
-			return ChatColor.DARK_AQUA.toString();//"\u00A73"; // String.format("\u00A7%x", 0x3);//
-		} else if (col.equals("red") || col.equals("dark red")) {
-			return ChatColor.DARK_RED.toString();//"\u00A74"; // String.format("\u00A7%x", 0x4);//
+			return ChatColor.DARK_GREEN;//"\u00A72"; // String.format("\u00A7%x", 0x2);//
+		} else if (col.equals("sky blue") || col.equals("dark sky blue") || col.equals("teal")) {
+			return ChatColor.DARK_AQUA;//"\u00A73"; // String.format("\u00A7%x", 0x3);//
+		} else if (col.equals("dark red")) {
+			return ChatColor.DARK_RED;//"\u00A74"; // String.format("\u00A7%x", 0x4);//
 		} else if (col.equals("magenta") || col.equals("purple")) {
-			return ChatColor.DARK_PURPLE.toString();//"\u00A75"; // String.format("\u00A7%x", 0x5);//
+			return ChatColor.DARK_PURPLE;//"\u00A75"; // String.format("\u00A7%x", 0x5);//
 		} else if (col.equals("gold") || col.equals("amber") || col.equals("dark yellow")) {
-			return ChatColor.GOLD.toString();//"\u00A76"; // String.format("\u00A7%x", 0x6);//
+			return ChatColor.GOLD;//"\u00A76"; // String.format("\u00A7%x", 0x6);//
 		} else if (col.equals("light gray") || col.equals("light grey")) {
-			return ChatColor.GRAY.toString();//"\u00A77"; // String.format("\u00A7%x", 0x7);//
+			return ChatColor.GRAY;//"\u00A77"; // String.format("\u00A7%x", 0x7);//
 		} else if (col.equals("dark gray") || col.equals("dark grey") || col.equals("gray") || col.equals("grey")) {
-			return ChatColor.DARK_GRAY.toString();//"\u00A78"; // String.format("\u00A7%x", 0x8);//
-		} else if (col.equals("medium blue")) {
-			return ChatColor.BLUE.toString();//"\u00A79"; // String.format("\u00A7%x", 0x9);//
+			return ChatColor.DARK_GRAY;//"\u00A78"; // String.format("\u00A7%x", 0x8);//
+		} else if (col.equals("blue") || col.equals("medium blue")) {
+			return ChatColor.BLUE;//"\u00A79"; // String.format("\u00A7%x", 0x9);//
 		} else if (col.equals("light green") || col.equals("lime") || col.equals("lime green")) {
-			return ChatColor.GREEN.toString();//"\u00A7a"; // String.format("\u00A7%x", 0xA);//
-		} else if (col.equals("cyan") || col.equals("light blue")) {
-			return ChatColor.AQUA.toString();//"\u00A7b"; // String.format("\u00A7%x", 0xB);//
-		} else if (col.equals("orange") || col.equals("orange-red") || col.equals("red-orange")) {
-			return ChatColor.RED.toString();//"\u00A7c"; // String.format("\u00A7%x", 0xC);//
+			return ChatColor.GREEN;//"\u00A7a"; // String.format("\u00A7%x", 0xA);//
+		} else if (col.equals("aqua") || col.equals("cyan") || col.equals("light blue")) {
+			return ChatColor.AQUA;//"\u00A7b"; // String.format("\u00A7%x", 0xB);//
+		} else if (col.equals("red") || col.equals("orange") || col.equals("orange-red") || col.equals("red-orange")) {
+			return ChatColor.RED;//"\u00A7c"; // String.format("\u00A7%x", 0xC);//
 		} else if (col.equals("pink") || col.equals("light red") || col.equals("light purple")) {
-			return ChatColor.LIGHT_PURPLE.toString();//"\u00A7d"; // String.format("\u00A7%x", 0xD);//
+			return ChatColor.LIGHT_PURPLE;//"\u00A7d"; // String.format("\u00A7%x", 0xD);//
 		} else if (col.equals("yellow")) {
-			return ChatColor.YELLOW.toString();//"\u00A7e"; // String.format("\u00A7%x", 0xE);//
+			return ChatColor.YELLOW;//"\u00A7e"; // String.format("\u00A7%x", 0xE);//
 		} else if (col.equals("white")) {
-			return ChatColor.WHITE.toString();//"\u00A7f"; //String.format("\u00A7%x", 0xF);//
+			return ChatColor.WHITE;//"\u00A7f"; //String.format("\u00A7%x", 0xF);//
 		} else {
-			return def;
+			return null;
 		}
 	}
 }
