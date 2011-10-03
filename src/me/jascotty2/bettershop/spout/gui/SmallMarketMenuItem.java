@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 Jacob Scott <jascottytechie@gmail.com>
- * Description: ( TODO )
+ * Description: small button menu, with the icon overlaying the button
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,6 @@
  */
 
 package me.jascotty2.bettershop.spout.gui;
-
-import me.jascotty2.lib.bukkit.item.JItem;
-import me.jascotty2.lib.bukkit.item.JItemDB;
-import org.getspout.spoutapi.gui.RenderPriority;
 
 public class SmallMarketMenuItem extends ItemButtonContainer {
 

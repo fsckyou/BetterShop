@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 Jacob Scott <jascottytechie@gmail.com>
- * Description: ( TODO )
+ * Description: generic container with a button and itemWidget
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package me.jascotty2.bettershop.spout.gui;
 
 import me.jascotty2.lib.bukkit.item.JItem;
 import me.jascotty2.lib.bukkit.item.JItemDB;
+import org.getspout.spoutapi.gui.Container;
 import org.getspout.spoutapi.gui.GenericContainer;
 import org.getspout.spoutapi.gui.GenericButton;
 import org.getspout.spoutapi.gui.GenericItemWidget;
@@ -43,7 +44,7 @@ public abstract class ItemButtonContainer extends GenericContainer {
 		if (item != null && item.IsValidItem()) {
 			picItem.setTypeId(id).setData(dat);
 		} else {
-			picItem.setTypeId(0);
+			picItem.setTypeId(1).setVisible(false).setDirty(true);
 		}
 		itemName = item != null ? item.Name() : String.valueOf(id) + (dat != 0 ? ":" + dat : "");
 		this.children.add(marketButton);
@@ -66,14 +67,21 @@ public abstract class ItemButtonContainer extends GenericContainer {
 	}
 
 	public Widget setEnabled(boolean enable) {
-		if (super.isVisible() != enable) {
-			marketButton.setEnabled(enable);
-			marketButton.setDirty(true);
+		if (marketButton.isVisible() != enable) {
+			marketButton.setEnabled(enable).setDirty(true);
 			//((Widget)marketButton).setPriority(enable ? RenderPriority.Low : RenderPriority.High);
-			super.setDirty(true);
-			return super.setVisible(enable);
-		} else {
-			return this;
+			setVisible(enable);
 		}
+		return this;
 	}
+
+	@Override
+	public Container setVisible(boolean enable) {
+		marketButton.setVisible(enable).setDirty(true);
+		if (item != null && item.IsValidItem()) {
+			picItem.setVisible(enable).setDirty(true);
+		}
+		return this;
+	}
+	
 } // end class ItemButton

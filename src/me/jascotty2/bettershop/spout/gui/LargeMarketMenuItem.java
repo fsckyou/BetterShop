@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 Jacob Scott <jascottytechie@gmail.com>
- * Description: ( TODO )
+ * Description: large button menu, with the icon on the left & button on right
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

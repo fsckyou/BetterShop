@@ -106,7 +106,8 @@ public class SpoutKeyListener extends InputListener {
 								BetterShop.getConfig().getString("regionShopDisabled"));
 					}
 				}
-			}
+			} 
+//			else if(event.getKey() == Keyboard.KEY_P) { SpoutPopupDisplay.testScreen(event.getPlayer()); }
 		} catch (Exception e) {
 			BetterShopLogger.Severe("Unexpected error in KeyListener", e, !keyPressError);
 			keyPressError = true;

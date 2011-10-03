@@ -47,11 +47,12 @@ public class MarketItemDetail extends GenericContainer {
 	
 	int itemId;
 	byte itemData;
+	JItem item = null;
 	//PriceListItem price;
 	double buyPrice, sellPrice;
 	long stock;
 	Player player;
-	GenericItemWidget item = new GenericItemWidget();
+	GenericItemWidget picItem = new GenericItemWidget();
 	GenericLabel lblName = new GenericLabel();
 	GenericLabel lblCash = new GenericLabel(),
 			lblBuy = new GenericLabel(),
@@ -75,39 +76,41 @@ public class MarketItemDetail extends GenericContainer {
 	public MarketItemDetail(Player pl) {
 		player = pl;
 		displayShop = BetterShop.getShop(player);
-		this.setWidth(300).setHeight(70).setMargin(2);
-		item.setDepth(16).setWidth(16).setHeight(16).setX(10).setY(5);
+		this.setWidth(300).setHeight(70);
+		
+		picItem.setDepth(15).setWidth(15).setHeight(15).setX(10).setY(14);
+		picItem.setTypeId(1).setVisible(false);
 		lblName.setWidth(100).setHeight(20).setX(38).setY(3);
 
 		lblBuy.setWidth(100).setHeight(10).setX(150).setY(3);
 		lblSell.setWidth(100).setHeight(10).setX(150).setY(18);
 
-		lblCash.setWidth(110).setHeight(20).setX(MAX_WIDTH - 110).setY(8);
+		lblCash.setWidth(110).setHeight(20).setX(MAX_WIDTH - 110).setY(10);
 		updateCash();
 
-		txtAmt.setX(8).setY(height - 10).setWidth(30).setHeight(12);
+		txtAmt.setX(8).setY(height - 15).setWidth(30).setHeight(12);
 		txtAmt.setFieldColor(new Color(80 / 255F, 80 / 255F, 80 / 255F));
 		txtAmt.setBorderColor(new Color(.8F, .8F, .8F));
 		txtAmt.setColor(new Color(.9F, .9F, .9F));
 
-		lblAmt.setText("Amount: ").setWidth(55).setHeight(10).setX(3).setY(height - 22);
+		lblAmt.setText("Amount: ").setWidth(55).setHeight(10).setX(3).setY(height - 26);
 
-		btnUp.setText("+").setX(42).setY(height - 15).setWidth(12).setHeight(9);
-		btnDown.setText("-").setX(42).setY(height - 5).setWidth(12).setHeight(9);
+		btnUp.setText("+").setX(42).setY(height - 20).setWidth(12).setHeight(9);
+		btnDown.setText("-").setX(42).setY(height - 10).setWidth(12).setHeight(9);
 		btnUp5.setText("+5").setX(btnUp.getX() + 15).setY(btnUp.getY()).setWidth(20).setHeight(9);
 		btnDown5.setText("-5").setX(btnDown.getX() + 15).setY(btnDown.getY()).setWidth(20).setHeight(9);
 		btnUp20.setText("+20").setX(btnUp5.getX() + 22).setY(btnUp.getY()).setWidth(22).setHeight(9);
 		btnDown20.setText("-20").setX(btnDown5.getX() + 22).setY(btnDown.getY()).setWidth(22).setHeight(9);
 
-		btnBuy.setX(120).setY(height - 26).setWidth(110).setHeight(28);
-		btnSell.setX(245).setY(height - 26).setWidth(110).setHeight(28);
+		btnBuy.setX(120).setY(height - 30).setWidth(110).setHeight(28);
+		btnSell.setX(245).setY(height - 30).setWidth(110).setHeight(28);
 
 		lblBuyBtn.setX(btnBuy.getX() + 5).setY(btnBuy.getY() + 5).setWidth(btnBuy.getWidth() - 10).setHeight(btnBuy.getHeight() - 10).setPriority(RenderPriority.Low);
 		lblSellBtn.setX(btnSell.getX() + 5).setY(btnSell.getY() + 5).setWidth(btnSell.getWidth() - 10).setHeight(btnSell.getHeight() - 10).setPriority(RenderPriority.Lowest);
 
 		setVisible(false);
 
-		this.children.add(item);
+		this.children.add(picItem);
 		this.children.add(lblName);
 		this.children.add(lblBuy);
 		this.children.add(lblSell);
@@ -129,6 +132,10 @@ public class MarketItemDetail extends GenericContainer {
 	@Override
 	public final Container setVisible(boolean vis){
 		
+		if (item != null && item.IsValidItem()) {
+			picItem.setVisible(vis);
+		}
+
 		lblAmt.setVisible(vis);
 		txtAmt.setVisible(vis);
 
@@ -174,22 +181,22 @@ public class MarketItemDetail extends GenericContainer {
 		//price = null;
 		buyPrice = sellPrice = -1;
 
-		JItem j = JItemDB.GetItem(id, dat);
-		if (j != null && j.IsValidItem()) {
-			item.setTypeId(id).setData(dat);
+		item = JItemDB.GetItem(id, dat);
+		if (item != null && item.IsValidItem()) {
+			picItem.setTypeId(id).setData(dat).setVisible(true);
 		} else {
-			item.setTypeId(0);
+			picItem.setTypeId(1).setVisible(false);
 		}
-		item.setDirty(true);
+		picItem.setDirty(true);
 
-		lblName.setText(j != null ? j.Name() : String.valueOf(id)).setDirty(true);
+		lblName.setText(item != null ? item.Name() : String.valueOf(id)).setDirty(true);
 
 		try {
 			buyPrice = displayShop.pricelist.itemBuyPrice(player, id, dat, 1);
 			sellPrice = displayShop.pricelist.itemSellPrice(player, id, dat, 1);
 			stock = displayShop.stock.getItemAmount(id, dat);
-			maxBuyAmt = displayShop.pricelist.getAmountCanBuy(player, j);
-			maxSellAmt = BSutils.amtHas(player, j);
+			maxBuyAmt = displayShop.pricelist.getAmountCanBuy(player, item);
+			maxSellAmt = BSutils.amtHas(player, item);
 			if (BetterShop.getConfig().useItemStock) {
 				lblName.setText(lblName.getText() + "\n\n" + (stock < 0 ? "INF" : stock) + " in Stock");
 			}
@@ -198,16 +205,7 @@ public class MarketItemDetail extends GenericContainer {
 			lblSell.setText("Sell Price: " + BSEcon.format(sellPrice)).setDirty(true);
 
 			if (!lblAmt.isVisible()) {
-				lblAmt.setVisible(true).setDirty(true);
-				txtAmt.setVisible(true);
-				btnUp.setVisible(true).setDirty(true);
-				btnDown.setVisible(true).setDirty(true);
-				btnUp5.setVisible(true).setDirty(true);
-				btnDown5.setVisible(true).setDirty(true);
-				btnUp20.setVisible(true).setDirty(true);
-				btnDown20.setVisible(true).setDirty(true);
-				btnBuy.setVisible(true).setDirty(true);
-				btnSell.setVisible(true).setDirty(true);
+				setVisible(true);
 			}
 			if (currentAmt > maxBuyAmt && currentAmt > maxSellAmt) {
 				currentAmt = maxBuyAmt > maxSellAmt ? maxBuyAmt : maxSellAmt;
