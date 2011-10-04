@@ -568,7 +568,7 @@ public class ItemStackManip {
 			invCpy[i] = minecraftItemStack[i] == null ? null
 					: new ItemStack(minecraftItemStack[i].getItem().id,
 					minecraftItemStack[i].count,
-					(short) minecraftItemStack[i].damage,
+					(short) minecraftItemStack[i].getData(),
 					(byte) minecraftItemStack[i].getData());
 		}
 		return invCpy;

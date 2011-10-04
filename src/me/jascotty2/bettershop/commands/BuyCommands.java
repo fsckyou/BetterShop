@@ -195,7 +195,6 @@ public class BuyCommands {
 			if (toBuy.size() > 0) { //.numItems() > 0){
 				//buyItem((Player) player, toBuy, 1, -1);
 				for (JItem[] it : toBuy) {
-					System.out.println(it[0].Name() + " - " + it[0].MaxStackSize());
 					buyItem((Player) player, it, amt * (mx && it.length == 1 ? it[0].MaxStackSize() : 64), -1);
 				}
 			}
@@ -524,6 +523,9 @@ public class BuyCommands {
 			double itemCost = customPrice >= 0 ? customPrice * amt
 					: shop.pricelist.itemBuyPrice(player, it, buyAmt);
 			price += itemCost;
+			if(itemCost < 0) {
+				throw new Exception("Invalid Price encountered: " + itemCost + " for " + amt + " " + it.Name());
+			}
 			if (BSEcon.debit(player, itemCost)) {
 				itemN += it.coloredName() + ", ";
 				if (it.isEntity()) {

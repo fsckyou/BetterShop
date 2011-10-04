@@ -2,7 +2,10 @@
 BetterShop Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
-Version 2.0.1 - 10/2/11
+Version 2.0.2 - 10/3/11
+fixed for compatibility with craftbukkit 1240
+
+Version 2.0.1 - 10/3/11
 Important Update: fixed a buying bug that instead of purchasing items gives free money
 fixed compatibility with new spoutcraft
 - new bug caused crashes when attempting to display an empty icon
