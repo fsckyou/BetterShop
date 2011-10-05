@@ -60,6 +60,8 @@ public class ChestListener extends BlockListener /*implements Runnable*/ {
 	public void startProtect() {
 		plugin.getServer().getPluginManager().registerEvent(
 				Type.ENTITY_EXPLODE, blockBreakBlock, Priority.Low, plugin);
+		plugin.getServer().getPluginManager().registerEvent(
+				Type.ENDERMAN_PICKUP, blockBreakBlock, Priority.Low, plugin);
 	}
 
 	@Override
