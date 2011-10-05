@@ -28,6 +28,7 @@ import me.jascotty2.bettershop.utils.BSPermissions;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 import org.getspout.spoutapi.event.input.InputListener;
 import org.getspout.spoutapi.event.input.KeyPressedEvent;
+import org.getspout.spoutapi.gui.ScreenType;
 import org.getspout.spoutapi.keyboard.Keyboard;
 
 /**
@@ -98,15 +99,17 @@ public class SpoutKeyListener extends InputListener {
 			if (event.getKey() == Keyboard.KEY_ESCAPE) {
 				SpoutPopupDisplay.closePopup(event.getPlayer());
 			} else if (event.getKey() == listenKey) {
-				if (BSPermissions.hasPermission(event.getPlayer(), BetterShopPermission.USER_SPOUT, true)) {
-					if (BetterShop.commandShopEnabled(event.getPlayer().getLocation())) {
-						SpoutPopupDisplay.popup(event.getPlayer(), event.getScreenType());
-					} else {
-						BSutils.sendMessage(event.getPlayer(),
-								BetterShop.getConfig().getString("regionShopDisabled"));
+				if (event.getScreenType() != ScreenType.CHAT_SCREEN) {
+					if (BSPermissions.hasPermission(event.getPlayer(), BetterShopPermission.USER_SPOUT, true)) {
+						if (BetterShop.commandShopEnabled(event.getPlayer().getLocation())) {
+							SpoutPopupDisplay.popup(event.getPlayer(), event.getScreenType());
+						} else {
+							BSutils.sendMessage(event.getPlayer(),
+									BetterShop.getConfig().getString("regionShopDisabled"));
+						}
 					}
 				}
-			} 
+			}
 //			else if(event.getKey() == Keyboard.KEY_P) { SpoutPopupDisplay.testScreen(event.getPlayer()); }
 		} catch (Exception e) {
 			BetterShopLogger.Severe("Unexpected error in KeyListener", e, !keyPressError);

@@ -619,6 +619,8 @@ public class SpoutPopupDisplay {
 		} else if (btn == itemDetail.btnBuy) {
 			if (itemDetail.buyAmt() > 0) {
 				player.performCommand("shopbuy " + itemDetail.itemIDD() + " " + itemDetail.buyAmt());
+//				BetterShop.getPlugin().onCommand(player,
+//						new PluginCommand("shopbuy", BetterShop.getPlugin()), "shopbuy", new String[]{itemDetail.itemIDD(), String.valueOf(itemDetail.buyAmt())});
 				closePopup(player);
 			}
 		} else if (btn == itemDetail.btnSell) {

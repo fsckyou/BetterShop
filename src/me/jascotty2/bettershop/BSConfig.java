@@ -455,6 +455,7 @@ public class BSConfig {
 					} else if (cShopMode.equalsIgnoreCase("both")) {
 						commandShopMode = CommandShopMode.BOTH;
 					} else {
+						BetterShopLogger.Warning("Invalid setting in shop.commandShop: " + cShopMode);
 						commandShopMode = CommandShopMode.GLOBAL;
 					}
 				}

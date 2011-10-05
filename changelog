@@ -2,8 +2,14 @@
 BetterShop Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
+Version 2.0.3 - 10/5/11
+fixed spout key in chat in a disabled region causing access deny messages
+fixed no access to creating region shops outside of an existing region
+
+
 Version 2.0.2 - 10/3/11
 fixed for compatibility with craftbukkit 1240
+
 
 Version 2.0.1 - 10/3/11
 Important Update: fixed a buying bug that instead of purchasing items gives free money
@@ -12,6 +18,7 @@ fixed compatibility with new spoutcraft
 - also caused positioning to change
 - there is a new annoying bug with the scrollbar: 
 - - when using the arrow buttons, the prior position is selected, then updated on the next button press
+
 
 Version 2.0 - 9/24/11
 near-complete rewrite

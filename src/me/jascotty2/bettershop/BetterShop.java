@@ -64,7 +64,7 @@ import me.jascotty2.lib.util.Str;
  */
 public class BetterShop extends JavaPlugin {
 
-	public final static String lastUpdatedStr = "10/03/11 15:05 -0500"; // "MM/dd/yy HH:mm Z"
+	public final static String lastUpdatedStr = "10/05/11 13:15 -0500"; // "MM/dd/yy HH:mm Z"
 	public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
 	protected static Plugin bettershopPlugin = null;
 	protected final static BSConfig config = new BSConfig();
@@ -218,14 +218,11 @@ public class BetterShop extends JavaPlugin {
 
 		if (sender instanceof Player
 				&& (!shopManager.locationHasShop(((Player) sender).getLocation())
-				|| (Str.isIn(commandName,
+				&& (Str.isIn(commandName,
 				new String[]{"shopbuy", "shopbuyall", "shopbuystack",
-					"shopsell", "shopsellall", "shopsellstack", /*
-				 * "shoplist",
-				 * "shopitems",
-				 * "shopcheck",
-				 * "shoplistkits",
-				 * "shopadd",
+					"shopsell", "shopsellall", "shopsellstack",
+				 "shoplist", "shopitems", "shopcheck", "shoplistkits"
+				 /*, "shopadd",
 				 * "shopremove"
 				 */})
 				&& !commandShopEnabled(((Player) sender).getLocation())))) {
@@ -254,7 +251,7 @@ public class BetterShop extends JavaPlugin {
 		try {
 			commandManager.execute(sender, commandName, args);
 			return true;
-		}catch (CommandPermissionsException e) {
+		} catch (CommandPermissionsException e) {
 			// message already sent to player
 			return true;
 		} catch (MissingNestedCommandException e) {
