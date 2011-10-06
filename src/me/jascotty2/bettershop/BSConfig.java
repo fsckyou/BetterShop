@@ -201,7 +201,7 @@ public class BSConfig {
 							"signDestroyProtection",
 							"weSignDestroyProtection",
 							"tntSignDestroyProtection",
-							"chestShops", "chestSellBar", 
+							"chestShops", "chestSellBar",
 							"chestDestroyProtection",
 							"tntChestDestroyProtection",
 							"chestText",
@@ -432,15 +432,15 @@ public class BSConfig {
 				signDestroyProtection = n.getBoolean("signDestroyProtection", signDestroyProtection);
 				signWEprotection = n.getBoolean("weSignDestroyProtection", signWEprotection);
 				signTNTprotection = n.getBoolean("tntSignDestroyProtection", signTNTprotection);
-				
+
 				chestShopEnabled = n.getBoolean("chestShops", chestShopEnabled);
 				chestSellBar = n.getBoolean("chestSellBar", chestSellBar);
 				chestDestroyProtection = n.getBoolean("chestDestroyProtection", chestDestroyProtection);
 				chestTNTprotection = n.getBoolean("tntChestDestroyProtection", chestTNTprotection);
-				
+
 				chestText = n.getString("chestText", chestText);
 				chestEditText = n.getString("chestEditText", chestEditText);
-				
+
 				signItemColor = n.getBoolean("signItemColor", signItemColor);
 				signItemColorBWswap = n.getBoolean("signItemColorBWswap", signItemColorBWswap);
 
@@ -455,7 +455,9 @@ public class BSConfig {
 					} else if (cShopMode.equalsIgnoreCase("both")) {
 						commandShopMode = CommandShopMode.BOTH;
 					} else {
-						BetterShopLogger.Warning("Invalid setting in shop.commandShop: " + cShopMode);
+						if (!cShopMode.equalsIgnoreCase("global")) {
+							BetterShopLogger.Warning("Invalid setting in shop.commandShop: " + cShopMode);
+						}
 						commandShopMode = CommandShopMode.GLOBAL;
 					}
 				}
@@ -484,6 +486,10 @@ public class BSConfig {
 				}
 				hideHelp = n.getBoolean("hideHelp", hideHelp);
 
+			}
+			if (activeSignColor.equalsIgnoreCase("blue")) {
+				// "blue" looks like light purple on a sign
+				activeSignColor = "dark blue";
 			}
 			activeSignColor = MinecraftChatStr.getChatColorStr(activeSignColor, ChatColor.BLUE);
 
@@ -619,17 +625,26 @@ public class BSConfig {
 
 	public void extractDefaults() {
 		pluginFolder.mkdirs();
+
+
 		if (!configfile.exists()) {
 			BetterShopLogger.Log(configname + " not found. Creating new file.");
-			extractFile(configfile);
+			extractFile(
+					configfile);
+
+
 		}
 		if (!itemDBFile.exists()) {
 			extractFile(itemDBFile);
+
+
 		}
 	}
 
 	private void extractFile(File dest) {
 		extractFile(dest, dest.getName());
+
+
 	}
 
 	private void extractFile(File dest, String fname) {
@@ -637,6 +652,9 @@ public class BSConfig {
 			dest.createNewFile();
 			InputStream res = BetterShop.class.getResourceAsStream("/" + fname);
 			FileWriter tx = new FileWriter(dest);
+
+
+
 			try {
 				for (int i = 0; (i = res.read()) > 0;) {
 					tx.write(i);
@@ -648,6 +666,8 @@ public class BSConfig {
 			}
 		} catch (IOException ex) {
 			BetterShopLogger.Log(Level.SEVERE, "Failed creating new file (" + fname + ")", ex, false);
+
+
 		}
 	}
 
@@ -676,99 +696,151 @@ public class BSConfig {
 //                }
 //            }
 			String eco = BSEcon.economyMethod.getName();
+
+
 			if (eco.equalsIgnoreCase("iConomy")
 					|| eco.equalsIgnoreCase("BOSEconomy")) {
 				String t = BSEcon.format(1.);
 				defaultCurrency = t.substring(t.indexOf(' ') + 1);
 				t = BSEcon.format(2.);
 				pluralCurrency = t.substring(t.indexOf(' ') + 1);
+
+
 			} else if (eco.equalsIgnoreCase("Essentials")) {
 				File conf = new File("Essentials", "config.yml");
+
+
 				if (conf.exists()) {
 					Configuration config = new Configuration(conf);
 					config.load();
 					defaultCurrency = config.getString("currency-name", defaultCurrency);
 					pluralCurrency = config.getString("currency-name-plural", pluralCurrency);
+
+
 				}
 			}
 		} catch (Exception e) {
 			BetterShopLogger.Log(Level.SEVERE, "Error Extracting Currency Name", e, false);
+
+
 		}
 	}
 
 	public boolean useMySQL() {
 		return databaseType == DBType.MYSQL;
+
+
 	}
 
 	public boolean useFlatfile() {
 		return databaseType == DBType.FLATFILE;
+
+
 	}
 
 	public boolean useGlobalCommandShop() {
 		return commandShopMode == CommandShopMode.GLOBAL || commandShopMode == CommandShopMode.BOTH;
+
+
 	}
 
 	public boolean useRegionCommandShop() {
 		return commandShopMode == CommandShopMode.REGIONS || commandShopMode == CommandShopMode.BOTH;
+
+
 	}
 
 	public boolean useCommandShop() {
 		return commandShopMode != CommandShopMode.NONE;
+
+
 	}
 
 	public boolean useCommandShopGlobal() {
 		return commandShopMode == CommandShopMode.BOTH;
+
+
 	}
 
 	public String getActiveSignColor() {
 		return activeSignColor;
+
+
 	}
 
 	public String getCustomErrorMessage() {
 		return customErrorMessage;
+
+
 	}
 
 	public String getSpoutKey() {
 		return spoutKey;
+
+
 	}
 
 	public void setSpoutKey(String spoutKey) {
 		if (!this.spoutKey.equals(spoutKey)) {
 			this.spoutKey = spoutKey;
+
+
 			if (BetterShop.keyListener != null) {
 				BetterShop.keyListener.reloadKey();
+
+
 			}
 		}
 	}
 
 	public String getString(String key) {
 		String ret = stringMap.get(key);
+
+
 		if (ret == null) {
 			BetterShopLogger.Log(Level.WARNING, String.format("%s missing from configuration file", key));
 			ret = "(\"" + key + "\" is Missing)";
+
+
 		}
 		return ret;
+
+
 	}
 
 	public boolean hasString(String key) {
 		String ret = stringMap.get(key);
+
+
 		if (ret == null) {
 			BetterShopLogger.Log(Level.WARNING, String.format("%s missing from configuration file", key));
+
+
 			return false;
+
+
 		}
 		return true;
+
+
 	}
 
 	public String currency() {
 		return defaultCurrency;
+
+
 	}
 
 	public String currency(boolean plural) {
 		return plural ? pluralCurrency : defaultCurrency;
+
+
 	}
 
 	String b(boolean b) {
 		return b ? "1" : "0";
+
+
 	}
 
 	public String condensedSettings() {
@@ -789,34 +861,51 @@ public class BSConfig {
 				+ spoutEnabled + "," + spoutKey + ","
 				+ largeSpoutMenu + "," + spoutUsePages + ","
 				+ spoutCatCustomSort + "," + spoutCategories.name();
+
+
 	}
 
 	public static int indexOf(String array[], String search) {
 		if (array != null && array.length > 0) {
-			for (int i = array.length - 1; i >= 0; --i) {
+			for (int i = array.length - 1; i
+					>= 0;
+					--i) {
 				if (array[i].equals(search)) {
 					return i;
+
+
 				}
 			}
 		}
 		return -1;
+
+
 	}
 
 	public static int indexOfIgnoreCase(String array[], String search) {
-		for (int i = array.length - 1; i >= 0; --i) {
+		for (int i = array.length - 1; i
+				>= 0;
+				--i) {
 			if (array[i].equalsIgnoreCase(search)) {
 				return i;
+
+
 			}
 		}
 		return -1;
+
+
 	}
 
 	static boolean configHasNode(Configuration config, String[] nodes) {
 		for (String n : nodes) {
 			if (config.getProperty(n) != null) {
 				return true;
+
+
 			}
 		}
 		return false;
+
 	}
 }

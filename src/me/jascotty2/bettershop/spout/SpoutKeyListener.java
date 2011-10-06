@@ -99,10 +99,10 @@ public class SpoutKeyListener extends InputListener {
 			if (event.getKey() == Keyboard.KEY_ESCAPE) {
 				SpoutPopupDisplay.closePopup(event.getPlayer());
 			} else if (event.getKey() == listenKey) {
-				if (event.getScreenType() != ScreenType.CHAT_SCREEN) {
+				if (event.getScreenType() == ScreenType.GAME_SCREEN) {
 					if (BSPermissions.hasPermission(event.getPlayer(), BetterShopPermission.USER_SPOUT, true)) {
 						if (BetterShop.commandShopEnabled(event.getPlayer().getLocation())) {
-							SpoutPopupDisplay.popup(event.getPlayer(), event.getScreenType());
+							SpoutPopupDisplay.popup(event.getPlayer());
 						} else {
 							BSutils.sendMessage(event.getPlayer(),
 									BetterShop.getConfig().getString("regionShopDisabled"));

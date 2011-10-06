@@ -243,7 +243,7 @@ public class SellCommands {
 		usersellHistory.put(((Player) player).getDisplayName(), "shopsellall " + Str.concatStr(s));
 		try {
 			// now sell the items
-			sellItems((Player) player, onlyInv, getCanSell((Player) player, onlyInv, toSell));
+			sellItems((Player) player, onlyInv, getCanSell((Player) player, onlyInv, toSell, -1));
 		} catch (Exception ex) {
 			throw new WrappedCommandException(ex);
 		}
@@ -266,20 +266,24 @@ public class SellCommands {
 		((Player) sender).performCommand(action);
 	}
 
-	public static List<ItemStack> getCanSell(Player player, boolean onlyInv, JItem[] toSell) throws SQLException, Exception {
+	public static List<ItemStack> getCanSell(Player player, boolean onlyInv, JItem[] toSell, double customPrice) throws SQLException, Exception {
 		List<ItemStack> items = ItemStackManip.itemStackSummary(
 				player.getInventory().getContents(), toSell, onlyInv ? 9 : 0);
 		Shop shop = BetterShop.getShop(player);
+		JItem toSell1 = null;
 
 //		ArrayList<String> notwant = new ArrayList<String>();
 		if (toSell == null || toSell.length == 0 || (toSell.length == 1 && toSell[0] == null)) {
 			// null is a wildcard for all
 			toSell = null;
 		} else if (toSell != null) {
+			if (toSell.length == 1) {
+				toSell1 = toSell[0];
+			}
 			// remove unwanted items
 			for (int i = 0; i < toSell.length; ++i) {
 				if (toSell[i] != null
-						&& (!shop.pricelist.isForSale(toSell[i])
+						&& (!(customPrice >= 0 || shop.pricelist.isForSale(toSell[i]))
 						|| (toSell[i].IsTool() && !BetterShop.getConfig().buybacktools))) {
 //					notwant.add(toSell[i].coloredName());
 					toSell[i] = null;
@@ -290,7 +294,7 @@ public class SellCommands {
 		// remove unsellable items
 		if (toSell == null) {
 			for (int i = 0; i < items.size(); ++i) {
-				if (!shop.pricelist.isForSale(items.get(i))) {
+				if (!(customPrice >= 0 || shop.pricelist.isForSale(items.get(i)))) {
 					items.remove(i--);
 				} else if (!BetterShop.getConfig().buybacktools
 						&& items.get(i).getDurability() > 0) {
@@ -305,7 +309,7 @@ public class SellCommands {
 			for (int i = 0; i < items.size(); ++i) {
 				// if not trying to sell, or item is not for sale, remove
 				if (!contains(toSell, items.get(i))
-						|| !shop.pricelist.isForSale(items.get(i))) {
+						|| !(customPrice >= 0 || shop.pricelist.isForSale(items.get(i)))) {
 					items.remove(i--);
 				}
 			}
@@ -335,7 +339,7 @@ public class SellCommands {
 		if (items.isEmpty() && !overstock) {
 			BSutils.sendMessage(player, "You Don't have any "
 					+ (toSell == null ? "Sellable Items"
-					: (toSell.length == 1 ? toSell[0].coloredName() : /*Str.concatStr(toSell, ",")*/ "of those items")));
+					: (toSell.length == 1 ? toSell1.coloredName() : /*Str.concatStr(toSell, ",")*/ "of those items")));
 		}
 //		if (notwant.size() > 0) {
 //			BSutils.sendMessage(player, BetterShop.getConfig().getString("donotwant").
@@ -359,7 +363,7 @@ public class SellCommands {
 	}
 
 	public static double sellItems(Player player, boolean onlyInv, JItem[] items, int amt, double customPrice) throws SQLException, Exception {
-		List<ItemStack> sellable = getCanSell((Player) player, onlyInv, items);
+		List<ItemStack> sellable = getCanSell((Player) player, onlyInv, items, customPrice);
 		// should be at least one item
 		if (!sellable.isEmpty()) {
 			if (amt > 0) {
@@ -415,7 +419,7 @@ public class SellCommands {
 	public static double sellItems(Player player, boolean onlyInv, List<ItemStack> sellable, double customPrice) throws SQLException, Exception {
 
 		if (sellable == null) {
-			sellable = getCanSell((Player) player, onlyInv, null);
+			sellable = getCanSell((Player) player, onlyInv, null, customPrice);
 		}
 		if (sellable.isEmpty()) {
 			return 0;
@@ -445,18 +449,22 @@ public class SellCommands {
 
 			for (int i = (onlyInv ? 9 : 0); i < inv.length && amtLeft > 0; ++i) {
 				if (selling.equals(inv[i])) {
+
 					int amt = inv[i].getAmount();
 					if (amtLeft < amt) {
 						inv[i].setAmount(amt - amtLeft);
 						amt = amtLeft;
 					} else {
-						inv[i] = null;
+						inv[i].setAmount(0);
 					}
 
 					price += selling.IsTool() ? ((customPrice >= 0 ? customPrice * amt : shop.pricelist.itemSellPrice(player, selling, amt))
 							* (1 - ((double) inv[i].getDurability() / selling.MaxDamage())))
 							: (customPrice >= 0 ? customPrice * amt : shop.pricelist.itemSellPrice(player, selling, amt));
 
+					if (inv[i].getAmount() <= 0) {
+						inv[i] = null;
+					}
 					amtSold += amt;
 					amtLeft -= amt;
 				}

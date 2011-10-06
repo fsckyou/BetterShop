@@ -228,16 +228,16 @@ public class BSSignShop extends PlayerListener {
 									} else {
 										List<ItemStack> sellable;
 										if (signInfo.catItems != null) {
-											sellable = SellCommands.getCanSell(player, signInfo.isInv, signInfo.catItems);
+											sellable = SellCommands.getCanSell(player, signInfo.isInv, signInfo.catItems, signInfo.customPrice);
 										} else if (signInfo.inHand) {
 											ItemStack hand = player.getItemInHand();
 											if (hand == null || hand.getAmount() == 0) {
 												BSutils.sendMessage(event.getPlayer(), "you don't have anything in your hand");
 												return;
 											}
-											sellable = SellCommands.getCanSell(player, signInfo.isInv, new JItem[]{JItemDB.GetItem(hand)});
+											sellable = SellCommands.getCanSell(player, signInfo.isInv, new JItem[]{JItemDB.GetItem(hand)}, signInfo.customPrice);
 										} else {
-											sellable = SellCommands.getCanSell(player, signInfo.isInv, null);
+											sellable = SellCommands.getCanSell(player, signInfo.isInv, null, signInfo.customPrice);
 										}
 										for (ItemStack ite : sellable) {
 											if (signInfo.amount > 0) { // not all

@@ -346,7 +346,9 @@ public class JItemDB {
 	}
 
 	public static JItem GetItem(int id, byte dat) {
-
+		if(JItems.isTool(id)) {
+			dat = 0;
+		}
 		String idd = id + ":" + dat;
 		if (items.containsKey(idd)) {
 			return items.get(idd);

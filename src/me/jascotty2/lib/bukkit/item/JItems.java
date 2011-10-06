@@ -274,7 +274,7 @@ public enum JItems {
 	POWERED_MINECART("Powered Minecart", 343, "328+61", 1),
 	EGG("Egg", 344, 16),
 	COMPASS("Compass", 345, "265@4+331"),
-	FISHING_ROD("Fishing Rod", 346, "280@3+287@2", 33),
+	FISHING_ROD("Fishing Rod", 346, "280@3+287@2", (short) 33),
 	WATCH("Clock", 347, "266@4+331"),
 	GLOWSTONE_DUST("Glowstone Dust", 348),
 	RAW_FISH("Raw Fish", 349),
@@ -337,7 +337,7 @@ public enum JItems {
 	POTION_WEAKNESS("Weakness Potion", 373, (byte) 18),
 	POTION_POISON("Poison Potion", 373, (byte) 19),
 	GLASS_BOTTLE("Glass Bottle", 374, "20@3"),
-	SPIDER_EYE("Spider Eye", 375), 
+	SPIDER_EYE("Spider Eye", 375),
 	FERMENTED_SPIDER_EYE("Fermented Spider Eye", 376, "375+39+352"),
 	BLAZE_POWDER("Blaze Powder", 377, "369=2"),
 	MAGMA_CREAM("Magma Cream", 378, "377+341"),
@@ -361,6 +361,15 @@ public enum JItems {
 	private short maxdamage = 0; // indicates that this is a tool
 	public String name = null;//, category = null;
 	private LinkedList<CraftRecipe> recipes = new LinkedList<CraftRecipe>();
+	// what item ids' data resemble max damage value
+	// (must be in ascending order)
+	private static int[] tools = new int[]{
+		256, 257, 258, 259, 267, 268, 269, 270, 271,
+		272, 273, 274, 275, 276, 277, 278, 278, 279,
+		283, 284, 285, 286, 290, 291, 292, 293, 294,
+		298, 299, 300, 301, 302, 303, 304, 305,
+		306, 307, 308, 309, 310, 311, 312, 313,
+		314, 315, 316, 317, 346, 359};
 
 	private JItems(String name, int id) {
 		if (SetID(id)) {
@@ -702,16 +711,26 @@ public enum JItems {
 		return null;
 	}
 
-	public static int getMaxStack(int id, byte dat){
+	public static int getMaxStack(int id, byte dat) {
 		JItems i = getItem(id, dat);
 		return i == null ? 64 : i.MaxStackSize();
 	}
 
-	public static int getMaxStack(ItemStack it){
+	public static int getMaxStack(ItemStack it) {
 		JItems i = getItem(it.getTypeId(), it.getData() == null ? 0 : it.getData().getData());
 		return i == null ? 64 : i.MaxStackSize();
 	}
 
+	public static boolean isTool(int id) {
+		int i = Arrays.binarySearch(tools, id);
+		return i >= 0 && tools[i] == id;
+	}
+
+	public static boolean isTool(ItemStack it) {
+		JItems ji = getItem(it.getTypeId(), it.getData() == null ? 0 : it.getData().getData());
+		return ji != null && ji.IsTool();
+	}
+	
 	@Override
 	public String toString() {
 		return String.format("%s (%d:%d)", getName(), itemId, itemData);

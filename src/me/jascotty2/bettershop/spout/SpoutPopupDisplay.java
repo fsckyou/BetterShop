@@ -46,7 +46,6 @@ import org.getspout.spoutapi.gui.GenericPopup;
 import org.getspout.spoutapi.gui.GenericSlider;
 import org.getspout.spoutapi.gui.InGameHUD;
 import org.getspout.spoutapi.gui.RenderPriority;
-import org.getspout.spoutapi.gui.ScreenType;
 import org.getspout.spoutapi.gui.Slider;
 import org.getspout.spoutapi.gui.TextField;
 import org.getspout.spoutapi.player.SpoutPlayer;
@@ -95,28 +94,15 @@ public class SpoutPopupDisplay {
 	} // end default constructor
 
 	public static void popup(SpoutPlayer p) {
-		popup(p, null);
-	}
-
-	public static void popup(SpoutPlayer p, ScreenType scr) {
 		if (popupOpen.containsKey(p)) {
 			closePopup(p);
 			return;
 		}
-		if (((scr != null)
-				&& ((scr == ScreenType.GAME_SCREEN)
-				|| (scr == ScreenType.PLAYER_INVENTORY)
-				|| (scr == ScreenType.DISPENSER_INVENTORY)
-				|| (scr == ScreenType.FURNACE_INVENTORY)
-				|| (scr == ScreenType.WORKBENCH_INVENTORY)
-				|| (scr == ScreenType.CUSTOM_SCREEN))) || scr == null) {
-			BetterShop.checkRestock();
-			SpoutPopupDisplay d = new SpoutPopupDisplay(p);
-			//System.out.println(p.getMainScreen().getHeight() + " x " + p.getMainScreen().getWidth());
-			popupOpen.put(p, d);
-			d.show();
-		}
-
+		BetterShop.checkRestock();
+		SpoutPopupDisplay d = new SpoutPopupDisplay(p);
+		//System.out.println(p.getMainScreen().getHeight() + " x " + p.getMainScreen().getWidth());
+		popupOpen.put(p, d);
+		d.show();
 	}
 
 	public static void closePopup(SpoutPlayer p) {

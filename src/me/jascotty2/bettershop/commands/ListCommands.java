@@ -196,7 +196,7 @@ public class ListCommands {
 
 		try {
 			if (s[0].equalsIgnoreCase("all")) {
-				List<ItemStack> sellable = SellCommands.getCanSell((Player) player, false, null);
+				List<ItemStack> sellable = SellCommands.getCanSell((Player) player, false, null, -1);
 				if (!sellable.isEmpty()) {
 					PriceListItem price = new PriceListItem();
 					price.buy = price.sell = 0;

@@ -237,7 +237,7 @@ public class ShopSign {
 			if (amount < 0) {
 				//playerAmount = 0;
 				List<ItemStack> sellable = SellCommands.getCanSell(player,
-						isInv, item == null ? null : item == null ? catItems : new JItem[]{item});
+						isInv, item == null ? null : item == null ? catItems : new JItem[]{item}, customPrice);
 				for (ItemStack it : sellable) {
 					//playerAmount += it.getAmount();
 					price += shop.pricelist.itemSellPrice(player, it, it.getAmount());

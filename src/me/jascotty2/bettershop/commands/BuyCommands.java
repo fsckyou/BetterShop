@@ -411,13 +411,13 @@ public class BuyCommands {
 		}
 		if (toBuy.length == 1) {
 			Shop shop = BetterShop.getShop(player);
-			if (!shop.pricelist.canBuy(toBuy[0])) {
+			if (customPrice <= 0 && !shop.pricelist.canBuy(toBuy[0])) {
 				BSutils.sendMessage(player,
 						BetterShop.getConfig().getString("notforsale").
 						replace("<item>", toBuy[0].coloredName()));
 				return;
 			}
-			int canHold = shop.pricelist.getAmountCanBuy(player, toBuy[0]);
+			int canHold = shop.pricelist.getAmountCanBuy(player, toBuy[0], customPrice);
 			if (amt < 0) {
 				amt = canHold;
 			} else if (amt > canHold) {
