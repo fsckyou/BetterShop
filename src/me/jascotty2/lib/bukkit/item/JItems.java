@@ -55,7 +55,7 @@ public enum JItems {
 	REDWOOD_LEAVES("Spruce Leaves", 18, (byte) 1),
 	BIRCH_LEAVES("Birch Leaves", 18, (byte) 2),
 	SPONGE("Sponge", 19, false),
-	GLASS("Glass", 20, "12@8+263=8, 12@3+5@2=3"),
+	GLASS("Glass", 20, "12@8+263=8, 12@3+5@2=3, 12@12+369=12"),
 	LAPIS_ORE("Lapis Lazuli Ore", 21, false),
 	LAPIS_BLOCK("Lapis Lazuli Block", 22, "351:11@9"),
 	DISPENSER("Dispenser", 23, "4@7+331+261"),
@@ -175,6 +175,12 @@ public enum JItems {
 	FENCE_GATE("Fence Gate", 107, "4@280+5@2"),
 	BRICK_STAIRS("Brick Stairs", 108, "45@6=4"),
 	STONE_STAIRS("Stone Stairs", 109, "98@6=4"),
+	MYCELIUM("Mycelium", 110, false),
+	LILLY_PAD("Lilly Pad", 111),
+	NETHER_BRICK("Nether Brick", 112),
+	NETHER_BRICK_FENCE("Nether Brick Fence", 113, "112@6=6"),
+	NETHER_BRICK_STAIRS("Nether Brick Stairs", 114, "112@6=6"),
+	NETHER_WART_Block("Nether Wart Block", 115, false),
 	// Items
 	IRON_SPADE("Iron Shovel", 256, "280@2+265", (short) 251),
 	IRON_PICKAXE("Iron Pickaxe", 257, "280@2+265@3", (short) 251),
@@ -186,8 +192,8 @@ public enum JItems {
 	COAL("Coal", 263),
 	CHARCOAL("Charcoal", 263, (byte) 1),
 	DIAMOND("Diamond", 264),
-	IRON_INGOT("Iron Ingot", 265, "15@8+263=8, 15@3+5@2=3"),
-	GOLD_INGOT("Gold Ingot", 266, "14@8+263=8, 14@3+5@2=3"),
+	IRON_INGOT("Iron Ingot", 265, "15@8+263=8, 15@3+5@2=3, 15@12+369=12"),
+	GOLD_INGOT("Gold Ingot", 266, "14@8+263=8, 14@3+5@2=3, 14@12+369=12, 371@9"),
 	IRON_SWORD("Iron Sword", 267, "280+265@2", (short) 251),
 	WOOD_SWORD("Wooden Sword", 268, "280+5@2", (short) 60),
 	WOOD_SPADE("Wooden Shovel", 269, "280@2+5", (short) 60),
@@ -242,7 +248,7 @@ public enum JItems {
 	GOLD_BOOTS("Gold Boots", 317, "265@4", (short) 80),
 	FLINT("Flint", 318),
 	PORK("Raw Porkchop", 319),
-	GRILLED_PORK("Cooked Porkchop", 320, "319@8+263=8, 319@3+5@2=3"), // intentionally less-than-perfect conversion
+	GRILLED_PORK("Cooked Porkchop", 320, "319@8+263=8, 319@3+5@2=3, 319@12+369=12"),
 	PAINTING("Painting", 321, "280@8+15"),
 	GOLDEN_APPLE("Golden Apple", 322, "260+41@8"),
 	SIGN("Sign", 323, "280+5@6", 1),
@@ -258,7 +264,7 @@ public enum JItems {
 	BOAT("Boat", 333, "5@5", 1),
 	LEATHER("Leather", 334),
 	MILK_BUCKET("Milk Bucket", 335, 1),
-	CLAY_BRICK("Clay Brick", 336, "337@8+263=8, 337@3+5@2=3"),
+	CLAY_BRICK("Clay Brick", 336, "337@8+263=8, 337@3+5@2=3, 337@12+369=12"),
 	CLAY_BALL("Clay Balls", 337),
 	SUGAR_CANE("Sugar Cane", 338),
 	PAPER("Paper", 339, "338@3=3"),
@@ -272,10 +278,10 @@ public enum JItems {
 	WATCH("Clock", 347, "266@4+331"),
 	GLOWSTONE_DUST("Glowstone Dust", 348),
 	RAW_FISH("Raw Fish", 349),
-	COOKED_FISH("Cooked Fish", 350, "349@8+263=8"),
+	COOKED_FISH("Cooked Fish", 350, "349@8+263=8, 349@3+5@2=3, 349@12+369=12"),
 	INK_SACK("Ink Sac", 351),
 	RED_DYE("Red Dye", 351, (byte) 1, "38=2"),
-	GREEN_DYE("Green Dye", 351, (byte) 2, "81@8+263=8, 81@3+5@2=3"),
+	GREEN_DYE("Green Dye", 351, (byte) 2, "81@8+263=8, 81@3+5@2=3, 81@12+369=12"),
 	BROWN_DYE("Cocoa Bean", 351, (byte) 3), // no current method for crafting cocoa
 	BLUE_DYE("Lapis Lazuli", 351, (byte) 4, "22=9"),
 	PURPLE_DYE("Purple Dye", 351, (byte) 5, "351:4+351:1=2"),
@@ -301,13 +307,52 @@ public enum JItems {
 	PUMPKIN_SEEDS("Pumpkin Seeds", 361, "360"),
 	MELON_SEEDS("Melon Seeds", 362, "360"),
 	RAW_BEEF("Raw Beef", 363),
-	STEAK("Steak", 364, "363@8+263=8, 363@3+5@2=3"),
+	STEAK("Steak", 364, "363@8+263=8, 363@3+5@2=3, 363@12+369=12"),
 	RAW_CHICKEN("Raw Chicken", 365),
-	COOKED_CHICKEN("Cooked Chicken", 366, "365@8+263=8, 365@3+5@2=3"),
+	COOKED_CHICKEN("Cooked Chicken", 366, "365@8+263=8, 365@3+5@2=3, 365@12+369=12"),
 	ROTTEN_FLESH("Rotten Flesh", 367),
 	ENDER_PEARL("Ender Pearl", 368),
-	GOLD_RECORD("Gold Record", 2256, 1),
-	GREEN_RECORD("Green Record", 2257, 1);
+	BLAZE_ROD("Blaze Rod", 369),
+	GHAST_TEAR("Ghast Tear", 370),
+	GOLD_NUGGET("Gold Nugget", 371),
+	NETHER_WART("Nether Wart", 372),
+	POTION("Potion", 373), // will need to add values later, so far unknown
+	POTION_MOVESPEED("Speed Potion", 373, (byte) 1),
+	POTION_MOVESLOWDOWN("Slowness Potion", 373, (byte) 2),
+	POTION_DIGSPEED("Haste Potion", 373, (byte) 3),
+	POTION_DIGSLOWDOWN("Fatigue Potion", 373, (byte) 4),
+	POTION_DAMEGEBOOST("Strength Potion", 373, (byte) 5),
+	POTION_HEAL("Heal Potion", 373, (byte) 6),
+	POTION_HARM("Damage Potion", 373, (byte) 7),
+	POTION_JUMP("Jump Potion", 373, (byte) 8),
+	POTION_CONFUSION("Nausea Potion", 373, (byte) 9),
+	POTION_REGENERATION("Regeneration Potion", 373, (byte) 10),
+	POTION_RESISTANCE("Resistance Potion", 373, (byte) 11),
+	POTION_FIRERESISTANCE("Fire Resistance Potion", 373, (byte) 12),
+	POTION_WATERBREATHING("Water Breathing Potion", 373, (byte) 13),
+	POTION_INVISIBILITY("Invisibility Potion", 373, (byte) 14),
+	POTION_BLINDNESS("Blindness Potion", 373, (byte) 15),
+	POTION_NIGHTVISION("Night Vision Potion", 373, (byte) 16),
+	POTION_HUNGER("Hunger Potion", 373, (byte) 17),
+	POTION_WEAKNESS("Weakness Potion", 373, (byte) 18),
+	POTION_POISON("Poison Potion", 373, (byte) 19),
+	GLASS_BOTTLE("Glass Bottle", 374, "20@3"),
+	SPIDER_EYE("Spider Eye", 375), 
+	FERMENTED_SPIDER_EYE("Fermented Spider Eye", 376, "375+39+352"),
+	BLAZE_POWDER("Blaze Powder", 377, "369=2"),
+	MAGMA_CREAM("Magma Cream", 378, "377+341"),
+	// Records
+	GOLD_RECORD("13 Disk", 2256, 1), // Gold Record
+	GREEN_RECORD("Cat Disc", 2257, 1), // Green Record
+	ORANGE_RECORD("Blocks Disc", 2258, 1),
+	RED_RECORD("Chirp Disc", 2259, 1),
+	LIME_RECORD("Far Disc", 2260, 1),
+	BLUE_RECORD("Mall Disc", 2261, 1),
+	PURPLE_RECORD("Mellohi Disc", 2262, 1),
+	BLAACK_RECORD("Stal Disc", 2263, 1),
+	WHITE_RECORD("Strad Disc", 2264, 1),
+	GREEN_LIME_RECORD("Ward Disc", 2265, 1), // has half green, half lime
+	BROKEN_RECORD("11 Disc", 2266, 1);
 // Item Information
 	private int itemId;
 	private byte itemData;
@@ -462,7 +507,7 @@ public enum JItems {
 			itemId = id;
 			return true;
 		} else {
-			System.out.println("invalid item: " + id + " (is this plugin up-to-date?)");
+			//System.out.println("invalid item: " + id + " (is this plugin up-to-date?)");
 			itemId = -1;
 			name = "";
 			isLegal = false;
