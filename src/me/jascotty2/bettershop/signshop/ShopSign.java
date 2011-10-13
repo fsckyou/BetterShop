@@ -106,8 +106,8 @@ public class ShopSign {
 					throw new IllegalArgumentException("Invalid Sign! (invalid item: " + searchItem + ")");
 				}
 				amount = amount <= 0
-						? (BetterShop.getConfig().usemaxstack ? item.MaxStackSize() : 64)
-						: amount * (BetterShop.getConfig().usemaxstack ? item.MaxStackSize() : 64);
+						? (BetterShop.getSettings().usemaxstack ? item.MaxStackSize() : 64)
+						: amount * (BetterShop.getSettings().usemaxstack ? item.MaxStackSize() : 64);
 			}
 
 			if (amount <= 0) {
@@ -148,13 +148,13 @@ public class ShopSign {
 		//sign.setLine(0, BetterShop.getConfig().activeSignColor + SIGN_TEXT);
 
 		boolean up = false;
-		if (!sign.getLine(0).startsWith(BetterShop.getConfig().activeSignColor)) {
-			sign.setLine(0, BetterShop.getConfig().activeSignColor + SIGN_TEXT);
+		if (!sign.getLine(0).startsWith(BetterShop.getSettings().activeSignColor)) {
+			sign.setLine(0, BetterShop.getSettings().activeSignColor + SIGN_TEXT);
 			up = true;
 		}
-		if (BetterShop.getConfig().signItemColor && item != null
+		if (BetterShop.getSettings().signItemColor && item != null
 				&& item.color != null && !sign.getLine(2).startsWith(item.color)) {
-			if (BetterShop.getConfig().signItemColorBWswap) {
+			if (BetterShop.getSettings().signItemColorBWswap) {
 				if (ChatColor.BLACK.toString().equals(item.color)) {
 					if (!sign.getLine(2).startsWith(ChatColor.WHITE.toString())) {
 						sign.setLine(2, ChatColor.WHITE + ChatColor.stripColor(sign.getLine(2)));
@@ -196,14 +196,14 @@ public class ShopSign {
 		if (isBuy) {
 			int buyAmt = amount;
 			if (item != null && !item.IsLegal()
-					&& (BetterShop.getConfig().allowbuyillegal
+					&& (BetterShop.getSettings().allowbuyillegal
 					|| BSPermissions.hasPermission(player, BetterShopPermission.ADMIN_ILLEGAL, false))) {
-				BSutils.sendMessage(player, BetterShop.getConfig().getString("illegalbuy").
+				BSutils.sendMessage(player, BetterShop.getSettings().getString("illegalbuy").
 						replace("<item>", item.coloredName()));
 				return -1;
 			} else if (item != null && !shop.pricelist.isForSale(item)) {
 				BSutils.sendMessage(player,
-						BetterShop.getConfig().getString("notforsale").
+						BetterShop.getSettings().getString("notforsale").
 						replace("<item>", item.coloredName()));
 				return -1;
 			}
@@ -219,11 +219,11 @@ public class ShopSign {
 						BetterShopLogger.Log(Level.SEVERE, ex, false);
 					}
 					if (avail == 0) {
-						BSutils.sendMessage(player, BetterShop.getConfig().getString("outofstock").
+						BSutils.sendMessage(player, BetterShop.getSettings().getString("outofstock").
 								replace("<item>", item.coloredName()));
 						return -1;
 					} else if (avail >= 0 && amount > avail) {
-						BSutils.sendMessage(player, BetterShop.getConfig().getString("lowstock").
+						BSutils.sendMessage(player, BetterShop.getSettings().getString("lowstock").
 								replace("<item>", item.coloredName()).
 								replace("<amt>", String.valueOf(avail)));
 						buyAmt = (int) avail;

@@ -41,13 +41,13 @@ public class BSTransactionLog extends TransactionLog {
     public final boolean load() {
         transactions.clear();
         totalTransactions.clear();
-        logUserTransactions = BetterShop.getConfig().logUserTransactions;
-        logTotalTransactions = BetterShop.getConfig().logTotalTransactions;
+        logUserTransactions = BetterShop.getSettings().logUserTransactions;
+        logTotalTransactions = BetterShop.getSettings().logTotalTransactions;
         transLogTablename = pricelist.config.transLogTablename;
         recordTablename = pricelist.config.recordTablename;
-        userTansactionLifespan = BetterShop.getConfig().userTansactionLifespan;
+        userTansactionLifespan = BetterShop.getSettings().userTansactionLifespan;
 
-        if (BetterShop.getConfig().useMySQL()) {
+        if (BetterShop.getSettings().useMySQL()) {
             // use same connection pricelist is using (pricelist MUST be initialized.. does not check)
             MySQLconnection = pricelist.getMySQLconnection();
             if (MySQLconnection == null) {
@@ -102,18 +102,18 @@ public class BSTransactionLog extends TransactionLog {
     }
 
     public boolean isOpened() {
-        return isLoaded && (BetterShop.getConfig().useMySQL()
+        return isLoaded && (BetterShop.getSettings().useMySQL()
                 ? MySQLconnection != null && MySQLconnection.isConnected() : flatFile != null);
     }
 
     public String databaseName() {
-        return BetterShop.getConfig().useMySQL()
+        return BetterShop.getSettings().useMySQL()
                 ? (MySQLconnection != null ? MySQLconnection.getDatabaseName() : "null")
                 : (flatFile != null ? flatFile.getName() : "null");
     }
 
     public void tableCheck() {
-        if (BetterShop.getConfig().useMySQL()
+        if (BetterShop.getSettings().useMySQL()
                 && MySQLconnection != null && MySQLconnection.isConnected()) {
             try {
                 //Version 1.6.1.1+  ALTER TABLE BetterShopMarketActivity ADD COLUMN PRICE DECIMAL(11,2);

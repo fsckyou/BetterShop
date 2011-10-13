@@ -81,7 +81,7 @@ public class BSSignShop extends PlayerListener {
 
 	@Override
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		if (event.isCancelled() || !BetterShop.getConfig().signShopEnabled) {
+		if (event.isCancelled() || !BetterShop.getSettings().signShopEnabled) {
 			return;
 		}
 
@@ -152,7 +152,7 @@ public class BSSignShop extends PlayerListener {
 										}
 									}
 									if (numCheck == 0 && shop.config.useStock() && shop.stock.getItemAmount(signInfo.item) == 0) {
-										BSutils.sendMessage(player, BetterShop.getConfig().getString("outofstock").
+										BSutils.sendMessage(player, BetterShop.getSettings().getString("outofstock").
 												replace("<item>", signInfo.item.coloredName()));
 										return;
 									}
@@ -261,10 +261,10 @@ public class BSSignShop extends PlayerListener {
 								}
 							}
 							BSutils.sendMessage(event.getPlayer(),
-									BetterShop.getConfig().getString(signInfo.isBuy ? "multipricecheckbuy" : "multipricechecksell"). //numCheck == 1 ? "pricecheck" : "multipricecheck"
+									BetterShop.getSettings().getString(signInfo.isBuy ? "multipricecheckbuy" : "multipricechecksell"). //numCheck == 1 ? "pricecheck" : "multipricecheck"
 									replace(signInfo.isBuy ? "<buyprice>" : "<sellprice>", String.format("%.2f", total /*numCheck > 0 ? total / numCheck : 0*/)).
 									replace("<item>", itemN).
-									replace("<curr>", BetterShop.getConfig().currency()).
+									replace("<curr>", BetterShop.getSettings().currency()).
 									replace(signInfo.isBuy ? "<buycur>" : "<sellcur>", BSEcon.format(total /*numCheck > 0 ? total / numCheck : 0*/)).
 									replace("<amt>", String.valueOf(numCheck)));
 

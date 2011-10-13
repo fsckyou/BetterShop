@@ -97,16 +97,16 @@ public class SignDB {
 									}
 
 									boolean up = false;
-									if (!checkSign.getLine(0).startsWith(BetterShop.getConfig().activeSignColor)) {
-										checkSign.setLine(0, BetterShop.getConfig().activeSignColor + ChatColor.stripColor(checkSign.getLine(0)));
+									if (!checkSign.getLine(0).startsWith(BetterShop.getSettings().activeSignColor)) {
+										checkSign.setLine(0, BetterShop.getSettings().activeSignColor + ChatColor.stripColor(checkSign.getLine(0)));
 										up = true;
 									}
-									if (BetterShop.getConfig().signItemColor) {
+									if (BetterShop.getSettings().signItemColor) {
 										JItem i = signInfo.getItem();
 										if (i != null && i.color != null && !checkSign.getLine(2).startsWith(i.color)) {
-											if (BetterShop.getConfig().signItemColorBWswap && ChatColor.BLACK.toString().equals(i.color)) {
+											if (BetterShop.getSettings().signItemColorBWswap && ChatColor.BLACK.toString().equals(i.color)) {
 												checkSign.setLine(2, ChatColor.WHITE + ChatColor.stripColor(checkSign.getLine(2)));
-											} else if (BetterShop.getConfig().signItemColorBWswap && ChatColor.WHITE.toString().equals(i.color)) {
+											} else if (BetterShop.getSettings().signItemColorBWswap && ChatColor.WHITE.toString().equals(i.color)) {
 												checkSign.setLine(2, ChatColor.BLACK + ChatColor.stripColor(checkSign.getLine(2)));
 											} else {
 												checkSign.setLine(2, i.color + ChatColor.stripColor(checkSign.getLine(2)));

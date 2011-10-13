@@ -201,7 +201,7 @@ public class ItemStackManip {
 			}
 		} else {
 			for (ItemStack item : items) {
-				int mx = !extraStack || noStack.contains(item.getTypeId()) ? check.MaxStackSize() : 64;
+				int mx = !extraStack || (item != null && noStack.contains(item.getTypeId())) ? check.MaxStackSize() : 64;
 				if (item == null || item.getAmount() == 0
 						|| (check.equals(item) && item.getAmount() <= mx)) {
 					amt += mx - (item == null ? 0 : item.getAmount());

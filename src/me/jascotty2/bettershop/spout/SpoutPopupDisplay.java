@@ -41,6 +41,7 @@ import org.getspout.spoutapi.gui.Button;
 import org.getspout.spoutapi.gui.Color;
 import org.getspout.spoutapi.gui.GenericButton;
 import org.getspout.spoutapi.gui.GenericContainer;
+import org.getspout.spoutapi.gui.GenericGradient;
 import org.getspout.spoutapi.gui.GenericLabel;
 import org.getspout.spoutapi.gui.GenericPopup;
 import org.getspout.spoutapi.gui.GenericSlider;
@@ -64,7 +65,7 @@ public class SpoutPopupDisplay {
 	GenericButton btnExit = new GenericButton(),
 			btnAbout = new GenericButton();
 	//GenericContainer items = new GenericContainer();
-	GenericSlider itemScroll = new GenericSlider();
+//	GenericSlider itemScroll = new GenericSlider();
 	GenericButton btnScrollLeft = new GenericButton(),
 			btnScrollRight = new GenericButton();
 	GenericLabel lblPageNum = new GenericLabel();
@@ -77,6 +78,8 @@ public class SpoutPopupDisplay {
 	boolean aboutActive = false;
 	boolean isPaged = true;
 	int numPages;
+	// gradient :)
+	GenericGradient gradient = new GenericGradient();
 	// categories
 	int catNum = 0;
 	String[] categories;
@@ -90,7 +93,7 @@ public class SpoutPopupDisplay {
 	public SpoutPopupDisplay(SpoutPlayer p) {
 		player = p;
 		itemDetail = new MarketItemDetail(p);
-		isPaged = BetterShop.getConfig().spoutUsePages;
+		isPaged = BetterShop.getSettings().spoutUsePages;
 	} // end default constructor
 
 	public static void popup(SpoutPlayer p) {
@@ -154,12 +157,12 @@ public class SpoutPopupDisplay {
 		categories[0] = "All";
 		System.arraycopy(cats, 0, categories, 1, cats.length);
 
-		if (BetterShop.getConfig().spoutCategories == SpoutCategoryMethod.CYCLE) {
+		if (BetterShop.getSettings().spoutCategories == SpoutCategoryMethod.CYCLE) {
 			btnCatCycle = new GenericButton();
 			btnCatCycle.setTooltip("Category");
 			btnCatCycle.setWidth(50).setHeight(15).setX(374).setY(205);
 			popup.attachWidget(BetterShop.getPlugin(), btnCatCycle);
-		} else if (BetterShop.getConfig().spoutCategories == SpoutCategoryMethod.TABBED) {
+		} else if (BetterShop.getSettings().spoutCategories == SpoutCategoryMethod.TABBED) {
 			btnTabLeft = new GenericButton();
 			btnTabRight = new GenericButton();
 			btnTabLeft.setText("<").setHeight(10).setWidth(10).setY(4).setX(2);
@@ -207,7 +210,7 @@ public class SpoutPopupDisplay {
 
 		MarketItemDetail itemDetail = new MarketItemDetail(p);
 		itemDetail.setX(2).setY(MAX_HEIGHT - itemDetail.getHeight());
-		itemDetail.updateItem(1, (byte)0);
+		itemDetail.updateItem(1, (byte) 0);
 
 		popup.attachWidget(BetterShop.getPlugin(), itemScroll);
 		popup.attachWidget(BetterShop.getPlugin(), btnScrollLeft);
@@ -244,12 +247,12 @@ public class SpoutPopupDisplay {
 		categories[0] = "All";
 		System.arraycopy(cats, 0, categories, 1, cats.length);
 
-		if (BetterShop.getConfig().spoutCategories == SpoutCategoryMethod.CYCLE) {
+		if (BetterShop.getSettings().spoutCategories == SpoutCategoryMethod.CYCLE) {
 			btnCatCycle = new GenericButton();
 			btnCatCycle.setTooltip("Category");
 			btnCatCycle.setWidth(50).setHeight(15).setX(374).setY(205);
 			popup.attachWidget(BetterShop.getPlugin(), btnCatCycle);
-		} else if (BetterShop.getConfig().spoutCategories == SpoutCategoryMethod.TABBED) {
+		} else if (BetterShop.getSettings().spoutCategories == SpoutCategoryMethod.TABBED) {
 			btnTabLeft = new GenericButton();
 			btnTabRight = new GenericButton();
 			btnTabLeft.setText("<").setHeight(10).setWidth(10).setY(4).setX(2);
@@ -282,11 +285,11 @@ public class SpoutPopupDisplay {
 
 		// GenericSlider is not vertical :(
 		//itemScroll.setHeight(350).setWidth(5).setX(100);
-		itemScroll.setHeight(8).setWidth(width - 20);
-		itemScroll.setY(height).setX((MAX_WIDTH - (width - 20)) / 2);
-		itemScroll.setSliderPosition(0);
+//		itemScroll.setHeight(8).setWidth(width - 20);
+//		itemScroll.setY(height).setX((MAX_WIDTH - (width - 20)) / 2);
+//		itemScroll.setSliderPosition(0);
 
-		btnScrollLeft.setText("<").setHeight(10).setWidth(10).setY(height).setX(2);
+		btnScrollLeft.setText("<").setHeight(10).setWidth(10).setY(height).setX(MAX_WIDTH - 90);//.setX(2);
 		btnScrollRight.setText(">").setHeight(10).setWidth(10).setY(height).setX(MAX_WIDTH - 12);
 
 		lblPageNum.setHeight(7).setWidth(40).setY(height + 11).setX(MAX_WIDTH - 75);
@@ -294,11 +297,17 @@ public class SpoutPopupDisplay {
 
 		itemDetail.setX(2).setY(MAX_HEIGHT - itemDetail.getHeight()); //height + 15);
 
-		popup.attachWidget(BetterShop.getPlugin(), itemScroll);
+		gradient.setPriority(RenderPriority.Highest);
+		gradient.setTopColor(new Color(0.5F, 0.5F, 0.5F, 0.4F)).
+				setBottomColor(new Color(0.2F, 0.2F, 0.2F, 0.4F));
+		gradient.setX(xPad/2).setY(yPad/2).setWidth(MAX_WIDTH - xPad).setHeight(height - yPad);
+
+//		popup.attachWidget(BetterShop.getPlugin(), itemScroll);
 		popup.attachWidget(BetterShop.getPlugin(), btnScrollLeft);
 		popup.attachWidget(BetterShop.getPlugin(), btnScrollRight);
 		popup.attachWidget(BetterShop.getPlugin(), lblPageNum);
 		popup.attachWidget(BetterShop.getPlugin(), itemDetail);
+		popup.attachWidget(BetterShop.getPlugin(), gradient);
 
 		hudscreen.attachPopupScreen(popup);
 		hudscreen.updateWidget(popup);
@@ -314,7 +323,8 @@ public class SpoutPopupDisplay {
 		popup.attachWidget(BetterShop.getPlugin(), btnExit);
 
 		GenericLabel lblTitle = new GenericLabel();
-		lblTitle.setText("About").setX((MAX_WIDTH - 45) / 2).setY(10).setWidth(45).setHeight(30);
+		lblTitle.setText(MinecraftChatStr.padCenter("About", ' ', 45)).setX((MAX_WIDTH - 45) / 2).
+				setY(12).setWidth(45).setHeight(10);
 		popup.attachWidget(BetterShop.getPlugin(), lblTitle);
 
 		GenericLabel lblAbout = new GenericLabel();
@@ -328,7 +338,7 @@ public class SpoutPopupDisplay {
 		String lines[] = about.split("\n");
 		StringBuilder txt = new StringBuilder();
 		for (int i = 0; i < lines.length;) {
-			txt.append(MinecraftChatStr.padCenter(lines[i], ' ', 210));
+			txt.append(MinecraftChatStr.padCenter(lines[i], ' ', 200));
 			if (++i < lines.length) {
 				txt.append("\n");
 			}
@@ -337,6 +347,33 @@ public class SpoutPopupDisplay {
 
 		popup.attachWidget(BetterShop.getPlugin(), lblAbout);
 
+
+		GenericGradient gradTitle = new GenericGradient();
+		
+		gradTitle.setPriority(RenderPriority.Highest);
+		gradTitle.setTopColor(new Color(0.4F, 0.4F, 0.4F, 0.6F)).
+				setBottomColor(new Color(0.2F, 0.2F, 0.2F, 0.4F));
+		gradTitle.setX(lblTitle.getX() - xPad).
+				setY(lblTitle.getY() - yPad).
+				setWidth(lblTitle.getWidth() + xPad * 2).
+				setHeight(lblTitle.getHeight() + yPad * 2);
+
+		popup.attachWidget(BetterShop.getPlugin(), gradTitle);
+
+
+		GenericGradient gradText = new GenericGradient();
+		
+		gradText.setPriority(RenderPriority.Highest);
+		gradText.setTopColor(new Color(0.4F, 0.4F, 0.4F, 0.6F)).
+				setBottomColor(new Color(0.2F, 0.2F, 0.2F, 0.4F));
+		gradText.setX(lblAbout.getX() - xPad).
+				setY(lblAbout.getY() - yPad).
+				setWidth(lblAbout.getWidth() + xPad * 2).
+				setHeight(lblAbout.getHeight() + yPad * 2);
+
+		popup.attachWidget(BetterShop.getPlugin(), gradText);
+
+		
 		InGameHUD hudscreen = player.getMainScreen();
 		hudscreen.attachPopupScreen(popup);
 		hudscreen.updateWidget(popup);
@@ -355,7 +392,7 @@ public class SpoutPopupDisplay {
 		String cat = categories[catNum];
 		if (btnCatCycle != null) {
 			btnCatCycle.setText(cat).setDirty(true);
-		} else if (BetterShop.getConfig().spoutCategories == SpoutCategoryMethod.TABBED) {
+		} else if (BetterShop.getSettings().spoutCategories == SpoutCategoryMethod.TABBED) {
 			for (int c = 0; c < tabButtons.size(); ++c) {
 				tabButtons.get(c).setTextColor(
 						c == catNum ? new Color(.95F, .95F, .95F)//.95F, .35F, .35F)//(float) 33 / 255, (float) 25 / 255, (float) 210 / 255)
@@ -378,7 +415,7 @@ public class SpoutPopupDisplay {
 						items.add(p);
 					}
 				}
-				if (catNum > 0 && BetterShop.getConfig().spoutCatCustomSort) {
+				if (catNum > 0 && BetterShop.getSettings().spoutCatCustomSort) {
 					final List<JItem> catItems = JItemDB.getCategory(cat);
 					if (catItems != null) {
 						Collections.sort(items, new Comparator<PriceListItem>() {
@@ -404,7 +441,7 @@ public class SpoutPopupDisplay {
 
 			int x, y, ix, iy, dx = xPad, dy = yPad;
 			boolean vis = true,
-					lg = BetterShop.getConfig().largeSpoutMenu;
+					lg = BetterShop.getSettings().largeSpoutMenu;
 			if (lg) {
 				dx += LargeMarketMenuItem.DEF_WIDTH;
 				dy += LargeMarketMenuItem.DEF_HEIGHT;
@@ -418,7 +455,7 @@ public class SpoutPopupDisplay {
 
 			maxRows = height / dy;
 			y = (height - (maxRows * dy) + yPad) / 2;
-			if (BetterShop.getConfig().spoutCategories == SpoutCategoryMethod.TABBED) {
+			if (BetterShop.getSettings().spoutCategories == SpoutCategoryMethod.TABBED) {
 				y += 15;
 			}
 			iy = y;
@@ -492,7 +529,7 @@ public class SpoutPopupDisplay {
 		menuPages.clear();
 		numPages = 0;
 
-		itemScroll.setSliderPosition(0);
+//		itemScroll.setSliderPosition(0);
 
 		itemDetail.setVisible(false);
 	}
@@ -585,11 +622,13 @@ public class SpoutPopupDisplay {
 		} else if (btn == btnAbout) {
 			showAbout();
 		} else if (btn == btnScrollLeft) {
-			itemScroll.setSliderPosition((float) (currentPage - 1) / numPages).setDirty(true);
-			sliderChanged(itemScroll);
+//			itemScroll.setSliderPosition((float) (currentPage - 1) / numPages).setDirty(true);
+//			sliderChanged(itemScroll);
+			showPage(currentPage - 1);
 		} else if (btn == btnScrollRight) {
-			itemScroll.setSliderPosition((float) (currentPage + 1.2) / numPages).setDirty(true);
-			sliderChanged(itemScroll);
+//			itemScroll.setSliderPosition((float) (currentPage + 1.2) / numPages).setDirty(true);
+//			sliderChanged(itemScroll);
+			showPage(currentPage + 1);
 		} else if (btn == itemDetail.btnUp) {
 			itemDetail.buttonUpPressed(1);
 		} else if (btn == itemDetail.btnDown) {
@@ -637,20 +676,20 @@ public class SpoutPopupDisplay {
 			}
 		}
 	}
-
-	public void sliderChanged(Slider scrollbar) {
-		if (scrollbar == itemScroll) {
-			itemScroll.savePos();
-			//int page = (int) Math.ceil((((float) menuItems.size() / maxRows) - (maxCols - 1)) * scrollbar.getSliderPosition()) - 1;
-			int page = (int) Math.ceil(numPages * scrollbar.getSliderPosition()) - 1;
-			if (page < 0) {
-				page = 0;
-			}
-			if (currentPage != page) {
-				showPage(page);
-			}
-		}
-	}
+//
+//	public void sliderChanged(Slider scrollbar) {
+//		if (scrollbar == itemScroll) {
+//			itemScroll.savePos();
+//			//int page = (int) Math.ceil((((float) menuItems.size() / maxRows) - (maxCols - 1)) * scrollbar.getSliderPosition()) - 1;
+//			int page = (int) Math.ceil(numPages * scrollbar.getSliderPosition()) - 1;
+//			if (page < 0) {
+//				page = 0;
+//			}
+//			if (currentPage != page) {
+//				showPage(page);
+//			}
+//		}
+//	}
 
 	public void textChanged(TextFieldChangeEvent event) {
 		TextField t = event.getTextField();

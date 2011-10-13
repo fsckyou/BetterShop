@@ -89,15 +89,15 @@ public class RegionShopManager {
 
 	public boolean isCommandShopEnabled(Location loc) {
 		if (loc == null) {
-			return BetterShop.getConfig().useCommandShop();
-		} else if (!BetterShop.getConfig().useCommandShop()) {
+			return BetterShop.getSettings().useCommandShop();
+		} else if (!BetterShop.getSettings().useCommandShop()) {
 			return false;
-		} else if (BetterShop.getConfig().useCommandShopGlobal()) {
+		} else if (BetterShop.getSettings().useCommandShopGlobal()) {
 			return true;
 		}
 		boolean isRegion = inShopRegion(loc);
-		return BetterShop.getConfig().useRegionCommandShop() && isRegion
-				|| BetterShop.getConfig().useGlobalCommandShop() && !isRegion;
+		return BetterShop.getSettings().useRegionCommandShop() && isRegion
+				|| BetterShop.getSettings().useGlobalCommandShop() && !isRegion;
 	}
 
 	/**
@@ -106,9 +106,9 @@ public class RegionShopManager {
 	 * @return
 	 */
 	public boolean locationHasShop(Location loc) {
-		if (BetterShop.getConfig().useCommandShopGlobal()) {
+		if (BetterShop.getSettings().useCommandShopGlobal()) {
 			return true;
-		} else if (BetterShop.getConfig().useRegionCommandShop()) {
+		} else if (BetterShop.getSettings().useRegionCommandShop()) {
 			return inShopRegion(loc);
 		} else {
 			return !inShopRegion(loc);

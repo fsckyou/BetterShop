@@ -46,9 +46,9 @@ public class BSItemStock extends ItemStock {
 
 	public final boolean load() {
 		lastStock = new Date();
-		useCache = BetterShop.getConfig().useDBCache;
-		dbCacheTTL = BetterShop.getConfig().priceListLifespan;
-		if (BetterShop.getConfig().useMySQL()) {
+		useCache = BetterShop.getSettings().useDBCache;
+		dbCacheTTL = BetterShop.getSettings().priceListLifespan;
+		if (BetterShop.getSettings().useMySQL()) {
 			databaseType = DBType.MYSQL;
 			try {
 				MySQLstockList = new MySQLItemStock(
@@ -130,7 +130,7 @@ public class BSItemStock extends ItemStock {
 	}
 
 	public long freeStockRemaining(int id, byte dat) {
-		if (BetterShop.getConfig().useItemStock) {
+		if (BetterShop.getSettings().useItemStock) {
 			try {
 				long st = getItemAmount(id, dat);
 				if (st < 0) {

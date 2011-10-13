@@ -36,8 +36,8 @@ import me.jascotty2.bettershop.shop.ShopConfig;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 import org.bukkit.ChatColor;
 
-import org.bukkit.util.config.Configuration;
-import org.bukkit.util.config.ConfigurationNode;
+import me.jascotty2.lib.bukkit.config.Configuration;
+import me.jascotty2.lib.bukkit.config.ConfigurationNode;
 
 public class BSConfig {
 
@@ -888,24 +888,17 @@ public class BSConfig {
 				--i) {
 			if (array[i].equalsIgnoreCase(search)) {
 				return i;
-
-
 			}
 		}
 		return -1;
-
-
 	}
 
 	static boolean configHasNode(Configuration config, String[] nodes) {
 		for (String n : nodes) {
 			if (config.getProperty(n) != null) {
 				return true;
-
-
 			}
 		}
 		return false;
-
 	}
 }

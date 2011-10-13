@@ -90,7 +90,7 @@ public class AdminCommands {
 		JItem toAdd = JItemDB.findItem(s[0]);
 		if (toAdd == null) {
 			BSutils.sendMessage(player,
-					BetterShop.getConfig().getString("unkitem").replace("<item>", s[0]));
+					BetterShop.getSettings().getString("unkitem").replace("<item>", s[0]));
 			return false;
 		}
 
@@ -117,14 +117,14 @@ public class AdminCommands {
 					double by = nPrice == null ? -2 : nPrice.buy,
 							sl = nPrice == null ? -2 : nPrice.sell;
 
-					BSutils.sendMessage(player, BetterShop.getConfig().getString(isChanged ? "chgmsg" : "addmsg").
+					BSutils.sendMessage(player, BetterShop.getSettings().getString(isChanged ? "chgmsg" : "addmsg").
 							replace("<item>", toAdd.coloredName()).
 							replace("<buyprice>", String.format("%.2f", by)).
 							replace("<sellprice>", String.format("%.2f", sl)).
-							replace("<curr>", BetterShop.getConfig().currency()).
+							replace("<curr>", BetterShop.getSettings().currency()).
 							replace("<buycur>", BSEcon.format(by)).
 							replace("<sellcur>", BSEcon.format(sl)),
-							BetterShop.getConfig().publicmarket);
+							BetterShop.getSettings().publicmarket);
 
 					if (!isChanged && shop.config.useStock()) {
 						shop.stock.setItemAmount(toAdd, shop.config.startStock);
@@ -136,7 +136,7 @@ public class AdminCommands {
 			}
 			BSutils.sendMessage(player, ChatColor.RED + "An Error Occurred While Adding.");
 		} else {
-			BSutils.sendMessage(player, BetterShop.getConfig().getString("paramerror"));
+			BSutils.sendMessage(player, BetterShop.getSettings().getString("paramerror"));
 			return false;
 		}
 
@@ -165,8 +165,8 @@ public class AdminCommands {
 				shop.pricelist.remove(toRem);
 				shop.stock.remove(toRem);
 
-				BSutils.sendMessage(player, BetterShop.getConfig().getString("removemsg").
-						replace("<item>", toRem.coloredName()), BetterShop.getConfig().publicmarket);
+				BSutils.sendMessage(player, BetterShop.getSettings().getString("removemsg").
+						replace("<item>", toRem.coloredName()), BetterShop.getSettings().publicmarket);
 
 				return true;
 			} catch (Exception ex) {
@@ -175,7 +175,7 @@ public class AdminCommands {
 			BSutils.sendMessage(player, ChatColor.RED + "Error removing item");
 		} else {
 			BSutils.sendMessage(player,
-					BetterShop.getConfig().getString("unkitem").replace("<item>", s[0]));
+					BetterShop.getSettings().getString("unkitem").replace("<item>", s[0]));
 		}
 		return true;
 

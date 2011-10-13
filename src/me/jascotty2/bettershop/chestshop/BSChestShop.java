@@ -113,7 +113,7 @@ public class BSChestShop extends PlayerListener {
 
 	@Override
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		if (event.isCancelled() || !BetterShop.getConfig().chestShopEnabled) {
+		if (event.isCancelled() || !BetterShop.getSettings().chestShopEnabled) {
 			return;
 		}
 		Player p = event.getPlayer();
@@ -146,8 +146,8 @@ public class BSChestShop extends PlayerListener {
 		Chest other = ChestManip.otherChest(open.getBlock());
 		ItemStack[] chestShopItems = open.getInventory().getContents();
 		IInventory chestShop;
-		String chestTxt = Str.strTrim(BetterShop.getConfig().chestShopText.
-				replace("<e>", isEditing ? BetterShop.getConfig().chestEditText : ""), chestStrLen);
+		String chestTxt = Str.strTrim(BetterShop.getSettings().chestShopText.
+				replace("<e>", isEditing ? BetterShop.getSettings().chestEditText : ""), chestStrLen);
 		if (other != null) {
 			ItemStack[] chestShopItems2 = other.getInventory().getContents();
 			if (isEditing) {
@@ -166,7 +166,7 @@ public class BSChestShop extends PlayerListener {
 						: ArrayManip.arrayConcat(chestShopItems2, chestShopItems);
 				ItemStack[] afford = canAfford(p, loc, comb);
 				
-				if(BetterShop.getConfig().chestSellBar){
+				if(BetterShop.getSettings().chestSellBar){
 					afford = ArrayManip.arrayConcat(afford, new ItemStack[9]);
 				}
 				
@@ -270,13 +270,13 @@ public class BSChestShop extends PlayerListener {
 					JItem toSell = JItemDB.GetItem(i);
 					double credit = shop.pricelist.itemSellPrice(player, toSell, i.getAmount());
 
-					if (credit < 0 || (toSell.IsTool() && !BetterShop.getConfig().buybacktools)) {
+					if (credit < 0 || (toSell.IsTool() && !BetterShop.getSettings().buybacktools)) {
 						UserTransaction n = new UserTransaction(toSell, true, i.getAmount());
 						if (toSell.IsTool()) {
 							n.damage = i.getDurability();
 						}
 						cancel.add(n);
-						BSutils.sendMessage(player, BetterShop.getConfig().getString("donotwant").
+						BSutils.sendMessage(player, BetterShop.getSettings().getString("donotwant").
 								replace("<item>", toSell.coloredName()));
 						continue;
 					} else if (toSell.IsTool()) {
@@ -286,7 +286,7 @@ public class BSChestShop extends PlayerListener {
 					if (shop.config.useStock()) {
 						long avail = shop.stock.freeStockRemaining(toSell);
 						if (avail == 0 && shop.config.noOverStock) {
-							BSutils.sendMessage(player, BetterShop.getConfig().getString("maxstock").
+							BSutils.sendMessage(player, BetterShop.getSettings().getString("maxstock").
 									replace("<item>", toSell.coloredName()));
 							UserTransaction n = new UserTransaction(toSell, true, i.getAmount());
 							if (toSell.IsTool()) {
@@ -295,7 +295,7 @@ public class BSChestShop extends PlayerListener {
 							cancel.add(n);
 							continue;
 						} else if (avail > 0 && i.getAmount() > avail && shop.config.noOverStock) {
-							BSutils.sendMessage(player, BetterShop.getConfig().getString("highstock").
+							BSutils.sendMessage(player, BetterShop.getSettings().getString("highstock").
 									replace("<item>", toSell.coloredName()).
 									replace("<amt>", String.valueOf(avail)));
 							UserTransaction n = new UserTransaction(toSell, true, i.getAmount() - (int) avail);
@@ -328,7 +328,7 @@ public class BSChestShop extends PlayerListener {
 				ItemStack[] inv = player.getInventory().getContents();
 				for (UserTransaction t : cancel) {
 					JItem it = JItemDB.GetItem(t.itemNum, (byte) t.itemSub);
-					int maxStack = (it == null || it.IsTool()) || BetterShop.getConfig().usemaxstack ? (it != null ? it.getMaxStackSize() : 64) : 64;
+					int maxStack = (it == null || it.IsTool()) || BetterShop.getSettings().usemaxstack ? (it != null ? it.getMaxStackSize() : 64) : 64;
 					for (int i = 0; i < inv.length; ++i) {
 						if (t.equals(inv[i]) && inv[i].getAmount() < maxStack) {
 							if (inv[i].getAmount() + t.amount > maxStack) {
@@ -372,11 +372,11 @@ public class BSChestShop extends PlayerListener {
 					double cost = shop.pricelist.itemBuyPrice(player, toBuy, -i.getAmount());
 					if (balance - cost < 0) {
 						BSutils.sendMessage(player,
-								BetterShop.getConfig().getString("insuffunds").
+								BetterShop.getSettings().getString("insuffunds").
 								replace("<item>", toBuy.coloredName()).
 								replace("<amt>", String.valueOf(-i.getAmount())).
 								replace("<total>", String.valueOf(cost)).
-								replace("<curr>", BetterShop.getConfig().currency()).
+								replace("<curr>", BetterShop.getSettings().currency()).
 								replace("<priceper>", String.valueOf(cost / (-i.getAmount()))).
 								replace("<totcur>", BSEcon.format(cost)));
 						// change amount so can buy some
@@ -467,7 +467,7 @@ public class BSChestShop extends PlayerListener {
 				JItem it = JItemDB.GetItem(source[i]);
 				if (it != null) {
 					int max = pricelist.getAmountCanBuy(p, it);
-					int maxSize = BetterShop.getConfig().usemaxstack ? it.getMaxStackSize() : 64;
+					int maxSize = BetterShop.getSettings().usemaxstack ? it.getMaxStackSize() : 64;
 					if (max < 0) {
 						max = maxSize; // Integer.MAX_VALUE;
 					} else if (max > 0) {

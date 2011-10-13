@@ -78,7 +78,7 @@ public class RegionCommands {
 			RegionShopManager s = BetterShop.getShopManager();
 			int max = s.numRegions(),
 					page = args.length > 0 ? CheckInput.GetInt(args[0], 0) - 1 : 0,
-					pagesize = BetterShop.getConfig().pagesize,
+					pagesize = BetterShop.getSettings().pagesize,
 					pages = (int) Math.ceil((double)max / pagesize);
 			if (page < 0 || page > pages) {
 				BSutils.sendMessage(sender, args[0] + " is not a valid page number (there are " + pages + " pages)");
@@ -86,11 +86,11 @@ public class RegionCommands {
 			}
 			if (sender instanceof Player) {
 				BSutils.sendMessage(sender, MinecraftChatStr.padCenter(
-						" Shop Regions  page " + (page+1) + "/" + pages + " ", '-', MinecraftChatStr.chatwidth - MinecraftChatStr.getStringWidth(BetterShop.getConfig().getString("prefix"))));
+						" Shop Regions  page " + (page+1) + "/" + pages + " ", '-', MinecraftChatStr.chatwidth - MinecraftChatStr.getStringWidth(BetterShop.getSettings().getString("prefix"))));
 			} else {
 				BSutils.sendMessage(sender, Str.padCenter(
 						" Shop Regions  page " + (page+1) + "/" + pages + " ",
-						80 - MinecraftChatStr.getStringWidth(BetterShop.getConfig().getString("prefix")), '-'));
+						80 - MinecraftChatStr.getStringWidth(BetterShop.getSettings().getString("prefix")), '-'));
 			}
 			for (String l : BetterShop.getShopManager().getRegionList(
 					(sender instanceof Player ? ((Player) sender).getWorld() : null),

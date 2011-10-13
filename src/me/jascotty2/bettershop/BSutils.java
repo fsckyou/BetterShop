@@ -49,21 +49,21 @@ public class BSutils {
 
 	public static void sendFormttedMessage(Player player, String key, String item, int amt, double total) {
 
-		BSutils.sendMessage(player, BetterShop.getConfig().getString(key).
+		BSutils.sendMessage(player, BetterShop.getSettings().getString(key).
 				replace("<item>", item).
 				replace("<amt>", Integer.toString(amt)).
 				replace("<priceper>", String.format("%.2f", total / amt)).
 				replace("<total>", String.format("%.2f", total)).
-				replace("<curr>", BetterShop.getConfig().currency()).
+				replace("<curr>", BetterShop.getSettings().currency()).
 				replace("<totcur>", BSEcon.format(total)));
 		//price
-		if (BetterShop.getConfig().publicmarket && BetterShop.getConfig().hasString("public" + key)) {
-			BSutils.broadcastMessage(player, BetterShop.getConfig().getString("public" + key).
+		if (BetterShop.getSettings().publicmarket && BetterShop.getSettings().hasString("public" + key)) {
+			BSutils.broadcastMessage(player, BetterShop.getSettings().getString("public" + key).
 					replace("<item>", item).
 					replace("<amt>", String.valueOf(amt)).
 					replace("<priceper>", String.format("%.2f", total / amt)).
 					replace("<total>", String.format("%.2f", total)).
-					replace("<curr>", BetterShop.getConfig().currency()).
+					replace("<curr>", BetterShop.getSettings().currency()).
 					replace("<totcur>", BSEcon.format(total)).
 					replace("<player>", player.getDisplayName()),
 					false);
@@ -74,12 +74,12 @@ public class BSutils {
 		if (player != null) {
 			if (s.contains("\n")) {
 				String lns[] = s.split("\n");
-				player.sendMessage(BetterShop.getConfig().getString("prefix") + lns[0]);
+				player.sendMessage(BetterShop.getSettings().getString("prefix") + lns[0]);
 				for (int i = 1; i < lns.length; ++i) {
 					player.sendMessage(lns[i]);
 				}
 			} else {
-				player.sendMessage(BetterShop.getConfig().getString("prefix") + s);
+				player.sendMessage(BetterShop.getSettings().getString("prefix") + s);
 			}
 		}
 	}
@@ -96,12 +96,12 @@ public class BSutils {
 		if (player != null) {
 			if (s.contains("\n")) {
 				String lns[] = s.split("\n");
-				player.getServer().broadcastMessage(BetterShop.getConfig().getString("prefix") + lns[0]);
+				player.getServer().broadcastMessage(BetterShop.getSettings().getString("prefix") + lns[0]);
 				for (int i = 1; i < lns.length; ++i) {
 					player.getServer().broadcastMessage(lns[i]);
 				}
 			} else {
-				player.getServer().broadcastMessage(BetterShop.getConfig().getString("prefix") + s);
+				player.getServer().broadcastMessage(BetterShop.getSettings().getString("prefix") + s);
 			}
 		}
 		BetterShopLogger.Log("(public announcement) " + s.replaceAll("\\\u00A7.", ""));
@@ -258,9 +258,9 @@ public class BSutils {
 	public static int amtCanHold(Player player, JItem toBuy) {
 		if (!toBuy.isEntity()) {
 			return ItemStackManip.amountCanHold(player.getInventory().getContents(),
-					toBuy, !BetterShop.getConfig().usemaxstack);
+					toBuy, !BetterShop.getSettings().usemaxstack);
 		} else {
-			return BetterShop.getConfig().maxEntityPurchase;
+			return BetterShop.getSettings().maxEntityPurchase;
 		}
 	}
 

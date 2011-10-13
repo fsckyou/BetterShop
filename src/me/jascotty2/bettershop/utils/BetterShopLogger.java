@@ -230,10 +230,10 @@ public class BetterShopLogger extends Logger {
 
 	private static void _sendlog(Level loglevel, String msg, Throwable err) {
 		if (loglevel.intValue() > Level.WARNING.intValue()
-				&& BetterShop.getConfig().sendErrorReports) {
+				&& BetterShop.getSettings().sendErrorReports) {
 			BetterShopErrorTracker.sendErrorReport(null, err);
 		}
-		if (BetterShop.getConfig().sendLogOnError
+		if (BetterShop.getSettings().sendLogOnError
 				&& loglevel.intValue() > Level.INFO.intValue()
 				&& BetterShopErrorTracker.canSendNotification()) {
 			BetterShopErrorTracker.sendNotification(String.format(logFormat,
@@ -254,7 +254,7 @@ public class BetterShopLogger extends Logger {
 		if (commlog_fstream == null) {
 			try {
 				commlog_fstream = new FileWriter(new File(BSConfig.pluginFolder,
-						BetterShop.getConfig().commandFilename), true);
+						BetterShop.getSettings().commandFilename), true);
 				commlog_out = new BufferedWriter(commlog_fstream);
 			} catch (IOException ex) {
 				Log(Level.SEVERE, "Failed to open logfile for writing", ex, false);
@@ -289,7 +289,7 @@ public class BetterShopLogger extends Logger {
 	static String commandLogStr(String playername, String command) {
 		String time[] = (new java.text.SimpleDateFormat("kk:hh:mm:ss:a:z:Z:yyyy:MM:ww:DD:dd:EEE")).
 				format(new java.util.Date()).split(":");
-		return BetterShop.getConfig().getString("logformat").
+		return BetterShop.getSettings().getString("logformat").
 				replace("<H>", time[0]).
 				replace("<h>", time[1]).
 				replace("<m>", time[2]).

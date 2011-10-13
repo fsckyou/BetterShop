@@ -69,7 +69,7 @@ public class BetterShopErrorTracker {
 				}
 			}
 			try {
-				BSConfig config = BetterShop.getConfig();
+				BSConfig config = BetterShop.getSettings();
 				errorReporter.SendReport(BetterShop.getPlugin(),
 						/* obscureIP */ config != null ? !config.unMaskErrorID : true,
 						/* customMessage */ config != null ? (config.getCustomErrorMessage().length() > 0 ? config.getCustomErrorMessage() : null) : null,

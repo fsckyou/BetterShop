@@ -137,7 +137,7 @@ public class BSEcon extends ServerListener {
 
 	public static double getPlayerDiscount(Player p) {
 		if (p != null && !BSPermissions.has(p, "BetterShop.discount.none")) {
-			for (Entry<String, Double> g : BetterShop.getConfig().groups.entrySet()) {
+			for (Entry<String, Double> g : BetterShop.getSettings().groups.entrySet()) {
 				if (BSPermissions.has(p, "BetterShop.discount." + g.getKey())) {
 					return g.getValue();
 				}
@@ -218,10 +218,10 @@ public class BSEcon extends ServerListener {
 		double preAmt = BSEcon.getBalance(player);
 		if (amount > 0 || preAmt >= -amount) {
 			BSEcon.addMoney(player, amount);
-			if (BetterShop.getConfig().BOSBank != null
+			if (BetterShop.getSettings().BOSBank != null
 					&& BSEcon.economyMethod.hasBanks()
-					&& BSEcon.economyMethod.hasBank(BetterShop.getConfig().BOSBank)) {
-				BSEcon.addMoney(BetterShop.getConfig().BOSBank, -amount);
+					&& BSEcon.economyMethod.hasBank(BetterShop.getSettings().BOSBank)) {
+				BSEcon.addMoney(BetterShop.getSettings().BOSBank, -amount);
 			}
 			return BSEcon.getBalance(player) != preAmt;
 		}
@@ -238,8 +238,8 @@ public class BSEcon extends ServerListener {
 			BetterShopLogger.Warning("Error Formatting Currency", ex, false);
 		}
 		return String.format("%.2f", amt) + " "
-				+ (amt > 1 || amt < 1 ? BetterShop.getConfig().pluralCurrency
-				: BetterShop.getConfig().defaultCurrency);
+				+ (amt > 1 || amt < 1 ? BetterShop.getSettings().pluralCurrency
+				: BetterShop.getSettings().defaultCurrency);
 	}
 
 //

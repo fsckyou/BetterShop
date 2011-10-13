@@ -64,7 +64,7 @@ import me.jascotty2.lib.util.Str;
  */
 public class BetterShop extends JavaPlugin {
 
-	public final static String lastUpdatedStr = "10/06/11 01:35 -0500"; // "MM/dd/yy HH:mm Z"
+	public final static String lastUpdatedStr = "10/13/11 12:55 -0500"; // "MM/dd/yy HH:mm Z"
 	public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
 	protected static Plugin bettershopPlugin = null;
 	protected final static BSConfig config = new BSConfig();
@@ -301,7 +301,7 @@ public class BetterShop extends JavaPlugin {
 		return bettershopPlugin;
 	}
 
-	public static BSConfig getConfig() {
+	public static BSConfig getSettings() {
 		return config;
 	}
 
@@ -407,7 +407,7 @@ public class BetterShop extends JavaPlugin {
 			++errors;
 		}
 
-		if (!BetterShop.getConfig().load()) {
+		if (!BetterShop.getSettings().load()) {
 			BSutils.sendMessage(sender, ChatColor.RED + "Config loading error.");
 			++errors;
 		} else {
@@ -423,7 +423,7 @@ public class BetterShop extends JavaPlugin {
 			BSutils.sendMessage(sender, ChatColor.RED + "shop signs db load error");
 			++errors;
 		}
-		if (BetterShop.getConfig().signShopEnabled && BetterShop.getConfig().tntSignDestroyProtection) {
+		if (BetterShop.getSettings().signShopEnabled && BetterShop.getSettings().tntSignDestroyProtection) {
 			BetterShop.getSignShop().startProtecting();
 		}
 		return errors;

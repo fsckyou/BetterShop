@@ -49,7 +49,7 @@ public class ShopConfig {
 
 	public void set(ShopConfig copy) {
 		if (copy == null) {
-			set(BetterShop.getConfig().mainShopConfig);
+			set(BetterShop.getSettings().mainShopConfig);
 		} else {
 			sql_username = copy.sql_username;
 			sql_password = copy.sql_password;
@@ -71,47 +71,47 @@ public class ShopConfig {
 	}
 
 	public List<String> getCustomSort() {
-		return BetterShop.getConfig().sortOrder;
+		return BetterShop.getSettings().sortOrder;
 	}
 
 	public boolean useDBcaching() {
-		return BetterShop.getConfig().useDBCache;
+		return BetterShop.getSettings().useDBCache;
 	}
 
 	public int dbCacheTime() {
-		return BetterShop.getConfig().tempCacheTTL;
+		return BetterShop.getSettings().tempCacheTTL;
 	}
 
 	public long pricelistCacheTime() {
-		return BetterShop.getConfig().priceListLifespan;
+		return BetterShop.getSettings().priceListLifespan;
 	}
 
 	public boolean useMySQL() {
-		return BetterShop.getConfig().useMySQL();
+		return BetterShop.getSettings().useMySQL();
 	}
 
 	public boolean useStock() {
-		return BetterShop.getConfig().useItemStock;
+		return BetterShop.getSettings().useItemStock;
 	}
 
 	public int getPageSize() {
-		return BetterShop.getConfig().pagesize;
+		return BetterShop.getSettings().pagesize;
 	}
 
 	public String getListFormat() {
-		return BetterShop.getConfig().getString("listing");
+		return BetterShop.getSettings().getString("listing");
 	}
 
 	public String getListHead() {
-		return BetterShop.getConfig().getString("listhead");
+		return BetterShop.getSettings().getString("listhead");
 	}
 
 	public String getListTail() {
-		return BetterShop.getConfig().getString("listtail");
+		return BetterShop.getSettings().getString("listtail");
 	}
 
 	public boolean allowIllegalPurchase() {
-		return BetterShop.getConfig().allowbuyillegal;
+		return BetterShop.getSettings().allowbuyillegal;
 	}
 } // end class ShopConfig
 

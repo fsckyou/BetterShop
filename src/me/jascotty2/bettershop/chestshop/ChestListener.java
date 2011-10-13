@@ -80,7 +80,7 @@ public class ChestListener extends BlockListener /*implements Runnable*/ {
 	@Override
 	public void onBlockBreak(BlockBreakEvent event) {
 		if (chestsBD.savedChestExists(event.getBlock().getLocation())) {
-			if (BetterShop.getConfig().chestDestroyProtection
+			if (BetterShop.getSettings().chestDestroyProtection
 					&& !BSPermissions.hasPermission(event.getPlayer(), BetterShopPermission.ADMIN_CHESTS, true)) {
 				event.setCancelled(true);
 			} else {
@@ -105,7 +105,7 @@ class DamageBlocker extends EntityListener {
 
 	@Override
 	public void onEntityExplode(EntityExplodeEvent event) {
-		if (BetterShop.getConfig().chestTNTprotection) {
+		if (BetterShop.getSettings().chestTNTprotection) {
 			for (Block b : event.blockList()) {
 				if (chestsBD.has(b.getLocation())) {
 					event.setCancelled(true);
@@ -117,7 +117,7 @@ class DamageBlocker extends EntityListener {
 
 	@Override
 	public void onEndermanPickup(EndermanPickupEvent event) {
-		if (BetterShop.getConfig().signDestroyProtection) {
+		if (BetterShop.getSettings().signDestroyProtection) {
 			if (chestsBD.has(event.getBlock().getLocation())) {
 				event.setCancelled(true);
 				return;

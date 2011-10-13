@@ -197,7 +197,7 @@ public class MarketItemDetail extends GenericContainer {
 			stock = displayShop.stock.getItemAmount(id, dat);
 			maxBuyAmt = displayShop.pricelist.getAmountCanBuy(player, item);
 			maxSellAmt = BSutils.amtHas(player, item);
-			if (BetterShop.getConfig().useItemStock) {
+			if (BetterShop.getSettings().useItemStock) {
 				lblName.setText(lblName.getText() + "\n\n" + (stock < 0 ? "INF" : stock) + " in Stock");
 			}
 

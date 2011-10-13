@@ -78,7 +78,7 @@ public class SignRestore extends BlockListener implements Runnable {
 	@Override
 	public void onBlockBreak(BlockBreakEvent event) {
 		if (signs.signExists(event.getBlock().getLocation())) {
-			if (BetterShop.getConfig().signDestroyProtection
+			if (BetterShop.getSettings().signDestroyProtection
 					&& !BSPermissions.hasPermission(event.getPlayer(), BetterShopPermission.ADMIN_MAKESIGN, true)) {
 				event.setCancelled(true);
 			} else {
@@ -128,7 +128,7 @@ class DamageBlocker extends EntityListener {
 
 	@Override
 	public void onEntityExplode(EntityExplodeEvent event) {
-		if (BetterShop.getConfig().signTNTprotection) {
+		if (BetterShop.getSettings().signTNTprotection) {
 			for (Block b : event.blockList()) {
 				if (signs.signExists(b.getLocation())) {
 					event.setCancelled(true);
@@ -140,7 +140,7 @@ class DamageBlocker extends EntityListener {
 
 	@Override
 	public void onEndermanPickup(EndermanPickupEvent event) {
-		if (BetterShop.getConfig().signDestroyProtection) {
+		if (BetterShop.getSettings().signDestroyProtection) {
 			if (signs.signExists(event.getBlock().getLocation())) {
 				event.setCancelled(true);
 				return;

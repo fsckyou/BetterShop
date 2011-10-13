@@ -2,11 +2,20 @@
 BetterShop Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
+Version 2.0.5 - 10/13/11
+added fancy gradient to itempages :)
+fixed itemstack null logic error
+lowered min wordmatch value for spellchecking
+fixed for compatibility with bukkit 941 (cb 1317)
+scrollbar removed for now (problems in spoutcraft 564)
+
+
 Version 2.0.4 - 10/6/11
 fixed tool selling sometimes throwing errors
 fixed sign custom price maximum calculations
 changed spout gui access to only game screen (not inventory, furnace, etc)
 removed erroneous error message about commandShop: global
+fixed "blue" signs showing up as a "light blue" color
 
 
 Version 2.0.3 - 10/5/11

@@ -68,7 +68,7 @@ public class SpoutKeyListener extends InputListener {
 	} // end default constructor
 
 	public final void reloadKey() {
-		String k = BetterShop.getConfig().getSpoutKey().toUpperCase();
+		String k = BetterShop.getSettings().getSpoutKey().toUpperCase();
 		try {
 			if (CheckInput.IsInt(k)) {
 				listenKey = Keyboard.getKey(CheckInput.GetInt(k, -1));
@@ -92,7 +92,7 @@ public class SpoutKeyListener extends InputListener {
 
 	@Override
 	public void onKeyPressedEvent(KeyPressedEvent event) {
-		if (!BetterShop.getConfig().spoutEnabled) {
+		if (!BetterShop.getSettings().spoutEnabled) {
 			return;
 		}
 		try {
@@ -105,7 +105,7 @@ public class SpoutKeyListener extends InputListener {
 							SpoutPopupDisplay.popup(event.getPlayer());
 						} else {
 							BSutils.sendMessage(event.getPlayer(),
-									BetterShop.getConfig().getString("regionShopDisabled"));
+									BetterShop.getSettings().getString("regionShopDisabled"));
 						}
 					}
 				}

@@ -192,7 +192,7 @@ public class HelpCommands {
 		if (!helpPluginEnabled && p != null && p instanceof Help) {
 			Help helpPlugin = (Help)p;
 			Plugin plugin = BetterShop.getPlugin();
-			BSConfig config = BetterShop.getConfig();
+			BSConfig config = BetterShop.getSettings();
 			helpPlugin.registerCommand("shoplist [page]",
 					"List shop prices", plugin, !config.hideHelp,
 					"BetterShop.user.list");

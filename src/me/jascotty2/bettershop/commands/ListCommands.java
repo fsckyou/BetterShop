@@ -71,7 +71,7 @@ public class ListCommands {
 		} else {
 			for (String line : shop.pricelist.GetShopListPage(pagenum, player, shop.stock)) {
 				BSutils.sendMessage(player,
-						line.replace("<curr>", BetterShop.getConfig().currency()));
+						line.replace("<curr>", BetterShop.getSettings().currency()));
 			}
 		}
 
@@ -88,7 +88,7 @@ public class ListCommands {
 		}
 		try {
 			List<String> items = BetterShop.getPricelist(player).getItemList(
-					BetterShop.getConfig().allowbuyillegal || BSPermissions.hasPermission(player, BetterShopPermission.ADMIN_ILLEGAL, false));
+					BetterShop.getSettings().allowbuyillegal || BSPermissions.hasPermission(player, BetterShopPermission.ADMIN_ILLEGAL, false));
 			StringBuilder output = new StringBuilder("\u00A72");
 			if (items != null && items.size() > 0) {
 				for (int i = 0; i < items.size(); ++i) {
@@ -157,7 +157,7 @@ public class ListCommands {
 		}
 		JItem it = JItemDB.findItem(s[0]);
 		if (it == null) {
-			BSutils.sendMessage(player, BetterShop.getConfig().getString("unkitem").
+			BSutils.sendMessage(player, BetterShop.getSettings().getString("unkitem").
 					replace("<item>", s[0]));
 		} else {
 			StringBuilder aliases = new StringBuilder();
@@ -170,7 +170,7 @@ public class ListCommands {
 
 			BSutils.sendMessage(player,
 					MinecraftChatStr.strWordWrap(
-					BetterShop.getConfig().getString("listalias").
+					BetterShop.getSettings().getString("listalias").
 					replace("<item>", it.coloredName()).replace("<alias>", aliases.toString())));
 		}
 		return true;
@@ -189,7 +189,7 @@ public class ListCommands {
 			return true;
 		}
 
-		boolean canBuyIllegal = BetterShop.getConfig().allowbuyillegal
+		boolean canBuyIllegal = BetterShop.getSettings().allowbuyillegal
 				|| BSPermissions.hasPermission(player, BetterShopPermission.ADMIN_ILLEGAL, false);
 
 		Shop shop = BetterShop.getShop(player);
@@ -218,7 +218,7 @@ public class ListCommands {
 					}
 					name += ")";
 					BSutils.sendMessage(player, String.format(
-							BetterShop.getConfig().getString(numCheck == 1 ? "pricecheck" : "multipricecheck").
+							BetterShop.getSettings().getString(numCheck == 1 ? "pricecheck" : "multipricecheck").
 							replace("<buyprice>", "%1$s").
 							replace("<sellprice>", "%2$s").
 							replace("<item>", "%3$s").
@@ -230,7 +230,7 @@ public class ListCommands {
 							(price.IsLegal() || canBuyIllegal) && price.buy >= 0 ? price.buy : "No",
 							price.sell >= 0 ? price.sell : "No",
 							name,
-							BetterShop.getConfig().currency(),
+							BetterShop.getSettings().currency(),
 							(price.IsLegal() || canBuyIllegal) && price.buy >= 0
 							? BSEcon.format(price.buy) : "No",
 							price.sell >= 0 ? BSEcon.format(price.sell) : "No",
@@ -245,7 +245,7 @@ public class ListCommands {
 				if (lookup == null || lookup.length == 0 || lookup[0] == null) {
 					lookup = JItemDB.getItemsByCategory(s[0]);
 					if (lookup == null || lookup.length == 0 || lookup[0] == null) {
-						BSutils.sendMessage(player, BetterShop.getConfig().getString("unkitem").
+						BSutils.sendMessage(player, BetterShop.getSettings().getString("unkitem").
 								replace("<item>", s[0]));
 						return true;
 					}
@@ -258,7 +258,7 @@ public class ListCommands {
 					if (price != null) {
 						++inStore;
 						BSutils.sendMessage(player, String.format(
-								BetterShop.getConfig().getString(numCheck == 1 ? "pricecheck" : "multipricecheck").
+								BetterShop.getSettings().getString(numCheck == 1 ? "pricecheck" : "multipricecheck").
 								replace("<buyprice>", "%1$s").
 								replace("<sellprice>", "%2$s").
 								replace("<item>", "%3$s").
@@ -270,7 +270,7 @@ public class ListCommands {
 								(price.IsLegal() || canBuyIllegal) && price.buy >= 0 ? numCheck * price.buy : "No",
 								price.sell >= 0 ? numCheck * price.sell : "No",
 								i.coloredName(),
-								BetterShop.getConfig().currency(),
+								BetterShop.getSettings().currency(),
 								(price.IsLegal() || canBuyIllegal) && price.buy >= 0
 								? BSEcon.format(numCheck * price.buy) : "No",
 								price.sell >= 0 ? BSEcon.format(numCheck * price.sell) : "No",
@@ -279,7 +279,7 @@ public class ListCommands {
 
 					} else if (lookup.length <= 5) { // only show nolisting if result page is 5 or less lines
 						BSutils.sendMessage(player,
-								String.format(BetterShop.getConfig().getString("nolisting").
+								String.format(BetterShop.getSettings().getString("nolisting").
 								replace("<item>", "%s"), i.coloredName()));
 					}
 				}

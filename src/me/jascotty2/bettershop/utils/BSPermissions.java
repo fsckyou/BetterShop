@@ -54,7 +54,7 @@ public class BSPermissions {
 		} else if (notify) {
 			//PermDeny(player, node);
 			BSutils.sendMessage(player,
-					BetterShop.getConfig().getString("permdeny").replace("<perm>", node));
+					BetterShop.getSettings().getString("permdeny").replace("<perm>", node));
 		}
 		return false;
 	}

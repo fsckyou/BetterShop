@@ -87,7 +87,9 @@ public class SellCommands {
 		if (toSell == null) {
 			sellCat = JItemDB.getItemsByCategory(s[0]);
 			if (sellCat == null || sellCat.length == 0) {
-				BSutils.sendMessage(player, BetterShop.getConfig().getString("unkitem").
+				// TODO: run partial match on items in inventory
+				// eg. '/sell sword' works if have one (type of) sword
+				BSutils.sendMessage(player, BetterShop.getSettings().getString("unkitem").
 						replace("<item>", s[0]));
 				return;
 			}
@@ -103,7 +105,7 @@ public class SellCommands {
 		} else {
 			try {
 				if (!BetterShop.getShop((Player) player).pricelist.isForSale(toSell)) {
-					BSutils.sendMessage(player, BetterShop.getConfig().getString("donotwant").
+					BSutils.sendMessage(player, BetterShop.getSettings().getString("donotwant").
 							replace("<item>", toSell.coloredName()));
 					return;
 				}
@@ -121,7 +123,7 @@ public class SellCommands {
 		}
 
 		if (amtSell <= 0) {
-			BSutils.sendMessage(player, BetterShop.getConfig().getString("nicetry"));
+			BSutils.sendMessage(player, BetterShop.getSettings().getString("nicetry"));
 			return;
 		}
 		try {
@@ -149,34 +151,34 @@ public class SellCommands {
 
 			JItem toSell = JItemDB.findItem(s[0]);
 			if (toSell == null) {
-				BSutils.sendMessage(player, BetterShop.getConfig().getString("unkitem").
+				BSutils.sendMessage(player, BetterShop.getSettings().getString("unkitem").
 						replace("<item>", s[0]));
 				return true;
-			} else if (!BetterShop.getConfig().allowbuyillegal && !toSell.IsLegal()
+			} else if (!BetterShop.getSettings().allowbuyillegal && !toSell.IsLegal()
 					&& !BSPermissions.hasPermission(player, BetterShopPermission.ADMIN_ILLEGAL, false)) {
-				BSutils.sendMessage(player, BetterShop.getConfig().getString("illegalbuy").
+				BSutils.sendMessage(player, BetterShop.getSettings().getString("illegalbuy").
 						replace("<item>", toSell.coloredName()));
 				return true;
 			}
 			// sell max. stackable
 			sell(player, new String[]{toSell.IdDatStr(),
-						String.valueOf((BetterShop.getConfig().usemaxstack ? toSell.getMaxStackSize() : 64) * CheckInput.GetInt(s[1], 1))});
+						String.valueOf((BetterShop.getSettings().usemaxstack ? toSell.getMaxStackSize() : 64) * CheckInput.GetInt(s[1], 1))});
 		} else {
 			for (String is : s) {
 				JItem toSell = JItemDB.findItem(is);
 				if (toSell == null) {
-					BSutils.sendMessage(player, BetterShop.getConfig().getString("unkitem").
+					BSutils.sendMessage(player, BetterShop.getSettings().getString("unkitem").
 							replace("<item>", is));
 					return true;
-				} else if (!BetterShop.getConfig().allowbuyillegal && !toSell.IsLegal()
+				} else if (!BetterShop.getSettings().allowbuyillegal && !toSell.IsLegal()
 						&& !BSPermissions.hasPermission(player, BetterShopPermission.ADMIN_ILLEGAL, false)) {
-					BSutils.sendMessage(player, BetterShop.getConfig().getString("illegalbuy").
+					BSutils.sendMessage(player, BetterShop.getSettings().getString("illegalbuy").
 							replace("<item>", toSell.coloredName()));
 					return true;
 				}
 				// sell max. stackable
 				sell(player, new String[]{toSell.IdDatStr(), String.valueOf(
-							BetterShop.getConfig().usemaxstack ? toSell.getMaxStackSize() : 64)});
+							BetterShop.getSettings().usemaxstack ? toSell.getMaxStackSize() : 64)});
 			}
 		}// overwrite history that selll wrote
 		usersellHistory.put(((Player) player).getDisplayName(), "shopsellstack " + Str.concatStr(s));
@@ -213,7 +215,7 @@ public class SellCommands {
 							//--i;
 						} else {
 							BSutils.sendMessage(player, String.format(
-									BetterShop.getConfig().getString("unkitem").
+									BetterShop.getSettings().getString("unkitem").
 									replace("<item>", "%1$s"), s[i]));
 							toSell[i - st] = null;
 						}
@@ -229,7 +231,7 @@ public class SellCommands {
 					} else {
 						try {
 							if (!BetterShop.getShop((Player) player).pricelist.isForSale(toSell[i - st])) {
-								BSutils.sendMessage(player, BetterShop.getConfig().getString("donotwant").
+								BSutils.sendMessage(player, BetterShop.getSettings().getString("donotwant").
 										replace("<item>", toSell[i - st].coloredName()));
 								toSell[i - st] = null;
 							}
@@ -284,7 +286,7 @@ public class SellCommands {
 			for (int i = 0; i < toSell.length; ++i) {
 				if (toSell[i] != null
 						&& (!(customPrice >= 0 || shop.pricelist.isForSale(toSell[i]))
-						|| (toSell[i].IsTool() && !BetterShop.getConfig().buybacktools))) {
+						|| (toSell[i].IsTool() && !BetterShop.getSettings().buybacktools))) {
 //					notwant.add(toSell[i].coloredName());
 					toSell[i] = null;
 				}
@@ -296,7 +298,7 @@ public class SellCommands {
 			for (int i = 0; i < items.size(); ++i) {
 				if (!(customPrice >= 0 || shop.pricelist.isForSale(items.get(i)))) {
 					items.remove(i--);
-				} else if (!BetterShop.getConfig().buybacktools
+				} else if (!BetterShop.getSettings().buybacktools
 						&& items.get(i).getDurability() > 0) {
 					// if not buying used tools, check if that is what this is
 					JItem t = JItemDB.GetItem(items.get(i));
@@ -323,12 +325,12 @@ public class SellCommands {
 				JItem it = JItemDB.GetItem(items.get(i));
 				long free = shop.stock.freeStockRemaining(it);
 				if (free == 0) {
-					BSutils.sendMessage(player, BetterShop.getConfig().getString("maxstock").
+					BSutils.sendMessage(player, BetterShop.getSettings().getString("maxstock").
 							replace("<item>", it.coloredName()));
 					items.remove(i--);
 					overstock = true;
 				} else if (free > 0 && items.get(i).getAmount() > free) {
-					BSutils.sendMessage(player, BetterShop.getConfig().getString("highstock").
+					BSutils.sendMessage(player, BetterShop.getSettings().getString("highstock").
 							replace("<item>", it.coloredName()).
 							replace("<amt>", String.valueOf(free)));
 					items.get(i).setAmount((int) free);
@@ -401,7 +403,7 @@ public class SellCommands {
 				}
 				if (totalLeft - amtHas > 0) { // not enough to sell
 					BSutils.sendMessage(player,
-							BetterShop.getConfig().getString("donthave").
+							BetterShop.getSettings().getString("donthave").
 							replace("<hasamt>", String.valueOf(amtHas)).
 							replace("<amt>", String.valueOf(totalLeft)).
 							replace("<item>", itemN));
@@ -495,7 +497,7 @@ public class SellCommands {
 		BSutils.sendFormttedMessage(player, "sellmsg", itemN, amtSold, credit);
 
 		// last step: log transactions
-		if (BetterShop.getConfig().logUserTransactions) {
+		if (BetterShop.getSettings().logUserTransactions) {
 			try {
 				for (UserTransaction t : transactions) {
 					shop.transactions.addRecord(t);

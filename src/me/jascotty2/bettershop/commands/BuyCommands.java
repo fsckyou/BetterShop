@@ -82,7 +82,7 @@ public class BuyCommands {
 		if (s.length == 2) {
 			if (CheckInput.IsInt(s[1])) {
 				if ((amt = CheckInput.GetInt(s[1], -1)) <= 0) {
-					BSutils.sendMessage(player, BetterShop.getConfig().getString("nicetry"));
+					BSutils.sendMessage(player, BetterShop.getSettings().getString("nicetry"));
 					return;
 				}
 			} else if (s[1].equalsIgnoreCase("all") || s[1].equalsIgnoreCase("a")) {
@@ -97,16 +97,16 @@ public class BuyCommands {
 		if (toBuy == null) {
 			buyCat = JItemDB.getItemsByCategory(s[0]);
 			if (buyCat == null || buyCat.length == 0) {
-				BSutils.sendMessage(player, BetterShop.getConfig().getString("unkitem").replace("<item>", s[0]));
+				BSutils.sendMessage(player, BetterShop.getSettings().getString("unkitem").replace("<item>", s[0]));
 				return;
 			}
 		} else if (toBuy.ID() <= 0) {
 			BSutils.sendMessage(player,
-					BetterShop.getConfig().getString("notforsale").
+					BetterShop.getSettings().getString("notforsale").
 					replace("<item>", toBuy.coloredName()));
 			return;
-		} else if (!BetterShop.getConfig().allowbuyillegal && !toBuy.IsLegal() && !BSPermissions.hasPermission(player, BetterShopPermission.ADMIN_ILLEGAL, false)) {
-			BSutils.sendMessage(player, BetterShop.getConfig().getString("illegalbuy").
+		} else if (!BetterShop.getSettings().allowbuyillegal && !toBuy.IsLegal() && !BSPermissions.hasPermission(player, BetterShopPermission.ADMIN_ILLEGAL, false)) {
+			BSutils.sendMessage(player, BetterShop.getSettings().getString("illegalbuy").
 					replace("<item>", toBuy.coloredName()));
 			return;
 		}
@@ -163,21 +163,21 @@ public class BuyCommands {
 			}
 			ArrayList<JItem[]> toBuy = new ArrayList<JItem[]>();
 			//Kit toBuy = new Kit();
-			boolean mx = BetterShop.getConfig().usemaxstack;
+			boolean mx = BetterShop.getSettings().usemaxstack;
 			for (int i = 0; i <= l; ++i) {
 				JItem j = JItemDB.isCategory(s[i]) ? null : JItemDB.findItem(s[i]), buyCat[] = null;
 				if (j == null) {
 					buyCat = JItemDB.getItemsByCategory(s[i]);
 					if (buyCat == null || buyCat.length == 0) {
-						BSutils.sendMessage(player, BetterShop.getConfig().getString("unkitem").replace("<item>", s[i]));
+						BSutils.sendMessage(player, BetterShop.getSettings().getString("unkitem").replace("<item>", s[i]));
 						continue;
 					} else if (j.ID() <= 0) {
 						BSutils.sendMessage(player,
-								BetterShop.getConfig().getString("notforsale").
+								BetterShop.getSettings().getString("notforsale").
 								replace("<item>", j.coloredName()));
 						continue;
-					} else if (!BetterShop.getConfig().allowbuyillegal && !j.IsLegal() && !BSPermissions.hasPermission(player, BetterShopPermission.ADMIN_ILLEGAL, false)) {
-						BSutils.sendMessage(player, BetterShop.getConfig().getString("illegalbuy").
+					} else if (!BetterShop.getSettings().allowbuyillegal && !j.IsLegal() && !BSPermissions.hasPermission(player, BetterShopPermission.ADMIN_ILLEGAL, false)) {
+						BSutils.sendMessage(player, BetterShop.getSettings().getString("illegalbuy").
 								replace("<item>", j.coloredName()));
 						continue;
 					}
@@ -259,7 +259,7 @@ public class BuyCommands {
 //				JItemDB.GetItemName(result[i]) + "  x " + result[i].getAmount()));
 //		}
 		// treat as a kit
-		ItemStackManip.add(result, new Kit(toBuy), 64 * 36, !BetterShop.getConfig().usemaxstack);
+		ItemStackManip.add(result, new Kit(toBuy), 64 * 36, !BetterShop.getSettings().usemaxstack);
 
 //		for(int i = 0; i<result.length; ++i){
 //			System.out.println(i + " " + (result[i] == null ? "null" :
@@ -413,7 +413,7 @@ public class BuyCommands {
 			Shop shop = BetterShop.getShop(player);
 			if (customPrice <= 0 && !shop.pricelist.canBuy(toBuy[0])) {
 				BSutils.sendMessage(player,
-						BetterShop.getConfig().getString("notforsale").
+						BetterShop.getSettings().getString("notforsale").
 						replace("<item>", toBuy[0].coloredName()));
 				return;
 			}
@@ -421,13 +421,13 @@ public class BuyCommands {
 			if (amt < 0) {
 				amt = canHold;
 			} else if (amt > canHold) {
-				BSutils.sendMessage(player, BetterShop.getConfig().getString("outofroom").
+				BSutils.sendMessage(player, BetterShop.getSettings().getString("outofroom").
 						replace("<item>", toBuy[0].coloredName()).
 						replace("<amt>", String.valueOf(amt)).
 						replace("<priceper>", String.format("%01.2f",
 						shop.pricelist.itemBuyPrice(player, toBuy[0], 1))).
 						replace("<leftover>", String.valueOf(amt - canHold)).
-						replace("<curr>", BetterShop.getConfig().currency()).
+						replace("<curr>", BetterShop.getSettings().currency()).
 						replace("<free>", String.valueOf(canHold)));
 				if (canHold == 0) {
 					return;
@@ -436,7 +436,7 @@ public class BuyCommands {
 			}
 			// check if there are items avaliable for purchase
 			long avail = -1;
-			if (BetterShop.getConfig().useItemStock) {
+			if (BetterShop.getSettings().useItemStock) {
 				try {
 					avail = shop.stock.getItemAmount(toBuy[0]);
 				} catch (Exception ex) {
@@ -444,11 +444,11 @@ public class BuyCommands {
 					avail = -1;
 				}
 				if (avail == 0) {
-					BSutils.sendMessage(player, BetterShop.getConfig().getString("outofstock").
+					BSutils.sendMessage(player, BetterShop.getSettings().getString("outofstock").
 							replace("<item>", toBuy[0].coloredName()));
 					return;
 				} else if (avail >= 0 && amt > avail) {
-					BSutils.sendMessage(player, BetterShop.getConfig().getString("lowstock").
+					BSutils.sendMessage(player, BetterShop.getSettings().getString("lowstock").
 							replace("<item>", toBuy[0].coloredName()).
 							replace("<amt>", String.valueOf(avail)));
 					amt = (int) avail;
@@ -472,7 +472,7 @@ public class BuyCommands {
 					}
 				}
 				BSutils.sendMessage(player,
-						BetterShop.getConfig().getString("notforsale").
+						BetterShop.getSettings().getString("notforsale").
 						replace("<item>", notWant));
 				return;
 			}
@@ -485,13 +485,13 @@ public class BuyCommands {
 				}
 			}
 			if (amt > maxamt) {
-				BSutils.sendMessage(player, BetterShop.getConfig().getString("outofroom").
+				BSutils.sendMessage(player, BetterShop.getSettings().getString("outofroom").
 						replace("<item>", toBuy[0].coloredName()).
 						replace("<amt>", String.valueOf(amt)).
 						replace("<priceper>", String.format("%01.2f",
 						BetterShop.getPricelist(player.getLocation()).itemBuyPrice(player, toBuy[0], 1))).
 						replace("<leftover>", String.valueOf(amt - maxamt)).
-						replace("<curr>", BetterShop.getConfig().currency()).
+						replace("<curr>", BetterShop.getSettings().currency()).
 						replace("<free>", String.valueOf(maxamt)));
 				if (maxamt == 0) {
 					return;
@@ -540,14 +540,14 @@ public class BuyCommands {
 						//TODO: either make a new map or copy a map.....
 					}
 					inv.setContents(ItemStackManip.add(player.getInventory().getContents(),
-							it, buyAmt, !BetterShop.getConfig().usemaxstack));
+							it, buyAmt, !BetterShop.getSettings().usemaxstack));
 				}
 
 				try {
-					if (BetterShop.getConfig().useItemStock) {
+					if (BetterShop.getSettings().useItemStock) {
 						shop.stock.changeItemAmount(it, -buyAmt);
 					}
-					if (BetterShop.getConfig().logUserTransactions) {
+					if (BetterShop.getSettings().logUserTransactions) {
 						shop.transactions.addRecord(new UserTransaction(
 								it, false, buyAmt, price / buyAmt, player.getDisplayName()));
 					}
@@ -557,11 +557,11 @@ public class BuyCommands {
 				}
 			} else {
 				BSutils.sendMessage(player,
-						BetterShop.getConfig().getString("insuffunds").
+						BetterShop.getSettings().getString("insuffunds").
 						replace("<item>", it.coloredName()).
 						replace("<amt>", String.valueOf(amt)).
 						replace("<total>", String.valueOf(price)).
-						replace("<curr>", BetterShop.getConfig().currency()).
+						replace("<curr>", BetterShop.getSettings().currency()).
 						replace("<priceper>", String.valueOf(price / amt)).
 						replace("<totcur>", BSEcon.format(price)));
 				break;

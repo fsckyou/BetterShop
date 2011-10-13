@@ -31,12 +31,12 @@ import org.bukkit.Material;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.inventory.ItemStack;
 
-import org.bukkit.util.config.Configuration;
-import org.bukkit.util.config.ConfigurationNode;
+import me.jascotty2.lib.bukkit.config.Configuration;
+import me.jascotty2.lib.bukkit.config.ConfigurationNode;
 
 public class JItemDB {
 
-	protected static int MAX_LEVENSHTEIN_DIST = 3;
+	protected static int MAX_LEVENSHTEIN_DIST = 2;
 	private final static Logger logger = Logger.getLogger("Minecraft");
 	protected static Map<String, JItem> items = new HashMap<String, JItem>();
 	protected static Map<Integer, Kit> kits = new HashMap<Integer, Kit>();
@@ -421,6 +421,10 @@ public class JItemDB {
 				}
 			}
 		}
+
+//		if (it == null) {
+//
+//		}
 
 		if (it == null) {
 			// still no result: now do a string compare
