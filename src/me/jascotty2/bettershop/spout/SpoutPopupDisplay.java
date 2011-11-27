@@ -65,7 +65,7 @@ public class SpoutPopupDisplay {
 	GenericButton btnExit = new GenericButton(),
 			btnAbout = new GenericButton();
 	//GenericContainer items = new GenericContainer();
-//	GenericSlider itemScroll = new GenericSlider();
+	GenericSlider itemScroll = new GenericSlider();
 	GenericButton btnScrollLeft = new GenericButton(),
 			btnScrollRight = new GenericButton();
 	GenericLabel lblPageNum = new GenericLabel();
@@ -77,6 +77,7 @@ public class SpoutPopupDisplay {
 	MarketItemDetail itemDetail;
 	boolean aboutActive = false;
 	boolean isPaged = true;
+	boolean useScroll = BetterShop.getSettings().spoutUseScroll;
 	int numPages;
 	// gradient :)
 	GenericGradient gradient = new GenericGradient();
@@ -283,13 +284,8 @@ public class SpoutPopupDisplay {
 
 		showCategory(0);
 
-		// GenericSlider is not vertical :(
-		//itemScroll.setHeight(350).setWidth(5).setX(100);
-//		itemScroll.setHeight(8).setWidth(width - 20);
-//		itemScroll.setY(height).setX((MAX_WIDTH - (width - 20)) / 2);
-//		itemScroll.setSliderPosition(0);
-
-		btnScrollLeft.setText("<").setHeight(10).setWidth(10).setY(height).setX(MAX_WIDTH - 90);//.setX(2);
+		btnScrollLeft.setText("<").setHeight(10).setWidth(10).setY(height).
+				setX(useScroll ? 2 : MAX_WIDTH - 90);
 		btnScrollRight.setText(">").setHeight(10).setWidth(10).setY(height).setX(MAX_WIDTH - 12);
 
 		lblPageNum.setHeight(7).setWidth(40).setY(height + 11).setX(MAX_WIDTH - 75);
@@ -300,9 +296,16 @@ public class SpoutPopupDisplay {
 		gradient.setPriority(RenderPriority.Highest);
 		gradient.setTopColor(new Color(0.5F, 0.5F, 0.5F, 0.4F)).
 				setBottomColor(new Color(0.2F, 0.2F, 0.2F, 0.4F));
-		gradient.setX(xPad/2).setY(yPad/2).setWidth(MAX_WIDTH - xPad).setHeight(height - yPad);
+		gradient.setX(xPad / 2).setY(yPad / 2).setWidth(MAX_WIDTH - xPad).setHeight(height - yPad);
 
-//		popup.attachWidget(BetterShop.getPlugin(), itemScroll);
+		if (useScroll) {
+			// GenericSlider is not vertical :(
+			//itemScroll.setHeight(350).setWidth(5).setX(100);
+			itemScroll.setHeight(8).setWidth(width - 20);
+			itemScroll.setY(height).setX((MAX_WIDTH - (width - 20)) / 2);
+			itemScroll.setSliderPosition(0);
+			popup.attachWidget(BetterShop.getPlugin(), itemScroll);
+		}
 		popup.attachWidget(BetterShop.getPlugin(), btnScrollLeft);
 		popup.attachWidget(BetterShop.getPlugin(), btnScrollRight);
 		popup.attachWidget(BetterShop.getPlugin(), lblPageNum);
@@ -349,7 +352,7 @@ public class SpoutPopupDisplay {
 
 
 		GenericGradient gradTitle = new GenericGradient();
-		
+
 		gradTitle.setPriority(RenderPriority.Highest);
 		gradTitle.setTopColor(new Color(0.4F, 0.4F, 0.4F, 0.6F)).
 				setBottomColor(new Color(0.2F, 0.2F, 0.2F, 0.4F));
@@ -362,7 +365,7 @@ public class SpoutPopupDisplay {
 
 
 		GenericGradient gradText = new GenericGradient();
-		
+
 		gradText.setPriority(RenderPriority.Highest);
 		gradText.setTopColor(new Color(0.4F, 0.4F, 0.4F, 0.6F)).
 				setBottomColor(new Color(0.2F, 0.2F, 0.2F, 0.4F));
@@ -373,7 +376,7 @@ public class SpoutPopupDisplay {
 
 		popup.attachWidget(BetterShop.getPlugin(), gradText);
 
-		
+
 		InGameHUD hudscreen = player.getMainScreen();
 		hudscreen.attachPopupScreen(popup);
 		hudscreen.updateWidget(popup);
@@ -622,13 +625,19 @@ public class SpoutPopupDisplay {
 		} else if (btn == btnAbout) {
 			showAbout();
 		} else if (btn == btnScrollLeft) {
-//			itemScroll.setSliderPosition((float) (currentPage - 1) / numPages).setDirty(true);
-//			sliderChanged(itemScroll);
-			showPage(currentPage - 1);
+			if (useScroll) {
+				itemScroll.setSliderPosition((float) (currentPage - 1) / numPages).setDirty(true);
+				sliderChanged(itemScroll);
+			} else {
+				showPage(currentPage - 1);
+			}
 		} else if (btn == btnScrollRight) {
-//			itemScroll.setSliderPosition((float) (currentPage + 1.2) / numPages).setDirty(true);
-//			sliderChanged(itemScroll);
-			showPage(currentPage + 1);
+			if (useScroll) {
+				itemScroll.setSliderPosition((float) (currentPage + 1.2) / numPages).setDirty(true);
+				sliderChanged(itemScroll);
+			} else {
+				showPage(currentPage + 1);
+			}
 		} else if (btn == itemDetail.btnUp) {
 			itemDetail.buttonUpPressed(1);
 		} else if (btn == itemDetail.btnDown) {
@@ -676,20 +685,20 @@ public class SpoutPopupDisplay {
 			}
 		}
 	}
-//
-//	public void sliderChanged(Slider scrollbar) {
-//		if (scrollbar == itemScroll) {
-//			itemScroll.savePos();
-//			//int page = (int) Math.ceil((((float) menuItems.size() / maxRows) - (maxCols - 1)) * scrollbar.getSliderPosition()) - 1;
-//			int page = (int) Math.ceil(numPages * scrollbar.getSliderPosition()) - 1;
-//			if (page < 0) {
-//				page = 0;
-//			}
-//			if (currentPage != page) {
-//				showPage(page);
-//			}
-//		}
-//	}
+
+	public void sliderChanged(Slider scrollbar) {
+		if (scrollbar == itemScroll) {
+			itemScroll.savePos();
+			//int page = (int) Math.ceil((((float) menuItems.size() / maxRows) - (maxCols - 1)) * scrollbar.getSliderPosition()) - 1;
+			int page = (int) Math.ceil(numPages * scrollbar.getSliderPosition()) - 1;
+			if (page < 0) {
+				page = 0;
+			}
+			if (currentPage != page) {
+				showPage(page);
+			}
+		}
+	}
 
 	public void textChanged(TextFieldChangeEvent event) {
 		TextField t = event.getTextField();

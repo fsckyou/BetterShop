@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 Jacob Scott <jascottytechie@gmail.com>
- * Description: plugin configuration settings
+ * Description: BetterShop plugin configuration settings
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,8 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import me.jascotty2.bettershop.enums.CommandShopMode;
 import me.jascotty2.bettershop.enums.DBType;
+import me.jascotty2.bettershop.enums.DiscountMethod;
+import me.jascotty2.bettershop.enums.EconMethod;
 import me.jascotty2.bettershop.enums.SpoutCategoryMethod;
 import me.jascotty2.bettershop.shop.ShopConfig;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
@@ -66,6 +68,8 @@ public class BSConfig {
 	public String defColor = "white",
 			BOSBank = "";
 	protected String customErrorMessage = "";
+	public final ShopConfig mainShopConfig = new ShopConfig();
+	public EconMethod econ = EconMethod.AUTO;
 	///// item buying behavior
 	public boolean allowbuyillegal = true, //if someone without BetterShop.admin.illegal can buy illegal items
 			usemaxstack = true, //whether maxstack should be honored
@@ -124,11 +128,12 @@ public class BSConfig {
 	private String spoutKey = "B";
 	public boolean largeSpoutMenu = true,
 			spoutUsePages = false,
-			spoutCatCustomSort = true;
+			spoutCatCustomSort = true,
+			spoutUseScroll = false;
 	public SpoutCategoryMethod spoutCategories = SpoutCategoryMethod.NONE;
 	// discount permissions groups
 	HashMap<String, Double> groups = new HashMap<String, Double>();
-	public final ShopConfig mainShopConfig = new ShopConfig();
+	public DiscountMethod discountSellingMethod = DiscountMethod.LOWER;
 // </editor-fold>
 
 	public BSConfig() {
@@ -201,18 +206,19 @@ public class BSConfig {
 							"signDestroyProtection",
 							"weSignDestroyProtection",
 							"tntSignDestroyProtection",
-							"chestShops", "chestSellBar",
+							"chestShops", 
 							"chestDestroyProtection",
 							"tntChestDestroyProtection",
-							"chestText",
-							"chestEditText",
+							"chestText", "chestEditText", "chestSellBar",
+							"sellDiscountMethod",
 							"commandShop",
 							"customsort",
 							"defaultItemColor",
 							"tablename",
 							"hideHelp",
 							"BOSBank",
-							"currencyName"});
+							"currencyName",
+							"economy"});
 				allKeys.put("errors", new String[]{
 							"CheckForUpdates",
 							"AutoUpdate",
@@ -259,7 +265,7 @@ public class BSConfig {
 							"restock"});
 				allKeys.put("strings", stringMap.keySet().toArray(new String[0]));
 				String allowNull[] = new String[]{
-					"shop.customsort", "shop.BOSBank", "shop.currencyName",
+					"shop.customsort", "shop.BOSBank", "shop.currencyName", "shop.sellDiscountMethod", 
 					"strings.listtail", "strings.logformat"};
 
 				String missing = "", unused = "";
@@ -304,7 +310,7 @@ public class BSConfig {
 					BetterShopLogger.Log("Notice: Unused Configuration Nodes: \n" + unused);
 				}
 				if (missing.length() > 0) {
-					BetterShopLogger.Log(Level.WARNING, "Missing Configuration Nodes: \n" + missing);
+					BetterShopLogger.Log("Missing Configuration Nodes: \n" + missing);
 				}
 			} catch (Exception ex) {
 				// this shouldn't be happening: send error report
@@ -444,6 +450,20 @@ public class BSConfig {
 				signItemColor = n.getBoolean("signItemColor", signItemColor);
 				signItemColorBWswap = n.getBoolean("signItemColorBWswap", signItemColorBWswap);
 
+				String sd = n.getString("sellDiscountMethod");
+				if(sd != null) {
+					if(sd.equalsIgnoreCase("None")) {
+						discountSellingMethod = DiscountMethod.NONE;
+					} else if(sd.equalsIgnoreCase("Higher")) {
+						discountSellingMethod = DiscountMethod.HIGHER;
+					} else {
+						if(!sd.equalsIgnoreCase("Lower")) {
+							BetterShopLogger.Warning("Invalid setting in shop.sellDiscountMethod" + sd);
+						}
+						discountSellingMethod = DiscountMethod.LOWER;
+					}
+				}
+
 				String cShopMode = n.getString("commandShop");
 				if (cShopMode != null) {
 					if (cShopMode.equalsIgnoreCase("disabled")
@@ -485,7 +505,24 @@ public class BSConfig {
 					}
 				}
 				hideHelp = n.getBoolean("hideHelp", hideHelp);
-
+				
+				String t = n.getString("economy");
+				if(t != null) {
+					if(t.equalsIgnoreCase("exp")) {
+						econ = EconMethod.EXP;
+					} else if(t.equalsIgnoreCase("total")) {
+						econ = EconMethod.TOTAL;
+					}
+//					else if(t.equalsIgnoreCase("bultin")) {
+//						econ = EconMethod.BULTIN;
+//					} 
+					else {
+						econ = EconMethod.AUTO;
+						if(!t.equalsIgnoreCase("auto")) {
+							BetterShopLogger.Log("shop.economy has an invalid value: " + t + " (defaulting to auto)");
+						}
+					}
+				}
 			}
 			if (activeSignColor.equalsIgnoreCase("blue")) {
 				// "blue" looks like light purple on a sign

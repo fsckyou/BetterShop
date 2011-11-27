@@ -523,7 +523,7 @@ public class ItemStackManip {
 		} else {
 			for (ItemStack i : source) {
 				if (i != null && i.getType() == search.getType()
-						&& (i.getData() == null || (i.getData().getData() == search.getData().getData()))) {
+						&& i.getDurability() == search.getDurability()){//&& (i.getData() == null || (i.getData().getData() == search.getData().getData()))) {
 					return ind;
 				}
 				++ind;

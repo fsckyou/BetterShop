@@ -326,7 +326,8 @@ public abstract class CommandManager {
 		}
 
 		if (!checkHasPermission(player, method)) {
-			throw new CommandPermissionsException();
+			Command perms = method.getAnnotation(Command.class);
+			throw new CommandPermissionsException(perms.permissions());
 		}
 
 		if (method.isAnnotationPresent(NestedCommand.class)) {

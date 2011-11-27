@@ -56,7 +56,7 @@ public class BSCommandManager extends CommandManager {
 				&& perm.equalsIgnoreCase(((Player)player).getName())){
 			return true;
 		}
-		return BSPermissions.hasPermission(player, perm, true);
+		return BSPermissions.hasPermission(player, perm, false);
 	}
 } // end class BSCommandManager
 

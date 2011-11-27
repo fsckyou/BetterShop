@@ -35,7 +35,7 @@ public enum JItems {
 	DIRT("Dirt", 3),
 	COBBLESTONE("Cobblestone", 4),
 	WOOD("Wood", 5, "17=4"),
-	SAPLING("Sapling", 6),
+	SAPLING("Sapling", 6, (byte) 0),
 	SPRUCE_SAPLING("Spruce Sapling", 6, (byte) 1),
 	PINE_SAPLING("Pine Sapling", 6, (byte) 2),
 	BEDROCK("Bedrock", 7, false),
@@ -48,10 +48,10 @@ public enum JItems {
 	GOLD_ORE("Gold Ore", 14),
 	IRON_ORE("Iron Ore", 15),
 	COAL_ORE("Coal Ore", 16, false),
-	LOG("Log", 17),
+	LOG("Log", 17, (byte) 0),
 	REDWOOD_LOG("Spruce Log", 17, (byte) 1),
 	BIRCH_LOG("Birch Log", 17, (byte) 2),
-	LEAVES("Leaves", 18),
+	LEAVES("Leaves", 18, (byte) 0),
 	REDWOOD_LEAVES("Spruce Leaves", 18, (byte) 1),
 	BIRCH_LEAVES("Birch Leaves", 18, (byte) 2),
 	SPONGE("Sponge", 19, false),
@@ -72,7 +72,7 @@ public enum JItems {
 	DEAD_SHRUB("Dead Shrub", 32, false),
 	PISTON_BASE("Piston", 33, "5@3+4@4+265+331"),
 	PISTON_EXTENSION("Piston Extension", 34, false), // non-placable item
-	WOOL("White Wool", 35, "287@9"),
+	WOOL("White Wool", 35, (byte) 0, "287@9"),
 	ORANGE_WOOL("Orange Wool", 35, (byte) 1, "35+351:1"),
 	MAGENTA_WOOL("Magenta Wool", 35, (byte) 2, "35+351:2"),
 	LIGHT_BLUE_WOOL("Light Blue Wool", 35, (byte) 3, "35+351:3"),
@@ -95,13 +95,13 @@ public enum JItems {
 	RED_MUSHROOM("Red Mushroom", 40),
 	GOLD_BLOCK("Gold Block", 41, "266@9"),
 	IRON_BLOCK("Iron Block", 42, "265@9"),
-	DOUBLE_STEP("Double Slab", 43, "44@2", false),
+	DOUBLE_STEP("Double Slab", 43, (byte) 0, "44@2", false),
 	SANDSTONE_DOUBLE_STEP("Sandstone Double Slab", 43, (byte) 1, "44:1@2", false),
 	WOOD_DOUBLE_STEP("Wood Double Slab", 43, (byte) 2, "44:2@2", false),
 	COBBLESTONE_DOUBLE_STEP("Cobblestone Double Slab", 43, (byte) 3, "44:3@2", false),
 	BRICK_DOUBLE_STEP("Brick Double Slab", 43, (byte) 4, "44:4@2", false),
 	STONE_BRICK_DOUBLE_STEP("Stone Brick Double Slab", 43, (byte) 5, "44:5@2", false),
-	STEP("Slab", 44, "1@3=3"),
+	STEP("Slab", 44, (byte) 0, "1@3=3"),
 	SANDSTONE_STEP("Sandstone Slab", 44, (byte) 1, "24@3=3"),
 	WOOD_STEP("Wood Slab", 44, (byte) 2, "5@3=3"),
 	COBBLESTONE_STEP("Cobblestone Slab", 44, (byte) 3, "4@3=3"),
@@ -161,7 +161,7 @@ public enum JItems {
 	LOCKED_CHEST("Locked Chest", 95, false),
 	TRAPDOOR("Trapdoor", 96, "5@6=2"),
 	SILVERFISH_STONE("Silverfish Stone", 97, false),
-	STONE_BRICK("Stone Brick", 98, "1@4=4"),
+	STONE_BRICK("Stone Brick", 98, (byte) 0, "1@4=4"),
 	MOSSY_STONE_BRICK("Mossy Stone Brick", 98, (byte) 1),
 	CRACKED_STONE_BRICK("Cracked Stone Brick", 98, (byte) 2),
 	BROWN_MUSHROOM_BLOCK("Brown Mushroom Block", 99, false),
@@ -181,6 +181,13 @@ public enum JItems {
 	NETHER_BRICK_FENCE("Nether Brick Fence", 113, "112@6=6"),
 	NETHER_BRICK_STAIRS("Nether Brick Stairs", 114, "112@6=6"),
 	NETHER_WART_Block("Nether Wart Block", 115, false),
+	ENCHANTMENT_TABLE("Enchantment Table", 116, "49@4+264@2+340"),
+	BREWING_STAND("Brewing Stand", 117, "4@3+369"),
+	CAULDRON("Cauldron", 118, "265@7"),
+	END_PORTAL("End Portal", 119, false),
+	END_PORTAL_FRAME("End Portal Frame", 120, false),
+	END_STONE("End Stone", 121, false),
+	DRAGON_EGG("Dragon Egg", 122, false),
 	// Items
 	IRON_SPADE("Iron Shovel", 256, "280@2+265", (short) 251),
 	IRON_PICKAXE("Iron Pickaxe", 257, "280@2+265@3", (short) 251),
@@ -189,7 +196,7 @@ public enum JItems {
 	APPLE("Apple", 260),
 	BOW("Bow", 261, "280@3+287@3", 1),
 	ARROW("Arrow", 262, "280+318+288"),
-	COAL("Coal", 263),
+	COAL("Coal", 263, (byte) 0),
 	CHARCOAL("Charcoal", 263, (byte) 1),
 	DIAMOND("Diamond", 264),
 	IRON_INGOT("Iron Ingot", 265, "15@8+263=8, 15@3+5@2=3, 15@12+369=12"),
@@ -356,7 +363,8 @@ public enum JItems {
 // Item Information
 	private int itemId;
 	private byte itemData;
-	private boolean isLegal = true; // is is legitemitely obtainable
+	private boolean isLegal = true,  // is is legitemitely obtainable
+			hasData = false; // if data defines this item
 	private int maxStack = 64;
 	private short maxdamage = 0; // indicates that this is a tool
 	public String name = null;//, category = null;
@@ -388,6 +396,7 @@ public enum JItems {
 		if (SetID(id)) {
 			this.name = name;
 			itemData = dat;
+			hasData = true;
 		}
 	}
 
@@ -411,6 +420,7 @@ public enum JItems {
 			this.name = name;
 			itemData = dat;
 			isLegal = legal;
+			hasData = true;
 		}
 	}
 
@@ -434,6 +444,7 @@ public enum JItems {
 			this.name = name;
 			itemData = dat;
 			_setRecipe(craftRecipies);
+			hasData = true;
 		}
 	}
 
@@ -460,6 +471,7 @@ public enum JItems {
 			this.maxdamage = maxDamage;
 			this.maxStack = maxdamage > 0 ? 1 : 64;
 			_setRecipe(craftRecipies);
+			hasData = true;
 		}
 	}
 
@@ -470,6 +482,7 @@ public enum JItems {
 			this.maxdamage = maxDamage;
 			this.maxStack = maxdamage > 0 ? 1 : 64;
 			_setRecipe(craftRecipies);
+			hasData = true;
 		}
 	}
 
@@ -480,6 +493,7 @@ public enum JItems {
 			this.maxStack = maxStack;
 			this.maxdamage = maxDamage;
 			_setRecipe(craftRecipies);
+			hasData = true;
 		}
 	}
 
@@ -489,6 +503,7 @@ public enum JItems {
 			itemData = dat;
 			isLegal = legal;
 			_setRecipe(craftRecipies);
+			hasData = true;
 		}
 	}
 
@@ -502,6 +517,7 @@ public enum JItems {
 		if (SetID(id)) {
 			itemData = dat;
 			AutoName();
+			hasData = true;
 		}
 	}
 
@@ -731,6 +747,11 @@ public enum JItems {
 		return ji != null && ji.IsTool();
 	}
 	
+	public static boolean hasData(int id) {
+		JItems i = getItem(id);
+		return i != null && i.hasData;
+	}
+
 	@Override
 	public String toString() {
 		return String.format("%s (%d:%d)", getName(), itemId, itemData);
@@ -739,7 +760,7 @@ public enum JItems {
 	public boolean equals(ItemStack i) {
 		return i != null
 				&& itemId == i.getTypeId()
-				&& (IsTool() || itemData == i.getDurability());
+				&& (IsTool() || (!hasData || (hasData && itemData == i.getDurability())));
 	}
 } // end class JItems
 

@@ -104,6 +104,15 @@ shop:
     #		this can make it possible to sell to a full chest
     chestSellBar: false
 
+    # method for the discount groups when selling
+    # options:
+    # Lower: buy & sell prices lowered by the same % (default)
+    # None:  sell prices are not affected
+    # Higher: sell prices INCREASED by percentage (not recommended)
+    #			when using None or Higher: beware of instances where buy could be lower than sell
+    #				- if this happens, a user could exploit the loophole & gain free money
+    sellDiscountMethod: Lower
+
     # command-based shop mode
     # modes: GLOBAL, REGIONS, BOTH, NONE (default: global)
     # GLOBAL: regions are areas where command-based shop access is disabled
@@ -132,6 +141,14 @@ shop:
     
     # default currency name (not yet used, but might be if no economy plugin found)
     currencyName: "Coin"
+
+    # what should be used for economy
+    # auto: uses whatever econ plugin is found (iConomy 4,5,6, BOSEcon 6,7, MultiCurrency, EssentialsEco)
+    # exp: use experience as currency (does not change when enchanting)
+    # total: total experience (what is used when enchanting)
+    # ----------------- note: EXP and TOTAL are integer values: cannot have decimals in prices
+    economy: auto
+
 
 spout:
     # if you have spout, whether to use the spout gui

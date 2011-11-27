@@ -268,7 +268,11 @@ public class BuyCommands {
 
 		List<ItemStack> diff = ItemStackManip.itemStackDifferences(start, result);
 
-//		System.out.println("after adding: " + diff.size() + " new items");
+		System.out.println("after adding: " + diff.size() + " new items");
+		for(ItemStack i : diff) {
+			System.out.println(JItemDB.GetItemName(i) + ":" + i.getDurability() + "x" + i.getAmount());
+		}
+
 		if (diff.isEmpty()/* || diff.size() > newSize*/) {
 			return purchase;
 		}
@@ -420,7 +424,7 @@ public class BuyCommands {
 			int canHold = shop.pricelist.getAmountCanBuy(player, toBuy[0], customPrice);
 			if (amt < 0) {
 				amt = canHold;
-			} else if (amt > canHold) {
+			} else if (canHold >= 0 && amt > canHold) {
 				BSutils.sendMessage(player, BetterShop.getSettings().getString("outofroom").
 						replace("<item>", toBuy[0].coloredName()).
 						replace("<amt>", String.valueOf(amt)).
@@ -429,7 +433,7 @@ public class BuyCommands {
 						replace("<leftover>", String.valueOf(amt - canHold)).
 						replace("<curr>", BetterShop.getSettings().currency()).
 						replace("<free>", String.valueOf(canHold)));
-				if (canHold == 0) {
+				if (canHold <= 0) {
 					return;
 				}
 				amt = canHold;
@@ -493,7 +497,7 @@ public class BuyCommands {
 						replace("<leftover>", String.valueOf(amt - maxamt)).
 						replace("<curr>", BetterShop.getSettings().currency()).
 						replace("<free>", String.valueOf(maxamt)));
-				if (maxamt == 0) {
+				if (maxamt <= 0) {
 					return;
 				}
 				amt = maxamt;

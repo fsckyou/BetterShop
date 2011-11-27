@@ -167,11 +167,13 @@ public class BetterShop extends JavaPlugin {
 		BetterShopLogger.Info(pdfFile.getName() + " version "
 				+ pdfFile.getVersion() + " is enabled!");
 
-		//sendErrorReport("Test Error", new Exception());
-		// usage stats tracking :)
-		if (config.sendErrorReports) { // setting to allow privacy-minded people some privacy..
-			me.jascotty2.lib.bukkit.FTP_PluginTracker.queueSend(this);
-		}
+//		//sendErrorReport("Test Error", new Exception());
+//		// usage stats tracking :)
+//		if (config.sendErrorReports) { // setting to allow privacy-minded people some privacy..
+//			me.jascotty2.lib.bukkit.FTP_PluginTracker.queueSend(this);
+//		}
+		// new plugin tracking method that bothers someone else's server ;)
+		com.arandomappdev.bukkitstats.CallHome.load(this);
 	}
 
 	public void onDisable() {
@@ -252,7 +254,8 @@ public class BetterShop extends JavaPlugin {
 			commandManager.execute(sender, commandName, args);
 			return true;
 		} catch (CommandPermissionsException e) {
-			// message already sent to player
+			BSutils.sendMessage(sender,
+					BetterShop.getSettings().getString("permdeny").replace("<perm>", e.getNode()));
 			return true;
 		} catch (MissingNestedCommandException e) {
 			//BSutils.sendMessage(sender, ChatColor.RED + e.getMessage());
@@ -448,4 +451,18 @@ public class BetterShop extends JavaPlugin {
 			}
 		}
 	}
+
+//	static class phoneHome implements Runnable {
+//
+//		Plugin plugin;
+//
+//		public phoneHome(Plugin p) {
+//			plugin = p;
+//		}
+//
+//		@Override
+//		public void run() {
+//			com.arandomappdev.bukkitstats.CallHome.load(plugin);
+//		}
+//	}
 }

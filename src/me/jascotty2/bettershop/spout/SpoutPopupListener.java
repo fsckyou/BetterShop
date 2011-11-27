@@ -45,18 +45,18 @@ public class SpoutPopupListener extends ScreenListener {
 		}
 	}
 
-//	@Override
-//	public void onSliderDrag(SliderDragEvent event) {
-//		try {
-//			SpoutPopupDisplay d = SpoutPopupDisplay.getPopup(event.getPlayer());
-//			if (d != null) {
-//				d.sliderChanged(event.getSlider());
-//			}
-//		} catch (Exception e) {
-//			BetterShopLogger.Severe("Unexpected error in PopupListener", e, !sliderError);
-//			sliderError = true;
-//		}
-//	}
+	@Override
+	public void onSliderDrag(SliderDragEvent event) {
+		try {
+			SpoutPopupDisplay d = SpoutPopupDisplay.getPopup(event.getPlayer());
+			if (d != null) {
+				d.sliderChanged(event.getSlider());
+			}
+		} catch (Exception e) {
+			BetterShopLogger.Severe("Unexpected error in PopupListener", e, !sliderError);
+			sliderError = true;
+		}
+	}
 	
 	@Override
 	public void onTextFieldChange(TextFieldChangeEvent event){

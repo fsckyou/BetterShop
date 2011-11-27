@@ -276,24 +276,8 @@ public class JItemDB {
 	 */
 	private static void loadDefaultItems() {
 		items.clear();
-		// all entities
-		CreatureType ordered[];
-		try {
-			CreatureType t = CreatureType.CAVE_SPIDER;
-			// success, is a 1.8 server
-			ordered = new CreatureType[]{
-						CreatureType.CHICKEN, CreatureType.COW,
-						CreatureType.CREEPER, CreatureType.GHAST,
-						CreatureType.GIANT, CreatureType.MONSTER,
-						CreatureType.PIG, CreatureType.PIG_ZOMBIE,
-						CreatureType.SHEEP, CreatureType.SKELETON,
-						CreatureType.SLIME, CreatureType.SPIDER,
-						CreatureType.SQUID, CreatureType.ZOMBIE,
-						CreatureType.WOLF,
-						CreatureType.CAVE_SPIDER, CreatureType.ENDERMAN, CreatureType.SILVERFISH};
-		} catch (Throwable t) {
-			// assume 1.7
-			ordered = new CreatureType[]{
+		// all entities (pre-1.8b)
+		CreatureType ordered[] = new CreatureType[]{
 						CreatureType.CHICKEN, CreatureType.COW,
 						CreatureType.CREEPER, CreatureType.GHAST,
 						CreatureType.GIANT, CreatureType.MONSTER,
@@ -302,6 +286,21 @@ public class JItemDB {
 						CreatureType.SLIME, CreatureType.SPIDER,
 						CreatureType.SQUID, CreatureType.ZOMBIE,
 						CreatureType.WOLF};
+		try {
+			CreatureType t = CreatureType.CAVE_SPIDER;
+			// success, is at least a 1.8 server
+			ordered = ArrayManip.arrayConcat(ordered,
+					new CreatureType[]{
+				CreatureType.CAVE_SPIDER, CreatureType.ENDERMAN, CreatureType.SILVERFISH});
+			// now for 1.0
+			t = CreatureType.ENDER_DRAGON;
+			
+			ordered = ArrayManip.arrayConcat(ordered,
+					new CreatureType[]{
+				CreatureType.ENDER_DRAGON, CreatureType.VILLAGER,
+				CreatureType.BLAZE, CreatureType.MUSHROOM_COW});
+    
+		} catch (Throwable t) {
 		}
 		int i = 0;
 		for (; i < ordered.length; ++i) {
@@ -346,7 +345,7 @@ public class JItemDB {
 	}
 
 	public static JItem GetItem(int id, byte dat) {
-		if(JItems.isTool(id)) {
+		if(JItems.isTool(id) || !JItems.hasData(id)) {
 			dat = 0;
 		}
 		String idd = id + ":" + dat;

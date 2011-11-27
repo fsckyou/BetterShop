@@ -1,6 +1,6 @@
 name: BetterShop
 main: me.jascotty2.bettershop.BetterShop
-version: 2.0.4
+version: 2.1.0 beta
 website: http://github.com/BetterShop/BetterShop
 author: jascotty2 (and jjfs85 and lologarithm)
 description: >
@@ -25,87 +25,87 @@ commands:
     description: Check prices for an item
     usage: /<command> [item]
     aliases: [sc,scheck]
-    permission: Bettershop.user.check
+    #permission: Bettershop.user.*
   shoplist:
     description: Lists prices for the shop
     usage: /<command> <page>
     aliases: [sl,slist]
-    permission: BetterShop.user.list
+    #permission: BetterShop.user.list
   shoplistalias:
     description: show tha accepted aliases for an item
     usage: /<command> [item]
     aliases: [shopalias, salias, sa]
-    permission: BetterShop.user.help
+    #permission: BetterShop.user.help
   shoplistitems:
     description: show listing of items in shop, without prices
     usage: /<command>
     aliases: [shopitems, sitems, slistitems]
-    permission: BetterShop.user.list
+    #permission: BetterShop.user.list
   shopbuy:
     description: Buy an item for the price in the shop
     usage: /<command> [item] [amount]
     aliases: [buy,sbuy]
-    permission: BetterShop.user.buy
+    #permission: BetterShop.user.buy
   shopbuyall:
     description: Buy all of an item that you can hold
     usage: /<command> [item]
     aliases: [buyall,sbuyall]
-    permission: BetterShop.user.buy
+    #permission: BetterShop.user.buy
   shopbuystack:
     description: Buy a stack of an item for the price in the shop
     usage: /<command> [item]
     aliases: [buystack,sbuystack,sbuys,buys]
-    permission: BetterShop.user.buy
+    #permission: BetterShop.user.buy
   shopsell:
     description: Sell an item for the price in the shop
     usage: /<command> [item] <amount>
     aliases: [sell,ssell]
-    permission: BetterShop.user.sell
+    #permission: BetterShop.user.sell
   shopsellall:
     description: Sell all of item from your inventory
     usage: /<command> [item]
     aliases: [sellall]
-    permission: BetterShop.user.sell
+    #permission: BetterShop.user.sell
   shopsellstack:
     description: Sell a stack of an item to the shop
     usage: /<command> [item] <amount>
     aliases: [sellstack,ssellstack,sells,ssells]
-    permission: BetterShop.user.sell
+    #permission: BetterShop.user.sell
   shopadd:
     description: Add an item to or update an item in the price list
     usage: /<command> [item] [buy-price] [sell-price]
     aliases: [sadd]
-    permission: BetterShop.admin.add
+    #permission: BetterShop.admin.add
   shopremove:
     description: Remove an item from the price list
     usage: /<command> [item]
     aliases: [sremove]
-    permission: BetterShop.admin.remove
+    #permission: BetterShop.admin.remove
   shopload:
     description: reload prices from pricelist database
     usage: /<command>
     aliases: [sload]
-    permission: BetterShop.admin.load
+    #permission: BetterShop.admin.load
   shophelp:
     description: Lists available commands
     usage: /<command>
     aliases: [shelp]
-    permission: BetterShop.user.help
+    #permission: BetterShop.user.help
   shoplistkits:
     description: Lists available kits
     usage: /<command> <page>
     aliases: [shopkits, skits, slistkits]
-    permission: BetterShop.user.list
+    #permission: BetterShop.user.list
   shopbuyagain:
     description: repeat last purchase
     usage: /<command>
     aliases: [sbuyagain, buyagain, sba]
-    permission: BetterShop.user.buy
+    #permission: BetterShop.user.buy
   shopsellagain:
     description: repeat last sale
     usage: /<command>
     aliases: [ssellagain, sellagain, ssa]
-    permission: BetterShop.user.sell
+    #permission: BetterShop.user.sell
 permissions:
   BetterShop.user.*:
     description: all user commands

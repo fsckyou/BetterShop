@@ -151,11 +151,11 @@ public class CreatureItem extends JItem {
         //CreatureType toSpawn
         Location loc = owner.getLocation();
 
-        if (type == CreatureType.SLIME || type == CreatureType.GHAST) {
-            LivingEntity e = owner.getWorld().spawnCreature(loc, type);
+		LivingEntity e = owner.getWorld().spawnCreature(loc, type);
+        if (e instanceof Creature){ //type == CreatureType.SLIME || type == CreatureType.GHAST) {
             addFriends(owner, e);
         } else {
-            Creature creature = (Creature) owner.getWorld().spawnCreature(loc, type);
+            Creature creature = (Creature) e;
 
             if (creature instanceof CraftWolf) {
                 ((CraftWolf) creature).setOwner(owner);
@@ -183,6 +183,7 @@ public class CreatureItem extends JItem {
             //Logger.getAnonymousLogger().info("spawning owner = " + owner.getName());
             //Logger.getAnonymousLogger().info(w.toString());
             //Logger.getAnonymousLogger().info(String.valueOf(w.getHandle().health) + w.getHandle().y());
+            addFriends(owner, c);
         } else if (c instanceof Creature) {
             Creature creature = (Creature) c;
             //Logger.getAnonymousLogger().info("spawning " + toSpawn);

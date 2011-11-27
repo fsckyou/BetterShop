@@ -2,6 +2,21 @@
 BetterShop Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
+Version 2.1.0 - ?
+items & entities updated for 1.0 (bukkit ####)
+fixed a bug with added items sometimes registering -1 max
+added discount selling options, but recommend leaving at default
+changed permissions error handling.. shouldn't spam more than one error for a nested command
+- (and none for a usage lookup)
+added option to replace econ with exp or total exp (which is used in enchantments)
+TODO	- or (if not enabled) allow exp buy/sell
+removed ftp stats tracking snippet (added in 1.6.7)
+- changed to another i found with a web interface 
+- http://pluginstats.randomappdev.com/plugin.aspx?pid=27
+- still waiting on bukkit for their implementation...
+
+
+
 Version 2.0.5 - 10/13/11
 added fancy gradient to itempages :)
 fixed itemstack null logic error

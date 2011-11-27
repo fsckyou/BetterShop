@@ -82,13 +82,6 @@ public class InventorySmallChest implements IInventory {
 	public void update() {
 	}
 
-
-	public void e() {
-	}
-
-	public void t_() {
-	}
-
 	public ItemStack[] getContents() {
 		return items;
 	}
@@ -100,5 +93,20 @@ public class InventorySmallChest implements IInventory {
 	public boolean a_(EntityHuman eh) {
 		return true;
 	}
+
+	
+	
+	public void e() {
+	}
+
+	public void t_() {
+	}
+	
+	public void f() {
+	}
+
+	public void g() {
+	}
+
 } // end class InventorySmallChest
 

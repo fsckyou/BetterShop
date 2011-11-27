@@ -592,7 +592,8 @@ public class PriceList {
 			updateCache(false);
 			return true;
 		} else {
-			if (priceList.remove(new PriceListItem(it))) {
+			int i = priceList.indexOf(new PriceListItem(it));
+			if (i >= 0 && priceList.remove(i) != null) {//priceList.remove(new PriceListItem(it))) {
 				return save();
 			}
 		}

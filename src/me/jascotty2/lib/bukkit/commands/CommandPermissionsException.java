@@ -27,4 +27,9 @@ package me.jascotty2.lib.bukkit.commands;
  */
 public class CommandPermissionsException extends CommandException {
     private static final long serialVersionUID = -602374621030168291L;
+	String node = null;
+	public CommandPermissionsException(){}
+	public CommandPermissionsException(String node){this.node = node;}
+	public CommandPermissionsException(String[] node){this.node = node != null && node.length >= 1 ? node[0] : null;}
+	public String getNode(){return node;}
 }
