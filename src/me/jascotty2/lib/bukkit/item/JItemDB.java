@@ -298,7 +298,8 @@ public class JItemDB {
 			ordered = ArrayManip.arrayConcat(ordered,
 					new CreatureType[]{
 				CreatureType.ENDER_DRAGON, CreatureType.VILLAGER,
-				CreatureType.BLAZE, CreatureType.MUSHROOM_COW});
+				CreatureType.BLAZE, CreatureType.MUSHROOM_COW,
+				CreatureType.MAGMA_CUBE, CreatureType.SNOWMAN});
     
 		} catch (Throwable t) {
 		}

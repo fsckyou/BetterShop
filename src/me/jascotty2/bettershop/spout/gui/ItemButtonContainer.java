@@ -77,10 +77,12 @@ public abstract class ItemButtonContainer extends GenericContainer {
 
 	@Override
 	public Container setVisible(boolean enable) {
-		marketButton.setVisible(enable).setDirty(true);
-		if (item != null && item.IsValidItem()) {
-			picItem.setVisible(enable).setDirty(true);
-		}
+		//if(this.isVisible() != enable) {
+			marketButton.setVisible(enable).setDirty(true);
+			if (item != null && item.IsValidItem()) {
+				picItem.setVisible(enable).setDirty(true);
+			}
+		//}
 		return this;
 	}
 	

@@ -182,8 +182,8 @@ public enum JItems {
 	NETHER_BRICK_STAIRS("Nether Brick Stairs", 114, "112@6=6"),
 	NETHER_WART_Block("Nether Wart Block", 115, false),
 	ENCHANTMENT_TABLE("Enchantment Table", 116, "49@4+264@2+340"),
-	BREWING_STAND("Brewing Stand", 117, "4@3+369"),
-	CAULDRON("Cauldron", 118, "265@7"),
+	BREWING_STAND_BLOCK("Brewing Stand", 117, false),
+	CAULDRON_BLOCK("Cauldron", 118, false),
 	END_PORTAL("End Portal", 119, false),
 	END_PORTAL_FRAME("End Portal Frame", 120, false),
 	END_STONE("End Stone", 121, false),
@@ -281,7 +281,7 @@ public enum JItems {
 	POWERED_MINECART("Powered Minecart", 343, "328+61", 1),
 	EGG("Egg", 344, 16),
 	COMPASS("Compass", 345, "265@4+331"),
-	FISHING_ROD("Fishing Rod", 346, "280@3+287@2", (short) 33),
+	FISHING_ROD("Fishing Rod", 346, "280@3+287@2", (short) 65), // was 33, but 1.0.0 ItemFishingRod.java says 64.
 	WATCH("Clock", 347, "266@4+331"),
 	GLOWSTONE_DUST("Glowstone Dust", 348),
 	RAW_FISH("Raw Fish", 349),
@@ -323,31 +323,49 @@ public enum JItems {
 	GHAST_TEAR("Ghast Tear", 370),
 	GOLD_NUGGET("Gold Nugget", 371),
 	NETHER_WART("Nether Wart", 372),
+	
 	POTION("Potion", 373), // will need to add values later, so far unknown
-	POTION_MOVESPEED("Speed Potion", 373, (byte) 1),
-	POTION_MOVESLOWDOWN("Slowness Potion", 373, (byte) 2),
+	POTION_REGENERATION("Regeneration Potion", 373, (byte) 1), // Potion of Regeneration (0:45)
+	POTION_MOVESPEED("Speed Potion", 373, (byte) 2), // Potion of Swiftness (3:00)
+	POTION_FIRERESISTANCE("Fire Resistance Potion", 373, (byte) 3), // Potion of Fire Resistance (3:00)
+	POTION_POISON("Poison Potion", 373, (byte) 4), // Potion of Poison (0:45)
+	POTION_HEAL("Health Potion", 373, (byte) 5), // Potion of Healing (Instant Health)
+	POTION_CLEAR("Clear Potion", 373, (byte) 6), // Clear Potion (no effects)
+	POTION_CLEAR_2("Clear Potion", 373, (byte) 7), // Clear Potion (no effects)
+	POTION_WEAKNESS("Weakness Potion", 373, (byte) 8), // Potion of Weakness (1:30)
+	POTION_DAMEGEBOOST("Strength Potion", 373, (byte) 9), // Potion of Strength (3:00)
+	POTION_MOVESLOWDOWN("Slowness Potion", 373, (byte) 10), // Potion of Slowness (1:30)
+	POTION_DIFFUSE("Diffuse Potion", 373, (byte) 11), // Diffuse Potion (no effects)
+	POTION_HARM("Harm Potion", 373, (byte) 12), // Potion of Harming (Instant Damage)
+	POTION_ARTLESS("Artless Potion", 373, (byte) 13), // Artless Potion (no effects)
+	POTION_THIN("Thin Potion", 373, (byte) 14), // Thin Potion (no effects)
+	POTION_THIN_2("Thin Potion", 373, (byte) 15), // Thin Potion (no effects)
+	POTION_AWKWARD("Awkward Potion", 373, (byte) 16), // Awkward Potion (no effects)
+	POTION_REGENERATION_2("Regeneration Potion", 373, (byte) 17), // Potion of Regeneration (0:45)
+	POTION_MOVESPEED_2("Speed Potion", 373, (byte) 18), // Potion of Swiftness (3:00)
+	POTION_FIRERESISTANCE_2("Fire Resistance Potion", 373, (byte) 19), // Potion of Fire Resistance (3:00)
+	POTION_POISON_2("Poison Potion", 373, (byte) 20), // Potion of Poison (0:45)
+
 	POTION_DIGSPEED("Haste Potion", 373, (byte) 3),
 	POTION_DIGSLOWDOWN("Fatigue Potion", 373, (byte) 4),
-	POTION_DAMEGEBOOST("Strength Potion", 373, (byte) 5),
-	POTION_HEAL("Heal Potion", 373, (byte) 6),
-	POTION_HARM("Damage Potion", 373, (byte) 7),
 	POTION_JUMP("Jump Potion", 373, (byte) 8),
 	POTION_CONFUSION("Nausea Potion", 373, (byte) 9),
-	POTION_REGENERATION("Regeneration Potion", 373, (byte) 10),
 	POTION_RESISTANCE("Resistance Potion", 373, (byte) 11),
-	POTION_FIRERESISTANCE("Fire Resistance Potion", 373, (byte) 12),
 	POTION_WATERBREATHING("Water Breathing Potion", 373, (byte) 13),
 	POTION_INVISIBILITY("Invisibility Potion", 373, (byte) 14),
 	POTION_BLINDNESS("Blindness Potion", 373, (byte) 15),
 	POTION_NIGHTVISION("Night Vision Potion", 373, (byte) 16),
 	POTION_HUNGER("Hunger Potion", 373, (byte) 17),
-	POTION_WEAKNESS("Weakness Potion", 373, (byte) 18),
-	POTION_POISON("Poison Potion", 373, (byte) 19),
+
 	GLASS_BOTTLE("Glass Bottle", 374, "20@3"),
 	SPIDER_EYE("Spider Eye", 375),
 	FERMENTED_SPIDER_EYE("Fermented Spider Eye", 376, "375+39+352"),
 	BLAZE_POWDER("Blaze Powder", 377, "369=2"),
 	MAGMA_CREAM("Magma Cream", 378, "377+341"),
+	BREWING_STAND("Brewing Stand", 379, "4@3+369"),
+	CAULDRON("Cauldron", 380, "265@7"),
+	EYE_OF_ENDER("Eye of Ender", 381, "368+377"),
+	GLISTERING_MELON("Glistering Melon", 382, "360+371"),
 	// Records
 	GOLD_RECORD("13 Disk", 2256, 1), // Gold Record
 	GREEN_RECORD("Cat Disc", 2257, 1), // Green Record

@@ -71,7 +71,7 @@ public class BSutils {
 	}
 
 	public static void sendMessage(CommandSender player, String s) {
-		if (player != null) {
+		if (player != null && s != null) {
 			if (s.contains("\n")) {
 				String lns[] = s.split("\n");
 				player.sendMessage(BetterShop.getSettings().getString("prefix") + lns[0]);

@@ -20,6 +20,7 @@ package me.jascotty2.bettershop.signshop;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import me.jascotty2.bettershop.BSutils;
 import me.jascotty2.bettershop.BetterShop;
 import me.jascotty2.bettershop.commands.SellCommands;
@@ -40,20 +41,21 @@ public class ShopSign {
 
 	public final static String SIGN_TEXT = "[BetterShop]";
 	private final Sign sign;
-	public final String itemName;
+	public String itemName; // final
 	JItem item = null, catItems[] = null;
 	boolean isInv, inHand, isBuy, isCategory;
 	double customPrice = -1;
 	int amount;
 
 	public ShopSign(Sign s) {
+			
 		if (s == null) {
 			throw new IllegalArgumentException("Sign cannot be null!");
 		} else if (!ChatColor.stripColor(s.getLine(0)).equalsIgnoreCase(SIGN_TEXT)) {
 			throw new IllegalArgumentException("Invalid Sign!");
 		}
 		this.sign = s;
-
+		try {
 		String action = ChatColor.stripColor(sign.getLine(1).trim()).replace("  ", " ");
 
 		// quick check for valid sign action
@@ -105,9 +107,10 @@ public class ShopSign {
 					// can't buy/sell stacks of nothing
 					throw new IllegalArgumentException("Invalid Sign! (invalid item: " + searchItem + ")");
 				}
-				amount = amount <= 0
+				amount = item != null ? (amount <= 0
 						? (BetterShop.getSettings().usemaxstack ? item.MaxStackSize() : 64)
-						: amount * (BetterShop.getSettings().usemaxstack ? item.MaxStackSize() : 64);
+						: amount * (BetterShop.getSettings().usemaxstack ? item.MaxStackSize() : 64))
+						: 64;
 			}
 
 			if (amount <= 0) {
@@ -140,6 +143,10 @@ public class ShopSign {
 			} else if (item != null && item.isEntity()) {
 				throw new IllegalArgumentException("Invalid Sign! (Entities cannot be sold)");
 			}
+		}
+		
+		} catch (Exception e) {
+			Logger.getAnonymousLogger().warning(e.toString() + " " + e.getMessage() + "\n" + Str.getStackStr(e));
 		}
 	}
 

@@ -288,7 +288,7 @@ public class BSSignShop extends PlayerListener {
 									+ BSEcon.format(newSign.getCustomPrice()) + " each" : ""));
 
 						} catch (Exception e) {
-							BSutils.sendMessage(player, e.getMessage());
+							BSutils.sendMessage(player, ChatColor.RED + "Error: " + e.getMessage());
 						}
 					}
 

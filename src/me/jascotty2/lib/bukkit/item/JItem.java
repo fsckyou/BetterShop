@@ -156,7 +156,7 @@ public class JItem {
 	}
 
 	public boolean IsValidItem() {
-		return item != null;
+		return item != null && item.ID() != 0;
 	}
 
 	public boolean IsTool() {

@@ -173,7 +173,8 @@ public class BetterShop extends JavaPlugin {
 //			me.jascotty2.lib.bukkit.FTP_PluginTracker.queueSend(this);
 //		}
 		// new plugin tracking method that bothers someone else's server ;)
-		com.arandomappdev.bukkitstats.CallHome.load(this);
+		//com.arandomappdev.bukkitstats.CallHome.load(this);
+		com.randomappdev.pluginstats.Ping.init(this);
 	}
 
 	public void onDisable() {
