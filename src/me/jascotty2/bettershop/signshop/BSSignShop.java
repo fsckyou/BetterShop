@@ -114,7 +114,7 @@ public class BSSignShop extends PlayerListener {
 								if (signInfo.item != null) {
 									if (run) {
 //										if (signInfo.amount > 0) {// not all
-											BuyCommands.buyItem(player, signInfo.item, signInfo.amount, signInfo.getCustomPrice());
+										BuyCommands.buyItem(player, signInfo.item, signInfo.amount, signInfo.getCustomPrice());
 //										} else {
 //											BuyCommands.buyAllItem(player, signInfo.item, signInfo.getCustomPrice());
 //										}
@@ -161,6 +161,17 @@ public class BSSignShop extends PlayerListener {
 								} else {
 									// category
 									List<ItemStockEntry> buy = BuyCommands.getCanBuy(player, signInfo.catItems, signInfo.getCustomPrice());
+									if (buy.isEmpty() && !run) {
+										// can't afford, so display full price
+										for (JItem it : signInfo.catItems) {
+											if (it != null && shop.pricelist.canBuy(it)) {
+												long avail = shop.config.useStock() ? shop.stock.freeStockRemaining(it) : -1;
+												if (avail != 0) {
+													buy.add(new ItemStockEntry(it, signInfo.amount > avail && avail > 0 ? avail : signInfo.amount));
+												}
+											}
+										}
+									}
 									JItem[] toBuy = new JItem[buy.size()];
 									int n = 0;
 									for (ItemStockEntry it : buy) {
@@ -176,12 +187,13 @@ public class BSSignShop extends PlayerListener {
 											//BuyCommands.buyItem(player, JItemDB.GetItem(it.itemNum, (byte) it.itemSub), (int) it.amount, signInfo.getCustomPrice());
 										} else {
 											numCheck += it.amount;
-											total += signInfo.getCustomPrice() >=0 ? signInfo.getCustomPrice() * it.amount :
-												shop.pricelist.itemBuyPrice(player, it.itemNum, (byte) it.itemSub, (int) it.amount);
+											total += signInfo.getCustomPrice() >= 0 ? signInfo.getCustomPrice() * it.amount
+													: shop.pricelist.itemBuyPrice(player, it.itemNum, (byte) it.itemSub, (int) it.amount);
 										}
 									}
 									if (run) {
-										BuyCommands.buyItem(player, toBuy, signInfo.amount, signInfo.getCustomPrice());
+										//BuyCommands.buyItem(player, toBuy, signInfo.amount, signInfo.getCustomPrice());
+										BuyCommands.buyItem(player, buy, signInfo.getCustomPrice());
 										player.updateInventory(); // may be depricated, but only thing i can get to work :(
 										return;
 									}
@@ -204,23 +216,23 @@ public class BSSignShop extends PlayerListener {
 										player.updateInventory(); // may be depricated, but only thing i can get to work :(
 										return;
 									}
-									total = signInfo.getCustomPrice() >=0 ? signInfo.getCustomPrice() * numCheck :
-										shop.pricelist.itemSellPrice(player, signInfo.item, numCheck);
+									total = signInfo.getCustomPrice() >= 0 ? signInfo.getCustomPrice() * numCheck
+											: shop.pricelist.itemSellPrice(player, signInfo.item, numCheck);
 								} else {
-									if(run){
+									if (run) {
 										if (signInfo.catItems != null) {
-											SellCommands.sellItems(player, signInfo.isInv, 
-													signInfo.catItems, -1, signInfo.getCustomPrice());
+											SellCommands.sellItems(player, signInfo.isInv,
+													signInfo.catItems, signInfo.amount, signInfo.getCustomPrice());
 										} else if (signInfo.inHand) {
 											ItemStack hand = player.getItemInHand();
 											if (hand == null || hand.getAmount() == 0) {
 												BSutils.sendMessage(event.getPlayer(), "you don't have anything in your hand");
 												return;
 											}
-											SellCommands.sellItems(player, signInfo.isInv, 
+											SellCommands.sellItems(player, signInfo.isInv,
 													JItemDB.GetItem(hand), -1, signInfo.getCustomPrice());
 										} else {
-											SellCommands.sellItems(player, signInfo.isInv, 
+											SellCommands.sellItems(player, signInfo.isInv,
 													null, signInfo.getCustomPrice());
 										}
 										player.updateInventory(); // may be depricated, but only thing i can get to work :(
@@ -248,15 +260,15 @@ public class BSSignShop extends PlayerListener {
 											numCheck += ite.getAmount();
 											JItem it = JItemDB.GetItem(ite);
 											itemN += it.coloredName() + ", ";
-											total += signInfo.getCustomPrice() >= 0 ? signInfo.getCustomPrice() * ite.getAmount() :
-												shop.pricelist.itemSellPrice(player, it.ID(), it.Data(), ite.getAmount());
+											total += signInfo.getCustomPrice() >= 0 ? signInfo.getCustomPrice() * ite.getAmount()
+													: shop.pricelist.itemSellPrice(player, it.ID(), it.Data(), ite.getAmount());
 										}
 									}
 								}
 							}
-							if(itemN.endsWith(", ")){
+							if (itemN.endsWith(", ")) {
 								itemN = itemN.substring(0, itemN.length() - 2);
-								if(itemN.contains(",")){
+								if (itemN.contains(",")) {
 									itemN = "(" + itemN + ")";
 								}
 							}
@@ -283,8 +295,8 @@ public class BSSignShop extends PlayerListener {
 							signsd.setSign(event.getClickedBlock().getLocation(), newSign);
 							newSign.updateColor();
 
-							BSutils.sendMessage(event.getPlayer(), "new sign created" +
-									(newSign.getCustomPrice() >=0 ? " with a custom price of "
+							BSutils.sendMessage(event.getPlayer(), "new sign created"
+									+ (newSign.getCustomPrice() >= 0 ? " with a custom price of "
 									+ BSEcon.format(newSign.getCustomPrice()) + " each" : ""));
 
 						} catch (Exception e) {
@@ -327,11 +339,11 @@ public class BSSignShop extends PlayerListener {
 	public class StopBreak extends BlockListener {
 	]
 	Location toStop = null;
-
+	
 	public void stopPlace(Location loc) {
 	toStop = loc.clone();
 	}
-
+	
 	@Override
 	public void onBlockCanBuild(BlockCanBuildEvent event) {
 	if (event.getBlock().getLocation().equals(toStop)) {
@@ -341,17 +353,17 @@ public class BSSignShop extends PlayerListener {
 	}//*/
 	/*
 	public class UpdateInv extends TimerTask {
-
+	
 	Player toupdate = null;
-
+	
 	public UpdateInv(Player p) {
 	toupdate = p;
 	}
-
+	
 	public void start(long wait) {
 	(new Timer()).schedule(this, wait);
 	}
-
+	
 	@Override
 	public void run() {
 	toupdate.getInventory().setContents(toupdate.getInventory().getContents());

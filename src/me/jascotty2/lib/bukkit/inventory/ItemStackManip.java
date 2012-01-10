@@ -162,6 +162,10 @@ public class ItemStackManip {
 		return false;
 	}
 
+	public static boolean canHold(ItemStack[] items, JItem check, int amt, boolean extraStack){
+		return amountCanHold(items, check, extraStack) >= amt;
+	}
+	
 	public static int amountCanHold(ItemStack[] items, JItem check, boolean extraStack) {
 		int amt = 0;
 		if (items == null) {
@@ -379,7 +383,7 @@ public class ItemStackManip {
 	}
 
 	/**
-	 * add an ItemStack to another
+	 * add an ItemStack to an array
 	 * @param items
 	 * @param toAdd
 	 * @param extraStack whether to allow some nonstackable items to stack
@@ -395,15 +399,17 @@ public class ItemStackManip {
 				items[i] = toAdd;
 				items[i].setAmount(amt);
 				return items;
-			} else if (items[i] != null && items[i].getTypeId() == toAdd.getTypeId()) {
-				if (items[i].getAmount() < mx) {
-					if (mx - items[i].getAmount() >= amt) {
-						items[i].setAmount(items[i].getAmount() + amt);
-						return items;
-					} else {
-						amt -= mx - items[i].getAmount();
-						items[i].setAmount(mx);
-					}
+			} else if (items[i] != null 
+					&& items[i].getTypeId() == toAdd.getTypeId() 
+					&& (!JItems.hasData(toAdd.getTypeId()) || items[i].getData().getData() == toAdd.getData().getData())
+					&& items[i].getAmount() < mx) {
+				// on first run, look for other stacks in array that could be incremented instead
+				if (items[i].getAmount() + amt <= mx) {
+					items[i].setAmount(items[i].getAmount() + amt);
+					return items;
+				} else {
+					amt -= mx - items[i].getAmount();
+					items[i].setAmount(mx);
 				}
 			} else if (firstRun && i + 1 >= items.length) {
 				firstRun = false;

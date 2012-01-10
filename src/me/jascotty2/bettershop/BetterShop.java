@@ -64,7 +64,7 @@ import me.jascotty2.lib.util.Str;
  */
 public class BetterShop extends JavaPlugin {
 
-	public final static String lastUpdatedStr = "10/13/11 12:55 -0500"; // "MM/dd/yy HH:mm Z"
+	public final static String lastUpdatedStr = "01/10/12 01:00 -0500"; // "MM/dd/yy HH:mm Z"
 	public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
 	protected static Plugin bettershopPlugin = null;
 	protected final static BSConfig config = new BSConfig();

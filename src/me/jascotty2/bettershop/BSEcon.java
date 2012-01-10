@@ -99,7 +99,7 @@ public class BSEcon extends ServerListener {
 		} else if(BetterShop.config.econ == EconMethod.BULTIN) {
 			throw new UnsupportedOperationException("Bultin Not supported yet.");
 		} else if(BetterShop.config.econ == EconMethod.EXP) {
-			return pl.getExperience();
+			return pl.getExp();
 		} else if(BetterShop.config.econ == EconMethod.TOTAL) {
 			return pl.getTotalExperience();
 		}
@@ -113,7 +113,7 @@ public class BSEcon extends ServerListener {
 			throw new UnsupportedOperationException("Bultin Not supported yet.");
 		} else if(BetterShop.config.econ == EconMethod.EXP) {
 			Player p = plugin.getServer().getPlayerExact(playerName);
-			return p == null ? 0 : p.getExperience();
+			return p == null ? 0 : p.getExp();
 		} else if(BetterShop.config.econ == EconMethod.TOTAL) {
 			Player p = plugin.getServer().getPlayerExact(playerName);
 			return p == null ? 0 : p.getTotalExperience();
@@ -136,7 +136,7 @@ public class BSEcon extends ServerListener {
 		if(BetterShop.config.econ == EconMethod.BULTIN) {
 			throw new UnsupportedOperationException("Bultin Not supported yet.");
 		} else if(BetterShop.config.econ == EconMethod.EXP) {
-			pl.setExperience(pl.getExperience() + (int)amt);
+			pl.setExp(pl.getExp() + (float)amt);
 		} else if(BetterShop.config.econ == EconMethod.TOTAL) {
 			pl.setTotalExperience(pl.getTotalExperience() + (int)amt);
 		} else {
@@ -149,7 +149,7 @@ public class BSEcon extends ServerListener {
 			throw new UnsupportedOperationException("Bultin Not supported yet.");
 		} else if(BetterShop.config.econ == EconMethod.EXP) {
 			Player pl = plugin.getServer().getPlayerExact(playerName);
-			if(pl != null) pl.setExperience(pl.getExperience() + (int)amt);
+			if(pl != null) pl.setExp(pl.getExp() + (float)amt);
 		} else if(BetterShop.config.econ == EconMethod.TOTAL) {
 			Player pl = plugin.getServer().getPlayerExact(playerName);
 			if(pl != null) pl.setTotalExperience(pl.getTotalExperience() + (int)amt);
@@ -167,10 +167,10 @@ public class BSEcon extends ServerListener {
 			if(BetterShop.config.econ == EconMethod.BULTIN) {
 				throw new UnsupportedOperationException("Bultin Not supported yet.");
 			} else if(BetterShop.config.econ == EconMethod.EXP) {
-				if(pl.getExperience() > (int)amt)
-					pl.setExperience(pl.getExperience() - (int)amt);
+				if(pl.getExp() > (int)amt)
+					pl.setExp(pl.getExp() - (float)amt);
 				else
-					pl.setExperience(0);
+					pl.setExp(0);
 			} else if(BetterShop.config.econ == EconMethod.TOTAL) {
 				if(pl.getTotalExperience() > (int)amt)
 					pl.setTotalExperience(pl.getTotalExperience() - (int)amt);
@@ -188,10 +188,10 @@ public class BSEcon extends ServerListener {
 		} else if(BetterShop.config.econ == EconMethod.EXP) {
 			Player pl = plugin.getServer().getPlayerExact(playerName);
 			if(pl != null) {
-				if(pl.getExperience() > (int)amt)
-					pl.setExperience(pl.getExperience() - (int)amt);
+				if(pl.getExp() > (int)amt)
+					pl.setExp(pl.getExp() - (float)amt);
 				else
-					pl.setExperience(0);
+					pl.setExp(0);
 			}
 		} else if(BetterShop.config.econ == EconMethod.TOTAL) {
 			Player pl = plugin.getServer().getPlayerExact(playerName);

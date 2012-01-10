@@ -267,11 +267,11 @@ public class BuyCommands {
 //		}
 
 		List<ItemStack> diff = ItemStackManip.itemStackDifferences(start, result);
-
-		System.out.println("after adding: " + diff.size() + " new items");
-		for(ItemStack i : diff) {
-			System.out.println(JItemDB.GetItemName(i) + ":" + i.getDurability() + "x" + i.getAmount());
-		}
+		
+//		System.out.println("after adding: " + diff.size() + " new items");
+//		for(ItemStack i : diff) {
+//			System.out.println(JItemDB.GetItemName(i) + ":" + i.getDurability() + "x" + i.getAmount());
+//		}
 
 		if (diff.isEmpty()/* || diff.size() > newSize*/) {
 			return purchase;
@@ -304,6 +304,7 @@ public class BuyCommands {
 		for (int i = 0; i < toBuy.length; ++i) {
 			if (toBuy[i] != null) {
 				baseprice += customPrice >= 0 ? customPrice : shop.pricelist.getBuyPrice(toBuy[i]);
+//				System.out.println(toBuy[i].Name() + ": " + shop.pricelist.getBuyPrice(toBuy[i]));
 			}
 		}
 //		System.out.println("baseprice: " + baseprice + "/" + cash);
@@ -329,7 +330,7 @@ public class BuyCommands {
 				for (int i = 0; i < toBuy.length; ++i) {
 					if (toBuy[i] != null) {
 						price += shop.pricelist.itemBuyPrice(player, toBuy[i],
-								amt > maxAvail[i] ? (int) maxAvail[i] : amt);
+								amt > maxAvail[i] && maxAvail[i] > 0 ? (int) maxAvail[i] : amt);
 					}
 				}
 			} while (price > cash && --amt > 0);
@@ -343,7 +344,7 @@ public class BuyCommands {
 				for (int i = 0; i < toBuy.length; ++i) {
 					if (toBuy[i] != null) {
 						price += shop.pricelist.itemBuyPrice(player, toBuy[i],
-								amt > maxAvail[i] ? (int) maxAvail[i] : amt);
+								amt > maxAvail[i] && maxAvail[i] > 0 ? (int) maxAvail[i] : amt);
 					}
 				}
 				if (price > cash) {
@@ -357,11 +358,13 @@ public class BuyCommands {
 //			System.out.println("final: " + amt + " each: " + price);
 		}
 
+//		System.out.println("after removing can't afford:");
 		if (amt > 0) {
 			for (int i = 0; i < toBuy.length; ++i) {
 				if (toBuy[i] != null && maxAvail[i] != 0) {
 					purchase.add(new ItemStockEntry(toBuy[i],
-							amt > maxAvail[i] ? (int) maxAvail[i] : amt));
+							amt > maxAvail[i] && maxAvail[i] > 0 ? (int) maxAvail[i] : amt));
+//					System.out.println(toBuy[i].Name() + " x " + purchase.get(purchase.size()-1).amount + " (of " + maxAvail[i] + ")");
 				}
 			}
 		}
@@ -507,7 +510,86 @@ public class BuyCommands {
 		}
 		_buyItem(player, toBuy, amt, customPrice);
 	}
+	
+	/*
+	 * assumes that the amounts given are correct, and will try to purchase until out of room or money
+	 */
+	public static void buyItem(Player player, List<ItemStockEntry> buy, double customPrice) throws SQLException, Exception {
+		Shop shop = BetterShop.getShop(player.getLocation());
+		PlayerInventory inv = player.getInventory();
+		double price = 0;
+		String itemN = "";
+		int amtBought = 0;
+		for (ItemStockEntry ite : buy) {
+			if(ite == null || ite.itemNum <= 0) {
+				continue;
+			}
+			JItem it = JItemDB.GetItem(ite.itemNum, (byte)ite.itemSub);
+			if(it == null) continue;
+			long maxAmt = shop.config.useStock() ? shop.stock.getItemAmount(it) : -1;
+			int buyAmt = maxAmt > 0 && ite.amount > maxAmt ? (int) maxAmt : (int) ite.amount;
+			double itemCost = customPrice >= 0 ? customPrice * buyAmt
+					: shop.pricelist.itemBuyPrice(player, it, buyAmt);
+			amtBought += buyAmt;
+			price += itemCost;
+			// buy
+			if (BSEcon.debit(player, itemCost)) {
+				itemN += it.coloredName() + ", ";
+				if (it.isEntity()) {
+					CreatureItem c = CreatureItem.getCreature(it.ID());
+					if (c != null) {
+						for (int i = 0; i < buyAmt; ++i) {
+							c.spawnNewWithOwner(player);
+						}
+					}
+				} else {
+					if (it.equals(JItems.MAP)) {
+						//TODO: either make a new map or copy a map.....
+					}
+					if(!ItemStackManip.canHold(player.getInventory().getContents(), it, buyAmt, !BetterShop.getSettings().usemaxstack)){
+						BSutils.sendMessage(player,ChatColor.RED + "Program Error: tried to buy more than can hold: aborting.");
+						BSEcon.credit(player, itemCost);
+						break;
+					}
+					inv.setContents(ItemStackManip.add(player.getInventory().getContents(),
+							it, buyAmt, !BetterShop.getSettings().usemaxstack));
+				}
 
+				try {
+					if (BetterShop.getSettings().useItemStock) {
+						shop.stock.changeItemAmount(it, -buyAmt);
+					}
+					if (BetterShop.getSettings().logUserTransactions) {
+						shop.transactions.addRecord(new UserTransaction(
+								it, false, buyAmt, price / buyAmt, player.getDisplayName()));
+					}
+
+				} catch (Exception ex) {
+					BetterShopLogger.Log(Level.SEVERE, ex);
+				}
+			} else {
+				BSutils.sendMessage(player,
+						BetterShop.getSettings().getString("insuffunds").
+						replace("<item>", it.coloredName()).
+						replace("<amt>", String.valueOf(buyAmt)).
+						replace("<total>", String.valueOf(price)).
+						replace("<curr>", BetterShop.getSettings().currency()).
+						replace("<priceper>", String.valueOf(price / buyAmt)).
+						replace("<totcur>", BSEcon.format(price)));
+				break;
+			}
+		}
+		
+		if (itemN.length() > 0) {
+			itemN = itemN.substring(0, itemN.length() - 2);
+			if (itemN.contains(",")) {
+				itemN = "(" + itemN + ")";
+			}
+		}
+
+		BSutils.sendFormttedMessage(player, "buymsg", itemN, amtBought, price);
+	}
+	
 	/**
 	 * assumes items can be bought, and have the correct amount(s)
 	 */
@@ -524,7 +606,7 @@ public class BuyCommands {
 			long maxAmt = shop.config.useStock() ? shop.stock.getItemAmount(it) : -1;
 			int buyAmt = maxAmt > 0 && amt > maxAmt ? (int) maxAmt : amt;
 			amtBought += buyAmt;
-			double itemCost = customPrice >= 0 ? customPrice * amt
+			double itemCost = customPrice >= 0 ? customPrice * buyAmt
 					: shop.pricelist.itemBuyPrice(player, it, buyAmt);
 			price += itemCost;
 			if(itemCost < 0) {

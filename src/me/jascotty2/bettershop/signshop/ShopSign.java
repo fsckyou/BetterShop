@@ -55,7 +55,7 @@ public class ShopSign {
 			throw new IllegalArgumentException("Invalid Sign!");
 		}
 		this.sign = s;
-		try {
+		//try {
 		String action = ChatColor.stripColor(sign.getLine(1).trim()).replace("  ", " ");
 
 		// quick check for valid sign action
@@ -72,27 +72,29 @@ public class ShopSign {
 
 		// first find the item(s)
 		String searchItem = ChatColor.stripColor(sign.getLine(2).toLowerCase().replace(" ", ""));
-		//item = JItemDB.findItem(searchItem);
-		JItem toAdd[] = searchItem.isEmpty() ? new JItem[]{null} : JItemDB.findItems(searchItem);
-		if (toAdd.length == 1 && toAdd[0] != null) {
-			item = toAdd[0];
-			itemName = item.Name();
-		} else if (toAdd.length > 1) {
-			itemName = JItemDB.findCategory(searchItem);
-			if (itemName != null) {
-				isCategory = true;
-				catItems = toAdd;
-			} else {
+		JItem toAdd[];
+		// check if is a category
+		if(!searchItem.isEmpty() && (itemName = JItemDB.findCategory(searchItem)) != null) {
+			toAdd = JItemDB.getItemsByCategory(searchItem);
+			catItems = toAdd;
+			isCategory = true;
+		} else {
+			toAdd = searchItem.isEmpty() ? new JItem[]{null} : new JItem[]{JItemDB.findItem(searchItem)};
+			if(toAdd[0] == null) toAdd = JItemDB.findItems(searchItem);
+			if (toAdd.length == 1 && toAdd[0] != null) {
+				item = toAdd[0];
+				itemName = item.Name();
+			} else if (toAdd.length > 1) {
 //				System.out.println("matches for " + searchItem);
 //				for(JItem  i : toAdd){
 //					System.out.println(i == null ? "null " : i.Name());
 //				}
 				throw new IllegalArgumentException("Invalid Sign! (multiple items match query)");
+			} else {
+				itemName = null;
 			}
-		} else {
-			itemName = null;
 		}
-
+		
 		isInv = searchItem.equals("inv") || action.contains("inv");
 		inHand = searchItem.equals("hand") || searchItem.equals("inhand") || action.contains("hand");
 
@@ -145,9 +147,9 @@ public class ShopSign {
 			}
 		}
 		
-		} catch (Exception e) {
-			Logger.getAnonymousLogger().warning(e.toString() + " " + e.getMessage() + "\n" + Str.getStackStr(e));
-		}
+//		} catch (Exception e) {
+//			Logger.getAnonymousLogger().warning(e.toString() + " " + e.getMessage() + "\n" + Str.getStackStr(e));
+//		}
 	}
 
 	public void updateColor() {
