@@ -286,7 +286,7 @@ public enum JItems {
 	GLOWSTONE_DUST("Glowstone Dust", 348),
 	RAW_FISH("Raw Fish", 349),
 	COOKED_FISH("Cooked Fish", 350, "349@8+263=8, 349@3+5@2=3, 349@12+369=12"),
-	INK_SACK("Ink Sac", 351),
+	INK_SACK("Ink Sac", 351, (byte) 0),
 	RED_DYE("Red Dye", 351, (byte) 1, "38=2"),
 	GREEN_DYE("Green Dye", 351, (byte) 2, "81@8+263=8, 81@3+5@2=3, 81@12+369=12"),
 	BROWN_DYE("Cocoa Bean", 351, (byte) 3), // no current method for crafting cocoa
