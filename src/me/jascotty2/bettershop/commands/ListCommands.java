@@ -180,7 +180,7 @@ public class ListCommands {
 	commands = {"shopcheck", "scheck", "sc"},
 	aliases = {"check", "c", "price", "lookup"},
 	desc = "Check prices for an item",
-	permissions = {"Bettershop.user.check"})
+	permissions = {"BetterShop.user.check"})
 	public static boolean check(CommandSender player, String[] s) {
 		if (s == null || s.length == 0 || s.length > 2) {
 			return false;

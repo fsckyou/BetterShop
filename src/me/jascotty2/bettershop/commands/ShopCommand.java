@@ -24,7 +24,6 @@ import me.jascotty2.lib.bukkit.commands.Command;
 import me.jascotty2.lib.bukkit.commands.NestedCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.getspout.spoutapi.gui.ScreenType;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
 /**

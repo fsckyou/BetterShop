@@ -95,14 +95,14 @@ public enum BetterShopPermission {
 	 * ability to add/remove shop chests
 	 */
 	ADMIN_CHESTS("BetterShop.admin.chests");
-	String permissionNode = null;
+	public final String permissionNode;
 
 	BetterShopPermission(String per) {
 		permissionNode = per;
 	}
 
 	@Override
-	public String toString() {
+	final public String toString() {
 		return permissionNode;
 	}
 }
