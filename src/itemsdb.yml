@@ -850,15 +850,160 @@ items:
     item368:
         name: Ender Pearl
         aliases: epearl
+        
+    item369:
+        name: Blaze Rod
+        aliases: 
+    item370:
+        name: Ghast Tear
+        aliases: 
+    item371:
+        name: Gold Nugget
+        aliases: 
+    item372:
+        name: Nether Wart
+        aliases: 
+    item374:
+        name: Glass Bottle
+        aliases: 
+    item375:
+        name: Spider Eye
+        aliases: 
+    item376:
+        name: Fermented Spider Eye
+        aliases: 
+    item377:
+        name: Blaze Powder
+        aliases: 
+    item378:
+        name: Magma Cream
+        aliases: 
+    item379:
+        name: Brewing Stand
+        aliases: 
+    item380:
+        name: Cauldron
+        aliases: 
+    item381:
+        name: Eye of Ender
+        aliases: 
+    item382:
+        name: Glistering Melon
+        aliases: 
+    item383sub50:
+        name: Creeper Egg
+        aliases: 
+    item383sub51:
+        name: Skeleton Egg
+        aliases: 
+    item383sub52:
+        name: Spider Egg
+        aliases: 
+    item383sub53:
+        name: Giant Egg
+        aliases: 
+    item383sub54:
+        name: Zombie Egg
+        aliases: 
+    item383sub55:
+        name: Slime Egg
+        aliases: 
+    item383sub56:
+        name: Ghast Egg
+        aliases: 
+    item383sub57:
+        name: PigZombie Egg
+        aliases: 
+    item383sub58:
+        name: Enderman Egg
+        aliases: 
+    item383sub59:
+        name: CaveSpider Egg
+        aliases: 
+    item383sub60:
+        name: Silverfish Egg
+        aliases: 
+    item383sub61:
+        name: Blaze Egg
+        aliases: 
+    item383sub62:
+        name: LavaSlime Egg
+        aliases: 
+    item383sub63:
+        name: EnderDragon Egg
+        aliases: 
+    item383sub90:
+        name: Pig Egg
+        aliases: 
+    item383sub91:
+        name: Sheep Egg
+        aliases: 
+    item383sub92:
+        name: Cow Egg
+        aliases: 
+    item383sub93:
+        name: Chicken Egg
+        aliases: 
+    item383sub94:
+        name: Wolf Egg
+        aliases: 
+    item383sub95:
+        name: MushroomCow Egg
+        aliases: 
+    item383sub96:
+        name: SnowMan Egg
+        aliases: 
+    item383sub97:
+        name: Villager Egg
+        aliases: 
     item2256:
-        name: Gold Record
-        aliases: golddisk, grecord, gdisk
+        name: 13 Disk
+        aliases: goldrecord, golddisk, grecord, gdisk
         color: gold
     item2257:
-        name: Green Record
-        aliases: greendisk, grrecord, grdisk
+        name: Cat Disc
+        aliases: greenrecord, greendisk, grrecord, grdisk
         color: green
-
+    item2258:
+        name: Blocks Disc
+        aliases: orangerecord, orangedisk, orrecord, ordisk
+        color: orange
+    item2259:
+        name: Chirp Disc
+        aliases: redrecord, reddisk, rrecord, rdisk
+        color: red
+    item2260:
+        name: Far Disc
+        aliases: limerecord, limedisk, lrecord, ldisk
+        color: 
+    item2261:
+        name: Mall Disc
+        aliases: bluerecord, bluedisk
+        color: blue
+    item2262:
+        name: Mellohi Disc
+        aliases: purplerecord, purpledisk, precord, pdisk
+        color: purple
+    item2263:
+        name: Stal Disc
+        aliases: blackrecord, blackdisk
+        color: black
+    item2264:
+        name: Strad Disc
+        aliases: whiterecord, whitedisk, wrecord, wdisk
+        color: white
+    item:
+        name: 
+        aliases: record, disk, record, disk
+        color: 
+    item2265:
+        name: Ward Disc
+        color: lime
+    item:
+        name: 11 Disc
+        aliases: brokenrecord, brokendisk
+        color: black
+        
 #entities :)
 # can't add more than what i have, or you'll get a chicken
 #   note: if adding to the csv, add 4000 to the entity number

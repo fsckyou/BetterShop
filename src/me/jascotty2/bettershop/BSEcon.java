@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package me.jascotty2.bettershop;
 
 import com.nijikokun.register_1_5.payment.Method;
@@ -25,15 +24,17 @@ import me.jascotty2.bettershop.enums.EconMethod;
 import me.jascotty2.bettershop.utils.BSPermissions;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
-import org.bukkit.event.server.ServerListener;
 import org.bukkit.plugin.PluginManager;
 
 /**
  * @author jacob
  */
-public class BSEcon extends ServerListener {
+public class BSEcon implements Listener {
 
 	protected static Method economyMethod = null;
 	protected static Methods _econMethods = new Methods();
@@ -42,14 +43,24 @@ public class BSEcon extends ServerListener {
 	// this is to only display one
 	static boolean _pastBalanceErr = false;
 	static BetterShop plugin;
-	PluginManager pm;
-	
-	public BSEcon(BetterShop plugin){
+	final PluginManager pm;
+
+	public BSEcon(BetterShop plugin) {
 		BSEcon.plugin = plugin;
 		pm = plugin.getServer().getPluginManager();
+		Methods.setMethod(pm);
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onPluginEnable(PluginEnableEvent event) {
+		if (!Methods.hasMethod() && Methods.setMethod(plugin.getServer().getPluginManager())) {
+			economyMethod = Methods.getMethod();
+			methodName = economyMethod.getName() + " v" + economyMethod.getVersion();
+			BetterShopLogger.Log("Using " + methodName + " for economy");
+		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPluginDisable(PluginDisableEvent event) {
 		// Check to see if the plugin thats being disabled is the one we are using
 		if (_econMethods != null && Methods.hasMethod() && Methods.checkDisabled(event.getPlugin())) {
@@ -60,34 +71,27 @@ public class BSEcon extends ServerListener {
 		}
 	}
 
-	@Override
-	public void onPluginEnable(PluginEnableEvent event) {
-		if (!Methods.hasMethod()) {
-			if (Methods.setMethod(pm) && Methods.hasMethod()){
-				economyMethod = Methods.getMethod();
-				methodName = economyMethod.getName() + " v" + economyMethod.getVersion();
-				BetterShopLogger.Log("Using " + methodName + " for economy");
-			}
-		}
-	}
-
 	public static boolean active() {
 		return BetterShop.config.econ != EconMethod.AUTO || economyMethod != null;
 	}
 
 	public static String getMethodName() {
-		if(BetterShop.config.econ == EconMethod.AUTO) return methodName;
-		if(BetterShop.config.econ == EconMethod.BULTIN) return "BettershopEcon";
+		if (BetterShop.config.econ == EconMethod.AUTO) {
+			return methodName;
+		}
+		if (BetterShop.config.econ == EconMethod.BULTIN) {
+			return "BettershopEcon";
+		}
 		return "Experience";
 	}
 
 	public static boolean hasAccount(Player pl) {
-		return pl != null && (BetterShop.config.econ != EconMethod.AUTO ||
-				(economyMethod != null && economyMethod.hasAccount(pl.getName())));
+		return pl != null && (BetterShop.config.econ != EconMethod.AUTO
+				|| (economyMethod != null && economyMethod.hasAccount(pl.getName())));
 	}
 
 	public static boolean canAfford(Player pl, double amt) {
-		if(BetterShop.config.econ != EconMethod.AUTO) {
+		if (BetterShop.config.econ != EconMethod.AUTO) {
 			return pl != null ? getBalance(pl) >= amt : false;
 		}
 		return pl != null ? getBalance(pl.getName()) >= amt : false;
@@ -96,11 +100,11 @@ public class BSEcon extends ServerListener {
 	public static double getBalance(Player pl) {
 		if (pl == null) {
 			return 0;
-		} else if(BetterShop.config.econ == EconMethod.BULTIN) {
+		} else if (BetterShop.config.econ == EconMethod.BULTIN) {
 			throw new UnsupportedOperationException("Bultin Not supported yet.");
-		} else if(BetterShop.config.econ == EconMethod.EXP) {
+		} else if (BetterShop.config.econ == EconMethod.EXP) {
 			return pl.getExp();
-		} else if(BetterShop.config.econ == EconMethod.TOTAL) {
+		} else if (BetterShop.config.econ == EconMethod.TOTAL) {
 			return pl.getTotalExperience();
 		}
 		return pl == null ? 0 : getBalance(pl.getName());
@@ -109,12 +113,12 @@ public class BSEcon extends ServerListener {
 	public static double getBalance(String playerName) {
 		if (playerName == null) {
 			return 0;
-		} else if(BetterShop.config.econ == EconMethod.BULTIN) {
+		} else if (BetterShop.config.econ == EconMethod.BULTIN) {
 			throw new UnsupportedOperationException("Bultin Not supported yet.");
-		} else if(BetterShop.config.econ == EconMethod.EXP) {
+		} else if (BetterShop.config.econ == EconMethod.EXP) {
 			Player p = plugin.getServer().getPlayerExact(playerName);
 			return p == null ? 0 : p.getExp();
-		} else if(BetterShop.config.econ == EconMethod.TOTAL) {
+		} else if (BetterShop.config.econ == EconMethod.TOTAL) {
 			Player p = plugin.getServer().getPlayerExact(playerName);
 			return p == null ? 0 : p.getTotalExperience();
 		}
@@ -133,26 +137,30 @@ public class BSEcon extends ServerListener {
 	}
 
 	public static void addMoney(Player pl, double amt) {
-		if(BetterShop.config.econ == EconMethod.BULTIN) {
+		if (BetterShop.config.econ == EconMethod.BULTIN) {
 			throw new UnsupportedOperationException("Bultin Not supported yet.");
-		} else if(BetterShop.config.econ == EconMethod.EXP) {
-			pl.setExp(pl.getExp() + (float)amt);
-		} else if(BetterShop.config.econ == EconMethod.TOTAL) {
-			pl.setTotalExperience(pl.getTotalExperience() + (int)amt);
+		} else if (BetterShop.config.econ == EconMethod.EXP) {
+			pl.setExp(pl.getExp() + (float) amt);
+		} else if (BetterShop.config.econ == EconMethod.TOTAL) {
+			pl.setTotalExperience(pl.getTotalExperience() + (int) amt);
 		} else {
 			addMoney(pl.getName(), amt);
 		}
 	}
 
 	public static void addMoney(String playerName, double amt) {
-		if(BetterShop.config.econ == EconMethod.BULTIN) {
+		if (BetterShop.config.econ == EconMethod.BULTIN) {
 			throw new UnsupportedOperationException("Bultin Not supported yet.");
-		} else if(BetterShop.config.econ == EconMethod.EXP) {
+		} else if (BetterShop.config.econ == EconMethod.EXP) {
 			Player pl = plugin.getServer().getPlayerExact(playerName);
-			if(pl != null) pl.setExp(pl.getExp() + (float)amt);
-		} else if(BetterShop.config.econ == EconMethod.TOTAL) {
+			if (pl != null) {
+				pl.setExp(pl.getExp() + (float) amt);
+			}
+		} else if (BetterShop.config.econ == EconMethod.TOTAL) {
 			Player pl = plugin.getServer().getPlayerExact(playerName);
-			if(pl != null) pl.setTotalExperience(pl.getTotalExperience() + (int)amt);
+			if (pl != null) {
+				pl.setTotalExperience(pl.getTotalExperience() + (int) amt);
+			}
 		} else if (economyMethod != null) {
 			if (!economyMethod.hasAccount(playerName)) {
 				// TODO? add methods for creating an account
@@ -163,19 +171,21 @@ public class BSEcon extends ServerListener {
 	}
 
 	public static void subtractMoney(Player pl, double amt) {
-		if(pl != null){
-			if(BetterShop.config.econ == EconMethod.BULTIN) {
+		if (pl != null) {
+			if (BetterShop.config.econ == EconMethod.BULTIN) {
 				throw new UnsupportedOperationException("Bultin Not supported yet.");
-			} else if(BetterShop.config.econ == EconMethod.EXP) {
-				if(pl.getExp() > (int)amt)
-					pl.setExp(pl.getExp() - (float)amt);
-				else
+			} else if (BetterShop.config.econ == EconMethod.EXP) {
+				if (pl.getExp() > (int) amt) {
+					pl.setExp(pl.getExp() - (float) amt);
+				} else {
 					pl.setExp(0);
-			} else if(BetterShop.config.econ == EconMethod.TOTAL) {
-				if(pl.getTotalExperience() > (int)amt)
-					pl.setTotalExperience(pl.getTotalExperience() - (int)amt);
-				else
+				}
+			} else if (BetterShop.config.econ == EconMethod.TOTAL) {
+				if (pl.getTotalExperience() > (int) amt) {
+					pl.setTotalExperience(pl.getTotalExperience() - (int) amt);
+				} else {
 					pl.setTotalExperience(0);
+				}
 			} else {
 				subtractMoney(pl.getName(), amt);
 			}
@@ -183,23 +193,25 @@ public class BSEcon extends ServerListener {
 	}
 
 	public static void subtractMoney(String playerName, double amt) {
-		if(BetterShop.config.econ == EconMethod.BULTIN) {
+		if (BetterShop.config.econ == EconMethod.BULTIN) {
 			throw new UnsupportedOperationException("Bultin Not supported yet.");
-		} else if(BetterShop.config.econ == EconMethod.EXP) {
+		} else if (BetterShop.config.econ == EconMethod.EXP) {
 			Player pl = plugin.getServer().getPlayerExact(playerName);
-			if(pl != null) {
-				if(pl.getExp() > (int)amt)
-					pl.setExp(pl.getExp() - (float)amt);
-				else
+			if (pl != null) {
+				if (pl.getExp() > (int) amt) {
+					pl.setExp(pl.getExp() - (float) amt);
+				} else {
 					pl.setExp(0);
+				}
 			}
-		} else if(BetterShop.config.econ == EconMethod.TOTAL) {
+		} else if (BetterShop.config.econ == EconMethod.TOTAL) {
 			Player pl = plugin.getServer().getPlayerExact(playerName);
-			if(pl != null) {
-				if(pl.getTotalExperience() > (int)amt)
-					pl.setTotalExperience(pl.getTotalExperience() - (int)amt);
-				else
+			if (pl != null) {
+				if (pl.getTotalExperience() > (int) amt) {
+					pl.setTotalExperience(pl.getTotalExperience() - (int) amt);
+				} else {
 					pl.setTotalExperience(0);
+				}
 			}
 		} else if (economyMethod != null) {
 			if (!economyMethod.hasAccount(playerName)) {
@@ -256,7 +268,7 @@ public class BSEcon extends ServerListener {
 	public static boolean debit(Player player, double amount) {
 		if (amount <= 0) {
 			return amount == 0 || credit(player, -amount);
-		} else if(getBalance(player) < amount){
+		} else if (getBalance(player) < amount) {
 			return false;
 		}
 		if (BSEcon.active()) {
@@ -293,7 +305,7 @@ public class BSEcon extends ServerListener {
 		double preAmt = BSEcon.getBalance(player);
 		if (amount > 0 || preAmt >= -amount) {
 			BSEcon.addMoney(player, amount);
-			if (BetterShop.config.econ== EconMethod.AUTO
+			if (BetterShop.config.econ == EconMethod.AUTO
 					&& BetterShop.getSettings().BOSBank != null
 					&& BSEcon.economyMethod.hasBanks()
 					&& BSEcon.economyMethod.hasBank(BetterShop.getSettings().BOSBank)) {
@@ -310,14 +322,13 @@ public class BSEcon extends ServerListener {
 				return economyMethod.format(amt);
 			}
 			return String.format("%.2f", amt) + " "
-				+ (amt > 1 || amt < 1 ? BetterShop.getSettings().pluralCurrency
-				: BetterShop.getSettings().defaultCurrency);
+					+ (amt > 1 || amt < 1 ? BetterShop.getSettings().pluralCurrency
+					: BetterShop.getSettings().defaultCurrency);
 		} catch (Exception ex) {
 			BetterShopLogger.Warning("Error Formatting Currency", ex, false);
 		}
 		return String.format("%.2f", amt);
 	}
-
 //
 //	static boolean reloadIConomy(Server serv) {
 //		try {
@@ -334,6 +345,5 @@ public class BSEcon extends ServerListener {
 //		}
 //		return false;
 //	}
-
 } // end class BSEcon
 

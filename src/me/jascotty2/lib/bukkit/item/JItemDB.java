@@ -629,8 +629,12 @@ public class JItemDB {
 	public static String GetItemColoredName(ItemStack it) {
 		return it == null ? null : GetItemColoredName(it.getTypeId(), it.getData() == null ? 0 : it.getData().getData());
 	}
-
+	
 	public static String GetItemColoredName(int id, byte dat) {
+		return GetItemColoredName(id, (int) dat);
+	}
+	
+	public static String GetItemColoredName(int id, int dat) {
 
 		for (JItem i : items.values()) {
 			if (i.ID() == id && i.Data() == dat) {

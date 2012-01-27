@@ -398,7 +398,7 @@ public enum JItems {
 	LIME_RECORD("Far Disc", 2260, 1),
 	BLUE_RECORD("Mall Disc", 2261, 1),
 	PURPLE_RECORD("Mellohi Disc", 2262, 1),
-	BLAACK_RECORD("Stal Disc", 2263, 1),
+	BLACK_RECORD("Stal Disc", 2263, 1),
 	WHITE_RECORD("Strad Disc", 2264, 1),
 	GREEN_LIME_RECORD("Ward Disc", 2265, 1), // has half green, half lime
 	BROKEN_RECORD("11 Disc", 2266, 1);

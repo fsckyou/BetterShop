@@ -343,6 +343,7 @@ public class ItemStackManip {
 			Kit kit = toAdd instanceof Kit ? (Kit) toAdd : JItemDB.getKit(toAdd);
 			Kit.KitItem kititems[] = kit.getKitItems();
 
+			// add one of each until fails
 			for (int num = 0; num < amt; ++num) {
 				int numtoadd = 0;
 				for (int itn = 0; itn < kit.numItems(); ++itn) {

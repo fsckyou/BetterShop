@@ -267,7 +267,7 @@ public class BuyCommands {
 //		}
 
 		List<ItemStack> diff = ItemStackManip.itemStackDifferences(start, result);
-		
+
 //		System.out.println("after adding: " + diff.size() + " new items");
 //		for(ItemStack i : diff) {
 //			System.out.println(JItemDB.GetItemName(i) + ":" + i.getDurability() + "x" + i.getAmount());
@@ -416,30 +416,13 @@ public class BuyCommands {
 		if (toBuy == null || toBuy.length == 0 || toBuy[0] == null || player == null || amt == 0) {
 			return;
 		}
+		Shop shop = BetterShop.getShop(player);
 		if (toBuy.length == 1) {
-			Shop shop = BetterShop.getShop(player);
 			if (customPrice <= 0 && !shop.pricelist.canBuy(toBuy[0])) {
 				BSutils.sendMessage(player,
 						BetterShop.getSettings().getString("notforsale").
 						replace("<item>", toBuy[0].coloredName()));
 				return;
-			}
-			int canHold = shop.pricelist.getAmountCanBuy(player, toBuy[0], customPrice);
-			if (amt < 0) {
-				amt = canHold;
-			} else if (canHold >= 0 && amt > canHold) {
-				BSutils.sendMessage(player, BetterShop.getSettings().getString("outofroom").
-						replace("<item>", toBuy[0].coloredName()).
-						replace("<amt>", String.valueOf(amt)).
-						replace("<priceper>", String.format("%01.2f",
-						shop.pricelist.itemBuyPrice(player, toBuy[0], 1))).
-						replace("<leftover>", String.valueOf(amt - canHold)).
-						replace("<curr>", BetterShop.getSettings().currency()).
-						replace("<free>", String.valueOf(canHold)));
-				if (canHold <= 0) {
-					return;
-				}
-				amt = canHold;
 			}
 			// check if there are items avaliable for purchase
 			long avail = -1;
@@ -461,56 +444,136 @@ public class BuyCommands {
 					amt = (int) avail;
 				}
 			}
-		} else {
-			ArrayList<JItem> canBuy = new ArrayList<JItem>();
-			String notWant = "";
-			for (JItem i : toBuy) {
-				if (BetterShop.getPricelist(player.getLocation()).canBuy(toBuy[0])) {
-					canBuy.add(i);
-				} else if (i != null) {
-					notWant += i.coloredName() + ", ";
-				}
-			}
-			if (canBuy.isEmpty()) {
-				if (notWant.length() > 0) {
-					notWant = notWant.substring(0, notWant.length() - 2);
-					if (notWant.contains(",")) {
-						notWant = "(" + notWant + ")";
-					}
-				}
-				BSutils.sendMessage(player,
-						BetterShop.getSettings().getString("notforsale").
-						replace("<item>", notWant));
-				return;
-			}
-			// else, find max. can buy
-			List<ItemStockEntry> open = getCanBuy(player, toBuy, -1);
-			int maxamt = 0;
-			for (ItemStockEntry i : open) {
-				if (i.amount > maxamt) {
-					maxamt = (int) i.amount;
-				}
-			}
-			if (amt > maxamt) {
+			int canHold = shop.pricelist.getAmountCanBuy(player, toBuy[0], customPrice);
+			if (amt < 0) {
+				amt = canHold;
+			} else if (canHold >= 0 && amt > canHold) {
 				BSutils.sendMessage(player, BetterShop.getSettings().getString("outofroom").
 						replace("<item>", toBuy[0].coloredName()).
 						replace("<amt>", String.valueOf(amt)).
 						replace("<priceper>", String.format("%01.2f",
-						BetterShop.getPricelist(player.getLocation()).itemBuyPrice(player, toBuy[0], 1))).
-						replace("<leftover>", String.valueOf(amt - maxamt)).
+						shop.pricelist.itemBuyPrice(player, toBuy[0], 1))).
+						replace("<leftover>", String.valueOf(amt - canHold)).
 						replace("<curr>", BetterShop.getSettings().currency()).
-						replace("<free>", String.valueOf(maxamt)));
-				if (maxamt <= 0) {
+						replace("<free>", String.valueOf(canHold)));
+				if (canHold <= 0) {
 					return;
 				}
-				amt = maxamt;
-			} else if(amt < 0){
-				amt = maxamt;
+				amt = canHold;
 			}
+			_buyItem(player, toBuy, amt, customPrice);
+		} else {
+			List<ItemStockEntry> canBuy = new ArrayList<ItemStockEntry>();
+
+			String notWant = "", noStock = "";
+			for (JItem i : toBuy) {
+				if (BetterShop.getPricelist(player.getLocation()).canBuy(i)) {
+					int buyamt = amt;
+					// check if heve enough to buy
+					if (BetterShop.getSettings().useItemStock) {
+						long avail = -1;
+						try {
+							avail = shop.stock.getItemAmount(i);
+						} catch (Exception ex) {
+							BetterShopLogger.Log(Level.SEVERE, ex);
+							avail = -1;
+						}
+						if (avail == 0) {
+							noStock += i.coloredName() + ", ";
+							continue;
+						} else if (avail >= 0 && amt > avail) {
+							buyamt = (int) avail;
+						}
+					}
+					canBuy.add(new ItemStockEntry(i, buyamt));
+				} else if (i != null) {
+					notWant += i.coloredName() + ", ";
+				}
+			}
+			
+			if (!noStock.isEmpty()) {
+				noStock = noStock.substring(0, noStock.length() - 2);
+				if (noStock.contains(",")) {
+					noStock = "(" + noStock + ")";
+				}
+				BSutils.sendMessage(player, BetterShop.getSettings().getString("outofstock").
+						replace("<item>", noStock));
+			}
+
+			if (canBuy.isEmpty()) {
+				if (!notWant.isEmpty()) {
+					notWant = notWant.substring(0, notWant.length() - 2);
+					if (notWant.contains(",")) {
+						notWant = "(" + notWant + ")";
+					}
+					BSutils.sendMessage(player,
+							BetterShop.getSettings().getString("notforsale").
+							replace("<item>", notWant));
+				}
+				return;
+			}
+
+			// else, find max. can hold
+			ItemStack start[] = ItemStackManip.copy(player.getInventory().getContents()),
+					result[] = ItemStackManip.copy(start);
+			List<ItemStack> add = new ArrayList<ItemStack>();
+			for (ItemStockEntry u : canBuy) {
+				add.add(new ItemStack(u.itemNum, (int) u.amount));
+			}
+			ItemStackManip.add(result, add, !BetterShop.getSettings().usemaxstack);
+			List<ItemStack> diff = ItemStackManip.itemStackDifferences(start, result);
+
+			String over = "";
+			int overamt = 0, overleft = 0, overbuy = 0;
+			double buyprice = 0;
+			for (ItemStockEntry i : canBuy) { //ItemStack i : diff) {
+				int j = -1;
+				for (int n = 0; n < diff.size(); ++n) {
+					if (i.equals(diff.get(n))) {
+						j = n;
+						break;
+					}
+				}
+				if (j < 0) {
+					// not in diff: can't be added
+					over += JItemDB.GetItemColoredName(i.itemNum, i.itemSub) + ", ";
+					overamt += i.amount;
+					buyprice += BetterShop.getPricelist(player.getLocation()).itemBuyPrice(player, toBuy[0], 1) * i.amount;
+					i.amount = 0;
+				} else {
+					if (i.amount > diff.get(j).getAmount()) {
+						over += JItemDB.GetItemColoredName(i.itemNum, i.itemSub) + ", ";
+						overamt += diff.get(j).getAmount();
+						overleft += canBuy.get(j).amount - diff.get(j).getAmount();
+						overbuy += (int) diff.get(j).getAmount();
+						buyprice += BetterShop.getPricelist(player.getLocation()).itemBuyPrice(player, toBuy[0], 1) * (int) diff.get(j).getAmount();
+						canBuy.get(j).amount = diff.get(j).getAmount();
+					}
+				}
+			}
+			if (overamt > 0) {
+				over = over.substring(0, over.length() - 2);
+				if (over.contains(",")) {
+					over = "(" + over + ")";
+				}
+				BSutils.sendMessage(player, BetterShop.getSettings().getString("outofroom").
+						replace("<item>", over).
+						replace("<amt>", String.valueOf(overamt)).
+						replace("<priceper>", String.format("%01.2f", buyprice / overbuy)).
+						replace("<leftover>", String.valueOf(overleft)).
+						replace("<curr>", BetterShop.getSettings().currency()).
+						replace("<free>", String.valueOf(overbuy)));
+
+				if (overbuy <= 0) {
+					return;
+				}
+			}
+
+			buyItem(player, canBuy, customPrice);
 		}
-		_buyItem(player, toBuy, amt, customPrice);
+
 	}
-	
+
 	/*
 	 * assumes that the amounts given are correct, and will try to purchase until out of room or money
 	 */
@@ -521,11 +584,13 @@ public class BuyCommands {
 		String itemN = "";
 		int amtBought = 0;
 		for (ItemStockEntry ite : buy) {
-			if(ite == null || ite.itemNum <= 0) {
+			if (ite == null || ite.itemNum <= 0) {
 				continue;
 			}
-			JItem it = JItemDB.GetItem(ite.itemNum, (byte)ite.itemSub);
-			if(it == null) continue;
+			JItem it = JItemDB.GetItem(ite.itemNum, (byte) ite.itemSub);
+			if (it == null) {
+				continue;
+			}
 			long maxAmt = shop.config.useStock() ? shop.stock.getItemAmount(it) : -1;
 			int buyAmt = maxAmt > 0 && ite.amount > maxAmt ? (int) maxAmt : (int) ite.amount;
 			double itemCost = customPrice >= 0 ? customPrice * buyAmt
@@ -546,8 +611,9 @@ public class BuyCommands {
 					if (it.equals(JItems.MAP)) {
 						//TODO: either make a new map or copy a map.....
 					}
-					if(!ItemStackManip.canHold(player.getInventory().getContents(), it, buyAmt, !BetterShop.getSettings().usemaxstack)){
-						BSutils.sendMessage(player,ChatColor.RED + "Program Error: tried to buy more than can hold: aborting.");
+					if (!ItemStackManip.canHold(player.getInventory().getContents(), it, buyAmt, !BetterShop.getSettings().usemaxstack)) {
+						BSutils.sendMessage(player, ChatColor.RED + "Program Error: tried to buy more than can hold: aborting.");
+						System.out.println(ChatColor.RED + "Program Error: tried to buy more than can hold: " + it + " x" + buyAmt);
 						BSEcon.credit(player, itemCost);
 						break;
 					}
@@ -579,7 +645,7 @@ public class BuyCommands {
 				break;
 			}
 		}
-		
+
 		if (itemN.length() > 0) {
 			itemN = itemN.substring(0, itemN.length() - 2);
 			if (itemN.contains(",")) {
@@ -589,7 +655,7 @@ public class BuyCommands {
 
 		BSutils.sendFormttedMessage(player, "buymsg", itemN, amtBought, price);
 	}
-	
+
 	/**
 	 * assumes items can be bought, and have the correct amount(s)
 	 */
@@ -609,7 +675,7 @@ public class BuyCommands {
 			double itemCost = customPrice >= 0 ? customPrice * buyAmt
 					: shop.pricelist.itemBuyPrice(player, it, buyAmt);
 			price += itemCost;
-			if(itemCost < 0) {
+			if (itemCost < 0) {
 				throw new Exception("Invalid Price encountered: " + itemCost + " for " + amt + " " + it.Name());
 			}
 			if (BSEcon.debit(player, itemCost)) {

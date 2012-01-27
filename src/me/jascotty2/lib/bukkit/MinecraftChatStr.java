@@ -569,9 +569,8 @@ public class MinecraftChatStr {
 		if (col == null || col.length() == 0) {
 			return null;
 		} else if (col.length() >= 2 && col.startsWith("\u00A7")) {
-			String c = col.substring(0, 2).toUpperCase();
-			int ic = "0123456789ABCDEF".indexOf(c);
-			return ChatColor.getByCode(ic);
+			String c = col.substring(1, 2).toLowerCase();
+			return ChatColor.getByChar(c);
 		}
 		col = col.toLowerCase().trim();
 		/*
