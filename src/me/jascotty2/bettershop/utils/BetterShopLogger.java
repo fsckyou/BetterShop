@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package me.jascotty2.bettershop.utils;
 
 import java.io.BufferedWriter;
@@ -33,9 +32,9 @@ import me.jascotty2.lib.util.Str;
  */
 public class BetterShopLogger extends Logger {
 
-	protected final static Logger _logger = Logger.getLogger("Minecraft");
+	private static Logger _logger = Logger.getLogger("Minecraft");
 	protected final static Logger logger = new BetterShopLogger();
-	protected final static String logFormat = "[BetterShop] %s";
+	protected static String logFormat = "[BetterShop] %s";
 	public FileWriter commlog_fstream = null;
 	public BufferedWriter commlog_out = null;
 
@@ -43,17 +42,27 @@ public class BetterShopLogger extends Logger {
 		//super("Minecraft", null);
 		super(null, null);
 	}
+
+	public static void init(Logger customLogger) {
+		if (customLogger != null) {
+			_logger = customLogger;
+		}
+	}
+	
+	public static void setUsePrefix(boolean b) {
+		logFormat = b ? "[BetterShop] %s" : "%s";
+	}
 	/*
 	public class BetterShopLogger extends CustomLogger {
-
+	
 	protected final static Logger logger = new BetterShopLogger();
 	public FileWriter commlog_fstream = null;
 	public BufferedWriter commlog_out = null;
-
-	BetterShopLogger() {
-		super("BetterShop", "Minecraft");
-	}*/
 	
+	BetterShopLogger() {
+	super("BetterShop", "Minecraft");
+	}*/
+
 	@Override
 	public synchronized void log(Level level, String message, Object param) {
 		//super.log(level, message == null ? null : String.format(logFormat, message), param);
@@ -287,8 +296,7 @@ public class BetterShopLogger extends Logger {
 	}
 
 	static String commandLogStr(String playername, String command) {
-		String time[] = (new java.text.SimpleDateFormat("kk:hh:mm:ss:a:z:Z:yyyy:MM:ww:DD:dd:EEE")).
-				format(new java.util.Date()).split(":");
+		String time[] = (new java.text.SimpleDateFormat("kk:hh:mm:ss:a:z:Z:yyyy:MM:ww:DD:dd:EEE")).format(new java.util.Date()).split(":");
 		return BetterShop.getSettings().getString("logformat").
 				replace("<H>", time[0]).
 				replace("<h>", time[1]).

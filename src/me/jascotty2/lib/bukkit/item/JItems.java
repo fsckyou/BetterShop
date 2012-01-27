@@ -366,6 +366,30 @@ public enum JItems {
 	CAULDRON("Cauldron", 380, "265@7"),
 	EYE_OF_ENDER("Eye of Ender", 381, "368+377"),
 	GLISTERING_MELON("Glistering Melon", 382, "360+371"),
+	
+	SPAWN_EGG_CREEPER("Creeper Egg", 383, (byte) 50, false),
+	SPAWN_EGG_SKELETON("Skeleton Egg", 383, (byte) 51, false),
+	SPAWN_EGG_SPIDER("Spider Egg", 383, (byte) 52, false),
+	SPAWN_EGG_GIANT("Giant Egg", 383, (byte) 53, false),
+	SPAWN_EGG_ZOMBIE("Zombie Egg", 383, (byte) 54, false),
+	SPAWN_EGG_SLIME("Slime Egg", 383, (byte) 55, false),
+	SPAWN_EGG_GHAST("Ghast Egg", 383, (byte) 56, false),
+	SPAWN_EGG_PIGZOMBIE("PigZombie Egg", 383, (byte) 57, false),
+	SPAWN_EGG_ENDERMAN("Enderman Egg", 383, (byte) 58, false),
+	SPAWN_EGG_CAVESPIDER("CaveSpider Egg", 383, (byte) 59, false),
+	SPAWN_EGG_SILVERFISH("Silverfish Egg", 383, (byte) 60, false),
+	SPAWN_EGG_BLAZE("Blaze Egg", 383, (byte) 61, false),
+	SPAWN_EGG_LAVASLIME("LavaSlime Egg", 383, (byte) 62, false),
+	SPAWN_EGG_ENDERDRAGON("EnderDragon Egg", 383, (byte) 63, false),
+	SPAWN_EGG_PIG("Pig Egg", 383, (byte) 90, false),	
+	SPAWN_EGG_SHEEP("Sheep Egg", 383, (byte) 91, false),
+	SPAWN_EGG_COW("Cow Egg", 383, (byte) 92, false),
+	SPAWN_EGG_CHICKEN("Chicken Egg", 383, (byte) 93, false),
+	SPAWN_EGG_WOLF("Wolf Egg", 383, (byte) 94, false),
+	SPAWN_EGG_MUSHROOMCOW("MushroomCow Egg", 383, (byte) 95, false),
+	SPAWN_EGG_SNOWMAN("SnowMan Egg", 383, (byte) 96, false),
+	SPAWN_EGG_VILLAGER("Villager Egg", 383, (byte) 97, false),
+
 	// Records
 	GOLD_RECORD("13 Disk", 2256, 1), // Gold Record
 	GREEN_RECORD("Cat Disc", 2257, 1), // Green Record

@@ -382,6 +382,13 @@ public class ItemStackManip {
 		return add(items, toAdd, false);
 	}
 
+	public static ItemStack[] add(ItemStack[] items, List<ItemStack> toAdd, boolean extraStack) {
+		for(ItemStack i : toAdd) {
+			items = add(items, i, extraStack);
+		}
+		return items;
+	}
+	
 	/**
 	 * add an ItemStack to an array
 	 * @param items
@@ -474,10 +481,13 @@ public class ItemStackManip {
 	public static List<ItemStack> itemStackDifferences(ItemStack[] stack1, ItemStack[] stack2) {
 		ArrayList<ItemStack> changedItems = new ArrayList<ItemStack>();
 		if (stack1 == null) {
-			changedItems.addAll(Arrays.asList(stack1));
+			changedItems.addAll(Arrays.asList(copy(stack2)));
 			return changedItems;
 		} else if (stack2 == null) {
-			changedItems.addAll(Arrays.asList(stack2));
+			changedItems.addAll(Arrays.asList(copy(stack1)));
+			for(ItemStack i : changedItems) {
+				i.setAmount(-i.getAmount());
+			}
 			return changedItems;
 		}
 		// first, compile list of items before shopping

@@ -45,7 +45,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -59,11 +58,14 @@ import java.util.List;
 import me.jascotty2.lib.bukkit.inventory.ItemStackManip;
 import me.jascotty2.lib.util.ArrayManip;
 import me.jascotty2.lib.util.Str;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 
 /**
  * @author jacob
  */
-public class BSChestShop extends PlayerListener {
+public class BSChestShop implements Listener {
 
 	final static int chestStrLen = 16; // 1.8 won't allow many chars :(
 	final static long chestProtectDelay = 5000;
@@ -85,15 +87,9 @@ public class BSChestShop extends PlayerListener {
 
 	public void registerEvents() {
 		PluginManager pm = plugin.getServer().getPluginManager();
-
-		// for sign events
-		pm.registerEvent(Event.Type.PLAYER_INTERACT, this, Event.Priority.Normal, plugin);
-		pm.registerEvent(Event.Type.PLAYER_MOVE, this, Event.Priority.Normal, plugin);
-		pm.registerEvent(Event.Type.PLAYER_KICK, this, Event.Priority.Normal, plugin);
-		pm.registerEvent(Event.Type.PLAYER_QUIT, this, Event.Priority.Normal, plugin);
-		pm.registerEvent(Event.Type.PLAYER_DROP_ITEM, this, Event.Priority.Normal, plugin);
-		pm.registerEvent(Event.Type.BLOCK_BREAK, chestChecker, Event.Priority.Normal, plugin);
-		pm.registerEvent(Event.Type.BLOCK_PLACE, chestChecker, Event.Priority.Normal, plugin);
+		pm.registerEvents(this, plugin);
+		
+		pm.registerEvents(chestChecker, plugin);
 		chestChecker.startProtect();
 	}
 
@@ -111,7 +107,7 @@ public class BSChestShop extends PlayerListener {
 		}
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.isCancelled() || !BetterShop.getSettings().chestShopEnabled) {
 			return;
@@ -193,22 +189,22 @@ public class BSChestShop extends PlayerListener {
 		}
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		chestClose(event.getPlayer());
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerKick(PlayerKickEvent event) {
 		chestClose(event.getPlayer());
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerMove(PlayerMoveEvent event) {
 		chestClose(event.getPlayer());
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerDropItem(PlayerDropItemEvent event) {
 		if (openPlayers.containsKey(event.getPlayer())) {
 			event.setCancelled(true);
@@ -325,37 +321,13 @@ public class BSChestShop extends PlayerListener {
 						itemN.substring(0, itemN.length() - 2), numItems, total);
 			}
 			if (cancel.size() > 0) {
-				ItemStack[] inv = player.getInventory().getContents();
-				for (UserTransaction t : cancel) {
-					JItem it = JItemDB.GetItem(t.itemNum, (byte) t.itemSub);
-					int maxStack = (it == null || it.IsTool()) || BetterShop.getSettings().usemaxstack ? (it != null ? it.getMaxStackSize() : 64) : 64;
-					for (int i = 0; i < inv.length; ++i) {
-						if (t.equals(inv[i]) && inv[i].getAmount() < maxStack) {
-							if (inv[i].getAmount() + t.amount > maxStack) {
-								t.amount -= maxStack - inv[i].getAmount();
-								inv[i].setAmount(maxStack);
-							} else {
-								inv[i].setAmount(inv[i].getAmount() + t.amount);
-								break;
-							}
-						} else if (inv[i] == null) {
-							int amt = t.amount;
-							if (amt > maxStack) {
-								amt = maxStack;
-							}
-							if (it.IsTool()) {
-								inv[i] = new ItemStack(t.itemNum, t.amount, (short) t.damage);
-							} else {
-								inv[i] = new ItemStack(t.itemNum, t.amount, (byte) t.itemSub);
-							}
-							t.amount -= amt;
-							if (t.amount <= 0) {
-								break;
-							}
-						}
-					}
+				List<ItemStack> reAdd = new ArrayList<ItemStack>();
+				for(UserTransaction u : cancel) {
+					reAdd.add(new ItemStack(u.itemNum, u.amount, u.damage));
 				}
-				player.getInventory().setContents(inv);
+				player.getInventory().setContents(
+						ItemStackManip.add(player.getInventory().getContents(),
+						reAdd, !BetterShop.getSettings().usemaxstack));
 				delayUpdate(player);
 			}
 
@@ -406,21 +378,13 @@ public class BSChestShop extends PlayerListener {
 			}
 			// now check for & remove transactions that the user can't afford
 			if (cancel.size() > 0) {
-				ItemStack[] inv = player.getInventory().getContents();
-				for (UserTransaction t : cancel) {
-					for (int i = 0; i < inv.length; ++i) {
-						if (t.equals(inv[i])) {
-							if (t.amount >= inv[i].getAmount()) {
-								t.amount -= inv[i].getAmount();
-								inv[i] = null;
-							} else {
-								inv[i].setAmount(inv[i].getAmount() - t.amount);
-								break;
-							}
-						}
-					}
+				List<ItemStack> reAdd = new ArrayList<ItemStack>();
+				for(UserTransaction u : cancel) {
+					reAdd.add(new ItemStack(u.itemNum, u.amount, u.damage));
 				}
-				player.getInventory().setContents(inv);
+				player.getInventory().setContents(
+						ItemStackManip.add(player.getInventory().getContents(),
+						reAdd, !BetterShop.getSettings().usemaxstack));
 				delayUpdate(player);
 			}
 

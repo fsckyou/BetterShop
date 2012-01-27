@@ -2,10 +2,16 @@
 BetterShop Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
-Version 2.1.0 - ?
-items & entities updated for 1.0 (bukkit ####)
+Version 2.1.1 - ?
+updated register to 1.5 (adds 3co)
+added spawn eggs to the shop
+
+
+Version 2.1.0 - 1/10/12
+items & entities updated for 1.0 (craftbukkit 1597)
 fixed a bug with added items sometimes registering -1 max
 added discount selling options, but recommend leaving at default
+removed bukkit command-based permissions.. user.* wasn't working
 changed permissions error handling.. shouldn't spam more than one error for a nested command
 - (and none for a usage lookup)
 added option to replace econ with exp or total exp (which is used in enchantments)
@@ -14,7 +20,10 @@ removed ftp stats tracking snippet (added in 1.6.7)
 - changed to another i found with a web interface 
 - http://pluginstats.randomappdev.com/plugin.aspx?pid=27
 - still waiting on bukkit for their implementation...
-
+fixed non-data items, like pistons..
+fixed a new spout item gui display error (added an enable delay timer)
+fixed an itemstack addition bug with data values
+fixed sign buy/sell with categories
 
 
 Version 2.0.5 - 10/13/11

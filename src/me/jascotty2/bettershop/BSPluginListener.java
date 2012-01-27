@@ -26,13 +26,15 @@ import me.jascotty2.bettershop.utils.BetterShopLogger;
 
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
-import org.bukkit.event.server.ServerListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.jascotty2.minecraftim.MinecraftIM;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import me.taylorkelly.help.Help;
 import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.getspout.spout.Spout;
@@ -40,7 +42,7 @@ import org.getspout.spout.Spout;
 /**
  * @author jacob
  */
-class BSPluginListener extends ServerListener {
+class BSPluginListener implements Listener {
 
 	BetterShop shop;
 
@@ -53,7 +55,7 @@ class BSPluginListener extends ServerListener {
 		checkHelp(pm.getPlugin("Help"));
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPluginEnable(PluginEnableEvent event) {
 		if (event.getPlugin().isEnabled()) { // double-checking if enabled
 			String pName = event.getPlugin().getDescription().getName();
@@ -121,7 +123,7 @@ class BSPluginListener extends ServerListener {
 		}
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPluginDisable(PluginDisableEvent event) {
 		if (!event.getPlugin().isEnabled()) {
 			String pName = event.getPlugin().getDescription().getName();

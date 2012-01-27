@@ -26,21 +26,20 @@ import me.jascotty2.lib.bukkit.inventory.ChestManip;
 import org.bukkit.Server;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
-import org.bukkit.event.Event.Priority;
-import org.bukkit.event.Event.Type;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EndermanPickupEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityListener;
 
 // end class SignRestore
 /**
  * @author jacob
  */
-public class ChestListener extends BlockListener /*implements Runnable*/ {
+public class ChestListener implements Listener /*implements Runnable*/ {
 
 	final Plugin plugin;
 	final Server server;
@@ -58,28 +57,27 @@ public class ChestListener extends BlockListener /*implements Runnable*/ {
 	}
 
 	public void startProtect() {
-		plugin.getServer().getPluginManager().registerEvent(
-				Type.ENTITY_EXPLODE, blockBreakBlock, Priority.Low, plugin);
-		plugin.getServer().getPluginManager().registerEvent(
-				Type.ENDERMAN_PICKUP, blockBreakBlock, Priority.Low, plugin);
+		plugin.getServer().getPluginManager().registerEvents(blockBreakBlock, plugin);
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockPlace(BlockPlaceEvent event) {
-		if (chestsBD.savedChestExists(event.getBlock().getLocation())) {
-			chestsBD.remove(event.getBlock().getLocation());
-		} else if (event.getBlockPlaced().getState() instanceof Chest) {
-			Chest other = ChestManip.otherChest(event.getBlock());
-			if (other != null && chestsBD.savedChestExists(other.getBlock().getLocation())) {
-				chestsBD.setChest(event.getBlock().getLocation());
-				BSutils.sendMessage(event.getPlayer(), "Chest Shop Expanded");
+		if (!event.isCancelled()) {
+			if (chestsBD.savedChestExists(event.getBlock().getLocation())) {
+				chestsBD.remove(event.getBlock().getLocation());
+			} else if (event.getBlockPlaced().getState() instanceof Chest) {
+				Chest other = ChestManip.otherChest(event.getBlock());
+				if (other != null && chestsBD.savedChestExists(other.getBlock().getLocation())) {
+					chestsBD.setChest(event.getBlock().getLocation());
+					BSutils.sendMessage(event.getPlayer(), "Chest Shop Expanded");
+				}
 			}
 		}
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockBreak(BlockBreakEvent event) {
-		if (chestsBD.savedChestExists(event.getBlock().getLocation())) {
+		if (!event.isCancelled() && chestsBD.savedChestExists(event.getBlock().getLocation())) {
 			if (BetterShop.getSettings().chestDestroyProtection
 					&& !BSPermissions.hasPermission(event.getPlayer(), BetterShopPermission.ADMIN_CHESTS, true)) {
 				event.setCancelled(true);
@@ -91,7 +89,7 @@ public class ChestListener extends BlockListener /*implements Runnable*/ {
 	}
 }
 
-class DamageBlocker extends EntityListener {
+class DamageBlocker implements Listener {
 
 	final Plugin plugin;
 	final Server server;
@@ -103,9 +101,9 @@ class DamageBlocker extends EntityListener {
 		this.chestsBD = chestsBD;
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.LOW)
 	public void onEntityExplode(EntityExplodeEvent event) {
-		if (BetterShop.getSettings().chestTNTprotection) {
+		if (!event.isCancelled() && BetterShop.getSettings().chestTNTprotection) {
 			for (Block b : event.blockList()) {
 				if (chestsBD.has(b.getLocation())) {
 					event.setCancelled(true);
@@ -115,9 +113,9 @@ class DamageBlocker extends EntityListener {
 		}
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.LOW)
 	public void onEndermanPickup(EndermanPickupEvent event) {
-		if (BetterShop.getSettings().signDestroyProtection) {
+		if (!event.isCancelled() && BetterShop.getSettings().signDestroyProtection) {
 			if (chestsBD.has(event.getBlock().getLocation())) {
 				event.setCancelled(true);
 				return;

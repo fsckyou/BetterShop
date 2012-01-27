@@ -36,7 +36,6 @@ import me.jascotty2.bettershop.chestshop.BSChestShop;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.Plugin;
@@ -84,9 +83,9 @@ public class BetterShop extends JavaPlugin {
 	public void onEnable() {
 		bettershopPlugin = this;
 		PluginDescriptionFile pdfFile = this.getDescription();
-		BetterShopLogger.Info(String.format("Loading %s version %s ...",
-				pdfFile.getName(), pdfFile.getVersion()));
-
+		BetterShopLogger.init(this.getLogger());
+		BetterShopLogger.setUsePrefix(false);
+		
 		config.extractDefaults();
 		// ready items db (needed for pricelist, sorting in config, item lookup,
 		// ...)
@@ -154,15 +153,11 @@ public class BetterShop extends JavaPlugin {
 
 		// for monster purchasing
 		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener,
-				Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.ENTITY_TARGET, entityListener,
-				Event.Priority.Normal, this);
+		pm.registerEvents(entityListener, this);
 
 		// monitor plugins - if any are enabled/disabled by a plugin manager
 		pListener = new BSPluginListener(this);
-		pm.registerEvent(Event.Type.PLUGIN_ENABLE, pListener,
-				Event.Priority.Monitor, this);
+		pm.registerEvents(pListener, this);
 
 		BetterShopLogger.Info(pdfFile.getName() + " version "
 				+ pdfFile.getVersion() + " is enabled!");

@@ -18,8 +18,8 @@
 
 package me.jascotty2.bettershop;
 
-import com.nijikokun.register_1_3.payment.Method;
-import com.nijikokun.register_1_3.payment.Methods;
+import com.nijikokun.register_1_5.payment.Method;
+import com.nijikokun.register_1_5.payment.Methods;
 import java.util.Map.Entry;
 import me.jascotty2.bettershop.enums.EconMethod;
 import me.jascotty2.bettershop.utils.BSPermissions;

@@ -26,10 +26,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftWolf;
 import org.bukkit.entity.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityListener;
 import org.bukkit.event.entity.EntityTargetEvent;
 
 /**
@@ -211,9 +212,9 @@ public class CreatureItem extends JItem {
         return;
     }
 
-    public static class EntityListen extends EntityListener {
+    public static class EntityListen implements Listener {
 
-        @Override
+		@EventHandler
         public void onEntityDamage(EntityDamageEvent event) {
             if ((event.getCause() == DamageCause.FIRE_TICK || event.getCause() == DamageCause.FIRE)
                     && friendlies.contains(event.getEntity().getEntityId())) {
@@ -236,7 +237,7 @@ public class CreatureItem extends JItem {
             }
         }
 
-        @Override
+		@EventHandler
         public void onEntityTarget(EntityTargetEvent e) {
             if ((e.getTarget() instanceof Player)) {
                 Player p = (Player) e.getTarget();
