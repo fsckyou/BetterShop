@@ -1,7 +1,8 @@
 BetterShop - The "better" global command-based shop that ties into iConomy
 
-active developers: jascotty2 
-initial idea by jjfs85
+active developer: jascotty2 
+initial idea & programing by jjfs85
+with additional coding contributions by: lologarithm, dhatch
 ===============================================================================
 In-Game Commands:
 ===============================================================================
@@ -44,15 +45,20 @@ Features:
 
 === plugin support
 currently dependent on 
-- iConomy	http://forums.bukkit.org/threads/40/
+- iConomy		http://dev.bukkit.org/server-mods/iconomy/
 --or
-- BOSeconomy  	http://forums.bukkit.org/threads/4874/
+- BOSeconomy  	http://dev.bukkit.org/server-mods/boseconomy/
 -- or
 - MultiCurrency http://forums.bukkit.org/threads/26455/
 --or
-- Essentials	http://forums.bukkit.org/threads/15312/
-Permissions support
-Help support
+- Essentials	http://dev.bukkit.org/server-mods/essentials/
+--or
+- 3co			http://forums.bukkit.org/threads/22461/
+also supports: 
+Permissions 	http://forums.bukkit.org/threads/18430/
+Help 			http://forums.bukkit.org/threads/13601/
+MinecraftIM 	http://dev.bukkit.org/server-mods/minecraftim/
+Spout 			http://dev.bukkit.org/server-mods/spout/
 
 === configurable
 Fully configurable colors and message text in config.yml file
@@ -161,7 +167,7 @@ There are other nodes that allow only more specific permissions, but I recommend
 BetterShop.user.list		look through shop listing of prices
 BetterShop.user.check		check the price of item(s)
 BetterShop.user.help		view ingame help menu
-BetterShop.user.buy		buy items from the shop
+BetterShop.user.buy			buy items from the shop
 BetterShop.user.sell		sell items to the shop
 BetterShop.user.spout		for spout screen access
 BetterShop.user.chest		allow a user to use the a chest shop
@@ -211,35 +217,3 @@ Cookies	integration:  http://forums.bukkit.org/threads/5327/
 		(might implement if becomes active again)
 items as currency (if no economy plugin)
 		(as i began to write this, i realized that it's an entire economy plugin... one that i just might develop)
-
-
-===============================================================================
-Building
-===============================================================================
-
-To build, you need to include the following as libraries:
-    CraftBukki:      #740
-    Bukkit:          #654
-    iConomy.jar	     v4(.6.5) AND v5
-    Permissions.jar 
-    Help.jar	     (0.2)
-    BOSEconomy.jar   (0.6.2)
-    Minecraft IM.jar (0.1.5)
-    Essentials.jar   (2.2.15)
-    mysql-connector-java-5.1.15-bin.jar
-    
-
-If you want helpful bukkit javadocs, you should get:
-    the Bukkit source code
-
-Once it builds, compress on linux using:
-    jar or an equivalent archiver
-      jenny:~/workspace/BetterShop/bin$ jar -cf BetterShop.jar *
-
-or on Windows using:
-    I have no clue. I guess something similar to jar.
-
-try NetBeans :)
-
-And it's ready to be placed in a plugins directory :)
-
