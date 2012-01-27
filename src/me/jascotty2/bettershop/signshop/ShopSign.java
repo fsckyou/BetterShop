@@ -20,7 +20,6 @@ package me.jascotty2.bettershop.signshop;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import me.jascotty2.bettershop.BSutils;
 import me.jascotty2.bettershop.BetterShop;
 import me.jascotty2.bettershop.commands.SellCommands;

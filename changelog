@@ -5,6 +5,8 @@ BetterShop Changelog:  (the (?) means plugin didn't report that as the version..
 Version 2.1.1 - ?
 updated register to 1.5 (adds 3co)
 added spawn eggs to the shop
+fixed an item return error when trying to sell to a chest
+updated bukkit listeners to new methods
 
 
 Version 2.1.0 - 1/10/12

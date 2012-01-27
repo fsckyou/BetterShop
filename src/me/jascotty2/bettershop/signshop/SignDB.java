@@ -198,6 +198,24 @@ public class SignDB {
 		return signs.containsKey(l);
 	}
 
+	public boolean isSignAnchor(Location l) {
+		for(BlockState b : signBlocks.values()) {
+			if(b.getBlock().getLocation().equals(l)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean isSignAnchor(Block bl) {
+		for(BlockState b : signBlocks.values()) {
+			if(b.getBlock().equals(bl)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public ShopSign getSignShop(Location l) {
 		return signs.get(l);
 	}
@@ -280,7 +298,7 @@ public class SignDB {
 	}
 
 	public static Block getSignAnchor(Block b) {
-		if (b.getState() instanceof Sign) {
+		if (b.getTypeId() == 68) {
 			switch (b.getData()) {
 				case 2: // w
 					return b.getRelative(BlockFace.WEST);
@@ -291,6 +309,8 @@ public class SignDB {
 				case 5: // n
 					return b.getRelative(BlockFace.NORTH);
 			}
+		} else if (b.getTypeId() == 63) {
+			return b.getRelative(BlockFace.DOWN);
 		}
 		return null;
 	}

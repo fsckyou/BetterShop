@@ -26,24 +26,24 @@ import org.bukkit.Server;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EndermanPickupEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityListener;
 
 /**
  * @author jacob
  */
-public class SignRestore extends BlockListener implements Runnable {
+public class SignRestore implements Listener, Runnable {
 
 	final Plugin plugin;
 	final Server server;
 	final SignDB signs;
 	int taskID = -1;
-	final DamageBlocker blockBreakBlock;
 
 	public SignRestore(Plugin p, SignDB signs) {
 		if (p == null || signs == null) {
@@ -52,7 +52,6 @@ public class SignRestore extends BlockListener implements Runnable {
 		plugin = p;
 		server = p.getServer();
 		this.signs = signs;
-		blockBreakBlock = new DamageBlocker(p, signs);
 	}
 
 	public void start(long wait) {
@@ -68,16 +67,16 @@ public class SignRestore extends BlockListener implements Runnable {
 		}
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockPlace(BlockPlaceEvent event) {
-		if (signs.signExists(event.getBlock().getLocation())) {
+		if (!event.isCancelled() && signs.signExists(event.getBlock().getLocation())) {
 			signs.remove(event.getBlock().getLocation());
 		}
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockBreak(BlockBreakEvent event) {
-		if (signs.signExists(event.getBlock().getLocation())) {
+		if (!event.isCancelled() && signs.signExists(event.getBlock().getLocation())) {
 			if (BetterShop.getSettings().signDestroyProtection
 					&& !BSPermissions.hasPermission(event.getPlayer(), BetterShopPermission.ADMIN_MAKESIGN, true)) {
 				event.setCancelled(true);
@@ -111,24 +110,10 @@ public class SignRestore extends BlockListener implements Runnable {
 			}
 		}
 	}
-}
-// end class SignRestore
-
-class DamageBlocker extends EntityListener {
-
-	final Plugin plugin;
-	final Server server;
-	final SignDB signs;
-
-	DamageBlocker(Plugin p, SignDB signs) {
-		plugin = p;
-		server = p.getServer();
-		this.signs = signs;
-	}
-
-	@Override
+	
+	@EventHandler
 	public void onEntityExplode(EntityExplodeEvent event) {
-		if (BetterShop.getSettings().signTNTprotection) {
+		if (!event.isCancelled() && BetterShop.getSettings().signTNTprotection) {
 			for (Block b : event.blockList()) {
 				if (signs.signExists(b.getLocation())) {
 					event.setCancelled(true);
@@ -138,13 +123,14 @@ class DamageBlocker extends EntityListener {
 		}
 	}
 
-	@Override
+	@EventHandler
 	public void onEndermanPickup(EndermanPickupEvent event) {
-		if (BetterShop.getSettings().signDestroyProtection) {
-			if (signs.signExists(event.getBlock().getLocation())) {
+		if (!event.isCancelled() && BetterShop.getSettings().signDestroyProtection) {
+			if (signs.signExists(event.getBlock().getLocation()) || signs.isSignAnchor(event.getBlock())) {
 				event.setCancelled(true);
 				return;
 			}
 		}
 	}
 }
+// end class SignRestore

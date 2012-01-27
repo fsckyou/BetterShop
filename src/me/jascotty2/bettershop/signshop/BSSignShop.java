@@ -40,10 +40,11 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerListener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -51,7 +52,7 @@ import org.bukkit.plugin.PluginManager;
 /**
  * @author jacob
  */
-public class BSSignShop extends PlayerListener {
+public class BSSignShop implements Listener {
 
 	final static long signResWait = 5000;
 	final BetterShop plugin;
@@ -70,16 +71,11 @@ public class BSSignShop extends PlayerListener {
 		Plugin bs = BetterShop.getPlugin();
 		PluginManager pm = bs.getServer().getPluginManager();
 
-		// for sign events
-		pm.registerEvent(Event.Type.PLAYER_INTERACT, this, Event.Priority.Normal, bs);
-		pm.registerEvent(Event.Type.BLOCK_BREAK, checkSigns, Event.Priority.Normal, bs);
-		pm.registerEvent(Event.Type.BLOCK_PLACE, checkSigns, Event.Priority.Normal, bs);
-
-		pm.registerEvent(Event.Type.ENTITY_EXPLODE, checkSigns.blockBreakBlock, Event.Priority.Low, bs);
-		pm.registerEvent(Event.Type.ENDERMAN_PICKUP, checkSigns.blockBreakBlock, Event.Priority.Low, bs);
+		pm.registerEvents(this, bs);
+		pm.registerEvents(checkSigns, bs);
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.isCancelled() || !BetterShop.getSettings().signShopEnabled) {
 			return;
