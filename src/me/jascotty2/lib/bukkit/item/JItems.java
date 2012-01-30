@@ -194,7 +194,7 @@ public enum JItems {
 	IRON_AXE("Iron Axe", 258, "280@2+265@3", (short) 251),
 	FLINT_AND_STEEL("Flint And Steel", 259, "318+265", (short) 65),
 	APPLE("Apple", 260),
-	BOW("Bow", 261, "280@3+287@3", 1),
+	BOW("Bow", 261, "280@3+287@3", 1, (short) 385),
 	ARROW("Arrow", 262, "280+318+288"),
 	COAL("Coal", 263, (byte) 0),
 	CHARCOAL("Charcoal", 263, (byte) 1),
@@ -523,6 +523,16 @@ public enum JItems {
 			isLegal = legal;
 			this.maxdamage = maxDamage;
 			this.maxStack = maxdamage > 0 ? 1 : 64;
+			_setRecipe(craftRecipies);
+			hasData = true;
+		}
+	}
+    
+    private JItems(String name, int id, String craftRecipies, int maxStack, short maxDamage) {
+		if (SetID(id)) {
+			this.name = name;
+			this.maxStack = maxStack;
+			this.maxdamage = maxDamage;
 			_setRecipe(craftRecipies);
 			hasData = true;
 		}
