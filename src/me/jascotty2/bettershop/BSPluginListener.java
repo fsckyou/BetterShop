@@ -37,7 +37,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
-import org.getspout.spout.Spout;
+import org.getspout.spoutapi.Spout;
 
 /**
  * @author jacob
