@@ -280,12 +280,11 @@ public class JItemDB {
 		CreatureType ordered[] = new CreatureType[]{
 						CreatureType.CHICKEN, CreatureType.COW,
 						CreatureType.CREEPER, CreatureType.GHAST,
-						CreatureType.GIANT, CreatureType.MONSTER,
-						CreatureType.PIG, CreatureType.PIG_ZOMBIE,
-						CreatureType.SHEEP, CreatureType.SKELETON,
-						CreatureType.SLIME, CreatureType.SPIDER,
-						CreatureType.SQUID, CreatureType.ZOMBIE,
-						CreatureType.WOLF};
+						CreatureType.GIANT, CreatureType.PIG,
+						CreatureType.PIG_ZOMBIE, CreatureType.SHEEP,
+						CreatureType.SKELETON, CreatureType.SLIME,
+						CreatureType.SPIDER, CreatureType.SQUID,
+						CreatureType.ZOMBIE, CreatureType.WOLF};
 		try {
 			CreatureType t = CreatureType.CAVE_SPIDER;
 			// success, is at least a 1.8 server
