@@ -30,6 +30,7 @@ import org.getspout.spoutapi.event.input.KeyPressedEvent;
 import org.getspout.spoutapi.gui.ScreenType;
 import org.getspout.spoutapi.keyboard.Keyboard;
 import org.bukkit.event.Listener;
+import org.bukkit.event.EventHandler;
 
 /**
  * @author jacob

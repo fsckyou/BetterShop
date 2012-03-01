@@ -22,6 +22,7 @@ import org.getspout.spoutapi.event.screen.ButtonClickEvent;
 import org.getspout.spoutapi.event.screen.SliderDragEvent;
 import org.getspout.spoutapi.event.screen.TextFieldChangeEvent;
 import org.bukkit.event.Listener;
+import org.bukkit.event.EventHandler;
 
 /**
  * @author jacob

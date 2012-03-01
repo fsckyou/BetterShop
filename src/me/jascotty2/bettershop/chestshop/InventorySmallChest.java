@@ -94,6 +94,7 @@ public class InventorySmallChest implements IInventory {
 		return true;
 	}
 
+	public v
 	
 	
 	public void e() {
@@ -106,6 +107,10 @@ public class InventorySmallChest implements IInventory {
 	}
 
 	public void g() {
+	}
+	
+	public InventoryHolder getOwner(){
+		
 	}
 
 } // end class InventorySmallChest
