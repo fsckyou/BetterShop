@@ -32,8 +32,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EndermanPickupEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.entity.EntityType;
 
 /**
  * @author jacob
@@ -124,11 +125,13 @@ public class SignRestore implements Listener, Runnable {
 	}
 
 	@EventHandler
-	public void onEndermanPickup(EndermanPickupEvent event) {
-		if (!event.isCancelled() && BetterShop.getSettings().signDestroyProtection) {
-			if (signs.signExists(event.getBlock().getLocation()) || signs.isSignAnchor(event.getBlock())) {
-				event.setCancelled(true);
-				return;
+	public void onEndermanPickup(EntityChangeBlockEvent event) {
+		if (event.getEntityType() == EntityType.ENDERMAN){
+			if (!event.isCancelled() && BetterShop.getSettings().signDestroyProtection) {
+				if (signs.signExists(event.getBlock().getLocation()) || signs.isSignAnchor(event.getBlock())) {
+					event.setCancelled(true);
+					return;
+				}
 			}
 		}
 	}

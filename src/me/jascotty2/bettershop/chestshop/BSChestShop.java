@@ -97,10 +97,7 @@ public class BSChestShop implements Listener {
 		if (enable) {
 			if (invListen == null) {
 				invListen = new ChestShopInventoryListenerSpout(this);
-
-				plugin.getServer().getPluginManager().
-						registerEvent(Event.Type.CUSTOM_EVENT, invListen,
-						Event.Priority.Normal, plugin);
+				plugin.getServer().getPluginManager().registerEvents(invListen,plugin);
 			}
 		} else if (invListen != null) {
 			invListen = null;
@@ -178,7 +175,7 @@ public class BSChestShop implements Listener {
 		// Get the EntityPlayer handle from the sender
 		EntityPlayer entityplayer = ((CraftPlayer) p).getHandle();
 		// open the "chest"
-		entityplayer.a(chestShop);
+		entityplayer.openContainer(chestShop);
 
 		// save a copy of the chest's current inventory
 		openPlayers.put(p, ItemStackManip.copy(chestShop.getContents()));

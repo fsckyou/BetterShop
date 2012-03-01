@@ -37,7 +37,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
-import org.getspout.spout.Spout;
+import org.getspout.spoutapi.Spout;
 
 /**
  * @author jacob
@@ -110,10 +110,8 @@ class BSPluginListener implements Listener {
 
 				// spout listeners
 				PluginManager pm = shop.getServer().getPluginManager();
-				pm.registerEvent(Event.Type.CUSTOM_EVENT, BetterShop.keyListener,
-						Event.Priority.Normal, shop);
-				pm.registerEvent(Event.Type.CUSTOM_EVENT, BetterShop.buttonListener,
-						Event.Priority.Normal, shop);
+				pm.registerEvents(BetterShop.keyListener,shop);
+				pm.registerEvents(BetterShop.buttonListener,shop);
 
 				BetterShop.chestShop.registerSpout(true);
 

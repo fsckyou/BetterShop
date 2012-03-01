@@ -26,15 +26,16 @@ import me.jascotty2.bettershop.BetterShop;
 import me.jascotty2.bettershop.enums.BetterShopPermission;
 import me.jascotty2.bettershop.utils.BSPermissions;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
-import org.getspout.spoutapi.event.input.InputListener;
 import org.getspout.spoutapi.event.input.KeyPressedEvent;
 import org.getspout.spoutapi.gui.ScreenType;
 import org.getspout.spoutapi.keyboard.Keyboard;
+import org.bukkit.event.Listener;
+import org.bukkit.event.EventHandler;
 
 /**
  * @author jacob
  */
-public class SpoutKeyListener extends InputListener {
+public class SpoutKeyListener implements Listener {
 
 	static HashMap<String, String> keys = new HashMap<String, String>();
 
@@ -90,7 +91,7 @@ public class SpoutKeyListener extends InputListener {
 		}
 	}
 
-	@Override
+	@EventHandler
 	public void onKeyPressedEvent(KeyPressedEvent event) {
 		if (!BetterShop.getSettings().spoutEnabled) {
 			return;

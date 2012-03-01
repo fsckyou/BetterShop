@@ -32,8 +32,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EndermanPickupEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.entity.EntityType;
 
 // end class SignRestore
 /**
@@ -114,7 +115,8 @@ class DamageBlocker implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.LOW)
-	public void onEndermanPickup(EndermanPickupEvent event) {
+	public void onEndermanPickup(EntityChangeBlockEvent event) {
+		if (event.getEntityType() == EntityType.ENDERMAN)
 		if (!event.isCancelled() && BetterShop.getSettings().signDestroyProtection) {
 			if (chestsBD.has(event.getBlock().getLocation())) {
 				event.setCancelled(true);
