@@ -22,7 +22,9 @@ import net.minecraft.server.IInventory;
 import net.minecraft.server.ItemStack;
 
 public class InventorySmallChest implements IInventory {
-	ItemStack items[];String name;
+	ItemStack items[];
+	String name;
+	
 	public InventorySmallChest(String name, org.bukkit.inventory.ItemStack itms[]) {
 		this.name=name;
 		items = new ItemStack[itms.length];
@@ -93,8 +95,6 @@ public class InventorySmallChest implements IInventory {
 	public boolean a_(EntityHuman eh) {
 		return true;
 	}
-
-	public v
 	
 	
 	public void e() {
@@ -110,7 +110,11 @@ public class InventorySmallChest implements IInventory {
 	}
 	
 	public InventoryHolder getOwner(){
-		
+		return null;
+	}
+	
+	public List<HumanEntity> getViewers(){
+		return new ArrayList<HumanEntity>();
 	}
 
 } // end class InventorySmallChest
