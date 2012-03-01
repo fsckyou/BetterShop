@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.ArrayList;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.craftbukkit.entity.CraftHumanEntity;
 
 public class InventorySmallChest implements IInventory {
 	ItemStack items[];
@@ -114,11 +115,11 @@ public class InventorySmallChest implements IInventory {
 	}
 
 
-	void onOpen(CraftHumanEntity who){
+	public void onOpen(CraftHumanEntity who){
 
 	}
 
-	void onClose(CraftHumanEntity who){
+	public void onClose(CraftHumanEntity who){
 
 	}
 
