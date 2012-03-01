@@ -20,7 +20,7 @@ package me.jascotty2.bettershop.chestshop;
 import org.getspout.spoutapi.event.inventory.InventoryCloseEvent;
 import org.getspout.spoutapi.event.inventory.InventoryListener;
 
-public class ChestShopInventoryListenerSpout extends InventoryListener {
+public class ChestShopInventoryListenerSpout implements {
 
 	final BSChestShop callback;
 
@@ -28,7 +28,7 @@ public class ChestShopInventoryListenerSpout extends InventoryListener {
 		this.callback = callback;
 	}
 
-	@Override
+	@EventHandler
 	public void onInventoryClose(InventoryCloseEvent event) {
 		if ((event.getPlayer() != null)) {
 			callback.chestClose(event.getPlayer());

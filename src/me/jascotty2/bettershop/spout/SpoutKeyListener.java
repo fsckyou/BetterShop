@@ -34,7 +34,7 @@ import org.getspout.spoutapi.keyboard.Keyboard;
 /**
  * @author jacob
  */
-public class SpoutKeyListener extends InputListener {
+public class SpoutKeyListener implements Listener {
 
 	static HashMap<String, String> keys = new HashMap<String, String>();
 
@@ -90,7 +90,7 @@ public class SpoutKeyListener extends InputListener {
 		}
 	}
 
-	@Override
+	@EventHandler
 	public void onKeyPressedEvent(KeyPressedEvent event) {
 		if (!BetterShop.getSettings().spoutEnabled) {
 			return;

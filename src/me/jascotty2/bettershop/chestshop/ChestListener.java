@@ -114,7 +114,8 @@ class DamageBlocker implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.LOW)
-	public void onEndermanPickup(EndermanPickupEvent event) {
+	public void onEndermanPickup(EntityChangeBlockEvent event) {
+		if (event.getEntityType() == EntityType.ENDERMAN)
 		if (!event.isCancelled() && BetterShop.getSettings().signDestroyProtection) {
 			if (chestsBD.has(event.getBlock().getLocation())) {
 				event.setCancelled(true);

@@ -97,10 +97,7 @@ public class BSChestShop implements Listener {
 		if (enable) {
 			if (invListen == null) {
 				invListen = new ChestShopInventoryListenerSpout(this);
-
-				plugin.getServer().getPluginManager().
-						registerEvent(Event.Type.CUSTOM_EVENT, invListen,
-						Event.Priority.Normal, plugin);
+				plugin.getServer().getPluginManager().registerEvents(invListen,plugin);
 			}
 		} else if (invListen != null) {
 			invListen = null;
