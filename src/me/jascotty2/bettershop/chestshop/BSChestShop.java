@@ -175,7 +175,7 @@ public class BSChestShop implements Listener {
 		// Get the EntityPlayer handle from the sender
 		EntityPlayer entityplayer = ((CraftPlayer) p).getHandle();
 		// open the "chest"
-		entityplayer.a(chestShop);
+		entityplayer.openContainer(chestShop);
 
 		// save a copy of the chest's current inventory
 		openPlayers.put(p, ItemStackManip.copy(chestShop.getContents()));

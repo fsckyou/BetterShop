@@ -20,18 +20,22 @@ package me.jascotty2.bettershop.chestshop;
 import net.minecraft.server.EntityHuman;
 import net.minecraft.server.IInventory;
 import net.minecraft.server.ItemStack;
+import java.util.List;
+import java.util.ArrayList;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.inventory.InventoryHolder;
 
 public class InventorySmallChest implements IInventory {
 	ItemStack items[];
 	String name;
-	
+
 	public InventorySmallChest(String name, org.bukkit.inventory.ItemStack itms[]) {
 		this.name=name;
 		items = new ItemStack[itms.length];
 		for(int i=0; i<itms.length; ++i){
 			items[i] = itms[i] == null ? null : new ItemStack(
 					itms[i].getTypeId(), itms[i].getAmount(), itms[i].getDurability());
-					/*,(byte)(itms[i].getData() == null ? 0 : itms[i].getData().getData())*/
+			/*,(byte)(itms[i].getData() == null ? 0 : itms[i].getData().getData())*/
 		}
 	}
 
@@ -44,29 +48,29 @@ public class InventorySmallChest implements IInventory {
 	}
 
 	public ItemStack splitStack(int i, int j) {
-        if (i >= this.items.length) {
+		if (i >= this.items.length) {
 			return null;
-        }
+		}
 		ItemStack[] aitemstack = this.items;
 
-        if (aitemstack[i] != null) {
-            ItemStack itemstack;
+		if (aitemstack[i] != null) {
+			ItemStack itemstack;
 
-            if (aitemstack[i].count <= j) {
-                itemstack = aitemstack[i];
-                aitemstack[i] = null;
-                return itemstack;
-            } else {
-                itemstack = aitemstack[i].a(j);
-                if (aitemstack[i].count == 0) {
-                    aitemstack[i] = null;
-                }
+			if (aitemstack[i].count <= j) {
+				itemstack = aitemstack[i];
+				aitemstack[i] = null;
+				return itemstack;
+			} else {
+				itemstack = aitemstack[i].a(j);
+				if (aitemstack[i].count == 0) {
+					aitemstack[i] = null;
+				}
 
-                return itemstack;
-            }
-        } else {
-            return null;
-        }
+				return itemstack;
+			}
+		} else {
+			return null;
+		}
 	}
 
 	public void setItem(int i, ItemStack is) {
@@ -91,28 +95,37 @@ public class InventorySmallChest implements IInventory {
 	public boolean a(EntityHuman eh) {
 		return true;
 	}
-	
+
 	public boolean a_(EntityHuman eh) {
 		return true;
 	}
-	
-	
+
+
 	public void e() {
 	}
 
 	public void t_() {
 	}
-	
+
 	public void f() {
 	}
 
 	public void g() {
 	}
-	
+
+
+	void onOpen(CraftHumanEntity who){
+
+	}
+
+	void onClose(CraftHumanEntity who){
+
+	}
+
 	public InventoryHolder getOwner(){
 		return null;
 	}
-	
+
 	public List<HumanEntity> getViewers(){
 		return new ArrayList<HumanEntity>();
 	}
