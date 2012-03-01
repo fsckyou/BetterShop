@@ -18,9 +18,9 @@
 package me.jascotty2.bettershop.chestshop;
 
 import org.getspout.spoutapi.event.inventory.InventoryCloseEvent;
-import org.getspout.spoutapi.event.inventory.InventoryListener;
+import org.bukkit.event.Listener;
 
-public class ChestShopInventoryListenerSpout implements {
+public class ChestShopInventoryListenerSpout implements Listener {
 
 	final BSChestShop callback;
 

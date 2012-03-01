@@ -19,9 +19,9 @@ package me.jascotty2.bettershop.spout;
 
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 import org.getspout.spoutapi.event.screen.ButtonClickEvent;
-import org.getspout.spoutapi.event.screen.ScreenListener;
 import org.getspout.spoutapi.event.screen.SliderDragEvent;
 import org.getspout.spoutapi.event.screen.TextFieldChangeEvent;
+import org.bukkit.event.Listener;
 
 /**
  * @author jacob

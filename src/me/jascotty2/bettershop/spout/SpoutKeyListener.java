@@ -26,10 +26,10 @@ import me.jascotty2.bettershop.BetterShop;
 import me.jascotty2.bettershop.enums.BetterShopPermission;
 import me.jascotty2.bettershop.utils.BSPermissions;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
-import org.getspout.spoutapi.event.input.InputListener;
 import org.getspout.spoutapi.event.input.KeyPressedEvent;
 import org.getspout.spoutapi.gui.ScreenType;
 import org.getspout.spoutapi.keyboard.Keyboard;
+import org.bukkit.event.Listener;
 
 /**
  * @author jacob
