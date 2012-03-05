@@ -2,6 +2,9 @@
 BetterShop Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
+Version 2.1.2 - 3/5/12
+updated methods for bukkit 1.2.3-R0.2 and SpoutPlugin 474
+
 Version 2.1.1 - 1/27/12
 updated register to 1.5 (adds 3co)
 added spawn eggs to the shop

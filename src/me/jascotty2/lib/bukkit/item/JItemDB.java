@@ -25,14 +25,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import me.jascotty2.lib.util.ArrayManip;
 import me.jascotty2.lib.util.Str;
 import org.bukkit.Material;
-import org.bukkit.entity.CreatureType;
 import org.bukkit.inventory.ItemStack;
 
 import me.jascotty2.lib.bukkit.config.Configuration;
 import me.jascotty2.lib.bukkit.config.ConfigurationNode;
+import org.bukkit.entity.EntityType;
 
 public class JItemDB {
 
@@ -276,43 +275,15 @@ public class JItemDB {
 	 */
 	private static void loadDefaultItems() {
 		items.clear();
-		// all entities (pre-1.8b)
-		CreatureType ordered[] = new CreatureType[]{
-						CreatureType.CHICKEN, CreatureType.COW,
-						CreatureType.CREEPER, CreatureType.GHAST,
-						CreatureType.GIANT, CreatureType.MONSTER,
-						CreatureType.PIG, CreatureType.PIG_ZOMBIE,
-						CreatureType.SHEEP, CreatureType.SKELETON,
-						CreatureType.SLIME, CreatureType.SPIDER,
-						CreatureType.SQUID, CreatureType.ZOMBIE,
-						CreatureType.WOLF};
-		try {
-			CreatureType t = CreatureType.CAVE_SPIDER;
-			// success, is at least a 1.8 server
-			ordered = ArrayManip.arrayConcat(ordered,
-					new CreatureType[]{
-				CreatureType.CAVE_SPIDER, CreatureType.ENDERMAN, CreatureType.SILVERFISH});
-			// now for 1.0
-			t = CreatureType.ENDER_DRAGON;
-			
-			ordered = ArrayManip.arrayConcat(ordered,
-					new CreatureType[]{
-				CreatureType.ENDER_DRAGON, CreatureType.VILLAGER,
-				CreatureType.BLAZE, CreatureType.MUSHROOM_COW,
-				CreatureType.MAGMA_CUBE, CreatureType.SNOWMAN});
-    
-		} catch (Throwable t) {
-		}
+		CreatureItem.init();
 		int i = 0;
-		for (; i < ordered.length; ++i) {
-			items.put((4000 + i) + ":0", new CreatureItem(ordered[i]));
+		for (; i < CreatureItem.getCreatures().length; ++i) {
+			items.put((4000 + i) + ":0", new CreatureItem(CreatureItem.getCreatures()[i]));
 		}
 		// now check for existing entities that aren't in the ordered array
-		for (CreatureType c : CreatureType.values()) {
-			if (ArrayManip.indexOf(ordered, c) == -1) {
-				items.put((4000 + (i++)) + ":0", new CreatureItem(c));
-				System.out.println("New Entity: (" + (4000 + (i - 1)) + ") " + c.getName());
-			}
+		for (EntityType c : CreatureItem.getNewEntities()) {
+			items.put((4000 + (i++)) + ":0", new CreatureItem(c));
+			System.out.println("New Entity: (" + (4000 + (i - 1)) + ") " + c.getName());
 		}
 		// now add hard-coded entries, including subtypes
 		for (JItems it : JItems.values()) {
@@ -346,7 +317,7 @@ public class JItemDB {
 	}
 
 	public static JItem GetItem(int id, byte dat) {
-		if(JItems.isTool(id) || !JItems.hasData(id)) {
+		if (JItems.isTool(id) || !JItems.hasData(id)) {
 			dat = 0;
 		}
 		String idd = id + ":" + dat;
@@ -629,11 +600,11 @@ public class JItemDB {
 	public static String GetItemColoredName(ItemStack it) {
 		return it == null ? null : GetItemColoredName(it.getTypeId(), it.getData() == null ? 0 : it.getData().getData());
 	}
-	
+
 	public static String GetItemColoredName(int id, byte dat) {
 		return GetItemColoredName(id, (int) dat);
 	}
-	
+
 	public static String GetItemColoredName(int id, int dat) {
 
 		for (JItem i : items.values()) {

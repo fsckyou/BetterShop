@@ -35,9 +35,9 @@ public enum JItems {
 	DIRT("Dirt", 3),
 	COBBLESTONE("Cobblestone", 4),
 	WOOD("Wood", 5, "17=4"),
-	SAPLING("Sapling", 6, (byte) 0),
-	SPRUCE_SAPLING("Spruce Sapling", 6, (byte) 1),
-	PINE_SAPLING("Pine Sapling", 6, (byte) 2),
+	SAPLING("Sapling", 6, (short) 0),
+	SPRUCE_SAPLING("Spruce Sapling", 6, (short) 1),
+	PINE_SAPLING("Pine Sapling", 6, (short) 2),
 	BEDROCK("Bedrock", 7, false),
 	WATER("Water", 8, false),
 	STATIONARY_WATER("Stationary Water", 9, false),
@@ -48,12 +48,12 @@ public enum JItems {
 	GOLD_ORE("Gold Ore", 14),
 	IRON_ORE("Iron Ore", 15),
 	COAL_ORE("Coal Ore", 16, false),
-	LOG("Log", 17, (byte) 0),
-	REDWOOD_LOG("Spruce Log", 17, (byte) 1),
-	BIRCH_LOG("Birch Log", 17, (byte) 2),
-	LEAVES("Leaves", 18, (byte) 0),
-	REDWOOD_LEAVES("Spruce Leaves", 18, (byte) 1),
-	BIRCH_LEAVES("Birch Leaves", 18, (byte) 2),
+	LOG("Log", 17, (short) 0),
+	REDWOOD_LOG("Spruce Log", 17, (short) 1),
+	BIRCH_LOG("Birch Log", 17, (short) 2),
+	LEAVES("Leaves", 18, (short) 0),
+	REDWOOD_LEAVES("Spruce Leaves", 18, (short) 1),
+	BIRCH_LEAVES("Birch Leaves", 18, (short) 2),
 	SPONGE("Sponge", 19, false),
 	GLASS("Glass", 20, "12@8+263=8, 12@3+5@2=3, 12@12+369=12"),
 	LAPIS_ORE("Lapis Lazuli Ore", 21, false),
@@ -66,28 +66,28 @@ public enum JItems {
 	DETECTOR_RAIL("Detector Rail", 28, "265@6+331+70=6"),
 	STICKY_PISTON_BASE("Sticky Piston", 29, "33+341"),
 	COBWB("Cobweb", 30, false),
-	DEAD_FERN("Dead Fern", 31, (byte) 0), // non-natural dead shrub
-	TALL_GRASS("Tall Grass", 31, (byte) 1),
-	FERN("Fern", 31, (byte) 2, false), // or "Living Shrub"
+	DEAD_FERN("Dead Fern", 31, (short) 0), // non-natural dead shrub
+	TALL_GRASS("Tall Grass", 31, (short) 1),
+	FERN("Fern", 31, (short) 2, false), // or "Living Shrub"
 	DEAD_SHRUB("Dead Shrub", 32, false),
 	PISTON_BASE("Piston", 33, "5@3+4@4+265+331"),
 	PISTON_EXTENSION("Piston Extension", 34, false), // non-placable item
-	WOOL("White Wool", 35, (byte) 0, "287@9"),
-	ORANGE_WOOL("Orange Wool", 35, (byte) 1, "35+351:1"),
-	MAGENTA_WOOL("Magenta Wool", 35, (byte) 2, "35+351:2"),
-	LIGHT_BLUE_WOOL("Light Blue Wool", 35, (byte) 3, "35+351:3"),
-	YELLOW_WOOL("Yellow Wool", 35, (byte) 4, "35+351:4"),
-	LIGHT_GREEN_WOOL("Light Green Wool", 35, (byte) 5, "35+351:5"),
-	PINK_WOOL("Pink Wool", 35, (byte) 6, "35+351:6"),
-	DARK_GRAY_WOOL("Dark Gray Wool", 35, (byte) 7, "35+351:7"),
-	LIGHT_GRAY_WOOL("Light Gray Wool", 35, (byte) 8, "35+351:8"),
-	CYAN_WOOL("Cyan Wool", 35, (byte) 9, "35+351:9"),
-	PURPLE_WOOL("Purple Wool", 35, (byte) 10, "35+351:10"),
-	BLUE_WOOL("Blue Wool", 35, (byte) 11, "35+351:11"),
-	BROWN_WOOL("Brown Wool", 35, (byte) 12, "35+351:12"),
-	DARK_GREEN_WOOL("Dark Green Wool", 35, (byte) 13, "35+351:13"),
-	RED_WOOL("Red Wool", 35, (byte) 14, "35+351:14"),
-	BLACK_WOOL("Black Wool", 35, (byte) 15, "35+351:15"),
+	WOOL("White Wool", 35, (short) 0, "287@9"),
+	ORANGE_WOOL("Orange Wool", 35, (short) 1, "35+351:1"),
+	MAGENTA_WOOL("Magenta Wool", 35, (short) 2, "35+351:2"),
+	LIGHT_BLUE_WOOL("Light Blue Wool", 35, (short) 3, "35+351:3"),
+	YELLOW_WOOL("Yellow Wool", 35, (short) 4, "35+351:4"),
+	LIGHT_GREEN_WOOL("Light Green Wool", 35, (short) 5, "35+351:5"),
+	PINK_WOOL("Pink Wool", 35, (short) 6, "35+351:6"),
+	DARK_GRAY_WOOL("Dark Gray Wool", 35, (short) 7, "35+351:7"),
+	LIGHT_GRAY_WOOL("Light Gray Wool", 35, (short) 8, "35+351:8"),
+	CYAN_WOOL("Cyan Wool", 35, (short) 9, "35+351:9"),
+	PURPLE_WOOL("Purple Wool", 35, (short) 10, "35+351:10"),
+	BLUE_WOOL("Blue Wool", 35, (short) 11, "35+351:11"),
+	BROWN_WOOL("Brown Wool", 35, (short) 12, "35+351:12"),
+	DARK_GREEN_WOOL("Dark Green Wool", 35, (short) 13, "35+351:13"),
+	RED_WOOL("Red Wool", 35, (short) 14, "35+351:14"),
+	BLACK_WOOL("Black Wool", 35, (short) 15, "35+351:15"),
 	PISTON_MOVING_PIECE("Piston Moving Piece", 36, false), // non-placable item
 	YELLOW_FLOWER("Yellow Flower", 37),
 	RED_ROSE("Red Rose", 38),
@@ -95,18 +95,18 @@ public enum JItems {
 	RED_MUSHROOM("Red Mushroom", 40),
 	GOLD_BLOCK("Gold Block", 41, "266@9"),
 	IRON_BLOCK("Iron Block", 42, "265@9"),
-	DOUBLE_STEP("Double Slab", 43, (byte) 0, "44@2", false),
-	SANDSTONE_DOUBLE_STEP("Sandstone Double Slab", 43, (byte) 1, "44:1@2", false),
-	WOOD_DOUBLE_STEP("Wood Double Slab", 43, (byte) 2, "44:2@2", false),
-	COBBLESTONE_DOUBLE_STEP("Cobblestone Double Slab", 43, (byte) 3, "44:3@2", false),
-	BRICK_DOUBLE_STEP("Brick Double Slab", 43, (byte) 4, "44:4@2", false),
-	STONE_BRICK_DOUBLE_STEP("Stone Brick Double Slab", 43, (byte) 5, "44:5@2", false),
-	STEP("Slab", 44, (byte) 0, "1@3=3"),
-	SANDSTONE_STEP("Sandstone Slab", 44, (byte) 1, "24@3=3"),
-	WOOD_STEP("Wood Slab", 44, (byte) 2, "5@3=3"),
-	COBBLESTONE_STEP("Cobblestone Slab", 44, (byte) 3, "4@3=3"),
-	BRICK_STEP("Brick Slab", 44, (byte) 4, "45@3=3"),
-	STONE_BRICK_STEP("Stone Brick Slab", 44, (byte) 5, "98@3=3"),
+	DOUBLE_STEP("Double Slab", 43, (short) 0, "44@2", false),
+	SANDSTONE_DOUBLE_STEP("Sandstone Double Slab", 43, (short) 1, "44:1@2", false),
+	WOOD_DOUBLE_STEP("Wood Double Slab", 43, (short) 2, "44:2@2", false),
+	COBBLESTONE_DOUBLE_STEP("Cobblestone Double Slab", 43, (short) 3, "44:3@2", false),
+	BRICK_DOUBLE_STEP("Brick Double Slab", 43, (short) 4, "44:4@2", false),
+	STONE_BRICK_DOUBLE_STEP("Stone Brick Double Slab", 43, (short) 5, "44:5@2", false),
+	STEP("Slab", 44, (short) 0, "1@3=3"),
+	SANDSTONE_STEP("Sandstone Slab", 44, (short) 1, "24@3=3"),
+	WOOD_STEP("Wood Slab", 44, (short) 2, "5@3=3"),
+	COBBLESTONE_STEP("Cobblestone Slab", 44, (short) 3, "4@3=3"),
+	BRICK_STEP("Brick Slab", 44, (short) 4, "45@3=3"),
+	STONE_BRICK_STEP("Stone Brick Slab", 44, (short) 5, "98@3=3"),
 	BRICK("Brick Block", 45, "336@4"),
 	TNT("TNT", 46, "12@4+289@5"),
 	BOOKSHELF("Bookshelf", 47, "5@6+340@3"),
@@ -161,9 +161,9 @@ public enum JItems {
 	LOCKED_CHEST("Locked Chest", 95, false),
 	TRAPDOOR("Trapdoor", 96, "5@6=2"),
 	SILVERFISH_STONE("Silverfish Stone", 97, false),
-	STONE_BRICK("Stone Brick", 98, (byte) 0, "1@4=4"),
-	MOSSY_STONE_BRICK("Mossy Stone Brick", 98, (byte) 1),
-	CRACKED_STONE_BRICK("Cracked Stone Brick", 98, (byte) 2),
+	STONE_BRICK("Stone Brick", 98, (short) 0, "1@4=4"),
+	MOSSY_STONE_BRICK("Mossy Stone Brick", 98, (short) 1),
+	CRACKED_STONE_BRICK("Cracked Stone Brick", 98, (short) 2),
 	BROWN_MUSHROOM_BLOCK("Brown Mushroom Block", 99, false),
 	RED_MUSHROOM_BLOCK("Red Mushroom Block", 100, false),
 	IRON_BARS("Iron Bars", 101, "265@6=16"),
@@ -196,8 +196,8 @@ public enum JItems {
 	APPLE("Apple", 260),
 	BOW("Bow", 261, "280@3+287@3", 1, (short) 385),
 	ARROW("Arrow", 262, "280+318+288"),
-	COAL("Coal", 263, (byte) 0),
-	CHARCOAL("Charcoal", 263, (byte) 1),
+	COAL("Coal", 263, (short) 0),
+	CHARCOAL("Charcoal", 263, (short) 1),
 	DIAMOND("Diamond", 264),
 	IRON_INGOT("Iron Ingot", 265, "15@8+263=8, 15@3+5@2=3, 15@12+369=12"),
 	GOLD_INGOT("Gold Ingot", 266, "14@8+263=8, 14@3+5@2=3, 14@12+369=12, 371@9"),
@@ -286,22 +286,22 @@ public enum JItems {
 	GLOWSTONE_DUST("Glowstone Dust", 348),
 	RAW_FISH("Raw Fish", 349),
 	COOKED_FISH("Cooked Fish", 350, "349@8+263=8, 349@3+5@2=3, 349@12+369=12"),
-	INK_SACK("Ink Sac", 351, (byte) 0),
-	RED_DYE("Red Dye", 351, (byte) 1, "38=2"),
-	GREEN_DYE("Green Dye", 351, (byte) 2, "81@8+263=8, 81@3+5@2=3, 81@12+369=12"),
-	BROWN_DYE("Cocoa Bean", 351, (byte) 3), // no current method for crafting cocoa
-	BLUE_DYE("Lapis Lazuli", 351, (byte) 4, "22=9"),
-	PURPLE_DYE("Purple Dye", 351, (byte) 5, "351:4+351:1=2"),
-	CYAN_DYE("Cyan Dye", 351, (byte) 6, "351:4+351:2=2"),
-	LIGHT_GRAY_DYE("Light Gray Dye", 351, (byte) 7, "351:8+351:15=2"),
-	GRAY_DYE("Gray Dye", 351, (byte) 8, "351:15+351=2"),
-	PINK_DYE("Pink Dye", 351, (byte) 9, "351:1+351=2"),
-	LIME_DYE("Lime Dye", 351, (byte) 10, "351:2+351:15=2"),
-	YELLOW_DYE("Yellow Dye", 351, (byte) 11, "37=2"),
-	LIGHT_BLUE_DYE("Light Blue Dye", 351, (byte) 12, "351:4+351:15=2"),
-	MAGENTA_DYE("Magenta Dye", 351, (byte) 13, "351:4+351:9=2"),
-	ORANGE_DYE("Orange Dye", 351, (byte) 14, "351:1+351:11=2"),
-	BONEMEAL("Bone Meal", 351, (byte) 15, "352=2"),
+	INK_SACK("Ink Sac", 351, (short) 0),
+	RED_DYE("Red Dye", 351, (short) 1, "38=2"),
+	GREEN_DYE("Green Dye", 351, (short) 2, "81@8+263=8, 81@3+5@2=3, 81@12+369=12"),
+	BROWN_DYE("Cocoa Bean", 351, (short) 3), // no current method for crafting cocoa
+	BLUE_DYE("Lapis Lazuli", 351, (short) 4, "22=9"),
+	PURPLE_DYE("Purple Dye", 351, (short) 5, "351:4+351:1=2"),
+	CYAN_DYE("Cyan Dye", 351, (short) 6, "351:4+351:2=2"),
+	LIGHT_GRAY_DYE("Light Gray Dye", 351, (short) 7, "351:8+351:15=2"),
+	GRAY_DYE("Gray Dye", 351, (short) 8, "351:15+351=2"),
+	PINK_DYE("Pink Dye", 351, (short) 9, "351:1+351=2"),
+	LIME_DYE("Lime Dye", 351, (short) 10, "351:2+351:15=2"),
+	YELLOW_DYE("Yellow Dye", 351, (short) 11, "37=2"),
+	LIGHT_BLUE_DYE("Light Blue Dye", 351, (short) 12, "351:4+351:15=2"),
+	MAGENTA_DYE("Magenta Dye", 351, (short) 13, "351:4+351:9=2"),
+	ORANGE_DYE("Orange Dye", 351, (short) 14, "351:1+351:11=2"),
+	BONEMEAL("Bone Meal", 351, (short) 15, "352=2"),
 	BONE("Bone", 352),
 	SUGAR("Sugar", 353, "338"),
 	CAKE("Cake", 354, "335@3+353@2+344+296@3", 1),
@@ -325,37 +325,37 @@ public enum JItems {
 	NETHER_WART("Nether Wart", 372),
 	
 	POTION("Potion", 373), // will need to add values later, so far unknown
-	POTION_REGENERATION("Regeneration Potion", 373, (byte) 1), // Potion of Regeneration (0:45)
-	POTION_MOVESPEED("Speed Potion", 373, (byte) 2), // Potion of Swiftness (3:00)
-	POTION_FIRERESISTANCE("Fire Resistance Potion", 373, (byte) 3), // Potion of Fire Resistance (3:00)
-	POTION_POISON("Poison Potion", 373, (byte) 4), // Potion of Poison (0:45)
-	POTION_HEAL("Health Potion", 373, (byte) 5), // Potion of Healing (Instant Health)
-	POTION_CLEAR("Clear Potion", 373, (byte) 6), // Clear Potion (no effects)
-	POTION_CLEAR_2("Clear Potion", 373, (byte) 7), // Clear Potion (no effects)
-	POTION_WEAKNESS("Weakness Potion", 373, (byte) 8), // Potion of Weakness (1:30)
-	POTION_DAMEGEBOOST("Strength Potion", 373, (byte) 9), // Potion of Strength (3:00)
-	POTION_MOVESLOWDOWN("Slowness Potion", 373, (byte) 10), // Potion of Slowness (1:30)
-	POTION_DIFFUSE("Diffuse Potion", 373, (byte) 11), // Diffuse Potion (no effects)
-	POTION_HARM("Harm Potion", 373, (byte) 12), // Potion of Harming (Instant Damage)
-	POTION_ARTLESS("Artless Potion", 373, (byte) 13), // Artless Potion (no effects)
-	POTION_THIN("Thin Potion", 373, (byte) 14), // Thin Potion (no effects)
-	POTION_THIN_2("Thin Potion", 373, (byte) 15), // Thin Potion (no effects)
-	POTION_AWKWARD("Awkward Potion", 373, (byte) 16), // Awkward Potion (no effects)
-	POTION_REGENERATION_2("Regeneration Potion", 373, (byte) 17), // Potion of Regeneration (0:45)
-	POTION_MOVESPEED_2("Speed Potion", 373, (byte) 18), // Potion of Swiftness (3:00)
-	POTION_FIRERESISTANCE_2("Fire Resistance Potion", 373, (byte) 19), // Potion of Fire Resistance (3:00)
-	POTION_POISON_2("Poison Potion", 373, (byte) 20), // Potion of Poison (0:45)
+	POTION_REGENERATION("Regeneration Potion", 373, (short) 1), // Potion of Regeneration (0:45)
+	POTION_MOVESPEED("Speed Potion", 373, (short) 2), // Potion of Swiftness (3:00)
+	POTION_FIRERESISTANCE("Fire Resistance Potion", 373, (short) 3), // Potion of Fire Resistance (3:00)
+	POTION_POISON("Poison Potion", 373, (short) 4), // Potion of Poison (0:45)
+	POTION_HEAL("Health Potion", 373, (short) 5), // Potion of Healing (Instant Health)
+	POTION_CLEAR("Clear Potion", 373, (short) 6), // Clear Potion (no effects)
+	POTION_CLEAR_2("Clear Potion", 373, (short) 7), // Clear Potion (no effects)
+	POTION_WEAKNESS("Weakness Potion", 373, (short) 8), // Potion of Weakness (1:30)
+	POTION_DAMEGEBOOST("Strength Potion", 373, (short) 9), // Potion of Strength (3:00)
+	POTION_MOVESLOWDOWN("Slowness Potion", 373, (short) 10), // Potion of Slowness (1:30)
+	POTION_DIFFUSE("Diffuse Potion", 373, (short) 11), // Diffuse Potion (no effects)
+	POTION_HARM("Harm Potion", 373, (short) 12), // Potion of Harming (Instant Damage)
+	POTION_ARTLESS("Artless Potion", 373, (short) 13), // Artless Potion (no effects)
+	POTION_THIN("Thin Potion", 373, (short) 14), // Thin Potion (no effects)
+	POTION_THIN_2("Thin Potion", 373, (short) 15), // Thin Potion (no effects)
+	POTION_AWKWARD("Awkward Potion", 373, (short) 16), // Awkward Potion (no effects)
+	POTION_REGENERATION_2("Regeneration Potion", 373, (short) 17), // Potion of Regeneration (0:45)
+	POTION_MOVESPEED_2("Speed Potion", 373, (short) 18), // Potion of Swiftness (3:00)
+	POTION_FIRERESISTANCE_2("Fire Resistance Potion", 373, (short) 19), // Potion of Fire Resistance (3:00)
+	POTION_POISON_2("Poison Potion", 373, (short) 20), // Potion of Poison (0:45)
 
-	POTION_DIGSPEED("Haste Potion", 373, (byte) 3),
-	POTION_DIGSLOWDOWN("Fatigue Potion", 373, (byte) 4),
-	POTION_JUMP("Jump Potion", 373, (byte) 8),
-	POTION_CONFUSION("Nausea Potion", 373, (byte) 9),
-	POTION_RESISTANCE("Resistance Potion", 373, (byte) 11),
-	POTION_WATERBREATHING("Water Breathing Potion", 373, (byte) 13),
-	POTION_INVISIBILITY("Invisibility Potion", 373, (byte) 14),
-	POTION_BLINDNESS("Blindness Potion", 373, (byte) 15),
-	POTION_NIGHTVISION("Night Vision Potion", 373, (byte) 16),
-	POTION_HUNGER("Hunger Potion", 373, (byte) 17),
+	POTION_DIGSPEED("Haste Potion", 373, (short) 3),
+	POTION_DIGSLOWDOWN("Fatigue Potion", 373, (short) 4),
+	POTION_JUMP("Jump Potion", 373, (short) 8),
+	POTION_CONFUSION("Nausea Potion", 373, (short) 9),
+	POTION_RESISTANCE("Resistance Potion", 373, (short) 11),
+	POTION_WATERBREATHING("Water Breathing Potion", 373, (short) 13),
+	POTION_INVISIBILITY("Invisibility Potion", 373, (short) 14),
+	POTION_BLINDNESS("Blindness Potion", 373, (short) 15),
+	POTION_NIGHTVISION("Night Vision Potion", 373, (short) 16),
+	POTION_HUNGER("Hunger Potion", 373, (short) 17),
 
 	GLASS_BOTTLE("Glass Bottle", 374, "20@3"),
 	SPIDER_EYE("Spider Eye", 375),
@@ -367,28 +367,28 @@ public enum JItems {
 	EYE_OF_ENDER("Eye of Ender", 381, "368+377"),
 	GLISTERING_MELON("Glistering Melon", 382, "360+371"),
 	
-	SPAWN_EGG_CREEPER("Creeper Egg", 383, (byte) 50, false),
-	SPAWN_EGG_SKELETON("Skeleton Egg", 383, (byte) 51, false),
-	SPAWN_EGG_SPIDER("Spider Egg", 383, (byte) 52, false),
-	SPAWN_EGG_GIANT("Giant Egg", 383, (byte) 53, false),
-	SPAWN_EGG_ZOMBIE("Zombie Egg", 383, (byte) 54, false),
-	SPAWN_EGG_SLIME("Slime Egg", 383, (byte) 55, false),
-	SPAWN_EGG_GHAST("Ghast Egg", 383, (byte) 56, false),
-	SPAWN_EGG_PIGZOMBIE("PigZombie Egg", 383, (byte) 57, false),
-	SPAWN_EGG_ENDERMAN("Enderman Egg", 383, (byte) 58, false),
-	SPAWN_EGG_CAVESPIDER("CaveSpider Egg", 383, (byte) 59, false),
-	SPAWN_EGG_SILVERFISH("Silverfish Egg", 383, (byte) 60, false),
-	SPAWN_EGG_BLAZE("Blaze Egg", 383, (byte) 61, false),
-	SPAWN_EGG_LAVASLIME("LavaSlime Egg", 383, (byte) 62, false),
-	SPAWN_EGG_ENDERDRAGON("EnderDragon Egg", 383, (byte) 63, false),
-	SPAWN_EGG_PIG("Pig Egg", 383, (byte) 90, false),	
-	SPAWN_EGG_SHEEP("Sheep Egg", 383, (byte) 91, false),
-	SPAWN_EGG_COW("Cow Egg", 383, (byte) 92, false),
-	SPAWN_EGG_CHICKEN("Chicken Egg", 383, (byte) 93, false),
-	SPAWN_EGG_WOLF("Wolf Egg", 383, (byte) 94, false),
-	SPAWN_EGG_MUSHROOMCOW("MushroomCow Egg", 383, (byte) 95, false),
-	SPAWN_EGG_SNOWMAN("SnowMan Egg", 383, (byte) 96, false),
-	SPAWN_EGG_VILLAGER("Villager Egg", 383, (byte) 97, false),
+	SPAWN_EGG_CREEPER("Creeper Egg", 383, (short) 50, false),
+	SPAWN_EGG_SKELETON("Skeleton Egg", 383, (short) 51, false),
+	SPAWN_EGG_SPIDER("Spider Egg", 383, (short) 52, false),
+	SPAWN_EGG_GIANT("Giant Egg", 383, (short) 53, false),
+	SPAWN_EGG_ZOMBIE("Zombie Egg", 383, (short) 54, false),
+	SPAWN_EGG_SLIME("Slime Egg", 383, (short) 55, false),
+	SPAWN_EGG_GHAST("Ghast Egg", 383, (short) 56, false),
+	SPAWN_EGG_PIGZOMBIE("PigZombie Egg", 383, (short) 57, false),
+	SPAWN_EGG_ENDERMAN("Enderman Egg", 383, (short) 58, false),
+	SPAWN_EGG_CAVESPIDER("CaveSpider Egg", 383, (short) 59, false),
+	SPAWN_EGG_SILVERFISH("Silverfish Egg", 383, (short) 60, false),
+	SPAWN_EGG_BLAZE("Blaze Egg", 383, (short) 61, false),
+	SPAWN_EGG_LAVASLIME("LavaSlime Egg", 383, (short) 62, false),
+	SPAWN_EGG_ENDERDRAGON("EnderDragon Egg", 383, (short) 63, false),
+	SPAWN_EGG_PIG("Pig Egg", 383, (short) 90, false),	
+	SPAWN_EGG_SHEEP("Sheep Egg", 383, (short) 91, false),
+	SPAWN_EGG_COW("Cow Egg", 383, (short) 92, false),
+	SPAWN_EGG_CHICKEN("Chicken Egg", 383, (short) 93, false),
+	SPAWN_EGG_WOLF("Wolf Egg", 383, (short) 94, false),
+	SPAWN_EGG_MUSHROOMCOW("MushroomCow Egg", 383, (short) 95, false),
+	SPAWN_EGG_SNOWMAN("SnowMan Egg", 383, (short) 96, false),
+	SPAWN_EGG_VILLAGER("Villager Egg", 383, (short) 97, false),
 
 	// Records
 	GOLD_RECORD("13 Disk", 2256, 1), // Gold Record
@@ -404,7 +404,7 @@ public enum JItems {
 	BROKEN_RECORD("11 Disc", 2266, 1);
 // Item Information
 	private int itemId;
-	private byte itemData;
+	private short itemData;
 	private boolean isLegal = true,  // is is legitemitely obtainable
 			hasData = false; // if data defines this item
 	private int maxStack = 64;
@@ -414,12 +414,15 @@ public enum JItems {
 	// what item ids' data resemble max damage value
 	// (must be in ascending order)
 	private static int[] tools = new int[]{
-		256, 257, 258, 259, 267, 268, 269, 270, 271,
+		256, 257, 258, 259, 261, 267, 268, 269, 270, 271,
 		272, 273, 274, 275, 276, 277, 278, 278, 279,
 		283, 284, 285, 286, 290, 291, 292, 293, 294,
 		298, 299, 300, 301, 302, 303, 304, 305,
 		306, 307, 308, 309, 310, 311, 312, 313,
 		314, 315, 316, 317, 346, 359};
+	// items (other than tools) that aren't good to stack
+	private static int[] unsafeStack = new int[]{
+		282, 325, 326, 327, 335};
 
 	private JItems(String name, int id) {
 		if (SetID(id)) {
@@ -434,7 +437,7 @@ public enum JItems {
 		}
 	}
 
-	private JItems(String name, int id, byte dat) {
+	private JItems(String name, int id, short dat) {
 		if (SetID(id)) {
 			this.name = name;
 			itemData = dat;
@@ -457,7 +460,7 @@ public enum JItems {
 		}
 	}
 
-	private JItems(String name, int id, byte dat, boolean legal) {
+	private JItems(String name, int id, short dat, boolean legal) {
 		if (SetID(id)) {
 			this.name = name;
 			itemData = dat;
@@ -481,7 +484,7 @@ public enum JItems {
 		}
 	}
 
-	private JItems(String name, int id, byte dat, String craftRecipies) {
+	private JItems(String name, int id, short dat, String craftRecipies) {
 		if (SetID(id)) {
 			this.name = name;
 			itemData = dat;
@@ -538,7 +541,7 @@ public enum JItems {
 		}
 	}
 
-	private JItems(String name, int id, byte dat, String craftRecipies, int maxStack, short maxDamage) {
+	private JItems(String name, int id, short dat, String craftRecipies, int maxStack, short maxDamage) {
 		if (SetID(id)) {
 			this.name = name;
 			itemData = dat;
@@ -549,7 +552,7 @@ public enum JItems {
 		}
 	}
 
-	private JItems(String name, int id, byte dat, String craftRecipies, boolean legal) {
+	private JItems(String name, int id, short dat, String craftRecipies, boolean legal) {
 		if (SetID(id)) {
 			this.name = name;
 			itemData = dat;
@@ -565,7 +568,7 @@ public enum JItems {
 		}
 	}
 
-	private JItems(int id, byte dat) {
+	private JItems(int id, short dat) {
 		if (SetID(id)) {
 			itemData = dat;
 			AutoName();
@@ -576,7 +579,7 @@ public enum JItems {
 //    private JItems(ItemStack i) {
 //        itemId = i.getTypeId();
 //        //if(maxdamage==0)// i.getDurability()<MAX_DATA)
-//        itemData = (byte) i.getDurability();
+//        itemData = (short) i.getDurability();
 //        name = "";
 //    }
 	private boolean SetID(int id) {
@@ -605,7 +608,7 @@ public enum JItems {
 		return itemId;
 	}
 
-	public byte Data() {
+	public short Data() {
 		return itemData;
 	}
 
@@ -648,7 +651,7 @@ public enum JItems {
 				s2 = datStr.contains(":") ? datStr.substring(datStr.indexOf(':') + 1).trim() : "";
 		JItem r = new JItem();
 		r.itemId = CheckInput.GetInt(s1, -1);
-		r.itemDat = CheckInput.GetByte(s2, (byte) 0);
+		r.itemDat = CheckInput.GetShort(s2, (short) 0);
 		if (r.itemId > 0) {
 			return r;
 		}
@@ -726,11 +729,19 @@ public enum JItems {
 	}
 
 	public ItemStack toItemStack() {
-		return isEntity() || itemId < 0 ? null : new ItemStack(itemId, 1, (short) 0, itemData);
+		//return isEntity() || itemId < 0 ? null : new ItemStack(itemId, 1, (short) 0, itemData);
+		return isEntity() || itemId < 0 ? null : 
+				(itemData <= Byte.MAX_VALUE ? 
+				new ItemStack(itemId, 1, (short) 0, (byte) itemData) 
+				: new ItemStack(itemId, 1, itemData));
 	}
 
 	public ItemStack toItemStack(int amount) {
-		return isEntity() || itemId < 0 ? null : new ItemStack(itemId, amount, (short) 0, itemData);
+		//return isEntity() || itemId < 0 ? null : new ItemStack(itemId, amount, (short) 0, itemData);
+		return isEntity() || itemId < 0 ? null : 
+				(itemData <= Byte.MAX_VALUE ? 
+				new ItemStack(itemId, amount, (short) 0, (byte) itemData) 
+				: new ItemStack(itemId, amount, itemData));
 	}
 
 	// creatures are numbered starting at 4000
@@ -747,7 +758,7 @@ public enum JItems {
 		return null;
 	}
 
-	public static JItems getItem(int id, byte dat) {
+	public static JItems getItem(int id, short dat) {
 		for (JItems i : JItems.values()) {
 			if (i.ID() == id && i.Data() == dat) {
 				return i;
@@ -770,7 +781,7 @@ public enum JItems {
 			return null;
 		}
 		int id = search.getItemStack().getTypeId();
-		byte dat = search.getItemStack().getData().getData();
+		short dat = search.getItemStack().getData().getData();
 		for (JItems i : JItems.values()) {
 			if (i.ID() == id && i.Data() == dat) {
 				return i;
@@ -778,8 +789,13 @@ public enum JItems {
 		}
 		return null;
 	}
+	
+	public static int getMaxStack(int id) {
+		JItems i = getItem(id);
+		return i == null ? 64 : i.MaxStackSize();
+	}
 
-	public static int getMaxStack(int id, byte dat) {
+	public static int getMaxStack(int id, short dat) {
 		JItems i = getItem(id, dat);
 		return i == null ? 64 : i.MaxStackSize();
 	}
@@ -788,7 +804,17 @@ public enum JItems {
 		JItems i = getItem(it.getTypeId(), it.getData() == null ? 0 : it.getData().getData());
 		return i == null ? 64 : i.MaxStackSize();
 	}
+	
+	public static boolean isStackable(ItemStack it) {
+		int i = Arrays.binarySearch(unsafeStack, it.getTypeId());
+		return i < 0 && !isTool(it.getTypeId());
+	}
 
+	public static boolean isStackable(int id) {
+		int i = Arrays.binarySearch(unsafeStack, id);
+		return i < 0 && !isTool(id);
+	}
+	
 	public static boolean isTool(int id) {
 		int i = Arrays.binarySearch(tools, id);
 		return i >= 0 && tools[i] == id;

@@ -471,12 +471,12 @@ public class SpoutPopupDisplay {
 			for (PriceListItem p : items) {
 				ItemButtonContainer m;
 				if (lg) {
-					m = new LargeMarketMenuItem(p.ID(), p.Data());
+					m = new LargeMarketMenuItem(p.ID(), (byte) p.Data());
 				} else {
-					m = new SmallMarketMenuItem(p.ID(), p.Data());
+					m = new SmallMarketMenuItem(p.ID(), (byte) p.Data());
 				}
-				m.setEnabled(/*vis*/ false).setY(y).setX(x);//.setWidth(wid).setHeight(hgt);
-				if(vis) {
+				m.setEnabled(/*vis*/false).setY(y).setX(x);//.setWidth(wid).setHeight(hgt);
+				if (vis) {
 					delayShowList.add(m);
 				}
 				menuItems.add(m);
@@ -524,25 +524,23 @@ public class SpoutPopupDisplay {
 		}
 
 	}
-	
 	/*   temp fix for a new spout problem .. */
 	ArrayList<ItemButtonContainer> delayShowList = new ArrayList<ItemButtonContainer>();
 	java.util.Timer showDelay;
-	
+
 	private void startShow() {
 		showDelay = new java.util.Timer();
 		showDelay.schedule(new java.util.TimerTask() {
 
 			@Override
 			public void run() {
-				for(ItemButtonContainer m : delayShowList) {
+				for (ItemButtonContainer m : delayShowList) {
 					m.setEnabled(true);
 				}
 				delayShowList.clear();
 			}
 		}, 100);
 	}
-			
 
 	protected void clearDisplay() {
 		for (ItemButtonContainer m : menuItems) {

@@ -17,10 +17,12 @@
  */
 package me.jascotty2.bettershop.chestshop;
 
-import org.getspout.spoutapi.event.inventory.InventoryCloseEvent;
-import org.getspout.spoutapi.event.inventory.InventoryListener;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 
-public class ChestShopInventoryListenerSpout extends InventoryListener {
+public class ChestShopInventoryListenerSpout implements Listener {
 
 	final BSChestShop callback;
 
@@ -28,10 +30,10 @@ public class ChestShopInventoryListenerSpout extends InventoryListener {
 		this.callback = callback;
 	}
 
-	@Override
+	@EventHandler
 	public void onInventoryClose(InventoryCloseEvent event) {
 		if ((event.getPlayer() != null)) {
-			callback.chestClose(event.getPlayer());
+			callback.chestClose((Player) event.getPlayer());
 		}
 	}
 } // end class ChestShopPlayerListener

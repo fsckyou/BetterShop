@@ -26,14 +26,15 @@ import me.jascotty2.lib.bukkit.inventory.ChestManip;
 import org.bukkit.Server;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EndermanPickupEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityInteractEvent;
 
 // end class SignRestore
 /**
@@ -114,8 +115,11 @@ class DamageBlocker implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.LOW)
-	public void onEndermanPickup(EndermanPickupEvent event) {
-		if (!event.isCancelled() && BetterShop.getSettings().signDestroyProtection) {
+	public void onEntityBlockInteract(EntityInteractEvent event) {
+		// ought to work for enderman pickup and other break events, but not sure how to test..
+		if (!event.isCancelled() && event.getBlock() != null 
+				&& !(event.getEntity() instanceof Player)
+				&& BetterShop.getSettings().signDestroyProtection) {
 			if (chestsBD.has(event.getBlock().getLocation())) {
 				event.setCancelled(true);
 				return;

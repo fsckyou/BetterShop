@@ -35,7 +35,7 @@ public class JItem {
 	protected boolean legal = true;
 	protected int itemId = -1;
 	protected int maxStack = 0; // so far, only set if init with Material or JItems
-	protected byte itemDat = 0;
+	protected short itemDat = 0;
 	protected String name = null;
 	private LinkedList<String> aliases = new LinkedList<String>();
 	private LinkedList<String> subAliases = new LinkedList<String>();
@@ -50,7 +50,7 @@ public class JItem {
 		setInf(id);
 	}
 
-	public JItem(int id, byte data) {
+	public JItem(int id, short data) {
 		item = JItems.getItem(id, data);
 		itemDat = data;
 		setInf(id, data);
@@ -62,7 +62,7 @@ public class JItem {
 		this.name = name;
 	}
 
-	public JItem(int id, byte data, String name) {
+	public JItem(int id, short data, String name) {
 		item = JItems.getItem(id, data);
 		setInf(id, data);
 		this.name = name;
@@ -111,10 +111,10 @@ public class JItem {
 	}
 
 	private void setInf(int id) {
-		setInf(id, (byte) 0);
+		setInf(id, (short) 0);
 	}
 
-	private void setInf(int id, byte dat) {
+	private void setInf(int id, short dat) {
 		if (item != null) {
 			itemId = item.ID();
 			itemDat = item.Data();
@@ -147,7 +147,7 @@ public class JItem {
 		return item == null ? itemId : item.ID();
 	}
 
-	public byte Data() {
+	public short Data() {
 		return item == null ? itemDat : item.Data();
 	}
 
@@ -199,7 +199,7 @@ public class JItem {
 		setInf();
 	}
 
-	public void SetItem(int id, byte data) {
+	public void SetItem(int id, short data) {
 		SetItem(JItems.getItem(id, data));
 	}
 
@@ -307,7 +307,7 @@ public class JItem {
 //        return i == null ? null : new JItem(i);
 //    }
 
-//    public static JItem findItem(int id, byte sub) {
+//    public static JItem findItem(int id, short sub) {
 //        JItems i = JItems.getItem(id, sub);
 //        return i == null ? null : new JItem(i);
 //    }
@@ -423,13 +423,13 @@ public class JItem {
 
 	public ItemStack toItemStack() {
 		return item == null
-				? new ItemStack(itemId, 1, (short) 0, itemDat)
+				? (itemDat <= Byte.MAX_VALUE ? new ItemStack(itemId, 1, (short) 0, (byte) itemDat) : new ItemStack(itemId, 1, itemDat))
 				: (isEntity() ? null : item.toItemStack());
 	}
 
 	public ItemStack toItemStack(int amount) {
 		return item == null
-				? new ItemStack(itemId, amount, (short) 0, itemDat)
+				? (itemDat <= Byte.MAX_VALUE ? new ItemStack(itemId, amount, (short) 0, (byte) itemDat) : new ItemStack(itemId, amount, itemDat))
 				: (isEntity() ? null : item.toItemStack(amount));
 	}
 

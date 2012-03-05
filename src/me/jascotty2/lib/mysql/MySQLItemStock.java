@@ -166,7 +166,7 @@ public class MySQLItemStock extends MySQL {
 
 	public void setAmount(JItem item, long amt) throws SQLException { //
 		if (item != null) {
-			setAmount(item.ID(), item.Data(), item.Name(), amt);
+			setAmount(item.ID(), (byte) item.Data(), item.Name(), amt);
 		}
 	}
 
@@ -211,7 +211,7 @@ public class MySQLItemStock extends MySQL {
 	}
 
 	public boolean itemExists(JItem item) throws SQLException {
-		return item == null ? false : itemExists(item.ID(), item.Data());
+		return item == null ? false : itemExists(item.ID(), (byte) item.Data());
 	}
 
 	public boolean itemExists(int id, byte dat) throws SQLException {

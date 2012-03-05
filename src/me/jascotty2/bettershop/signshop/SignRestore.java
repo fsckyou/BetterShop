@@ -26,13 +26,14 @@ import org.bukkit.Server;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EndermanPickupEvent;
+import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
 /**
@@ -123,9 +124,12 @@ public class SignRestore implements Listener, Runnable {
 		}
 	}
 
-	@EventHandler
-	public void onEndermanPickup(EndermanPickupEvent event) {
-		if (!event.isCancelled() && BetterShop.getSettings().signDestroyProtection) {
+	@EventHandler(priority = EventPriority.LOW)
+	public void onEntityBlockInteract(EntityInteractEvent event) {
+		// ought to work for enderman pickup and other break events, but not sure how to test..
+		if (!event.isCancelled() && event.getBlock() != null 
+				&& !(event.getEntity() instanceof Player)
+				&& BetterShop.getSettings().signDestroyProtection) {
 			if (signs.signExists(event.getBlock().getLocation()) || signs.isSignAnchor(event.getBlock())) {
 				event.setCancelled(true);
 				return;

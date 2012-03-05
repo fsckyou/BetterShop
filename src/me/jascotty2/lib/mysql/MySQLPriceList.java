@@ -85,7 +85,7 @@ public class MySQLPriceList extends MySQL {
 	}
 
 	public PriceListItem getItem(JItem item) throws SQLException, Exception {
-		return item != null ? getItem(item.ID(), item.Data()) : null;
+		return item != null ? getItem(item.ID(), (byte) item.Data()) : null;
 	}
 
 	public PriceListItem getItem(int id, byte dat) throws SQLException, Exception {

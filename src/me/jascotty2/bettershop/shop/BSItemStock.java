@@ -122,11 +122,11 @@ public class BSItemStock extends ItemStock {
 
 	public long freeStockRemaining(ItemStack check) {
 		JItem c = JItemDB.GetItem(check);
-		return c != null ? freeStockRemaining(c.ID(), c.Data()) : -1;
+		return c != null ? freeStockRemaining(c.ID(), (byte) c.Data()) : -1;
 	}
 
 	public long freeStockRemaining(JItem check) {
-		return check != null ? freeStockRemaining(check.ID(), check.Data()) : -1;
+		return check != null ? freeStockRemaining(check.ID(), (byte) check.Data()) : -1;
 	}
 
 	public long freeStockRemaining(int id, byte dat) {

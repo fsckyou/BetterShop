@@ -121,6 +121,18 @@ public class CheckInput {
 		}
 	}
 
+	public static short GetShort(String input, short onError) {
+		if (input == null) {
+			return onError;
+		}
+		try {
+			return Pattern.matches(IntPattern, input) ? Short.parseShort(input) : onError;
+		} catch (NumberFormatException e) {
+			// just in case the number is too large... can never be too careful..
+			return onError;
+		}
+	}
+	
 	public static double GetDouble(String input, double onError) {
 		if (input == null) {
 			return onError;

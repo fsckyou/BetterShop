@@ -18,21 +18,19 @@
 package me.jascotty2.bettershop.spout;
 
 import me.jascotty2.bettershop.utils.BetterShopLogger;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.getspout.spoutapi.event.screen.ButtonClickEvent;
-import org.getspout.spoutapi.event.screen.ScreenListener;
 import org.getspout.spoutapi.event.screen.SliderDragEvent;
 import org.getspout.spoutapi.event.screen.TextFieldChangeEvent;
 
-/**
- * @author jacob
- */
-public class SpoutPopupListener extends ScreenListener {
+public class SpoutPopupListener implements Listener {
 
 	private boolean buttonError = false,
 			sliderError = false,
 			textError = false;
 	
-	@Override
+	@EventHandler
 	public void onButtonClick(ButtonClickEvent event) {
 		try{
 			SpoutPopupDisplay d = SpoutPopupDisplay.getPopup(event.getPlayer());
@@ -45,7 +43,7 @@ public class SpoutPopupListener extends ScreenListener {
 		}
 	}
 
-	@Override
+	@EventHandler
 	public void onSliderDrag(SliderDragEvent event) {
 		try {
 			SpoutPopupDisplay d = SpoutPopupDisplay.getPopup(event.getPlayer());
@@ -58,7 +56,7 @@ public class SpoutPopupListener extends ScreenListener {
 		}
 	}
 	
-	@Override
+	@EventHandler
 	public void onTextFieldChange(TextFieldChangeEvent event){
 		try {
 			SpoutPopupDisplay d = SpoutPopupDisplay.getPopup(event.getPlayer());

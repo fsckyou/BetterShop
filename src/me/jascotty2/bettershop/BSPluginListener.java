@@ -31,7 +31,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.jascotty2.minecraftim.MinecraftIM;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import me.taylorkelly.help.Help;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -110,10 +109,8 @@ class BSPluginListener implements Listener {
 
 				// spout listeners
 				PluginManager pm = shop.getServer().getPluginManager();
-				pm.registerEvent(Event.Type.CUSTOM_EVENT, BetterShop.keyListener,
-						Event.Priority.Normal, shop);
-				pm.registerEvent(Event.Type.CUSTOM_EVENT, BetterShop.buttonListener,
-						Event.Priority.Normal, shop);
+				pm.registerEvents(BetterShop.keyListener, shop);
+				pm.registerEvents(BetterShop.buttonListener, shop);
 
 				BetterShop.chestShop.registerSpout(true);
 

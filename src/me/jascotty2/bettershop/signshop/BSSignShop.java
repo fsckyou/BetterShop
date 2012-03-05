@@ -257,7 +257,7 @@ public class BSSignShop implements Listener {
 											JItem it = JItemDB.GetItem(ite);
 											itemN += it.coloredName() + ", ";
 											total += signInfo.getCustomPrice() >= 0 ? signInfo.getCustomPrice() * ite.getAmount()
-													: shop.pricelist.itemSellPrice(player, it.ID(), it.Data(), ite.getAmount());
+													: shop.pricelist.itemSellPrice(player, it.ID(), (byte) it.Data(), ite.getAmount());
 										}
 									}
 								}

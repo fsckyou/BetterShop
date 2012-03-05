@@ -525,7 +525,7 @@ public class PriceList {
 	}
 
 	public PriceListItem getItemPrice(JItem it) throws SQLException, Exception {
-		return it == null ? null : getItemPrice(it.ID(), it.Data());
+		return it == null ? null : getItemPrice(it.ID(), (byte) it.Data());
 	}
 
 	public PriceListItem getItemPrice(int id, byte dat) throws SQLException, Exception {

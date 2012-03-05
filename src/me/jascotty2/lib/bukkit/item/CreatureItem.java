@@ -38,20 +38,64 @@ import org.bukkit.event.entity.EntityTargetEvent;
  */
 public class CreatureItem extends JItem {
 
-    protected CreatureType type;
+    protected EntityType type;
+	
+	private static EntityType[] entities;
 
-    public CreatureItem(CreatureType creature) {
+    public CreatureItem(EntityType creature) {
         this.type = creature;
         super.name = Str.titleCase(creature.getName());
         super.itemId = 4000 + type.ordinal();
     }
 
-    public CreatureItem(CreatureType creature, String name) {
+    public CreatureItem(EntityType creature, String name) {
         this.type = creature;
         super.name = name;
         super.itemId = 4000 + type.ordinal();
     }
 
+	public static void init() {
+		// all entities, beginning in 1.0
+		entities = new EntityType[] {
+						EntityType.CHICKEN, EntityType.COW,
+						EntityType.CREEPER, EntityType.GHAST,
+						EntityType.GIANT, 
+						EntityType.PIG, EntityType.PIG_ZOMBIE,
+						EntityType.SHEEP, EntityType.SKELETON,
+						EntityType.SLIME, EntityType.SPIDER,
+						EntityType.SQUID, EntityType.ZOMBIE,
+						EntityType.WOLF,
+						EntityType.CAVE_SPIDER, EntityType.ENDERMAN, EntityType.SILVERFISH,
+						EntityType.ENDER_DRAGON, EntityType.VILLAGER,
+						EntityType.BLAZE, EntityType.MUSHROOM_COW,
+						EntityType.MAGMA_CUBE, EntityType.SNOWMAN };
+		// add new entities, and allow backwards-compatibility
+//		try {
+//			EntityType t = EntityType.UNKNOWN;
+//			// success, add to array
+//			ordered = ArrayManip.arrayConcat(ordered,
+//					new EntityType[]{EntityType.UNKNOWN});
+//		} catch (Throwable t) {
+//		}
+	}
+	
+	public static EntityType[] getCreatures() {
+		return entities;
+	}
+	
+	public static EntityType[] getNewEntities() {
+		if(OldEntityType.values().length == EntityType.values().length) {
+			return new EntityType[0];
+		}
+		ArrayList<EntityType> unknown = new ArrayList<EntityType>();
+		for(EntityType e : EntityType.values()) {
+			if(OldEntityType.fromId(e.getTypeId()) == null) {
+				unknown.add(e);
+			}
+		}
+		return unknown.toArray(new EntityType[0]);
+	}
+	
 //    public final void setID(int id) {
 //        if (id < CreatureType.values().length) {
 //            type = CreatureType.values()[id];
@@ -76,7 +120,7 @@ public class CreatureItem extends JItem {
         return type == e.type;
     }
 
-    public boolean equals(CreatureType e) {
+    public boolean equals(EntityType e) {
         return type == e;
     }
 
@@ -127,25 +171,25 @@ public class CreatureItem extends JItem {
         if (search >= 4000) {
             search -= 4000;
         }
-        return search >= 0 && search < CreatureType.values().length;
+        return search >= 0 && search < entities.length;
     }
 
     public static CreatureItem getCreature(int search) {
         if (search >= 4000) {
             search -= 4000;
         }
-        return search >= 0 && search < CreatureType.values().length
-                ? new CreatureItem(CreatureType.values()[search])
-                : new CreatureItem(CreatureType.CHICKEN);
+        return search >= 0 && search < entities.length
+                ? new CreatureItem(entities[search])
+                : new CreatureItem(EntityType.CHICKEN);
     }
 
-    public static CreatureType getCreatureType(int search) {
+    public static EntityType getCreatureType(int search) {
         if (search >= 4000) {
             search -= 4000;
         }
-        return search >= 0 && search < CreatureType.values().length
-                ? CreatureType.values()[search]
-                : CreatureType.CHICKEN;
+        return search >= 0 && search < entities.length
+                ? entities[search]
+                : EntityType.CHICKEN;
     }
 
     public void spawnNewWithOwner(Player owner) {
@@ -169,7 +213,7 @@ public class CreatureItem extends JItem {
         //MonsterTamer.writeUsers();
     }
 
-    public static void spawnNewWithOwner(Player owner, CreatureType toSpawn) {
+    public static void spawnNewWithOwner(Player owner, EntityType toSpawn) {
 
         Location loc = owner.getLocation();
 

@@ -17,9 +17,13 @@
  */
 package me.jascotty2.bettershop.chestshop;
 
+import java.util.List;
 import net.minecraft.server.EntityHuman;
 import net.minecraft.server.IInventory;
 import net.minecraft.server.ItemStack;
+import org.bukkit.craftbukkit.entity.CraftHumanEntity;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.inventory.InventoryHolder;
 
 public class InventorySmallChest implements IInventory {
 	ItemStack items[];String name;
@@ -106,6 +110,24 @@ public class InventorySmallChest implements IInventory {
 	}
 
 	public void g() {
+	}
+
+	public ItemStack splitWithoutUpdate(int i) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	public void onOpen(CraftHumanEntity che) {
+	}
+
+	public void onClose(CraftHumanEntity che) {
+	}
+
+	public List<HumanEntity> getViewers() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	public InventoryHolder getOwner() {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 } // end class InventorySmallChest

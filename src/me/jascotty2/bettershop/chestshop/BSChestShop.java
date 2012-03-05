@@ -40,7 +40,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -98,9 +97,7 @@ public class BSChestShop implements Listener {
 			if (invListen == null) {
 				invListen = new ChestShopInventoryListenerSpout(this);
 
-				plugin.getServer().getPluginManager().
-						registerEvent(Event.Type.CUSTOM_EVENT, invListen,
-						Event.Priority.Normal, plugin);
+				plugin.getServer().getPluginManager().registerEvents(invListen, plugin);
 			}
 		} else if (invListen != null) {
 			invListen = null;
@@ -178,7 +175,7 @@ public class BSChestShop implements Listener {
 		// Get the EntityPlayer handle from the sender
 		EntityPlayer entityplayer = ((CraftPlayer) p).getHandle();
 		// open the "chest"
-		entityplayer.a(chestShop);
+		entityplayer.openContainer(chestShop);
 
 		// save a copy of the chest's current inventory
 		openPlayers.put(p, ItemStackManip.copy(chestShop.getContents()));
