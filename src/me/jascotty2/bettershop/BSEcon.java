@@ -23,22 +23,24 @@ import java.util.Map.Entry;
 import me.jascotty2.bettershop.enums.EconMethod;
 import me.jascotty2.bettershop.utils.BSPermissions;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
+import net.milkbowl.vault.Vault;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 
-/**
- * @author jacob
- */
 public class BSEcon implements Listener {
 
 	protected static Method economyMethod = null;
 	protected static Methods _econMethods = new Methods();
 	protected static String methodName = null;
+	protected static Economy econ = null;
 	// iconomy seems to throw alot of errors...
 	// this is to only display one
 	static boolean _pastBalanceErr = false;
@@ -48,11 +50,31 @@ public class BSEcon implements Listener {
 	public BSEcon(BetterShop plugin) {
 		BSEcon.plugin = plugin;
 		pm = plugin.getServer().getPluginManager();
+		if (setupEconomy()) {
+			methodName = econ.getName();
+			BetterShopLogger.Log("Using " + methodName + " (via Vault) for economy");
+		}
 		Methods.setMethod(pm);
+	}
+
+	private boolean setupEconomy() {
+		Plugin v = plugin.getServer().getPluginManager().getPlugin("Vault");
+		if (!(v instanceof Vault)) {
+			return false;
+		}
+		RegisteredServiceProvider<Economy> rsp = plugin.getServer().getServicesManager().getRegistration(Economy.class);
+		if (rsp == null) {
+			return false;
+		}
+		econ = rsp.getProvider();
+		return econ != null;
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPluginEnable(PluginEnableEvent event) {
+		if (econ != null) {
+			return;
+		}
 		if (!Methods.hasMethod() && Methods.setMethod(plugin.getServer().getPluginManager())) {
 			economyMethod = Methods.getMethod();
 			methodName = economyMethod.getName() + " v" + economyMethod.getVersion();
@@ -62,6 +84,9 @@ public class BSEcon implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPluginDisable(PluginDisableEvent event) {
+		if (econ != null) {
+			return;
+		}
 		// Check to see if the plugin thats being disabled is the one we are using
 		if (_econMethods != null && Methods.hasMethod() && Methods.checkDisabled(event.getPlugin())) {
 			economyMethod = null;
@@ -72,7 +97,7 @@ public class BSEcon implements Listener {
 	}
 
 	public static boolean active() {
-		return BetterShop.config.econ != EconMethod.AUTO || economyMethod != null;
+		return BetterShop.config.econ != EconMethod.AUTO || econ != null || economyMethod != null;
 	}
 
 	public static String getMethodName() {
@@ -87,6 +112,7 @@ public class BSEcon implements Listener {
 
 	public static boolean hasAccount(Player pl) {
 		return pl != null && (BetterShop.config.econ != EconMethod.AUTO
+				|| (econ != null && econ.hasAccount(pl.getName()))
 				|| (economyMethod != null && economyMethod.hasAccount(pl.getName())));
 	}
 
@@ -123,7 +149,9 @@ public class BSEcon implements Listener {
 			return p == null ? 0 : p.getTotalExperience();
 		}
 		try {
-			if (economyMethod != null && economyMethod.hasAccount(playerName)) {
+			if (econ != null && econ.hasAccount(playerName)) {
+				return econ.getBalance(playerName);
+			} else if (economyMethod != null && economyMethod.hasAccount(playerName)) {
 				return economyMethod.getAccount(playerName).balance();
 			}
 		} catch (Exception e) {
@@ -161,6 +189,12 @@ public class BSEcon implements Listener {
 			if (pl != null) {
 				pl.setTotalExperience(pl.getTotalExperience() + (int) amt);
 			}
+		} else if (econ != null) {
+			if (!econ.hasAccount(playerName)) {
+				// TODO? add methods for creating an account
+				return;
+			}
+			econ.depositPlayer(playerName, amt);
 		} else if (economyMethod != null) {
 			if (!economyMethod.hasAccount(playerName)) {
 				// TODO? add methods for creating an account
@@ -213,6 +247,12 @@ public class BSEcon implements Listener {
 					pl.setTotalExperience(0);
 				}
 			}
+		} else if (econ != null) {
+			if (!econ.hasAccount(playerName)) {
+				// TODO? add methods for creating an account
+				return;
+			}
+			econ.withdrawPlayer(playerName, amt);
 		} else if (economyMethod != null) {
 			if (!economyMethod.hasAccount(playerName)) {
 				// TODO? add methods for creating an account
@@ -318,7 +358,9 @@ public class BSEcon implements Listener {
 
 	public static String format(double amt) {
 		try {
-			if (economyMethod != null) {
+			if (econ != null) {
+				return econ.format(amt);
+			} else if (economyMethod != null) {
 				return economyMethod.format(amt);
 			}
 			return String.format("%.2f", amt) + " "

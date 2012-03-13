@@ -1,9 +1,9 @@
 name: BetterShop
 main: me.jascotty2.bettershop.BetterShop
-version: 2.1.2
+version: 2.1.3
 website: http://github.com/BetterShop/BetterShop
 author: jascotty2
-softdepend: [Spout]
+softdepend: [Spout, Vault]
 description: >
              BetterShop is a global command-based shop for Bukkit.
              Supports Permissions, iConomy, BOSEconomy, MultiCurrency, 

@@ -295,6 +295,7 @@ public class JItemDB {
 		for (Material m : Material.values()) {
 			String idd = m.getId() + ":0";
 			if (!items.containsKey(idd)) {
+				//System.out.println("new item: " + idd + " - " + m.name());
 				items.put(idd, new JItem(m));
 			}
 		}

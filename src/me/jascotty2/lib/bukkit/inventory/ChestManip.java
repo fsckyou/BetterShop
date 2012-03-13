@@ -113,24 +113,30 @@ public class ChestManip {
 		if(iss.length == 27) {
 			chest.getInventory().setContents(iss);
 		} else if (iss.length == 27 * 2) {
-			ItemStack iss1[] = new ItemStack[27];
-			ItemStack iss2[] = new ItemStack[27];
-			System.arraycopy(iss, 0, iss1, 0, iss1.length);
-			System.arraycopy(iss, 27, iss2, 0, iss2.length);
+			// new bukkit changed this method completely.. :/
+			//ItemStack iss1[] = new ItemStack[27];
+			//ItemStack iss2[] = new ItemStack[27];
+			//System.arraycopy(iss, 0, iss1, 0, iss1.length);
+			//System.arraycopy(iss, 27, iss2, 0, iss2.length);
+			
 			Chest otherChest = otherChest(chest.getBlock());
 			if (otherChest == null) {
-				chest.getInventory().setContents(iss1);
+				//chest.getInventory().setContents(iss1);
+				chest.getInventory().setContents(iss);
 			} else {
 				if (!useOrder || topChest(chest) == chest) {
-					chest.getInventory().setContents(iss1);
-					otherChest.getInventory().setContents(iss2);
+					//chest.getInventory().setContents(iss1);
+					//otherChest.getInventory().setContents(iss2);
+					chest.getInventory().setContents(iss);
 				} else {
-					otherChest.getInventory().setContents(iss1);
-					chest.getInventory().setContents(iss2);
+					//otherChest.getInventory().setContents(iss1);
+					//chest.getInventory().setContents(iss2);
+					otherChest.getInventory().setContents(iss);
 				}
 			}
 		}
 	}
+	
 	
 	public synchronized static void addContents(Chest chest, ItemStack is) {
 		Chest otherChest = otherChest(chest.getBlock());

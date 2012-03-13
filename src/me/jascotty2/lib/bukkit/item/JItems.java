@@ -188,6 +188,8 @@ public enum JItems {
 	END_PORTAL_FRAME("End Portal Frame", 120, false),
 	END_STONE("End Stone", 121, false),
 	DRAGON_EGG("Dragon Egg", 122, false),
+	REDSTONE_LAMP_ON("Redstone Lamp ON", 123, false),
+	REDSTONE_LAMP_OFF("Redstone Lamp", 124, "331@4+89"),
 	// Items
 	IRON_SPADE("Iron Shovel", 256, "280@2+265", (short) 251),
 	IRON_PICKAXE("Iron Pickaxe", 257, "280@2+265@3", (short) 251),
@@ -389,6 +391,11 @@ public enum JItems {
 	SPAWN_EGG_MUSHROOMCOW("MushroomCow Egg", 383, (short) 95, false),
 	SPAWN_EGG_SNOWMAN("SnowMan Egg", 383, (short) 96, false),
 	SPAWN_EGG_VILLAGER("Villager Egg", 383, (short) 97, false),
+	SPAWN_EGG_OCELOT("Ocelot Egg", 383, (short) 98, false),
+	SPAWN_EGG_IRON_GOLEM("Iron Golem Egg", 383, (short) 99, false), // will be added later (not yet implemented in mc)
+	
+	EXP_BOTTLE("Bottle o' Enchanting", 384, false), // (Experience bottle)
+	FIREBALL("Fire Charge", 385, "377+289+263=3, 377+289+263:1=3"),
 
 	// Records
 	GOLD_RECORD("13 Disk", 2256, 1), // Gold Record

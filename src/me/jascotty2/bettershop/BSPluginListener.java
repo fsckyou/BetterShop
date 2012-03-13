@@ -31,16 +31,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.jascotty2.minecraftim.MinecraftIM;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import me.taylorkelly.help.Help;
+import net.milkbowl.vault.Vault;
+import net.milkbowl.vault.permission.Permission;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.getspout.spout.Spout;
 
-/**
- * @author jacob
- */
 class BSPluginListener implements Listener {
 
 	BetterShop shop;
@@ -48,6 +48,7 @@ class BSPluginListener implements Listener {
 	public BSPluginListener(BetterShop plugin) {
 		shop = plugin;
 		PluginManager pm = plugin.getServer().getPluginManager();
+		checkVaultPermissions(pm.getPlugin("Vault"));
 		checkPermissions(pm.getPlugin("Permissions"));
 		checkMIM(pm.getPlugin("MinecraftIM"));
 		checkSpout(pm.getPlugin("Spout"));
@@ -86,13 +87,26 @@ class BSPluginListener implements Listener {
 		}
 	}
 
+	public final void checkVaultPermissions(Plugin p) {
+		if (BSPermissions.vaultPerms == null && p instanceof Vault) {
+			RegisteredServiceProvider<Permission> rsp = p.getServer().getServicesManager().getRegistration(Permission.class);
+			if(rsp != null) {
+				BSPermissions.vaultPerms = rsp.getProvider();
+				if(BSPermissions.vaultPerms != null) {
+					BetterShopLogger.Log("Attached to " + BSPermissions.vaultPerms.getName() + " via Vault.");
+				}
+			}
+		}
+	}
+
 	public final void checkPermissions(Plugin p) {
-		if (BSPermissions.permissionsPlugin == null && p instanceof Permissions) {
+		if (BSPermissions.vaultPerms == null && 
+				BSPermissions.permissionsPlugin == null && p instanceof Permissions) {
 			BSPermissions.permissionsPlugin = (Permissions) p;
 			BetterShopLogger.Log("Attached to Permissions.");
 		}
 	}
-
+	
 	public final void checkSpout(Plugin p) {
 		if (BetterShop.keyListener == null && p instanceof Spout) {
 

@@ -956,6 +956,15 @@ items:
     item383sub97:
         name: Villager Egg
         aliases: 
+    item383sub98:
+        name: Ocelot Egg
+        aliases: categg
+    item384:
+        name: Bottle o' Enchanting
+        aliases: BottleofEnchanting, experiencebottle, experience
+    item385:
+        name: Fire Charge
+        aliases: fireball
     item2256:
         name: 13 Disk
         aliases: goldrecord, golddisk, grecord, gdisk
