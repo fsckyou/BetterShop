@@ -345,8 +345,7 @@ public class BSEcon implements Listener {
 		double preAmt = BSEcon.getBalance(player);
 		if (amount > 0 || preAmt >= -amount) {
 			BSEcon.addMoney(player, amount);
-			if (BetterShop.config.econ == EconMethod.AUTO
-					&& BetterShop.getSettings().BOSBank != null
+			if (BetterShop.getSettings().BOSBank != null
 					&& BSEcon.economyMethod.hasBanks()
 					&& BSEcon.economyMethod.hasBank(BetterShop.getSettings().BOSBank)) {
 				BSEcon.addMoney(BetterShop.getSettings().BOSBank, -amount);
