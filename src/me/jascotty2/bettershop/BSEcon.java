@@ -278,27 +278,10 @@ public class BSEcon implements Listener {
 			return amount == 0 || debit(player, -amount);
 		}
 		if (BSEcon.active()) {
-			try {
 				if (bankTransaction(player.getName(), amount)) {
 					return true;
 				}
-			} catch (Exception ex) {
-				BetterShopLogger.Severe("Failed to credit player", ex, false);
-				return true;
-			}
-			BetterShopLogger.Severe("Failed to credit player", false);
-			// something seems to be wrong with iConomy: reload it
-//			BetterShopLogger.Log(Level.SEVERE, "Failed to credit player: attempting iConomy reload", false);
-//			if (reloadIConomy(player.getServer())) {
-//				try {
-//					if (bankTransaction(player.getName(), amount)) {
-//						return true;
-//					}
-//				} catch (Exception ex) {
-//				}
-//			}
-//			BetterShopLogger.Log(Level.SEVERE, "iConomy reload failed to resolve issue.", false);
-		} else {
+			} else {
 			BetterShopLogger.Severe("Failed to credit player: no economy plugin", false);
 			return false;
 		}
@@ -312,28 +295,10 @@ public class BSEcon implements Listener {
 			return false;
 		}
 		if (BSEcon.active()) {
-			try {
 				if (bankTransaction(player.getName(), -amount)) {
 					return true;
 				}
-			} catch (Exception ex) {
-				BetterShopLogger.Severe("Failed to debit player", ex, false);
-				return true;
-			}
-			BetterShopLogger.Severe("Failed to debit player", false);
-
-			// something seems to be wrong with iConomy: reload it
-//			BetterShopLogger.Log(Level.SEVERE, "Failed to debit player: attempting iConomy reload", false);
-//			if (reloadIConomy(player.getServer())) {
-//				try {
-//					if (bankTransaction(player.getName(), -amount)) {
-//						return true;
-//					}
-//				} catch (Exception ex) {
-//				}
-//			}
-//			BetterShopLogger.Log(Level.SEVERE, "iConomy reload failed to resolve issue.", false);
-		} else {
+			} else {
 			BetterShopLogger.Severe("Failed to debit player: no economy plugin", false);
 			return false;
 		}
@@ -345,8 +310,8 @@ public class BSEcon implements Listener {
 		double preAmt = BSEcon.getBalance(player);
 		if (amount > 0 || preAmt >= -amount) {
 			BSEcon.addMoney(player, amount);
-			if (BetterShop.config.econ == EconMethod.AUTO
-					&& BetterShop.getSettings().BOSBank != null
+			if (BetterShop.getSettings().BOSBank != null
+					//^ iConomy uses no banks even with vault
 					&& BSEcon.economyMethod.hasBanks()
 					&& BSEcon.economyMethod.hasBank(BetterShop.getSettings().BOSBank)) {
 				BSEcon.addMoney(BetterShop.getSettings().BOSBank, -amount);
