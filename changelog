@@ -2,7 +2,13 @@
 BetterShop Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
-Version 2.1.3 - ?
+Version 2.1.4 - ?
+Fixed misleading error message from spamming console
+- was caused from checking if empty-string bank exists in vault
+
+
+
+Version 2.1.3 - 3/13/12
 updated chest methods for new bukkit system
 added Vault support
 added new items

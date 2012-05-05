@@ -155,6 +155,23 @@ public class CheckInput {
 			return onError;
 		}
 	}
+	
+	public static boolean GetBoolean(String input, boolean onError) {
+		if (input == null) {
+			return onError;
+		}
+		try {
+			return Boolean.parseBoolean(input);
+		} catch (NumberFormatException e) {
+			input.toLowerCase();
+			if(IsInt(input)) {
+				return GetInt(input, 0) != 0;
+			}
+			if(input.equals("t") || input.equals("true")) return true;
+			if(input.equals("f") || input.equals("false")) return false;
+			return onError;
+		}
+	}
 
 	public static BigInteger GetBigInt(String str, long defaultNum) {
 		if (str == null) {

@@ -25,6 +25,7 @@ import me.jascotty2.bettershop.utils.BSPermissions;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 import net.milkbowl.vault.Vault;
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -347,9 +348,17 @@ public class BSEcon implements Listener {
 			BSEcon.addMoney(player, amount);
 			if (BetterShop.config.econ == EconMethod.AUTO
 					&& BetterShop.getSettings().BOSBank != null
-					&& BSEcon.economyMethod.hasBanks()
-					&& BSEcon.economyMethod.hasBank(BetterShop.getSettings().BOSBank)) {
-				BSEcon.addMoney(BetterShop.getSettings().BOSBank, -amount);
+					&& !BetterShop.getSettings().BOSBank.trim().isEmpty()
+					&& hasBank(BetterShop.getSettings().BOSBank)) {
+				if (economyMethod != null) {
+					BSEcon.addMoney(BetterShop.getSettings().BOSBank, -amount);
+				} else if (econ != null) {
+					if (amount < 0) {
+						econ.bankWithdraw(BetterShop.getSettings().BOSBank, -amount);
+					} else {
+						econ.bankDeposit(BetterShop.getSettings().BOSBank, -amount);
+					}
+				}
 			}
 			return BSEcon.getBalance(player) != preAmt;
 		}
@@ -370,6 +379,19 @@ public class BSEcon implements Listener {
 			BetterShopLogger.Warning("Error Formatting Currency", ex, false);
 		}
 		return String.format("%.2f", amt);
+	}
+
+	public static boolean hasBank(String bank) {
+//		return economyMethod != null 
+//				? economyMethod.hasBanks() && economyMethod.hasBank(bank)
+//				: econ != null ? econ.hasBankSupport() && econ.getBanks().contains(bank) : false;
+
+		if (economyMethod != null) {
+			return economyMethod.hasBanks() && economyMethod.hasBank(bank);
+		} else if (econ != null && econ.hasBankSupport()) {
+			return econ.bankBalance(bank).transactionSuccess();
+		}
+		return false;
 	}
 //
 //	static boolean reloadIConomy(Server serv) {

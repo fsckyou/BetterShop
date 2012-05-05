@@ -130,5 +130,8 @@ public class InventorySmallChest implements IInventory {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
+	public void setMaxStackSize(int i) {
+	}
+
 } // end class InventorySmallChest
 
