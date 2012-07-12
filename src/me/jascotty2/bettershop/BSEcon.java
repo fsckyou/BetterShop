@@ -25,7 +25,6 @@ import me.jascotty2.bettershop.utils.BSPermissions;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 import net.milkbowl.vault.Vault;
 import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -265,11 +264,13 @@ public class BSEcon implements Listener {
 
 	public static double getPlayerDiscount(Player p) {
 		if (p != null && !BSPermissions.has(p, "BetterShop.discount.none")) {
+			double discount = Double.NEGATIVE_INFINITY;
 			for (Entry<String, Double> g : BetterShop.getSettings().groups.entrySet()) {
 				if (BSPermissions.has(p, "BetterShop.discount." + g.getKey())) {
-					return g.getValue();
+					if(g.getValue() > discount) discount = g.getValue();
 				}
 			}
+			if(discount > Double.NEGATIVE_INFINITY) return discount;
 		}
 		return 0;
 	}

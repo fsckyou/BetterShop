@@ -2,10 +2,10 @@
 BetterShop Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
-Version 2.1.4 - ?
+Version 2.1.4 - 7/12/12 (actually 5/4/12.. sorry about that)
 Fixed misleading error message from spamming console
 - was caused from checking if empty-string bank exists in vault
-
+added multi-discount checking: the highest of the player's groups' discount is applied
 
 
 Version 2.1.3 - 3/13/12
