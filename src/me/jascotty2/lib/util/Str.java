@@ -514,6 +514,9 @@ public class Str extends OutputStream {
 	}
 
 	public static String titleCase(String str) {
+		if (str == null) {
+			throw new IllegalArgumentException("Error: String cannot be null");
+		}
 		StringBuilder ret = new StringBuilder();
 		boolean st = true;
 		for (char c : str.toLowerCase().toCharArray()) {

@@ -48,6 +48,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Collection;
 
+import me.jascotty2.bettershop.enums.ShopMethod;
 import me.jascotty2.lib.bukkit.item.JItemDB;
 import me.jascotty2.lib.bukkit.item.CreatureItem.EntityListen;
 import me.jascotty2.lib.bukkit.commands.CommandException;
@@ -63,7 +64,7 @@ import me.jascotty2.lib.util.Str;
  */
 public class BetterShop extends JavaPlugin {
 
-	public final static String lastUpdatedStr = "01/27/12 05:40 -0500"; // "MM/dd/yy HH:mm Z"
+	public final static String lastUpdatedStr = "07/12/12 08:40 -0500"; // "MM/dd/yy HH:mm Z"
 	public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
 	protected static Plugin bettershopPlugin = null;
 	protected final static BSConfig config = new BSConfig();
@@ -71,6 +72,7 @@ public class BetterShop extends JavaPlugin {
 	protected static BSSignShop signShop = null;
 	protected static BSChestShop chestShop = null;
 	protected static BSEcon economy;
+	protected static TransactionHandler shopHandler;
 	private BSPluginListener pListener = null;
 	// for animal/monster purchases
 	public final EntityListen entityListener = new EntityListen();
@@ -80,6 +82,7 @@ public class BetterShop extends JavaPlugin {
 	protected static SpoutKeyListener keyListener = null;
 	protected static SpoutPopupListener buttonListener = null;
 
+	@Override
 	public void onEnable() {
 		bettershopPlugin = this;
 		PluginDescriptionFile pdfFile = this.getDescription();
@@ -126,7 +129,10 @@ public class BetterShop extends JavaPlugin {
 				Updater.Check();
 			}
 		}
+		
 		economy = new BSEcon(this);
+		shopHandler = new TransactionHandler(economy, shopManager);
+		
 		if (shopManager.load() > 0) {
 			BetterShopLogger.Severe("Error while enabling Shop");
 		}
@@ -162,16 +168,10 @@ public class BetterShop extends JavaPlugin {
 		BetterShopLogger.Info(pdfFile.getName() + " version "
 				+ pdfFile.getVersion() + " is enabled!");
 
-//		//sendErrorReport("Test Error", new Exception());
-//		// usage stats tracking :)
-//		if (config.sendErrorReports) { // setting to allow privacy-minded people some privacy..
-//			me.jascotty2.lib.bukkit.FTP_PluginTracker.queueSend(this);
-//		}
-		// new plugin tracking method that bothers someone else's server ;)
-		//com.arandomappdev.bukkitstats.CallHome.load(this);
 		com.randomappdev.pluginstats.Ping.init(this);
 	}
 
+	@Override
 	public void onDisable() {
 		// NOTE: All registered events are automatically unregistered when a plugin is disabled
 		try {
@@ -383,6 +383,10 @@ public class BetterShop extends JavaPlugin {
 	public static boolean spoutEnabled(){
 		return buttonListener != null;
 	}
+	
+	public static TransactionHandler.TransactionResult executeTransaction(Player player, PlayerTransation action, ShopMethod method) {
+		return shopHandler.execute(player, action, method);
+	}
 
 	public static int reload(CommandSender sender) {
 		int errors = 0;
@@ -447,18 +451,4 @@ public class BetterShop extends JavaPlugin {
 			}
 		}
 	}
-
-//	static class phoneHome implements Runnable {
-//
-//		Plugin plugin;
-//
-//		public phoneHome(Plugin p) {
-//			plugin = p;
-//		}
-//
-//		@Override
-//		public void run() {
-//			com.arandomappdev.bukkitstats.CallHome.load(plugin);
-//		}
-//	}
 }

@@ -89,7 +89,9 @@ public class CreatureItem extends JItem {
 		}
 		ArrayList<EntityType> unknown = new ArrayList<EntityType>();
 		for(EntityType e : EntityType.values()) {
-			if(OldEntityType.fromId(e.getTypeId()) == null) {
+			if(OldEntityType.fromId(e.getTypeId()) == null
+					&& e.isAlive()
+					&& e.getName() != null) {
 				unknown.add(e);
 			}
 		}

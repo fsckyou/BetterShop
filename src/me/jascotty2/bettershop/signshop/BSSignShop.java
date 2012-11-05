@@ -20,7 +20,7 @@ package me.jascotty2.bettershop.signshop;
 import me.jascotty2.lib.bukkit.item.JItem;
 import me.jascotty2.lib.bukkit.item.JItemDB;
 import me.jascotty2.lib.bukkit.item.ItemStockEntry;
-import me.jascotty2.bettershop.utils.BSPermissions;
+import me.jascotty2.bettershop.BSPermissions;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 import me.jascotty2.bettershop.enums.BetterShopPermission;
 import me.jascotty2.bettershop.BSConfig;

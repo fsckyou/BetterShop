@@ -19,7 +19,7 @@
 package me.jascotty2.bettershop.commands;
 
 import java.util.logging.Logger;
-import me.jascotty2.bettershop.utils.BSPermissions;
+import me.jascotty2.bettershop.BSPermissions;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 import me.jascotty2.lib.bukkit.commands.CommandManager;
 import org.bukkit.command.CommandSender;

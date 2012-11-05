@@ -20,7 +20,6 @@ package me.jascotty2.bettershop;
 import me.jascotty2.bettershop.commands.HelpCommands;
 import me.jascotty2.bettershop.spout.SpoutKeyListener;
 import me.jascotty2.bettershop.spout.SpoutPopupListener;
-import me.jascotty2.bettershop.utils.BSPermissions;
 import me.jascotty2.bettershop.utils.BetterShopErrorTracker;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 

@@ -2,6 +2,10 @@
 BetterShop Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
+Version 2.1.4 - 2.1.4.1
+quick fix to work with 1.4
+
+
 Version 2.1.4 - 7/12/12 (actually 5/4/12.. sorry about that)
 Fixed misleading error message from spamming console
 - was caused from checking if empty-string bank exists in vault

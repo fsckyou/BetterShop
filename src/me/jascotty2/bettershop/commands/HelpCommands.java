@@ -22,7 +22,7 @@ import me.jascotty2.bettershop.BSConfig;
 import me.jascotty2.bettershop.BSutils;
 import me.jascotty2.bettershop.BetterShop;
 import me.jascotty2.bettershop.enums.BetterShopPermission;
-import me.jascotty2.bettershop.utils.BSPermissions;
+import me.jascotty2.bettershop.BSPermissions;
 import me.jascotty2.lib.bukkit.commands.Command;
 import me.jascotty2.lib.util.Str;
 //import me.taylorkelly.help.Help;

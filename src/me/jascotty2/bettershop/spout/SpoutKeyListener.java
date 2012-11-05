@@ -24,7 +24,7 @@ import java.util.logging.Level;
 import me.jascotty2.bettershop.BSutils;
 import me.jascotty2.bettershop.BetterShop;
 import me.jascotty2.bettershop.enums.BetterShopPermission;
-import me.jascotty2.bettershop.utils.BSPermissions;
+import me.jascotty2.bettershop.BSPermissions;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

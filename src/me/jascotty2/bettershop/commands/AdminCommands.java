@@ -29,7 +29,7 @@ import me.jascotty2.bettershop.BetterShop.ServerReload;
 import me.jascotty2.bettershop.Updater;
 import me.jascotty2.bettershop.enums.BetterShopPermission;
 import me.jascotty2.bettershop.shop.Shop;
-import me.jascotty2.bettershop.utils.BSPermissions;
+import me.jascotty2.bettershop.BSPermissions;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 import me.jascotty2.lib.bukkit.commands.Command;
 import me.jascotty2.lib.bukkit.commands.NestedCommand;

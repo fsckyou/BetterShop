@@ -87,6 +87,19 @@ public class ItemStackManip {
 		return amt;
 	}
 
+	public static int count(ItemStack[] items, JItem check, int start, int end) {
+		if (check == null) {
+			return emptySlots(items);
+		}
+		int amt = 0;
+		for (int i = start >= 0 ? start : 0; i < items.length && i <= end; ++i) {
+			ItemStack item = items[i];
+			if (item != null && check.equals(item)) {
+				amt += item.getAmount();
+			}
+		}
+		return amt;
+	}
 	/**
 	 * count how many times this material occurs in the ItemStack
 	 * @param items

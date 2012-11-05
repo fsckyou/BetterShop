@@ -20,7 +20,7 @@ package me.jascotty2.bettershop.signshop;
 
 import java.util.List;
 import me.jascotty2.bettershop.BetterShop;
-import me.jascotty2.bettershop.utils.BSPermissions;
+import me.jascotty2.bettershop.BSPermissions;
 import me.jascotty2.bettershop.enums.BetterShopPermission;
 import org.bukkit.Server;
 import org.bukkit.block.Block;

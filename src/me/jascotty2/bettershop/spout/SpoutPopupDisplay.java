@@ -19,7 +19,7 @@ package me.jascotty2.bettershop.spout;
 
 import me.jascotty2.bettershop.BetterShop;
 import me.jascotty2.bettershop.enums.BetterShopPermission;
-import me.jascotty2.bettershop.utils.BSPermissions;
+import me.jascotty2.bettershop.BSPermissions;
 
 import me.jascotty2.lib.bukkit.item.PriceListItem;
 import me.jascotty2.lib.bukkit.MinecraftChatStr;

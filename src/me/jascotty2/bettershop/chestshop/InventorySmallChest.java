@@ -133,5 +133,8 @@ public class InventorySmallChest implements IInventory {
 	public void setMaxStackSize(int i) {
 	}
 
+	public void startOpen() {
+	}
+
 } // end class InventorySmallChest
 
