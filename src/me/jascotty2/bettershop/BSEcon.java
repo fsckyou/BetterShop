@@ -24,6 +24,7 @@ import me.jascotty2.bettershop.enums.EconMethod;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 import net.milkbowl.vault.Vault;
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -39,7 +40,7 @@ public class BSEcon implements Listener {
 	protected static Method economyMethod = null;
 	protected static Methods _econMethods = new Methods();
 	protected static String methodName = null;
-	protected static Economy econ = null;
+	protected static Economy vaultEcon = null;
 	// iconomy seems to throw alot of errors...
 	// this is to only display one
 	static boolean _pastBalanceErr = false;
@@ -50,7 +51,7 @@ public class BSEcon implements Listener {
 		BSEcon.plugin = plugin;
 		pm = plugin.getServer().getPluginManager();
 		if (setupEconomy()) {
-			methodName = econ.getName();
+			methodName = vaultEcon.getName();
 			BetterShopLogger.Log("Using " + methodName + " (via Vault) for economy");
 		}
 		Methods.setMethod(pm);
@@ -65,13 +66,13 @@ public class BSEcon implements Listener {
 		if (rsp == null) {
 			return false;
 		}
-		econ = rsp.getProvider();
-		return econ != null;
+		vaultEcon = rsp.getProvider();
+		return vaultEcon != null;
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPluginEnable(PluginEnableEvent event) {
-		if (econ != null) {
+		if (vaultEcon != null) {
 			return;
 		}
 		if (!Methods.hasMethod() && Methods.setMethod(plugin.getServer().getPluginManager())) {
@@ -83,7 +84,7 @@ public class BSEcon implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPluginDisable(PluginDisableEvent event) {
-		if (econ != null) {
+		if (vaultEcon != null) {
 			return;
 		}
 		// Check to see if the plugin thats being disabled is the one we are using
@@ -96,7 +97,7 @@ public class BSEcon implements Listener {
 	}
 
 	public static boolean active() {
-		return BetterShop.config.econ != EconMethod.AUTO || econ != null || economyMethod != null;
+		return BetterShop.config.econ != EconMethod.AUTO || vaultEcon != null || economyMethod != null;
 	}
 
 	public static String getMethodName() {
@@ -111,7 +112,7 @@ public class BSEcon implements Listener {
 
 	public static boolean hasAccount(Player pl) {
 		return pl != null && (BetterShop.config.econ != EconMethod.AUTO
-				|| (econ != null && econ.hasAccount(pl.getName()))
+				|| (vaultEcon != null && vaultEcon.hasAccount(pl.getName()))
 				|| (economyMethod != null && economyMethod.hasAccount(pl.getName())));
 	}
 
@@ -148,8 +149,8 @@ public class BSEcon implements Listener {
 			return p == null ? 0 : p.getTotalExperience();
 		}
 		try {
-			if (econ != null && econ.hasAccount(playerName)) {
-				return econ.getBalance(playerName);
+			if (vaultEcon != null && vaultEcon.hasAccount(playerName)) {
+				return vaultEcon.getBalance(playerName);
 			} else if (economyMethod != null && economyMethod.hasAccount(playerName)) {
 				return economyMethod.getAccount(playerName).balance();
 			}
@@ -188,12 +189,23 @@ public class BSEcon implements Listener {
 			if (pl != null) {
 				pl.setTotalExperience(pl.getTotalExperience() + (int) amt);
 			}
-		} else if (econ != null) {
-			if (!econ.hasAccount(playerName)) {
+		} else if (vaultEcon != null) {
+			if (!vaultEcon.hasAccount(playerName)) {
 				// TODO? add methods for creating an account
 				return;
 			}
-			econ.depositPlayer(playerName, amt);
+//			EconomyResponse r;
+			if(amt >= 0) {
+//				r = 
+						vaultEcon.depositPlayer(playerName, amt);
+			} else {
+//				r = 
+						vaultEcon.withdrawPlayer(playerName, -amt);
+			}
+//			System.out.println(r.type);
+//			System.out.println(r.errorMessage);
+//			System.out.println(r.amount);
+//			System.out.println(r.balance);
 		} else if (economyMethod != null) {
 			if (!economyMethod.hasAccount(playerName)) {
 				// TODO? add methods for creating an account
@@ -246,12 +258,26 @@ public class BSEcon implements Listener {
 					pl.setTotalExperience(0);
 				}
 			}
-		} else if (econ != null) {
-			if (!econ.hasAccount(playerName)) {
+		} else if (vaultEcon != null) {
+			if (!vaultEcon.hasAccount(playerName)) {
 				// TODO? add methods for creating an account
 				return;
 			}
-			econ.withdrawPlayer(playerName, amt);
+			EconomyResponse r;
+//			System.out.println("subtract(" + playerName + ", " + amt + ")");
+			if(amt >= 0) {
+//				r = 
+						vaultEcon.withdrawPlayer(playerName, amt);
+			} else {
+//				r = 
+						vaultEcon.depositPlayer(playerName, -amt);
+			}
+			
+//			System.out.println(r.type);
+//			System.out.println(r.errorMessage);
+//			System.out.println(r.amount);
+//			System.out.println(r.balance);
+			
 		} else if (economyMethod != null) {
 			if (!economyMethod.hasAccount(playerName)) {
 				// TODO? add methods for creating an account
@@ -352,11 +378,11 @@ public class BSEcon implements Listener {
 					&& hasBank(BetterShop.getSettings().BOSBank)) {
 				if (economyMethod != null) {
 					BSEcon.addMoney(BetterShop.getSettings().BOSBank, -amount);
-				} else if (econ != null) {
+				} else if (vaultEcon != null) {
 					if (amount < 0) {
-						econ.bankWithdraw(BetterShop.getSettings().BOSBank, -amount);
+						vaultEcon.bankWithdraw(BetterShop.getSettings().BOSBank, -amount);
 					} else {
-						econ.bankDeposit(BetterShop.getSettings().BOSBank, -amount);
+						vaultEcon.bankDeposit(BetterShop.getSettings().BOSBank, -amount);
 					}
 				}
 			}
@@ -367,8 +393,8 @@ public class BSEcon implements Listener {
 
 	public static String format(double amt) {
 		try {
-			if (econ != null) {
-				return econ.format(amt);
+			if (vaultEcon != null) {
+				return vaultEcon.format(amt);
 			} else if (economyMethod != null) {
 				return economyMethod.format(amt);
 			}
@@ -388,8 +414,8 @@ public class BSEcon implements Listener {
 
 		if (economyMethod != null) {
 			return economyMethod.hasBanks() && economyMethod.hasBank(bank);
-		} else if (econ != null && econ.hasBankSupport()) {
-			return econ.bankBalance(bank).transactionSuccess();
+		} else if (vaultEcon != null && vaultEcon.hasBankSupport()) {
+			return vaultEcon.bankBalance(bank).transactionSuccess();
 		}
 		return false;
 	}
