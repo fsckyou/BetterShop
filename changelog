@@ -2,6 +2,10 @@
 BetterShop Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
+Version 2.1.4.3 - 11/16/12
+Updated internal item definitions - should resolve unknown item errors
+
+
 Version 2.1.4.2 - 11/10/12
 fixed a vault-specific logic error that caused purchases to be free
 

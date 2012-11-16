@@ -35,9 +35,13 @@ public enum JItems {
 	DIRT("Dirt", 3),
 	COBBLESTONE("Cobblestone", 4),
 	WOOD("Wood", 5, "17=4"),
+	SPRUCE_WOOD("Spruce Wood", 5, (short) 1, "17:1=4"),
+	BIRCH_WOOD("Birch Wood", 5, (short) 2, "17:2=4"),
+	JUNGLE_WOOD("Jungle Wood", 5, (short) 3, "17:3=4"),
 	SAPLING("Sapling", 6, (short) 0),
 	SPRUCE_SAPLING("Spruce Sapling", 6, (short) 1),
 	PINE_SAPLING("Pine Sapling", 6, (short) 2),
+	JUNGLE_SAPLING("Jungle Sapling", 6, (short) 3),
 	BEDROCK("Bedrock", 7, false),
 	WATER("Water", 8, false),
 	STATIONARY_WATER("Stationary Water", 9, false),
@@ -49,17 +53,21 @@ public enum JItems {
 	IRON_ORE("Iron Ore", 15),
 	COAL_ORE("Coal Ore", 16, false),
 	LOG("Log", 17, (short) 0),
-	REDWOOD_LOG("Spruce Log", 17, (short) 1),
+	SPRUCE_LOG("Spruce Log", 17, (short) 1),
 	BIRCH_LOG("Birch Log", 17, (short) 2),
+	JUNGLE_LOG("Jungle Log", 17, (short) 3),
 	LEAVES("Leaves", 18, (short) 0),
-	REDWOOD_LEAVES("Spruce Leaves", 18, (short) 1),
+	SPRUCE_LEAVES("Spruce Leaves", 18, (short) 1),
 	BIRCH_LEAVES("Birch Leaves", 18, (short) 2),
+	JUNGLE_LEAVES("Jungle Leaves", 18, (short) 3),
 	SPONGE("Sponge", 19, false),
 	GLASS("Glass", 20, "12@8+263=8, 12@3+5@2=3, 12@12+369=12"),
 	LAPIS_ORE("Lapis Lazuli Ore", 21, false),
 	LAPIS_BLOCK("Lapis Lazuli Block", 22, "351:11@9"),
 	DISPENSER("Dispenser", 23, "4@7+331+261"),
 	SANDSTONE("Sandstone", 24, "12@4"),
+	CHISELED_SANDSTONE("Chiseled Sandstone", 24, (short) 1),
+	SMOOTH_SANDSTONE("Smooth Sandstone", 24, (short) 1, "24@4"),
 	NOTE_BLOCK("Note Block", 25, "5@8+331"),
 	BED_BLOCK("Bed Block", 26, false),
 	POWERED_RAIL("Powered Rail", 27, "266@6+331+280=6"),
@@ -161,9 +169,12 @@ public enum JItems {
 	LOCKED_CHEST("Locked Chest", 95, false),
 	TRAPDOOR("Trapdoor", 96, "5@6=2"),
 	SILVERFISH_STONE("Silverfish Stone", 97, false),
+	SILVERFISH_COBBLESTONE("Silverfish Cobblestone", 97, (short) 1, false),
+	SILVERFISH_STONEBRICK("Silverfish Stone Brick", 97, (short) 2, false),
 	STONE_BRICK("Stone Brick", 98, (short) 0, "1@4=4"),
 	MOSSY_STONE_BRICK("Mossy Stone Brick", 98, (short) 1),
 	CRACKED_STONE_BRICK("Cracked Stone Brick", 98, (short) 2),
+	CHISELED_STONE_BRICK("Chiseled Stone Brick", 98, (short) 3),
 	BROWN_MUSHROOM_BLOCK("Brown Mushroom Block", 99, false),
 	RED_MUSHROOM_BLOCK("Red Mushroom Block", 100, false),
 	IRON_BARS("Iron Bars", 101, "265@6=16"),
@@ -190,6 +201,29 @@ public enum JItems {
 	DRAGON_EGG("Dragon Egg", 122, false),
 	REDSTONE_LAMP_ON("Redstone Lamp ON", 123, false),
 	REDSTONE_LAMP_OFF("Redstone Lamp", 124, "331@4+89"),
+	// legacy support.. not bothering with crafting recipies for now..
+	WOODEN_DOUBLE_SLAB("Wooden Double Slab", 125),
+	WOODEN_SLAB("Wooden Slab", 126),
+	COCOA_POD("Cocoa Pod", 127, false),
+	SANDSTONE_STAIRS("Sandstone Stairs", 128),
+	EMERALD_ORE("Emerald Ore", 129, false),
+	ENDER_CHEST("Ender Chest", 130),
+	TRIPWIRE_HOOK("Tripwire Hook", 131),
+	EMERALD_BLOCK("Emerald Block", 133),
+	SPRUCE_WOODEN_STAIRS("Spruce Wood Stairs", 134),
+	BIRCH_WOOD_STAIRS("Birch Wood Stairs", 135),
+	JUNGLE_WOOD_STAIRS("Jungle Wood Stairs", 136),
+	COMMAND_BLOCK("Command Block", 137, false),
+	BEACON_BLOCK("Beacon", 138),
+	COBBLESTONE_WALL("Cobblestone Wall", 139),
+	FLOWER_POT_BLOCK("Flower Pot", 140, false),
+	WOODEN_BUTTON("Wooden Button", 143),
+	SKELETON_HEAD_BLOCK("Skeleton Head", 144, false),
+	WITHER_SKELETON_HEAD_BLOCK("Wither Skeleton Head", 144, (short) 1, false),
+	ZOMBIE_HEAD_BLOCK("Zombie Head", 144, (short) 2, false),
+	HUMAN_HEAD_BLOCK("Human Head", 144, (short) 3, false),
+	CREEPER_HEAD_BLOCK("Creeper Head", 144, (short) 4, false),
+	ANVIL("Anvil", 145),
 	// Items
 	IRON_SPADE("Iron Shovel", 256, "280@2+265", (short) 251),
 	IRON_PICKAXE("Iron Pickaxe", 257, "280@2+265@3", (short) 251),
@@ -332,7 +366,7 @@ public enum JItems {
 	POTION_FIRERESISTANCE("Fire Resistance Potion", 373, (short) 3), // Potion of Fire Resistance (3:00)
 	POTION_POISON("Poison Potion", 373, (short) 4), // Potion of Poison (0:45)
 	POTION_HEAL("Health Potion", 373, (short) 5), // Potion of Healing (Instant Health)
-	POTION_CLEAR("Clear Potion", 373, (short) 6), // Clear Potion (no effects)
+	POTION_CLEAR("Potion of Night Vision", 373, (short) 6), 
 	POTION_CLEAR_2("Clear Potion", 373, (short) 7), // Clear Potion (no effects)
 	POTION_WEAKNESS("Weakness Potion", 373, (short) 8), // Potion of Weakness (1:30)
 	POTION_DAMEGEBOOST("Strength Potion", 373, (short) 9), // Potion of Strength (3:00)
@@ -340,7 +374,7 @@ public enum JItems {
 	POTION_DIFFUSE("Diffuse Potion", 373, (short) 11), // Diffuse Potion (no effects)
 	POTION_HARM("Harm Potion", 373, (short) 12), // Potion of Harming (Instant Damage)
 	POTION_ARTLESS("Artless Potion", 373, (short) 13), // Artless Potion (no effects)
-	POTION_THIN("Thin Potion", 373, (short) 14), // Thin Potion (no effects)
+	POTION_THIN("Potion of Invisibility", 373, (short) 14),
 	POTION_THIN_2("Thin Potion", 373, (short) 15), // Thin Potion (no effects)
 	POTION_AWKWARD("Awkward Potion", 373, (short) 16), // Awkward Potion (no effects)
 	POTION_REGENERATION_2("Regeneration Potion", 373, (short) 17), // Potion of Regeneration (0:45)
@@ -396,7 +430,26 @@ public enum JItems {
 	
 	EXP_BOTTLE("Bottle o' Enchanting", 384, false), // (Experience bottle)
 	FIREBALL("Fire Charge", 385, "377+289+263=3, 377+289+263:1=3"),
-
+	// legacy support: not bothering with crafting recipies for now
+	BOOK_AND_QUILL("Book and Quill", 386),
+	WRITTEN_BOOK("Written Book", 387),
+	EMERALD("Emerald", 388),
+	ITEM_FRAME("Item Frame", 389),
+	FLOWER_POT("Flower Pot", 390),
+	CARROT("Carrot", 391),
+	POTATO("Potato", 392),
+	BAKED_POTATO("Baked Potato", 393),
+	POISONOUS_POTATO("Poisonous Potato", 394),
+	EMPTY_MAP("Empty Map", 395),
+	GOLDEN_CARROT("Golden Carrot", 396),
+	SKELETON_HEAD("Skeleton Head", 397),
+	WITHER_SKELETON_HEAD("Wither Skeleton Head", 397, (short) 1),
+	ZOMBIE_HEAD("Zombie Head", 397, (short) 2),
+	HUMAN_HEAD("Human Head", 397, (short) 3),
+	CREEPER_HEAD("Creeper Head", 397, (short) 4),
+	CARROT_ON_A_STICK("Carrot on a Stick", 398, (short) 26),
+	NETHER_STAR("Nether Star", 399),
+	PUMPKIN_PIE("Pumpkin Pie", 400),
 	// Records
 	GOLD_RECORD("13 Disk", 2256, 1), // Gold Record
 	GREEN_RECORD("Cat Disc", 2257, 1), // Green Record
@@ -426,7 +479,7 @@ public enum JItems {
 		283, 284, 285, 286, 290, 291, 292, 293, 294,
 		298, 299, 300, 301, 302, 303, 304, 305,
 		306, 307, 308, 309, 310, 311, 312, 313,
-		314, 315, 316, 317, 346, 359};
+		314, 315, 316, 317, 346, 359, 398};
 	// items (other than tools) that aren't good to stack
 	private static int[] unsafeStack = new int[]{
 		282, 325, 326, 327, 335};
