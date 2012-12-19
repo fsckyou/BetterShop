@@ -2,6 +2,10 @@
 BetterShop Changelog:  (the (?) means plugin didn't report that as the version.. sorry :))
 ===============================================================================
 
+Version 2.1.5 - 12/19/12
+Updated to work with craftbukkit 1.4.5-R1.0
+
+
 Version 2.1.4.4 - 11/26/12
 Changed internal name for heads definitions - was causing name conflicts
 

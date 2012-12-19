@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.entity.CraftWolf;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -198,14 +197,14 @@ public class CreatureItem extends JItem {
         //CreatureType toSpawn
         Location loc = owner.getLocation();
 
-		LivingEntity e = owner.getWorld().spawnCreature(loc, type);
+		Entity e = owner.getWorld().spawnEntity(loc, type);//.spawnCreature(loc, type);
         if (e instanceof Creature){ //type == CreatureType.SLIME || type == CreatureType.GHAST) {
             addFriends(owner, e);
         } else {
             Creature creature = (Creature) e;
 
-            if (creature instanceof CraftWolf) {
-                ((CraftWolf) creature).setOwner(owner);
+            if (creature instanceof Wolf) {
+                ((Wolf) creature).setOwner(owner);
                 creature.setHealth(20);
             } else {
                 addFriends(owner, creature);
@@ -221,8 +220,8 @@ public class CreatureItem extends JItem {
 
         LivingEntity c = owner.getWorld().spawnCreature(loc, toSpawn);
 
-        if (c instanceof CraftWolf) {
-            ((CraftWolf) c).setOwner(owner);
+        if (c instanceof Wolf) {
+            ((Wolf) c).setOwner(owner);
             c.setHealth(20);
             //UpdatedWolf w = new UpdatedWolf((Wolf) c);
             //Logger.getAnonymousLogger().info(String.valueOf(w.getHandle().health) + w.getHandle().y());
@@ -245,7 +244,7 @@ public class CreatureItem extends JItem {
     // entity id, attacking name
     public static ConcurrentHashMap<Integer, String> targets = new ConcurrentHashMap<Integer, String>();
 
-    public static void addFriends(Player p, LivingEntity c) {
+    public static void addFriends(Player p, Entity c) {
         //ArrayList<Integer> array = friends.containsKey(p.getName()) ? friends.get(p.getName()) : new ArrayList<Integer>();
         if (friends.containsKey(p.getName())) {
             friends.get(p.getName()).add(c.getEntityId());
