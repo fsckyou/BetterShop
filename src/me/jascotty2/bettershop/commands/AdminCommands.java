@@ -42,6 +42,7 @@ import me.jascotty2.lib.util.Str;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * @author jacob
@@ -390,6 +391,22 @@ public class AdminCommands {
 
 	}
 
+	@Command(commands = {},
+	aliases = {"inventory", "inv"},
+	desc = "Print Inventory to the screen (debugging)",
+	permissions = {"BetterShop.admin.inv", "jascotty2", "jjfs85"})
+	public static void inv(CommandSender sender, String[] s) {
+		if(!(sender instanceof Player)) {
+			sender.sendMessage("Must be a player");
+		} else {
+			ItemStack[] inv = ((Player)sender).getInventory().getContents();
+			for(int i = 0; i < inv.length; ++i) {
+				sender.sendMessage(String.format("%2d: %s", i, inv[i] == null ? "null" : inv[i].getTypeId() + ":" + inv[i].getData().getData() + " " + inv[i].getItemMeta().getDisplayName() + " (" + inv[i].getAmount() + ")  " + JItemDB.GetItemName(inv[i])));
+				BetterShop.getPlugin().getLogger().info(String.format("%2d: %s", i, inv[i] == null ? "null" : inv[i].getTypeId() + ":" + inv[i].getData().getData() + " " + inv[i].getItemMeta()+ " (" + inv[i].getAmount() + ")  " + JItemDB.GetItemName(inv[i])));
+			}
+		}
+	}
+	
 	@Command(commands = {},
 	aliases = {"define", "d", "def"},
 	desc = "generic define command")

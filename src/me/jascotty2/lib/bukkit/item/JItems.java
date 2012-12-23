@@ -450,6 +450,10 @@ public enum JItems {
 	CARROT_ON_A_STICK("Carrot on a Stick", 398, (short) 26),
 	NETHER_STAR("Nether Star", 399),
 	PUMPKIN_PIE("Pumpkin Pie", 400),
+	// 1.4.6
+	FIREWORK_ROCKET("Firework Rocket", 401),
+	FIREWORK_STAR("Firework Star", 402),
+	ENCHANTED_BOOK("Enchanted Book", 403),
 	// Records
 	GOLD_RECORD("13 Disk", 2256, 1), // Gold Record
 	GREEN_RECORD("Cat Disc", 2257, 1), // Green Record

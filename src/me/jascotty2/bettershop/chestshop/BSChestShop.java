@@ -31,14 +31,14 @@ import me.jascotty2.lib.bukkit.item.JItem;
 import me.jascotty2.lib.bukkit.item.JItemDB;
 import me.jascotty2.lib.bukkit.shop.UserTransaction;
 
-import net.minecraft.server.v1_4_5.EntityPlayer;
-import net.minecraft.server.v1_4_5.IInventory;
-import net.minecraft.server.v1_4_5.InventoryLargeChest;
+import net.minecraft.server.v1_4_6.EntityPlayer;
+import net.minecraft.server.v1_4_6.IInventory;
+import net.minecraft.server.v1_4_6.InventoryLargeChest;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
-import org.bukkit.craftbukkit.v1_4_5.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_4_6.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerDropItemEvent;
