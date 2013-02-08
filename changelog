@@ -11,9 +11,10 @@ removed auto library download if using MySQL
 fixed erroneous buy price display when buying from a category & can't afford an item
 fixed buyall category to properly buy all items that the user can buy
 changed debit/credit to ignore negative amounts, in case of any other negative bugs
+changed tracking to mcstats: https://mcstats.org/plugin/BetterShop
 
 
-Version 2.1.5 - 12/23/12
+Version 2.1.5.1 - 12/23/12
 Updated to work with craftbukkit 1.4.6-R0.1
 added an admin debug command - for listing the player's inventory
 

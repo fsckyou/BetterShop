@@ -57,6 +57,7 @@ import me.jascotty2.lib.bukkit.commands.MissingNestedCommandException;
 import me.jascotty2.lib.bukkit.commands.WrappedCommandException;
 import me.jascotty2.lib.util.ArrayManip;
 import me.jascotty2.lib.util.Str;
+import org.mcstats.Metrics;
 
 /**
  * BetterShop for Bukkit
@@ -138,7 +139,12 @@ public class BetterShop extends JavaPlugin {
 		BetterShopLogger.Info(pdfFile.getName() + " version "
 				+ pdfFile.getVersion() + " is enabled!");
 
-		com.randomappdev.pluginstats.Ping.init(this);
+		try {
+			Metrics metrics = new Metrics(this);
+			metrics.start();
+		} catch (IOException e) {
+			// Failed to submit the stats :-(
+		}
 	}
 
 	@Override
