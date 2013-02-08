@@ -445,7 +445,7 @@ public class SellCommands {
 			JItem selling = JItemDB.GetItem(it);
 			double price = 0;
 			if (selling == null) {
-				BetterShopLogger.Log(Level.SEVERE, "Unexpected unknown inventory item: " + it, false);
+				BetterShopLogger.Log(Level.SEVERE, "Unexpected unknown inventory item: " + it);
 				continue;
 			}
 
@@ -472,7 +472,7 @@ public class SellCommands {
 				}
 			}
 			if (amtLeft > 0) {
-				BetterShopLogger.Severe("Not all Items Sold: " + amtLeft + " " + selling.Name() + " left..", false);
+				BetterShopLogger.Severe("Not all Items Sold: " + amtLeft + " " + selling.Name() + " left..");
 			}
 			int numSold = it.getAmount() - amtLeft;
 			itemN += selling.coloredName() + ", ";

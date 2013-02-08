@@ -26,7 +26,6 @@ import me.jascotty2.bettershop.BSEcon;
 import me.jascotty2.bettershop.BetterShop;
 import me.jascotty2.bettershop.BSutils;
 import me.jascotty2.bettershop.BetterShop.ServerReload;
-import me.jascotty2.bettershop.Updater;
 import me.jascotty2.bettershop.enums.BetterShopPermission;
 import me.jascotty2.bettershop.shop.Shop;
 import me.jascotty2.bettershop.BSPermissions;
@@ -247,7 +246,7 @@ public class AdminCommands {
 			return shop.pricelist.saveFile(new File(BSConfig.pluginFolder.getPath()
 					+ File.separatorChar + saveAs));
 		} catch (IOException ex) {
-			BetterShopLogger.Severe("Failed to save backup file " + saveAs, ex, false);
+			BetterShopLogger.Severe("Failed to save backup file " + saveAs, ex);
 		}
 		return false;
 	}
@@ -349,33 +348,6 @@ public class AdminCommands {
 	}
 
 	@Command(commands = {},
-	aliases = {"update"},
-	desc = "Download & Install an update from git",
-	usage = "",
-	permissions = {"OP"})
-	public static void update(CommandSender sender, String[] s) {
-		if (sender.isOp()) {
-			BetterShopLogger.Log("Downloading & Installing Update");
-			BSutils.sendMessage(sender, "Downloading & Installing Update");
-			ServerReload sreload = new ServerReload(BetterShop.getPlugin().getServer());
-			if (Updater.DownloadUpdate()) {
-				BetterShopLogger.Log("Update Downloaded: Restarting Server..");
-				BSutils.sendMessage(sender, "Download Successful.. reloading server");
-				// this.setEnabled(false);
-				// this.getServer().dispatchCommand((CommandSender)
-				// new CommanderSenderImpl(this), "stop");
-				// this.getServer().dispatchCommand(new
-				// AdminCommandSender(this), "stop");
-
-				// this.getServer().reload();
-				sreload.start(500);
-			}
-		} else {
-			BSutils.sendMessage(sender, "Only an OP can update the shop plugin");
-		}
-	}
-
-	@Command(commands = {},
 	aliases = {"version", "v", "ver"},
 	desc = "Check the current version",
 	permissions = {"BetterShop.admin.info", "jascotty2", "jjfs85"})
@@ -383,12 +355,6 @@ public class AdminCommands {
 		// allow admin.info or developers access to plugin status
 		// (so if i find a bug i can see if it's current)
 		BSutils.sendMessage(sender, "version " + BetterShop.getPlugin().getDescription().getVersion());
-		if (Updater.IsUpToDate()) {
-			BSutils.sendMessage(sender, "Version is up-to-date");
-		} else {
-			BSutils.sendMessage(sender, "Newer Version Avaliable");
-		}
-
 	}
 
 	@Command(commands = {},

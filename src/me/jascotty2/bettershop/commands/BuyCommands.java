@@ -466,12 +466,13 @@ public class BuyCommands {
 			List<ItemStockEntry> canBuy = new ArrayList<ItemStockEntry>();
 
 			String notWant = "", noStock = "";
+			double bal = BSEcon.getBalance(player);
 			for (JItem i : toBuy) {
 				if (BetterShop.getPricelist(player.getLocation()).canBuy(i)) {
 					int buyamt = amt;
+					long avail = -1;
 					// check if heve enough to buy
 					if (BetterShop.getSettings().useItemStock) {
-						long avail = -1;
 						try {
 							avail = shop.stock.getItemAmount(i);
 						} catch (Exception ex) {
@@ -481,11 +482,18 @@ public class BuyCommands {
 						if (avail == 0) {
 							noStock += i.coloredName() + ", ";
 							continue;
-						} else if (avail >= 0 && amt > avail) {
+						} else if (avail > 0 && amt > avail) {
 							buyamt = (int) avail;
 						}
 					}
-					canBuy.add(new ItemStockEntry(i, buyamt));
+					if (buyamt < 0) {
+						int canHold = shop.pricelist.getAmountCanBuy(player, bal, i, customPrice);
+						buyamt = canHold > avail ? (int) avail : canHold;
+						bal -= shop.pricelist.itemBuyPrice(player, i, buyamt);
+					} 
+					if(buyamt > 0) {
+						canBuy.add(new ItemStockEntry(i, buyamt));
+					}
 				} else if (i != null) {
 					notWant += i.coloredName() + ", ";
 				}
@@ -538,7 +546,7 @@ public class BuyCommands {
 					// not in diff: can't be added
 					over += JItemDB.GetItemColoredName(i.itemNum, i.itemSub) + ", ";
 					overamt += i.amount;
-					buyprice += BetterShop.getPricelist(player.getLocation()).itemBuyPrice(player, toBuy[0], 1) * i.amount;
+					//buyprice += BetterShop.getPricelist(player.getLocation()).itemBuyPrice(player, toBuy[0], 1) * i.amount;
 					i.amount = 0;
 				} else {
 					if (i.amount > diff.get(j).getAmount()) {
@@ -595,10 +603,10 @@ public class BuyCommands {
 			int buyAmt = maxAmt > 0 && ite.amount > maxAmt ? (int) maxAmt : (int) ite.amount;
 			double itemCost = customPrice >= 0 ? customPrice * buyAmt
 					: shop.pricelist.itemBuyPrice(player, it, buyAmt);
-			amtBought += buyAmt;
-			price += itemCost;
 			// buy
 			if (BSEcon.debit(player, itemCost)) {
+				amtBought += buyAmt;
+				price += itemCost;
 				itemN += it.coloredName() + ", ";
 				if (it.isEntity()) {
 					CreatureItem c = CreatureItem.getCreature(it.ID());

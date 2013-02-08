@@ -25,7 +25,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import me.jascotty2.bettershop.BSConfig;
 import me.jascotty2.bettershop.BetterShop;
-import me.jascotty2.lib.util.Str;
 
 /**
  * @author jacob
@@ -67,36 +66,36 @@ public class BetterShopLogger extends Logger {
 	public synchronized void log(Level level, String message, Object param) {
 		//super.log(level, message == null ? null : String.format(logFormat, message), param);
 		//_logger.log(level, message == null ? null : String.format(logFormat, message), param);
-		Log(level, message, param, true);
+		Log(level, message, param);
 	}
 
 	@Override
 	public synchronized void log(Level level, String message, Object[] params) {
 		//super.log(level, message == null ? null : String.format(logFormat, message), params);
 		//_logger.log(level, message == null ? null : String.format(logFormat, message), params);
-		Log(level, message, params, true);
+		Log(level, message, params);
 	}
 
 	@Override
 	public synchronized void log(Level level, String message, Throwable thrown) {
 		//super.log(level, message == null ? null : String.format(logFormat, message), thrown);
 		//_logger.log(level, message == null ? null : String.format(logFormat, message), thrown);
-		Log(level, message, thrown, true);
+		Log(level, message, thrown);
 	}
 
 	@Override
 	public synchronized void severe(String msg) {
-		Log(Level.SEVERE, msg, null, true);
+		Log(Level.SEVERE, msg, null);
 	}
 
 	@Override
 	public synchronized void warning(String msg) {
-		Log(Level.WARNING, msg, null, true);
+		Log(Level.WARNING, msg, null);
 	}
 
 	@Override
 	public synchronized void info(String msg) {
-		Log(Level.INFO, msg, null, true);
+		Log(Level.INFO, msg, null);
 	}
 
 	@Override
@@ -106,17 +105,17 @@ public class BetterShopLogger extends Logger {
 
 	@Override
 	public synchronized void fine(String msg) {
-		Log(Level.FINE, msg, null, true);
+		Log(Level.FINE, msg, null);
 	}
 
 	@Override
 	public synchronized void finer(String msg) {
-		Log(Level.FINER, msg, null, true);
+		Log(Level.FINER, msg, null);
 	}
 
 	@Override
 	public synchronized void finest(String msg) {
-		Log(Level.FINEST, msg, null, true);
+		Log(Level.FINEST, msg, null);
 	}
 
 	public static Logger getLogger() {
@@ -124,90 +123,59 @@ public class BetterShopLogger extends Logger {
 	}
 
 	public static void Fine(String msg) {
-		Log(Level.FINE, msg, null, true);
+		Log(Level.FINE, msg, null);
 	}
 
 	public static void Info(String msg) {
-		Log(Level.INFO, msg, (Throwable) null, true);
+		Log(Level.INFO, msg, (Throwable) null);
 	}
 
 	public static void Warning(String msg) {
-		Log(Level.WARNING, msg, null, true);
+		Log(Level.WARNING, msg, null);
 	}
 
 	public static void Warning(Exception err) {
-		Log(Level.WARNING, null, err, true);
+		Log(Level.WARNING, null, err);
 	}
 
 	public static void Warning(String msg, Throwable err) {
-		Log(Level.WARNING, msg, err, true);
+		Log(Level.WARNING, msg, err);
 	}
 
-	public static void Warning(String msg, Throwable err, boolean sendReport) {
-		Log(Level.WARNING, msg, err, sendReport);
-	}
 
 	public static void Severe(String msg) {
-		Log(Level.SEVERE, msg, null, true);
+		Log(Level.SEVERE, msg, null);
 	}
 
 	public static void Severe(Exception err) {
-		Log(Level.SEVERE, null, err, true);
+		Log(Level.SEVERE, null, err);
 	}
 
 	public static void Severe(String msg, Throwable err) {
-		Log(Level.SEVERE, msg, err, true);
-	}
-
-	public static void Severe(String msg, boolean sendReport) {
-		Log(Level.SEVERE, msg, null, sendReport);
-	}
-
-	public static void Severe(Exception err, boolean sendReport) {
-		Log(Level.SEVERE, null, err, sendReport);
-	}
-
-	public static void Severe(String msg, Throwable err, boolean sendReport) {
-		Log(Level.SEVERE, msg, err, sendReport);
+		Log(Level.SEVERE, msg, err);
 	}
 
 	public static void Log(String msg) {
-		Log(Level.INFO, msg, null, true);
+		Log(Level.INFO, msg, null);
 	}
 
 	public static void Log(String msg, Throwable err) {
-		Log(Level.INFO, msg, err, true);
+		Log(Level.INFO, msg, err);
 	}
 
 	public static void Log(Level loglevel, String msg) {
-		Log(loglevel, msg, null, true);
-	}
-
-	public static void Log(Level loglevel, String msg, boolean sendReport) {
-		Log(loglevel, msg, null, sendReport);
-	}
-
-	public static void Log(Level loglevel, String msg, Exception err) {
-		Log(loglevel, msg, err, true);
-	}
-
-	public static void Log(Level loglevel, String msg, Throwable err) {
-		Log(loglevel, msg, err, true);
+		Log(loglevel, msg, null);
 	}
 
 	public static void Log(Level loglevel, Exception err) {
-		Log(loglevel, null, err, true);
+		Log(loglevel, null, err);
 	}
 
 	public static void Log(Level loglevel, Throwable err) {
-		Log(loglevel, null, err, true);
+		Log(loglevel, null, err);
 	}
 
-	public static void Log(Level loglevel, Throwable err, boolean sendReport) {
-		Log(loglevel, null, err, sendReport);
-	}
-
-	public static void Log(Level loglevel, String msg, Object params, boolean sendReport) {
+	public static void Log(Level loglevel, String msg, Object params) {
 		if (params != null && params instanceof Throwable) {
 			Throwable err = (Throwable) params;
 			if (msg == null) {
@@ -216,38 +184,18 @@ public class BetterShopLogger extends Logger {
 			} else {
 				_logger.log(loglevel, String.format(logFormat, msg), err);
 			}
-			if (sendReport) {
-				_sendlog(loglevel, msg, null);
-			}
 		} else if (msg == null) {
 			_logger.log(loglevel, String.format(logFormat), params);
 		} else {
 			_logger.log(loglevel, String.format(logFormat, msg), params);
-			if (sendReport) {
-				_sendlog(loglevel, msg, null);
-			}
 		}
 	}
 
-	public static void Log(Level loglevel, String msg, Object[] params, boolean sendReport) {
+	public static void Log(Level loglevel, String msg, Object[] params) {
 		if (msg == null) {
 			_logger.log(loglevel, String.format(logFormat), params);
 		} else {
 			_logger.log(loglevel, String.format(logFormat, msg), params);
-		}
-	}
-
-	private static void _sendlog(Level loglevel, String msg, Throwable err) {
-		if (loglevel.intValue() > Level.WARNING.intValue()
-				&& BetterShop.getSettings().sendErrorReports) {
-			BetterShopErrorTracker.sendErrorReport(null, err);
-		}
-		if (BetterShop.getSettings().sendLogOnError
-				&& loglevel.intValue() > Level.INFO.intValue()
-				&& BetterShopErrorTracker.canSendNotification()) {
-			BetterShopErrorTracker.sendNotification(String.format(logFormat,
-					(err == null ? "? unknown exception ?" : err.getMessage())
-					+ "\n" + Str.getStackStr(err)));
 		}
 	}
 
@@ -266,7 +214,7 @@ public class BetterShopLogger extends Logger {
 						BetterShop.getSettings().commandFilename), true);
 				commlog_out = new BufferedWriter(commlog_fstream);
 			} catch (IOException ex) {
-				Log(Level.SEVERE, "Failed to open logfile for writing", ex, false);
+				Log(Level.SEVERE, "Failed to open logfile for writing", ex);
 				commlog_fstream = null;
 				commlog_out = null;
 				return;
@@ -276,7 +224,7 @@ public class BetterShopLogger extends Logger {
 			commlog_out.write(commandLogStr(playername, command));
 			commlog_out.newLine();
 		} catch (IOException ex) {
-			BetterShopLogger.Log(Level.SEVERE, "Failed to write to logfile", ex, false);
+			BetterShopLogger.Log(Level.SEVERE, "Failed to write to logfile", ex);
 		}
 	}
 

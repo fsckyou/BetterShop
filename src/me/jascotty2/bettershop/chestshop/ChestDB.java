@@ -24,8 +24,6 @@ import me.jascotty2.lib.io.FileIO;
 import me.jascotty2.lib.io.CheckInput;
 import me.jascotty2.lib.bukkit.inventory.ChestManip;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -81,10 +79,6 @@ public class ChestDB {
 					}
 				}
 				return true;
-			} catch (FileNotFoundException ex) {
-				BetterShopLogger.Log(Level.SEVERE, ex, false);
-			} catch (IOException ex) {
-				BetterShopLogger.Log(Level.SEVERE, ex, false);
 			} catch (Exception ex) {
 				BetterShopLogger.Log(Level.SEVERE, ex);
 			}

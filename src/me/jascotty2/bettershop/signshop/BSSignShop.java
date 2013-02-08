@@ -125,7 +125,7 @@ public class BSSignShop implements Listener {
 										try {
 											stock = shop.stock.getItemAmount(signInfo.item);
 										} catch (Exception ex) {
-											BetterShopLogger.Severe("Error in Stock Database", ex, false);
+											BetterShopLogger.Severe("Error in Stock Database", ex);
 										}
 
 										long amt = signInfo.getCustomPrice() == 0 ? Long.MAX_VALUE

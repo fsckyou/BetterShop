@@ -224,7 +224,7 @@ public class ShopSign {
 					try {
 						avail = shop.stock.getItemAmount(item);
 					} catch (Exception ex) {
-						BetterShopLogger.Log(Level.SEVERE, ex, false);
+						BetterShopLogger.Log(Level.SEVERE, ex);
 					}
 					if (avail == 0) {
 						BSutils.sendMessage(player, BetterShop.getSettings().getString("outofstock").

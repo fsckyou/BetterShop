@@ -592,7 +592,7 @@ public class ItemStackManip {
 	 * @param minecraftItemStack
 	 * @return
 	 */
-	public static ItemStack[] copy(net.minecraft.server.v1_4_6.ItemStack[] minecraftItemStack) {
+	public static ItemStack[] copy(net.minecraft.server.v1_4_R1.ItemStack[] minecraftItemStack) {
 		ItemStack[] invCpy = new ItemStack[minecraftItemStack.length];
 		for (int i = 0; i < minecraftItemStack.length; ++i) {
 			invCpy[i] = minecraftItemStack[i] == null ? null

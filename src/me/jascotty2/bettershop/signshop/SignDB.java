@@ -120,20 +120,20 @@ public class SignDB {
 									}
 								}
 							} catch (Exception e) {
-								BetterShopLogger.Severe("Invalid Sign while Loading: " + e.getMessage(), false);
+								BetterShopLogger.Severe("Invalid Sign while Loading: " + e.getMessage());
 							}
 						}
 					}
 
 				} catch (Exception e) {
-					BetterShopLogger.Log(Level.SEVERE, "Unexpected Error while Loading Signs", e, false);
+					BetterShopLogger.Log(Level.SEVERE, "Unexpected Error while Loading Signs", e);
 				}
 
 				return true;
 			} catch (FileNotFoundException ex) {
-				BetterShopLogger.Log(Level.SEVERE, ex, false);
+				BetterShopLogger.Log(Level.SEVERE, ex);
 			} catch (IOException ex) {
-				BetterShopLogger.Log(Level.SEVERE, ex, false);
+				BetterShopLogger.Log(Level.SEVERE, ex);
 			} catch (Exception ex) {
 				BetterShopLogger.Log(Level.SEVERE, ex);
 			}

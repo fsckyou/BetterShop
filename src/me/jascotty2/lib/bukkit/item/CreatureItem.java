@@ -67,7 +67,11 @@ public class CreatureItem extends JItem {
 						EntityType.CAVE_SPIDER, EntityType.ENDERMAN, EntityType.SILVERFISH,
 						EntityType.ENDER_DRAGON, EntityType.VILLAGER,
 						EntityType.BLAZE, EntityType.MUSHROOM_COW,
-						EntityType.MAGMA_CUBE, EntityType.SNOWMAN };
+						EntityType.MAGMA_CUBE, EntityType.SNOWMAN,
+		
+						EntityType.WITHER, EntityType.BAT, EntityType.WITCH, EntityType.VILLAGER
+						
+		};
 		// add new entities, and allow backwards-compatibility
 //		try {
 //			EntityType t = EntityType.UNKNOWN;

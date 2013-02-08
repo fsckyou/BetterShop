@@ -25,7 +25,6 @@ import me.jascotty2.bettershop.shop.BSItemStock;
 import me.jascotty2.bettershop.shop.BSPriceList;
 import me.jascotty2.bettershop.spout.SpoutKeyListener;
 import me.jascotty2.bettershop.spout.SpoutPopupListener;
-import me.jascotty2.bettershop.utils.BetterShopErrorTracker;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 import me.jascotty2.bettershop.commands.BSCommandManager;
 import me.jascotty2.bettershop.commands.HelpCommands;
@@ -64,8 +63,6 @@ import me.jascotty2.lib.util.Str;
  */
 public class BetterShop extends JavaPlugin {
 
-	public final static String lastUpdatedStr = "11/26/12 17:00 -0500"; // "MM/dd/yy HH:mm Z"
-	public final static int lastUpdated_gracetime = 20; // how many minutes off before out of date
 	protected static Plugin bettershopPlugin = null;
 	protected final static BSConfig config = new BSConfig();
 	protected final static RegionShopManager shopManager = new RegionShopManager();
@@ -96,39 +93,12 @@ public class BetterShop extends JavaPlugin {
 			JItemDB.load(BSConfig.itemDBFile);
 			// Log("Itemsdb loaded");
 		} catch (Exception e) {
-			BetterShopLogger.Severe("cannot load items db: closing plugin", e, false);
+			BetterShopLogger.Severe("cannot load items db: closing plugin", e);
 			this.setEnabled(false);
 			return;
 		}
 
 		config.load();
-		if (config.checkUpdates) {
-			BetterShopLogger.Log("Checking for updates...");
-			if (config.autoUpdate) {
-				if (!Updater.IsUpToDate(true)) {
-					BetterShopLogger.Log("Downloading & Installing Update");
-					ServerReload sreload = new ServerReload(getServer());
-					if (Updater.DownloadUpdate()) {
-						BetterShopLogger.Log("Update Downloaded: Restarting Server..");
-						// this.setEnabled(false);
-						// this.getServer().dispatchCommand((CommandSender) new
-						// CommanderSenderImpl(this), "stop");
-						// this.getServer().dispatchCommand(new
-						// AdminCommandSender(this), "stop");
-
-						try {
-							// (new ServerReload(getServer())).start(500);
-							sreload.start(500);
-						} catch (Exception e) { // just in case...
-							this.getServer().reload();
-						}
-						return;
-					}
-				}
-			} else {
-				Updater.Check();
-			}
-		}
 		
 		economy = new BSEcon(this);
 		shopHandler = new TransactionHandler(economy, shopManager);
@@ -139,7 +109,7 @@ public class BetterShop extends JavaPlugin {
 		signShop = new BSSignShop(this);
 
 		if (config.signShopEnabled && !signShop.load()) {
-			BetterShopLogger.Severe("cannot load sign shop database", false);
+			BetterShopLogger.Severe("cannot load sign shop database");
 		}
 		if (config.signShopEnabled && config.signWEprotection) {
 			signShop.startProtecting();
@@ -151,7 +121,7 @@ public class BetterShop extends JavaPlugin {
 		chestShop = new BSChestShop(this);
 
 		if (config.chestShopEnabled && !chestShop.load()) {
-			BetterShopLogger.Severe("cannot load chest shop database", false);
+			BetterShopLogger.Severe("cannot load chest shop database");
 		}
 
 		chestShop.registerEvents();
@@ -195,12 +165,11 @@ public class BetterShop extends JavaPlugin {
 			buttonListener = null;
 
 			BetterShopLogger.CloseCommandLog();
-			BetterShopErrorTracker.messenger = null;
 
 			BetterShopLogger.Fine("disabled");
 
 		} catch (Throwable t) {
-			BetterShopLogger.Severe("error disabling..", t, false);
+			BetterShopLogger.Severe("error disabling..", t);
 		}
 	}
 
@@ -240,7 +209,7 @@ public class BetterShop extends JavaPlugin {
 				|| argStr.contains("buy") || argStr.contains("sell"))) {
 			BSutils.sendMessage(sender, ChatColor.RED
 					+ "BetterShop is missing a dependency. Check the console.");
-			BetterShopLogger.Severe("Missing: an economy plugin\nsupported: iConomy 4,5,6, BOSEcon 4,5, MultiCurrency, EssensialsEco", false);
+			BetterShopLogger.Severe("Missing: an economy plugin\nsupported: iConomy 4,5,6, BOSEcon 4,5, MultiCurrency, EssensialsEco");
 			return true;
 		}
 
@@ -262,9 +231,9 @@ public class BetterShop extends JavaPlugin {
 		} catch (WrappedCommandException e) {
 			Throwable t = e.getCause();
 			if(t instanceof SQLException){
-				BetterShopLogger.Severe("Problem with MySQL Connection", t, false);
+				BetterShopLogger.Severe("Problem with MySQL Connection", t);
 			} else if(t instanceof IOException){
-				BetterShopLogger.Severe("Problem with File Access", t, false);
+				BetterShopLogger.Severe("Problem with File Access", t);
 			} else {
 				BetterShopLogger.Severe("Error executing a command", t);
 			}
@@ -274,7 +243,7 @@ public class BetterShop extends JavaPlugin {
 			//BetterShopLogger.Warning(e);
 			BSutils.sendMessage(sender, ChatColor.RED + /*"Problem Executing Command!"*/ e.getMessage());
 		} catch (Exception e) {
-			BetterShopLogger.Severe("Unexpected Error executing a command", e, false);
+			BetterShopLogger.Severe("Unexpected Error executing a command", e);
 			BSutils.sendMessage(sender, ChatColor.RED + "Unexpected Error executing command");
 			return true;
 		} catch (Throwable t) {

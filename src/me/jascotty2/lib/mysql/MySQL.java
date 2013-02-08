@@ -17,7 +17,6 @@
  */
 package me.jascotty2.lib.mysql;
 
-import me.jascotty2.lib.net.InstallDependency;
 import java.io.File;
 //import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -188,20 +187,9 @@ public class MySQL {
         }
         // !f.exists()
 
-        // downloads jar to lib folder
-        if (!InstallDependency.install("lib" + File.separator + "mysql-connector-java-bin.jar",
-                "mysql-connector-java-5.1.15/mysql-connector-java-5.1.15-bin.jar",
-                "http://mirror.services.wisc.edu/mysql/Downloads/Connector-J/mysql-connector-java-5.1.15.zip",
-                "http://mirror.anigaiku.com/Dependencies/mysql-connector-java-bin.jar"
-                )) {
-
-            checkedDep = -1;
-            return false;
-        }
-
-        checkedDep = 1;
-        return true;
-
+		checkedDep = -1;
+		return false;
+			
     }
 
     /**

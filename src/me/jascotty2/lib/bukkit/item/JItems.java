@@ -454,6 +454,7 @@ public enum JItems {
 	FIREWORK_ROCKET("Firework Rocket", 401),
 	FIREWORK_STAR("Firework Star", 402),
 	ENCHANTED_BOOK("Enchanted Book", 403),
+	
 	// Records
 	GOLD_RECORD("13 Disk", 2256, 1), // Gold Record
 	GREEN_RECORD("Cat Disc", 2257, 1), // Green Record

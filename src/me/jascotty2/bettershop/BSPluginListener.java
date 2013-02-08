@@ -20,7 +20,6 @@ package me.jascotty2.bettershop;
 import me.jascotty2.bettershop.commands.HelpCommands;
 import me.jascotty2.bettershop.spout.SpoutKeyListener;
 import me.jascotty2.bettershop.spout.SpoutPopupListener;
-import me.jascotty2.bettershop.utils.BetterShopErrorTracker;
 import me.jascotty2.bettershop.utils.BetterShopLogger;
 
 import org.bukkit.event.server.PluginDisableEvent;
@@ -49,7 +48,6 @@ class BSPluginListener implements Listener {
 		PluginManager pm = plugin.getServer().getPluginManager();
 		checkVaultPermissions(pm.getPlugin("Vault"));
 		checkPermissions(pm.getPlugin("Permissions"));
-		checkMIM(pm.getPlugin("MinecraftIM"));
 		checkSpout(pm.getPlugin("Spout"));
 		checkHelp(pm.getPlugin("Help"));
 	}
@@ -60,8 +58,6 @@ class BSPluginListener implements Listener {
 			String pName = event.getPlugin().getDescription().getName();
 			if (pName.equals("Help")) {
 				checkHelp(event.getPlugin());
-			} else if (pName.equals("MinecraftIM")) {
-				checkMIM(event.getPlugin());
 			} else if (pName.equals("Permissions")) {
 				checkPermissions(event.getPlugin());
 			} else if (pName.equals("Spout")) {
@@ -69,13 +65,6 @@ class BSPluginListener implements Listener {
 			} else {
 				BetterShop.economy.onPluginEnable(event);
 			}
-		}
-	}
-
-	public final void checkMIM(Plugin p) {
-		if (BetterShopErrorTracker.messenger == null && p instanceof MinecraftIM) {
-			BetterShopErrorTracker.messenger = (MinecraftIM) p;
-			BetterShopLogger.Info("linked to MinecraftIM");
 		}
 	}
 
@@ -137,10 +126,7 @@ class BSPluginListener implements Listener {
 	public void onPluginDisable(PluginDisableEvent event) {
 		if (!event.getPlugin().isEnabled()) {
 			String pName = event.getPlugin().getDescription().getName();
-			if (pName.equals("MinecraftIM")) {
-				BetterShopErrorTracker.messenger = null;
-				BetterShopLogger.Info("MinecraftIM link disabled");
-			} else if (pName.equals("Help")) {
+			if (pName.equals("Help")) {
 				HelpCommands.helpPluginEnabled = false;
 			} else if (pName.equals("Permissions")) {
 				if (event.getPlugin() instanceof Permissions) {

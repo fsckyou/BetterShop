@@ -110,7 +110,7 @@ public class SpoutKeyListener implements Listener {
 			}
 //			else if(event.getKey() == Keyboard.KEY_P) { SpoutPopupDisplay.testScreen(event.getPlayer()); }
 		} catch (Exception e) {
-			BetterShopLogger.Severe("Unexpected error in KeyListener", e, !keyPressError);
+			BetterShopLogger.Severe("Unexpected error in KeyListener", e);
 			keyPressError = true;
 		}
 	}

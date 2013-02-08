@@ -82,7 +82,7 @@ public class BSPermissions {
 //			System.out.println("no permission");
 			return false;
 		} catch (Exception e) {
-			BetterShopLogger.Severe(e, false);
+			BetterShopLogger.Severe(e);
 		}
 		return node.length() < 16 // if invalid node, assume true
 				|| (!node.substring(0, 16).equalsIgnoreCase("BetterShop.admin") // only ops have access to .admin

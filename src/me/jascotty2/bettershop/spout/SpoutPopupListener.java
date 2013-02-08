@@ -26,10 +26,6 @@ import org.getspout.spoutapi.event.screen.TextFieldChangeEvent;
 
 public class SpoutPopupListener implements Listener {
 
-	private boolean buttonError = false,
-			sliderError = false,
-			textError = false;
-	
 	@EventHandler
 	public void onButtonClick(ButtonClickEvent event) {
 		try{
@@ -38,8 +34,7 @@ public class SpoutPopupListener implements Listener {
 				d.buttonPress(event.getButton());
 			}
 		} catch (Exception e) {
-			BetterShopLogger.Severe("Unexpected error in PopupListener", e, !buttonError);
-			buttonError = true;
+			BetterShopLogger.Severe("Unexpected error in PopupListener", e);
 		}
 	}
 
@@ -51,8 +46,7 @@ public class SpoutPopupListener implements Listener {
 				d.sliderChanged(event.getSlider());
 			}
 		} catch (Exception e) {
-			BetterShopLogger.Severe("Unexpected error in PopupListener", e, !sliderError);
-			sliderError = true;
+			BetterShopLogger.Severe("Unexpected error in PopupListener", e);
 		}
 	}
 	
@@ -64,8 +58,7 @@ public class SpoutPopupListener implements Listener {
 				d.textChanged(event);
 			}
 		} catch (Exception e) {
-			BetterShopLogger.Severe("Unexpected error in PopupListener", e, !textError);
-			textError = true;
+			BetterShopLogger.Severe("Unexpected error in PopupListener", e);
 		}
 	}
 } // end class SpoutPopupListener

@@ -314,7 +314,7 @@ public class BSConfig {
 				}
 			} catch (Exception ex) {
 				// this shouldn't be happening: send error report
-				BetterShopLogger.Log(Level.SEVERE, "Unexpected Error during config integrety check", ex, true);
+				BetterShopLogger.Log(Level.SEVERE, "Unexpected Error during config integrety check", ex);
 			}
 
 			// supporting these older nodes for now
@@ -643,7 +643,7 @@ public class BSConfig {
 					}
 				}
 			} else {
-				BetterShopLogger.Log(Level.SEVERE, String.format("strings section missing from configuration file %s", configname), false);
+				BetterShopLogger.Log(Level.SEVERE, String.format("strings section missing from configuration file %s", configname));
 			}
 			for (String k : stringMap.keySet()) {
 				stringMap.put(k, stringMap.get(k).
@@ -654,7 +654,7 @@ public class BSConfig {
 			}
 
 		} catch (Exception ex) {
-			BetterShopLogger.Log(Level.SEVERE, "Error parsing configuration file", ex, false);
+			BetterShopLogger.Log(Level.SEVERE, "Error parsing configuration file", ex);
 			return false;
 		}
 		return true;
@@ -702,7 +702,7 @@ public class BSConfig {
 				res.close();
 			}
 		} catch (IOException ex) {
-			BetterShopLogger.Log(Level.SEVERE, "Failed creating new file (" + fname + ")", ex, false);
+			BetterShopLogger.Log(Level.SEVERE, "Failed creating new file (" + fname + ")", ex);
 
 
 		}
@@ -757,7 +757,7 @@ public class BSConfig {
 				}
 			}
 		} catch (Exception e) {
-			BetterShopLogger.Log(Level.SEVERE, "Error Extracting Currency Name", e, false);
+			BetterShopLogger.Log(Level.SEVERE, "Error Extracting Currency Name", e);
 
 
 		}

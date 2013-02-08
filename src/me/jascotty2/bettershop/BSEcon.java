@@ -157,7 +157,7 @@ public class BSEcon implements Listener {
 		} catch (Exception e) {
 			if (!_pastBalanceErr) {
 				BetterShopLogger.Severe("Error looking up player balance \n"
-						+ "(this error will only show once)", e, false);
+						+ "(this error will only show once)", e);
 				_pastBalanceErr = true;
 			}
 		}
@@ -302,7 +302,8 @@ public class BSEcon implements Listener {
 
 	public static boolean credit(Player player, double amount) {
 		if (amount <= 0) {
-			return amount == 0 || debit(player, -amount);
+			// changed: don't attempt to debit if credit amount is negative
+			return amount == 0;// || debit(player, -amount);
 		}
 		if (BSEcon.active()) {
 			try {
@@ -310,10 +311,10 @@ public class BSEcon implements Listener {
 					return true;
 				}
 			} catch (Exception ex) {
-				BetterShopLogger.Severe("Failed to credit player", ex, false);
+				BetterShopLogger.Severe("Failed to credit player", ex);
 				return true;
 			}
-			BetterShopLogger.Severe("Failed to credit player", false);
+			BetterShopLogger.Severe("Failed to credit player");
 			// something seems to be wrong with iConomy: reload it
 //			BetterShopLogger.Log(Level.SEVERE, "Failed to credit player: attempting iConomy reload", false);
 //			if (reloadIConomy(player.getServer())) {
@@ -326,7 +327,7 @@ public class BSEcon implements Listener {
 //			}
 //			BetterShopLogger.Log(Level.SEVERE, "iConomy reload failed to resolve issue.", false);
 		} else {
-			BetterShopLogger.Severe("Failed to credit player: no economy plugin", false);
+			BetterShopLogger.Severe("Failed to credit player: no economy plugin");
 			return false;
 		}
 		return true;
@@ -334,7 +335,8 @@ public class BSEcon implements Listener {
 
 	public static boolean debit(Player player, double amount) {
 		if (amount <= 0) {
-			return amount == 0 || credit(player, -amount);
+			// changed: don't attempt to credit if debit amount is negative
+			return amount == 0;// || credit(player, -amount);
 		} else if (getBalance(player) < amount) {
 			return false;
 		}
@@ -344,10 +346,10 @@ public class BSEcon implements Listener {
 					return true;
 				}
 			} catch (Exception ex) {
-				BetterShopLogger.Severe("Failed to debit player", ex, false);
+				BetterShopLogger.Severe("Failed to debit player", ex);
 				return true;
 			}
-			BetterShopLogger.Severe("Failed to debit player", false);
+			BetterShopLogger.Severe("Failed to debit player");
 
 			// something seems to be wrong with iConomy: reload it
 //			BetterShopLogger.Log(Level.SEVERE, "Failed to debit player: attempting iConomy reload", false);
@@ -361,7 +363,7 @@ public class BSEcon implements Listener {
 //			}
 //			BetterShopLogger.Log(Level.SEVERE, "iConomy reload failed to resolve issue.", false);
 		} else {
-			BetterShopLogger.Severe("Failed to debit player: no economy plugin", false);
+			BetterShopLogger.Severe("Failed to debit player: no economy plugin");
 			return false;
 		}
 		return true;
@@ -402,7 +404,7 @@ public class BSEcon implements Listener {
 					+ (amt > 1 || amt < 1 ? BetterShop.getSettings().pluralCurrency
 					: BetterShop.getSettings().defaultCurrency);
 		} catch (Exception ex) {
-			BetterShopLogger.Warning("Error Formatting Currency", ex, false);
+			BetterShopLogger.Warning("Error Formatting Currency", ex);
 		}
 		return String.format("%.2f", amt);
 	}
