@@ -102,11 +102,11 @@ public class MarketItemDetail extends GenericContainer {
 		btnUp20.setText("+20").setX(btnUp5.getX() + 22).setY(btnUp.getY()).setWidth(22).setHeight(9);
 		btnDown20.setText("-20").setX(btnDown5.getX() + 22).setY(btnDown.getY()).setWidth(22).setHeight(9);
 
-		btnBuy.setX(120).setY(height - 30).setWidth(110).setHeight(28);
-		btnSell.setX(245).setY(height - 30).setWidth(110).setHeight(28);
+		btnBuy.setText("").setX(120).setY(height - 30).setWidth(110).setHeight(28);
+		btnSell.setText("").setX(245).setY(height - 30).setWidth(110).setHeight(28);
 
-		lblBuyBtn.setX(btnBuy.getX() + 5).setY(btnBuy.getY() + 5).setWidth(btnBuy.getWidth() - 10).setHeight(btnBuy.getHeight() - 10).setPriority(RenderPriority.Low);
-		lblSellBtn.setX(btnSell.getX() + 5).setY(btnSell.getY() + 5).setWidth(btnSell.getWidth() - 10).setHeight(btnSell.getHeight() - 10).setPriority(RenderPriority.Lowest);
+		lblBuyBtn.setText("(Buy)").setX(btnBuy.getX() + 5).setY(btnBuy.getY() + 5).setWidth(btnBuy.getWidth() - 10).setHeight(btnBuy.getHeight() - 10).setPriority(RenderPriority.Low);
+		lblSellBtn.setText("(Sell)").setX(btnSell.getX() + 5).setY(btnSell.getY() + 5).setWidth(btnSell.getWidth() - 10).setHeight(btnSell.getHeight() - 10).setPriority(RenderPriority.Lowest);
 
 		setVisible(false);
 
