@@ -1,6 +1,6 @@
 name: BetterShop
 main: me.jascotty2.bettershop.BetterShop
-version: 2.1.6.1
+version: 2.1.6.2
 website: http://github.com/BetterShop/BetterShop
 author: jascotty2
 softdepend: [Spout, Vault]
