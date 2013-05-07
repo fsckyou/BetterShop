@@ -188,7 +188,7 @@ public enum JItems {
 	STONE_STAIRS("Stone Stairs", 109, "98@6=4"),
 	MYCELIUM("Mycelium", 110, false),
 	LILLY_PAD("Lilly Pad", 111),
-	NETHER_BRICK("Nether Brick", 112),
+	NETHER_BRICK_BLOCK("Nether Brick Block", 112),
 	NETHER_BRICK_FENCE("Nether Brick Fence", 113, "112@6=6"),
 	NETHER_BRICK_STAIRS("Nether Brick Stairs", 114, "112@6=6"),
 	NETHER_WART_Block("Nether Wart Block", 115, false),
@@ -224,6 +224,24 @@ public enum JItems {
 	HUMAN_HEAD_BLOCK("Human Head Block", 144, (short) 3, false),
 	CREEPER_HEAD_BLOCK("Creeper Head Block", 144, (short) 4, false),
 	ANVIL("Anvil", 145),
+	// 1.5.1 - 2
+	TRAPPED_CHEST("Trapped Chest", 146),
+	GOLD_PRESSURE_PLATE("Gold Pressure Plate", 147),
+	IRON_PRESSURE_PLATE("Iron Pressure Plate", 148),
+	DAYLIGHT_SENSOR("Daylight Sensor", 151),
+	REDSTONE_BLOCK("Redstone Block", 152),
+	NETHER_QUARTZ_ORE("Nether Quartz Ore", 153),
+	HOPPER("Hopper",  154),
+	QUARTZ_BLOCK("Quartz Block", 155),
+	QUARTZ_STAIRS("Quartz Stairs", 156),
+	ACTIVATOR_RAIL("Activator Rail", 157),
+	DROPPER("Dropper", 158),
+	// 1.6
+//	HAY_BLOCK("Hay Block", 170),
+//	CARPET("Carpet", 171),
+//	HARDENED_CLAY("Hardened Clay", 172),
+//	COAL_BLOCK("Coal Block", 173),
+	
 	// Items
 	IRON_SPADE("Iron Shovel", 256, "280@2+265", (short) 251),
 	IRON_PICKAXE("Iron Pickaxe", 257, "280@2+265@3", (short) 251),
@@ -455,6 +473,18 @@ public enum JItems {
 	FIREWORK_ROCKET("Firework Rocket", 401),
 	FIREWORK_STAR("Firework Star", 402),
 	ENCHANTED_BOOK("Enchanted Book", 403),
+	// 1.5.1 - 2
+	REDSTONE_COMPARATOR("Redstone Comparator", 404),
+	NETHER_BRICK("Nether Brick", 405),
+	NETHER_QUARTZ("Nether Quartz", 406),
+	TNT_MINECART("TNT Minecart", 407),
+	HOPPER_MINECART("Hopper Minecart", 408),
+	// 1.6
+//	IRON_HORSE_ARMOR("Iron Horse Armor", 417),
+//	GOLD_HORSE_ARMOR("Gold Horse Armor", 418),
+//	DIAMOND_HORSE_ARMOR("Diamond Horse Armor", 419),
+//	LEAD("Lead", 420),
+//	NAME_TAG("Name Tag", 421),
 	
 	// Records
 	GOLD_RECORD("13 Disk", 2256, 1), // Gold Record
