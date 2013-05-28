@@ -1,0 +1,189 @@
+id,subdata,buyprice,sellprice,name
+1,0,0.2,0.1,Stone
+3,0,0.05,0.01,Dirt
+4,0,0.1,0.05,Cobblestone
+5,0,0.3,0.2,Wood
+6,0,0.2,0.1,Sapling
+12,0,0.3,0.2,Sand
+13,0,0.3,0.2,Gravel
+17,0,1,0.8,Log
+20,0,0.5,0.3,Glass
+23,0,5.0,2.5,Dispenser
+24,0,0.5,0.3,Sandstone
+25,0,5.0,2.5,NoteBlock
+35,0,0.5,0.3,WhiteWool
+35,1,0.5,0.3,OrangeWool
+35,2,0.5,0.3,MagentaWool
+35,3,0.5,0.3,LightBlueWool
+35,4,0.5,0.3,YellowWool
+35,5,0.5,0.3,LightGreenWool
+35,6,0.5,0.3,PinkWool
+35,7,0.5,0.3,DarkGrayWool
+35,8,0.5,0.3,LightGrayWool
+35,9,0.5,0.3,CyanWool
+35,10,0.5,0.3,PurpleWool
+35,11,0.5,0.3,BlueWool
+35,12,0.5,0.3,BrownWool
+35,13,0.5,0.3,DarkGreenWool
+35,14,0.5,0.3,RedWool
+35,15,0.5,0.3,BlackWool
+37,0,0.3,0.2,YellowFlower
+38,0,0.3,0.2,RedRose
+39,0,0.3,0.2,BrownMushroom
+40,0,0.3,0.2,RedMushroom
+45,0,1.0,0.8,BrickBlock
+46,0,5.0,2.5,TNT
+47,0,2.0,1.0,Bookshelf
+50,0,0.5,0.3,Torch
+52,0,5000000.0,0.0,MonsterSpawner
+54,0,2.0,1.0,Chest
+65,0,1.0,0.5,Ladder
+66,0,3.0,2.0,Rails
+81,0,1.0,0.5,Cactus
+84,0,10.0,5.0,Jukebox
+86,0,4.0,2.0,Pumpkin
+87,0,0.5,0.1,Netherrack
+88,0,1.0,0.2,Soulsand
+89,0,3.0,1.0,Glowstone
+91,0,5.0,3.0,JackOLantern
+260,0,2.0,1.0,Apple
+261,0,3.0,2.0,Bow
+262,0,1.0,0.8,Arrow
+263,0,1.0,0.8,Coal
+264,0,20.0,10.0,Diamond
+265,0,3.0,2.0,IronIngot
+266,0,3.0,2.0,GoldIngot
+287,0,1.0,0.5,String
+288,0,0.5,0.3,Feather
+289,0,2.0,1.0,Gunpowder
+295,0,0.5,0.3,Seeds
+296,0,0.8,0.5,Wheat
+297,0,2.0,1.0,Bread
+318,0,0.5,0.3,Flint
+319,0,1.0,0.5,RawPorkchop
+320,0,2.0,1.0,CookedPorkchop
+321,0,1.0,1.0,Painting
+322,0,30.0,20.0,GoldenApple
+325,0,3.0,1.0,Bucket
+327,0,5.0,2.0,LavaBucket
+331,0,0.5,0.2,Redstone
+336,0,0.8,0.5,ClayBrick
+337,0,0.3,0.2,ClayBalls
+338,0,0.5,0.3,SugarCane
+341,0,1.0,0.5,Slimeball
+351,0,1.0,0.5,BlackDye
+351,1,1.0,0.5,RedDye
+351,2,1.0,0.5,GreenDye
+351,3,1.0,0.5,CocoaBean
+351,4,10.0,5.0,LapisLazuli
+351,5,1.0,0.5,PurpleDye
+351,6,1.0,0.5,CyanDye
+351,7,1.0,0.5,LightGrayDye
+351,8,1.0,0.5,GrayDye
+351,9,1.0,0.5,PinkDye
+351,10,1.0,0.5,LimeDye
+351,11,1.0,0.5,YellowDye
+351,12,1.0,0.5,LightBlueDye
+351,13,1.0,0.5,MagentaDye
+351,14,1.0,0.5,OrangeDye
+351,15,1.0,0.5,BoneMeal
+ 
+267,0,10.0,8.0,ironsword
+268,0,2.0,1.0,woodensword
+269,0,2.0,1.0,woodenshovel
+270,0,2.0,1.0,woodenpickaxe
+271,0,2.0,1.0,woodenaxe
+272,0,2.0,1.0,stonesword
+273,0,2.0,1.0,stoneshovel
+274,0,2.0,1.0,stonepickaxe
+275,0,2.0,1.0,stoneaxe
+278,0,5.0,5.0,diamondpickaxe
+280,0,1.0,0.0,stick
+281,0,2.0,1.0,bowl
+282,0,3.0,2.0,mushroomsoup
+257,0,7.0,3.0,Iron Pickaxe
+258,0,7.0,3.0,Iron Axe
+283,0,7.0,3.0,goldsword
+284,0,7.0,3.0,goldshovel
+285,0,7.0,3.0,goldpickaxe
+286,0,7.0,3.0,goldaxe
+290,0,2.0,0.0,woodenhoe
+291,0,2.0,1.0,stonehoe
+292,0,7.0,3.0,ironhoe
+293,0,30.0,10.0,diamondhoe
+294,0,7.0,3.0,goldhoe
+298,0,3.0,1.0,leatherhelmet
+299,0,3.0,1.0,leatherchestplate
+300,0,3.0,1.0,leatherleggings
+301,0,3.0,1.0,leatherboots
+302,0,10.0,5.0,chainmailhelmet
+303,0,10.0,5.0,chainmailchestplate
+304,0,10.0,5.0,chainmailleggings
+305,0,10.0,5.0,chainmailboots
+306,0,20.0,10.0,ironhelmet
+307,0,20.0,10.0,ironchestplate
+308,0,20.0,10.0,ironleggings
+309,0,20.0,10.0,ironboots
+310,0,80.0,30.0,diamondhelmet
+311,0,80.0,30.0,diamondchestplate
+312,0,80.0,30.0,diamondleggings
+313,0,80.0,30.0,diamondboots
+314,0,20.0,10.0,goldhelmet
+315,0,20.0,10.0,goldchestplate
+316,0,20.0,10.0,goldleggings
+317,0,20.0,10.0,goldboots
+323,0,1.0,0.5,sign
+328,0,5.0,3.0,minecart
+329,0,5.0,3.0,saddle
+332,0,0.5,0.2,snowball
+333,0,2.0,1.0,boat
+18,,0.5,0.3,Leaves
+22,,70,50,Lapis Lazuli Block
+25,,5,2.5,Note Block
+27,,3.0,1.0,Powered rail
+28,,3.0,1.0,Detector rail
+29,,3.0,2.0,Sticky Piston
+30,,3.0,1.0,Web
+33,,3.0,2.0,Piston
+41,,70,50,Gold Block
+42,,70,50,Iron Block
+44,,0.5,0.2,Stone Slab
+44,1,0.5,0.3,Sandstone Slab
+44,2,0.5,0.2,Wooden Slab
+44,3,0.5,0.2,Cobble Slab
+48,,10.0,5.0,Mossy Cobblestone
+49,,30.0,10.0,Obsidian
+53,,0.8,0.5,Wooden Stairs
+58,,2.0,1.0,Workbench
+61,,2.0,1.0,Furnace
+67,,0.8,0.5,Cobblestone Stairs
+69,,1.0,0.3,Lever
+70,,1.0,0.5,Stone Pressure Plate
+72,,1.0,0.5,Wooden Pressure Plate
+76,,1.0,0.5,Redstone Torch
+77,,0.3,0.2,Stone Button
+85,,1.0,0.5,Fence
+96,,1.0,0.5,Trapdoor
+259,,3.0,2.0,Flint and Steel
+280,,0.3,0.2,Stick
+324,,1.0,0.8,Wooden Door
+326,,3.0,2.0,Water Bucket
+330,,10.0,5.0,Iron Door
+334,,1.0,0.5,Leather
+335,,3.0,2.0,Milk Bucket
+339,,0.5,0.3,Paper
+340,,2.0,1.0,Book
+345,,5.0,3.0,Compass
+346,,3.0,2.0,Fishing Rod
+347,,5.0,3.0,Watch
+348,,1.0,0.5,Glowstone Dust
+349,,1.0,0.5,Raw Fish
+350,,2.0,1.0,Cooked Fish
+352,,1.0,0.5,Bone
+353,,1.0,0.5,Sugar
+354,,2.0,1.0,Cake
+355,,2.0,1.0,Bed
+356,,3.0,2.0,Redstone Repeater
+357,,2.0,1.0,Cookie
+358,,5.0,3.0,Map
+359,,3.0,2.0,Shears
