@@ -592,14 +592,13 @@ public class ItemStackManip {
 	 * @param minecraftItemStack
 	 * @return
 	 */
-	public static ItemStack[] copy(net.minecraft.server.v1_5_R3.ItemStack[] minecraftItemStack) {
+	public static ItemStack[] copy(net.minecraft.server.v1_6_R1.ItemStack[] minecraftItemStack) {
 		ItemStack[] invCpy = new ItemStack[minecraftItemStack.length];
 		for (int i = 0; i < minecraftItemStack.length; ++i) {
 			invCpy[i] = minecraftItemStack[i] == null ? null
 					: new ItemStack(minecraftItemStack[i].getItem().id,
 					minecraftItemStack[i].count,
-					(short) minecraftItemStack[i].getData(),
-					(byte) minecraftItemStack[i].getData());
+					(short) minecraftItemStack[i].getData());
 		}
 		return invCpy;
 	}

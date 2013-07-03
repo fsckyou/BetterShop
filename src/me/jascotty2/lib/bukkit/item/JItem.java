@@ -423,13 +423,13 @@ public class JItem {
 
 	public ItemStack toItemStack() {
 		return item == null
-				? (itemDat <= Byte.MAX_VALUE ? new ItemStack(itemId, 1, (short) 0, (byte) itemDat) : new ItemStack(itemId, 1, itemDat))
+				? (itemDat <= Byte.MAX_VALUE ? new ItemStack(itemId, 1, (short) itemDat) : new ItemStack(itemId, 1, itemDat))
 				: (isEntity() ? null : item.toItemStack());
 	}
 
 	public ItemStack toItemStack(int amount) {
 		return item == null
-				? (itemDat <= Byte.MAX_VALUE ? new ItemStack(itemId, amount, (short) 0, (byte) itemDat) : new ItemStack(itemId, amount, itemDat))
+				? (itemDat <= Byte.MAX_VALUE ? new ItemStack(itemId, amount, (short) itemDat) : new ItemStack(itemId, amount, itemDat))
 				: (isEntity() ? null : item.toItemStack(amount));
 	}
 

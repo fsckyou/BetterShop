@@ -237,10 +237,41 @@ public enum JItems {
 	ACTIVATOR_RAIL("Activator Rail", 157),
 	DROPPER("Dropper", 158),
 	// 1.6
-//	HAY_BLOCK("Hay Block", 170),
-//	CARPET("Carpet", 171),
-//	HARDENED_CLAY("Hardened Clay", 172),
-//	COAL_BLOCK("Coal Block", 173),
+	STAINED_CLAY("Stained Clay", 159, (short) 0),
+	ORANGE_CLAY("Orange Clay", 159, (short) 1),
+	MAGENTA_CLAY("Magenta Clay", 159, (short) 2),
+	LIGHT_BLUE_CLAY("Light Blue Clay", 159, (short) 3),
+	YELLOW_CLAY("Yellow Clay", 159, (short) 4),
+	LIGHT_GREEN_CLAY("Light Green Clay", 159, (short) 5),
+	PINK_CLAY("Pink Clay", 159, (short) 6),
+	DARK_GRAY_CLAY("Dark Gray Clay", 159, (short) 7),
+	LIGHT_GRAY_CLAY("Light Gray Clay", 159, (short) 8),
+	CYAN_CLAY("Cyan Clay", 159, (short) 9),
+	PURPLE_CLAY("Purple Clay", 159, (short) 10),
+	BLUE_CLAY("Blue Clay", 159, (short) 11),
+	BROWN_CLAY("Brown Clay", 159, (short) 12),
+	DARK_GREEN_CLAY("Dark Green Clay", 159, (short) 13),
+	RED_CLAY("Red Clay", 159, (short) 14),
+	BLACK_CLAY("Black Clay", 159, (short) 15),
+	HAY_BLOCK("Hay Block", 170),
+	CARPET("Carpet", 171, (short) 0),
+	ORANGE_CARPET("Orange Carpet", 171, (short) 1),
+	MAGENTA_CARPET("Magenta Carpet", 171, (short) 2),
+	LIGHT_BLUE_CARPET("Light Blue Carpet", 171, (short) 3),
+	YELLOW_CARPET("Yellow Carpet", 171, (short) 4),
+	LIGHT_GREEN_CARPET("Light Green Carpet", 171, (short) 5),
+	PINK_CARPET("Pink Carpet", 171, (short) 6),
+	DARK_GRAY_CARPET("Dark Gray Carpet", 171, (short) 7),
+	LIGHT_GRAY_CARPET("Light Gray Carpet", 171, (short) 8),
+	CYAN_CARPET("Cyan Carpet", 171, (short) 9),
+	PURPLE_CARPET("Purple Carpet", 171, (short) 10),
+	BLUE_CARPET("Blue Carpet", 171, (short) 11),
+	BROWN_CARPET("Brown Carpet", 171, (short) 12),
+	DARK_GREEN_CARPET("Dark Green Carpet", 171, (short) 13),
+	RED_CARPET("Red Carpet", 171, (short) 14),
+	BLACK_CARPET("Black Carpet", 171, (short) 15),
+	HARDENED_CLAY("Hardened Clay", 172),
+	COAL_BLOCK("Coal Block", 173),
 	
 	// Items
 	IRON_SPADE("Iron Shovel", 256, "280@2+265", (short) 251),
@@ -480,11 +511,11 @@ public enum JItems {
 	TNT_MINECART("TNT Minecart", 407),
 	HOPPER_MINECART("Hopper Minecart", 408),
 	// 1.6
-//	IRON_HORSE_ARMOR("Iron Horse Armor", 417),
-//	GOLD_HORSE_ARMOR("Gold Horse Armor", 418),
-//	DIAMOND_HORSE_ARMOR("Diamond Horse Armor", 419),
-//	LEAD("Lead", 420),
-//	NAME_TAG("Name Tag", 421),
+	IRON_HORSE_ARMOR("Iron Horse Armor", 417),
+	GOLD_HORSE_ARMOR("Gold Horse Armor", 418),
+	DIAMOND_HORSE_ARMOR("Diamond Horse Armor", 419),
+	LEAD("Lead", 420),
+	NAME_TAG("Name Tag", 421),
 	
 	// Records
 	GOLD_RECORD("13 Disk", 2256, 1), // Gold Record
@@ -828,7 +859,7 @@ public enum JItems {
 		//return isEntity() || itemId < 0 ? null : new ItemStack(itemId, 1, (short) 0, itemData);
 		return isEntity() || itemId < 0 ? null : 
 				(itemData <= Byte.MAX_VALUE ? 
-				new ItemStack(itemId, 1, (short) 0, (byte) itemData) 
+				new ItemStack(itemId, 1, (short) itemData) 
 				: new ItemStack(itemId, 1, itemData));
 	}
 
@@ -836,7 +867,7 @@ public enum JItems {
 		//return isEntity() || itemId < 0 ? null : new ItemStack(itemId, amount, (short) 0, itemData);
 		return isEntity() || itemId < 0 ? null : 
 				(itemData <= Byte.MAX_VALUE ? 
-				new ItemStack(itemId, amount, (short) 0, (byte) itemData) 
+				new ItemStack(itemId, amount, (short) itemData) 
 				: new ItemStack(itemId, amount, itemData));
 	}
 
